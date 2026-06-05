@@ -46,24 +46,33 @@ class ApiClient {
     return (body['items'] as List<dynamic>).map((e) => e as String).toList();
   }
 
+  /// Header carrying the pseudo-anonymous device token (a bearer credential).
+  static const String deviceTokenHeader = 'X-Device-Token';
+
   Future<SearchResponse> search(
     List<String> items, {
     double? latitude,
     double? longitude,
     int? radiusKm,
     int? days,
+    String? deviceToken,
   }) async {
     final uri = Uri.parse('$_baseUrl/api/v1/search');
     final payload = <String, dynamic>{
       'items': items,
-      if (latitude != null) 'latitude': latitude,
-      if (longitude != null) 'longitude': longitude,
-      if (radiusKm != null) 'radius_km': radiusKm,
-      if (days != null) 'days': days,
+      'latitude': ?latitude,
+      'longitude': ?longitude,
+      'radius_km': ?radiusKm,
+      'days': ?days,
     };
     final resp = await _client.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        // Sent only when the user opted into cloud sync, so consented devices
+        // get this list saved to their server-side history.
+        deviceTokenHeader: ?deviceToken,
+      },
       body: jsonEncode(payload),
     );
     if (resp.statusCode == 429) {
@@ -74,5 +83,36 @@ class ApiClient {
     }
     final body = jsonDecode(utf8.decode(resp.bodyBytes)) as Map<String, dynamic>;
     return SearchResponse.fromJson(body);
+  }
+
+  // --- Pseudo-anonymous device (LGPD consent, login-free) -----------------
+
+  /// Records this device's consent so the server may store its data (the basis
+  /// for cloud-saved lists and, later, discount alerts).
+  Future<void> registerConsent(String deviceToken, String policyVersion) async {
+    final uri = Uri.parse('$_baseUrl/api/v1/device/consent');
+    final resp = await _client.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        deviceTokenHeader: deviceToken,
+      },
+      body: jsonEncode({'accepted': true, 'policy_version': policyVersion}),
+    );
+    if (resp.statusCode != 200) {
+      throw ApiException('Não foi possível salvar sua preferência.');
+    }
+  }
+
+  /// LGPD erasure: deletes everything the server holds for this device.
+  Future<void> deleteDevice(String deviceToken) async {
+    final uri = Uri.parse('$_baseUrl/api/v1/device/me');
+    final resp = await _client.delete(
+      uri,
+      headers: {deviceTokenHeader: deviceToken},
+    );
+    if (resp.statusCode != 200) {
+      throw ApiException('Não foi possível apagar seus dados.');
+    }
   }
 }

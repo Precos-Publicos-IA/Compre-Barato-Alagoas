@@ -3,6 +3,7 @@
 //   flutter test integration_test/app_test.dart \
 //     --dart-define=API_BASE_URL=https://alagoas.precospublicos.ia.br -d <device-id>
 import 'package:compre_barato_alagoas/main.dart' as app;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -55,5 +56,32 @@ void main() {
     await tester.tap(find.byTooltip('Remover').first);
     await tester.pumpAndSettle();
     expect(find.text('Listas recentes'), findsOneWidget);
+  });
+
+  testWidgets('cloud sync: consent opt-in then LGPD erasure (live backend)',
+      (tester) async {
+    app.main();
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    // Open the cloud-sync sheet from the app-bar action.
+    await tester.tap(find.byTooltip('Salvar listas na nuvem'));
+    await tester.pumpAndSettle();
+    expect(find.text('Salvar minhas listas na nuvem'), findsOneWidget);
+
+    // Opt in → registers consent + a device record on the live server.
+    await tester.tap(find.byType(Switch));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+
+    // The privacy policy is reachable from here.
+    expect(find.text('Política de Privacidade e Termos'), findsOneWidget);
+
+    // Opt out → LGPD erasure of everything stored for this device.
+    await tester.tap(find.byType(Switch));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+
+    // Close the sheet; the app stays usable.
+    await tester.tapAt(const Offset(20, 20));
+    await tester.pumpAndSettle();
+    expect(find.text('VER PREÇOS'), findsOneWidget);
   });
 }

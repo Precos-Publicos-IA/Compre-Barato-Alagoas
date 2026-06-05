@@ -21,4 +21,8 @@ class AppConfig {
   /// Path prefix for shareable search links: `/abrir/<uuid>`. Scoped so it
   /// doesn't hijack the whole domain for the installed app (App Links).
   static const String shareLinkPath = '/abrir';
+
+  /// Privacy policy / terms version recorded with each LGPD consent. Bump in
+  /// lockstep with the backend `POLICY_VERSION` when the policy text changes.
+  static const String policyVersion = '2026-06-05';
 }

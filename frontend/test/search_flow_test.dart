@@ -31,6 +31,7 @@ class FakeApiClient extends ApiClient {
     double? longitude,
     int? radiusKm,
     int? days,
+    String? deviceToken,
   }) async {
     StoreResult store(String cnpj, String name, double total) => StoreResult(
           cnpj: cnpj,

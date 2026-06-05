@@ -1,9 +1,9 @@
 """FastAPI application entrypoint.
 
 Wires the pluggable clients (SEFAZ, LLM) and the cache into ``app.state`` at startup so
-they're shared across requests, and exposes the public API. Everything degrades
-gracefully: no token -> mock SEFAZ, no key -> mock LLM, no Redis -> in-memory cache,
-no Sentry DSN -> Sentry disabled.
+they're shared across requests, and exposes the public API. Externals degrade
+gracefully: no token -> mock SEFAZ, no key -> mock LLM, no Sentry DSN -> disabled.
+Redis is the one hard dependency: startup fails fast if it's unreachable.
 """
 
 from __future__ import annotations
@@ -39,6 +39,7 @@ async def lifespan(app: FastAPI):
 
     app.state.settings = settings
     app.state.cache = Cache(settings.redis_url, settings.cache_ttl_seconds)
+    await app.state.cache.ping()  # fail fast: Redis is mandatory
     app.state.sefaz = build_sefaz_client(settings)
     app.state.llm = build_llm_client(settings)
     try:
@@ -63,11 +64,12 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    from .api.routes import health, search, suggestions
+    from .api.routes import device, health, search, suggestions
 
     app.include_router(health.router)
     app.include_router(search.router)
     app.include_router(suggestions.router)
+    app.include_router(device.router)
     return app
 
 

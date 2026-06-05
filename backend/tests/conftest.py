@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import fakeredis.aioredis
 import pytest
 
 from app.services.sefaz.models import (
@@ -47,3 +48,14 @@ def make_registro(
 @pytest.fixture
 def registro_factory():
     return make_registro
+
+
+@pytest.fixture(autouse=True)
+def _fake_redis(monkeypatch):
+    """Back every Cache with an in-process fakeredis so tests hit the real Redis
+    code paths without a server. One instance per test → isolated state."""
+    fake = fakeredis.aioredis.FakeRedis(decode_responses=True)
+    import redis.asyncio as aioredis
+
+    monkeypatch.setattr(aioredis, "from_url", lambda *a, **k: fake)
+    yield
