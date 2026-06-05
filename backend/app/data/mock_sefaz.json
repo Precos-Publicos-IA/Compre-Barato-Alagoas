@@ -1,0 +1,103 @@
+{
+  "_comment": "Synthetic NFC-e-style catalog for development (no real SEFAZ data). Stores are around Maceió; price_factor scales each store's prices; categories control which product families a store sells (so a pharmacy doesn't sell rice). The mock client expands one (product x store) row per match where product.category is in store.categories and the store is within radius.",
+  "stores": [
+    {
+      "cnpj": "12345678000101",
+      "razaoSocial": "SUPERMERCADO PAJUCARA LTDA",
+      "nomeFantasia": "Super Pajucara",
+      "telefone": "(82) 3333-1001",
+      "price_factor": 1.0,
+      "categories": ["mercearia", "bebidas", "higiene", "hortifruti", "frios"],
+      "endereco": {"nomeLogradouro": "AV DR ANTONIO GOUVEIA", "numeroImovel": "100", "bairro": "Pajucara", "cep": "57030000", "codigoIBGE": "2704302", "municipio": "MACEIO", "latitude": -9.6660, "longitude": -35.7045}
+    },
+    {
+      "cnpj": "12345678000202",
+      "razaoSocial": "MERCADO PONTA VERDE LTDA",
+      "nomeFantasia": "Mercado Ponta Verde",
+      "telefone": "(82) 3333-1002",
+      "price_factor": 1.08,
+      "categories": ["mercearia", "bebidas", "higiene", "hortifruti", "frios"],
+      "endereco": {"nomeLogradouro": "AV ALVARO OTACILIO", "numeroImovel": "200", "bairro": "Ponta Verde", "cep": "57035000", "codigoIBGE": "2704302", "municipio": "MACEIO", "latitude": -9.6630, "longitude": -35.7010}
+    },
+    {
+      "cnpj": "12345678000303",
+      "razaoSocial": "ATACADO JATIUCA LTDA",
+      "nomeFantasia": "Atacado Jatiuca",
+      "telefone": "(82) 3333-1003",
+      "price_factor": 0.9,
+      "categories": ["mercearia", "bebidas", "higiene", "hortifruti", "frios"],
+      "endereco": {"nomeLogradouro": "AV MENINO MARCELO", "numeroImovel": "300", "bairro": "Jatiuca", "cep": "57036000", "codigoIBGE": "2704302", "municipio": "MACEIO", "latitude": -9.6500, "longitude": -35.7000}
+    },
+    {
+      "cnpj": "12345678000404",
+      "razaoSocial": "SUPERMERCADO FAROL LTDA",
+      "nomeFantasia": "Super Farol",
+      "telefone": "(82) 3333-1004",
+      "price_factor": 1.02,
+      "categories": ["mercearia", "bebidas", "higiene", "hortifruti", "frios"],
+      "endereco": {"nomeLogradouro": "AV FERNANDES LIMA", "numeroImovel": "1500", "bairro": "Farol", "cep": "57055000", "codigoIBGE": "2704302", "municipio": "MACEIO", "latitude": -9.6400, "longitude": -35.7350}
+    },
+    {
+      "cnpj": "12345678000505",
+      "razaoSocial": "ATACAREJO TABULEIRO LTDA",
+      "nomeFantasia": "Atacarejo Tabuleiro",
+      "telefone": "(82) 3333-1005",
+      "price_factor": 0.86,
+      "categories": ["mercearia", "bebidas", "higiene", "hortifruti", "frios"],
+      "endereco": {"nomeLogradouro": "AV DURVAL DE GOES MONTEIRO", "numeroImovel": "5000", "bairro": "Tabuleiro do Martins", "cep": "57081000", "codigoIBGE": "2704302", "municipio": "MACEIO", "latitude": -9.5870, "longitude": -35.7560}
+    },
+    {
+      "cnpj": "12345678000606",
+      "razaoSocial": "MERCADO BENEDITO BENTES LTDA",
+      "nomeFantasia": "Mercado Benedito",
+      "telefone": "(82) 3333-1006",
+      "price_factor": 0.95,
+      "categories": ["mercearia", "bebidas", "higiene", "hortifruti", "frios"],
+      "endereco": {"nomeLogradouro": "AV MENINO MARCELO", "numeroImovel": "9000", "bairro": "Benedito Bentes", "cep": "57084000", "codigoIBGE": "2704302", "municipio": "MACEIO", "latitude": -9.5560, "longitude": -35.7600}
+    },
+    {
+      "cnpj": "12345678000707",
+      "razaoSocial": "FARMACIA SAUDE TOTAL LTDA",
+      "nomeFantasia": "Farmácia Saúde Total",
+      "telefone": "(82) 3333-1007",
+      "price_factor": 1.1,
+      "categories": ["higiene", "farmacia"],
+      "endereco": {"nomeLogradouro": "AV JANGADEIROS ALAGOANOS", "numeroImovel": "750", "bairro": "Jatiuca", "cep": "57038000", "codigoIBGE": "2704302", "municipio": "MACEIO", "latitude": -9.6520, "longitude": -35.7030}
+    },
+    {
+      "cnpj": "12345678000808",
+      "razaoSocial": "MERCEARIA DO BAIRRO LTDA",
+      "nomeFantasia": "Mercadinho do Bairro",
+      "telefone": "(82) 3333-1008",
+      "price_factor": 1.12,
+      "categories": ["mercearia", "bebidas", "higiene"],
+      "endereco": {"nomeLogradouro": "RUA SAO FRANCISCO DE ASSIS", "numeroImovel": "45", "bairro": "Pajucara", "cep": "57030100", "codigoIBGE": "2704302", "municipio": "MACEIO", "latitude": -9.6645, "longitude": -35.7060}
+    }
+  ],
+  "products": [
+    {"keywords": ["arroz"], "category": "mercearia", "descricao": "ARROZ BRANCO TIPO 1 PCT 5KG", "gtin": "7890000000017", "ncm": "10063021", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 24.90},
+    {"keywords": ["arroz"], "category": "mercearia", "descricao": "ARROZ TIPO1 NAMORADO 1KG", "gtin": "7890000000024", "ncm": "10063021", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 6.49},
+    {"keywords": ["arroz"], "category": "mercearia", "descricao": "ARROZ INTEGRAL 1KG", "gtin": "7890000000031", "ncm": "10063021", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 7.20},
+    {"keywords": ["feijao", "feijão"], "category": "mercearia", "descricao": "FEIJAO CARIOCA TIPO 1 1KG", "gtin": "7890000000048", "ncm": "07133319", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 8.49},
+    {"keywords": ["feijao", "feijão"], "category": "mercearia", "descricao": "FEIJAO PRETO 1KG", "gtin": "7890000000055", "ncm": "07133399", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 9.10},
+    {"keywords": ["leite"], "category": "mercearia", "descricao": "LEITE NA CAIXA INTEGRAL 1L", "gtin": "7894600011622", "ncm": "04012010", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 4.99},
+    {"keywords": ["leite"], "category": "mercearia", "descricao": "LEITE EM PO INTEGRAL LT 400G", "gtin": "7890000000079", "ncm": "04022110", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 17.90},
+    {"keywords": ["ovo", "ovos"], "category": "mercearia", "descricao": "OVOS BRANCOS GRANDES C/12", "gtin": "7890000000086", "ncm": "04072100", "gpc": 50000000, "unidadeMedida": "DZ", "base_price": 11.50},
+    {"keywords": ["ovo", "ovos"], "category": "mercearia", "descricao": "OVOS VERMELHOS C/30", "gtin": "7890000000093", "ncm": "04072100", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 24.90},
+    {"keywords": ["acucar", "açúcar", "açucar"], "category": "mercearia", "descricao": "ACUCAR REFINADO UNIAO 1KG", "gtin": "7890000000109", "ncm": "17019900", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 4.29},
+    {"keywords": ["cafe", "café"], "category": "mercearia", "descricao": "CAFE TORRADO E MOIDO A VACUO 250G", "gtin": "7890000000116", "ncm": "09012100", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 9.90},
+    {"keywords": ["cafe", "café"], "category": "mercearia", "descricao": "CAFE EM PO PCT 500G", "gtin": "7890000000123", "ncm": "09012100", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 17.50},
+    {"keywords": ["oleo", "óleo"], "category": "mercearia", "descricao": "OLEO DE SOJA 900ML", "gtin": "7890000000130", "ncm": "15071000", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 7.49},
+    {"keywords": ["macarrao", "macarrão"], "category": "mercearia", "descricao": "MACARRAO ESPAGUETE SEMOLA 500G", "gtin": "7890000000147", "ncm": "19021900", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 3.99},
+    {"keywords": ["refrigerante", "refri", "coca"], "category": "bebidas", "descricao": "REFRIGERANTE COLA PET 2L", "gtin": "7890000000154", "ncm": "22021000", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 8.99},
+    {"keywords": ["cerveja"], "category": "bebidas", "descricao": "CERVEJA PILSEN LATA 350ML C/12", "gtin": "7890000000161", "ncm": "22030000", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 41.88},
+    {"keywords": ["sabao", "sabão", "sabao em po"], "category": "higiene", "descricao": "SABAO EM PO CAIXA 800G", "gtin": "7890000000178", "ncm": "34022000", "gpc": 47000000, "unidadeMedida": "UN", "base_price": 9.99},
+    {"keywords": ["banana"], "category": "hortifruti", "descricao": "BANANA PRATA", "gtin": "", "ncm": "08039000", "gpc": 50000000, "unidadeMedida": "KG", "base_price": 4.99},
+    {"keywords": ["tomate"], "category": "hortifruti", "descricao": "TOMATE", "gtin": "", "ncm": "07020000", "gpc": 50000000, "unidadeMedida": "KG", "base_price": 6.49},
+    {"keywords": ["frango", "peito de frango"], "category": "frios", "descricao": "FILE DE PEITO DE FRANGO CONGELADO", "gtin": "", "ncm": "02071400", "gpc": 50000000, "unidadeMedida": "KG", "base_price": 13.90},
+    {"keywords": ["sabonete"], "category": "higiene", "descricao": "SABONETE EM BARRA 90G", "gtin": "7890000000185", "ncm": "34011190", "gpc": 53000000, "unidadeMedida": "UN", "base_price": 2.49},
+    {"keywords": ["alcool", "álcool", "alcool gel"], "category": "higiene", "descricao": "ALCOOL GEL 70 ANTISSEPTICO 500ML", "gtin": "7890000000192", "ncm": "38089419", "gpc": 53000000, "unidadeMedida": "UN", "base_price": 8.90},
+    {"keywords": ["fralda", "fraldas"], "category": "higiene", "descricao": "FRALDA INFANTIL TAM M C/40", "gtin": "7890000000208", "ncm": "96190000", "gpc": 53000000, "unidadeMedida": "UN", "base_price": 39.90},
+    {"keywords": ["dipirona"], "category": "farmacia", "descricao": "DIPIRONA SODICA 500MG COMPRIMIDO C/10", "gtin": "7890000000215", "ncm": "30049069", "gpc": 51000000, "unidadeMedida": "UN", "base_price": 6.50}
+  ]
+}
