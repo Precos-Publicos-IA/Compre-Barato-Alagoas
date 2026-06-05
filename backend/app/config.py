@@ -53,9 +53,14 @@ class Settings(BaseSettings):
     records_per_page: int = 500      # SEFAZ allows 50..5000
     top_stores: int = 5             # how many ranked stores we return by default
 
-    # --- Cache (Redis optional; falls back to in-process memory) ---
-    redis_url: str = ""
+    # --- Cache + storage (Redis is MANDATORY; the app fails fast without it) ---
+    # Holds the search cache, shareable-list UUIDs, device records and rate limits.
+    redis_url: str = "redis://localhost:6379/0"
     cache_ttl_seconds: int = 6 * 60 * 60  # 6h; data reflects last <=10 days of sales
+
+    # --- Privacy (LGPD) ---
+    # Bump when the privacy policy / terms change; stored with each consent record.
+    policy_version: str = "2026-06-05"
 
     # --- Rate limiting ---
     daily_search_limit: int = 300    # per client per day; 0 disables

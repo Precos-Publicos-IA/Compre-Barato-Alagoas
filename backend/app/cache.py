@@ -1,9 +1,9 @@
-"""Caching and rate limiting.
+"""Caching, shared-list storage, device records and rate limiting — all on Redis.
 
-Uses Redis when ``REDIS_URL`` is set, otherwise an in-process dict with TTLs so the app
-runs with zero infrastructure during development. The interface is the small subset the
-app actually needs: JSON get/set and an atomic-ish "increment with expiry" for the
-daily rate limit.
+Redis is **mandatory** (not an optional optimization): shareable-link UUIDs, the
+pseudo-anonymous device records and the daily rate limit are all first-class Redis
+data. The app fails fast at startup if Redis is unreachable (see ``main.lifespan``),
+so the rest of the code can assume a live connection.
 """
 
 from __future__ import annotations
@@ -11,87 +11,49 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import time
 import uuid
+from datetime import datetime, timezone
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # Saved search lists (for shareable links) live for 30 days, refreshed on access.
 SEARCH_LIST_TTL = 60 * 60 * 24 * 30
-
-
-class _MemoryBackend:
-    def __init__(self) -> None:
-        self._store: dict[str, tuple[float, str]] = {}  # key -> (expire_ts, value)
-        self._counters: dict[str, tuple[float, int]] = {}
-
-    def _expired(self, expire_ts: float) -> bool:
-        return expire_ts > 0 and expire_ts < time.time()
-
-    async def get(self, key: str) -> str | None:
-        item = self._store.get(key)
-        if item is None:
-            return None
-        expire_ts, value = item
-        if self._expired(expire_ts):
-            self._store.pop(key, None)
-            return None
-        return value
-
-    async def set(self, key: str, value: str, ttl: int) -> None:
-        self._store[key] = (time.time() + ttl if ttl else 0, value)
-
-    async def incr_with_ttl(self, key: str, ttl: int) -> int:
-        now = time.time()
-        item = self._counters.get(key)
-        if item is None or (item[0] and item[0] < now):
-            self._counters[key] = (now + ttl, 1)
-            return 1
-        expire_ts, count = item
-        count += 1
-        self._counters[key] = (expire_ts, count)
-        return count
-
-    async def expire(self, key: str, ttl: int) -> bool:
-        item = self._store.get(key)
-        if item is None:
-            return False
-        _, value = item
-        self._store[key] = (time.time() + ttl if ttl else 0, value)
-        return True
-
-    async def aclose(self) -> None:
-        return None
+# Device records (pseudo-anonymous identity) live for 90 idle days, refreshed on
+# access. No portability by design: lose the device, lose the server-side data.
+DEVICE_TTL = 60 * 60 * 24 * 90
 
 
 class Cache:
-    def __init__(self, redis_url: str = "", default_ttl: int = 21600) -> None:
+    def __init__(
+        self, redis_url: str = "", default_ttl: int = 21600, *, client: Any = None
+    ) -> None:
         self._default_ttl = default_ttl
-        self._redis = None
-        self._memory = _MemoryBackend()
-        if redis_url:
-            try:
-                import redis.asyncio as aioredis
-
-                self._redis = aioredis.from_url(redis_url, decode_responses=True)
-                logger.info("Cache backend: Redis")
-            except Exception:  # pragma: no cover - falls back gracefully
-                logger.exception("Redis init failed; using in-memory cache")
+        if client is not None:
+            self._redis = client
         else:
-            logger.info("Cache backend: in-memory")
+            if not redis_url:
+                raise RuntimeError(
+                    "REDIS_URL is required — Redis is a mandatory dependency."
+                )
+            import redis.asyncio as aioredis
+
+            self._redis = aioredis.from_url(redis_url, decode_responses=True)
+        logger.info("Cache backend: Redis")
 
     @property
     def backend_name(self) -> str:
-        return "redis" if self._redis is not None else "memory"
+        return "redis"
+
+    async def ping(self) -> None:
+        """Fail fast at startup if Redis is unreachable."""
+        await self._redis.ping()
+
+    # --- Generic JSON cache -------------------------------------------------
 
     async def get_json(self, key: str) -> Any | None:
         try:
-            raw = (
-                await self._redis.get(key)
-                if self._redis is not None
-                else await self._memory.get(key)
-            )
+            raw = await self._redis.get(key)
         except Exception:  # pragma: no cover
             logger.exception("cache get failed for %s", key)
             return None
@@ -99,35 +61,28 @@ class Cache:
 
     async def set_json(self, key: str, value: Any, ttl: int | None = None) -> None:
         ttl = ttl if ttl is not None else self._default_ttl
-        raw = json.dumps(value)
         try:
-            if self._redis is not None:
-                await self._redis.set(key, raw, ex=ttl)
-            else:
-                await self._memory.set(key, raw, ttl)
+            await self._redis.set(key, json.dumps(value), ex=ttl)
         except Exception:  # pragma: no cover
             logger.exception("cache set failed for %s", key)
 
     async def incr_with_ttl(self, key: str, ttl: int) -> int:
-        if self._redis is not None:
-            try:
-                count = await self._redis.incr(key)
-                if count == 1:
-                    await self._redis.expire(key, ttl)
-                return count
-            except Exception:  # pragma: no cover
-                logger.exception("rate-limit incr failed; allowing request")
-                return 1
-        return await self._memory.incr_with_ttl(key, ttl)
+        try:
+            count = await self._redis.incr(key)
+            if count == 1:
+                await self._redis.expire(key, ttl)
+            return count
+        except Exception:  # pragma: no cover
+            logger.exception("rate-limit incr failed; allowing request")
+            return 1
 
     async def _expire(self, key: str, ttl: int) -> None:
         try:
-            if self._redis is not None:
-                await self._redis.expire(key, ttl)
-            else:
-                await self._memory.expire(key, ttl)
+            await self._redis.expire(key, ttl)
         except Exception:  # pragma: no cover
             logger.exception("expire failed for %s", key)
+
+    # --- Shareable shopping lists ------------------------------------------
 
     async def save_search_list(
         self, items: list[str], ttl: int = SEARCH_LIST_TTL
@@ -170,6 +125,78 @@ class Cache:
         items = data.get("items")
         return items if isinstance(items, list) else None
 
+    # --- Pseudo-anonymous device records (no login) ------------------------
+    #
+    # A device proves identity with an opaque high-entropy bearer token it
+    # generated and keeps in secure storage. We store only what server-side
+    # features need: the LGPD consent record and the set of saved-list UUIDs.
+
+    @staticmethod
+    def _decode(value: Any) -> Any:
+        # Real Redis (decode_responses=True) yields str; some clients yield bytes.
+        return value.decode() if isinstance(value, bytes) else value
+
+    @staticmethod
+    def _device_key(token: str) -> str:
+        return f"device:{token}"
+
+    @staticmethod
+    def _device_lists_key(token: str) -> str:
+        return f"device:{token}:lists"
+
+    async def register_consent(self, token: str, policy_version: str) -> None:
+        """Record (or refresh) the device's LGPD consent — the legal basis for
+        storing its data server-side."""
+        key = self._device_key(token)
+        await self._redis.hset(
+            key,
+            mapping={
+                "consent_at": datetime.now(timezone.utc).isoformat(),
+                "policy_version": policy_version,
+            },
+        )
+        await self._expire(key, DEVICE_TTL)
+
+    async def get_device(self, token: str) -> dict[str, Any] | None:
+        """Return the device record (consent + saved lists), or None if unknown.
+        Refreshes the idle TTL on access."""
+        key = self._device_key(token)
+        record = await self._redis.hgetall(key)
+        if not record:
+            return None
+        record = {self._decode(k): self._decode(v) for k, v in record.items()}
+        lists_key = self._device_lists_key(token)
+        saved = await self._redis.smembers(lists_key)
+        await self._expire(key, DEVICE_TTL)
+        await self._expire(lists_key, DEVICE_TTL)
+        return {
+            "consent_at": record.get("consent_at"),
+            "policy_version": record.get("policy_version"),
+            "saved_lists": sorted(self._decode(s) for s in saved),
+        }
+
+    async def attach_list(self, token: str, list_id: str) -> None:
+        """Associate a shareable-list UUID with a device — only if the device has
+        consented (an unknown/un-consented token stores nothing)."""
+        key = self._device_key(token)
+        if not await self._redis.exists(key):
+            return
+        lists_key = self._device_lists_key(token)
+        await self._redis.sadd(lists_key, list_id)
+        await self._expire(key, DEVICE_TTL)
+        await self._expire(lists_key, DEVICE_TTL)
+
+    async def delete_device(self, token: str) -> bool:
+        """LGPD erasure: wipe all server-side data for a device. Returns whether
+        anything existed. The shared list contents themselves are not deleted —
+        they may be shared with others — only this device's association to them."""
+        removed = await self._redis.delete(
+            self._device_key(token), self._device_lists_key(token)
+        )
+        return bool(removed)
+
     async def aclose(self) -> None:
-        if self._redis is not None:  # pragma: no cover
+        try:  # pragma: no cover - connection teardown
             await self._redis.aclose()
+        except Exception:
+            pass

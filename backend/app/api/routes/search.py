@@ -15,6 +15,7 @@ from ...services.sefaz.base import SefazClient
 from ..deps import (
     enforce_rate_limit,
     get_cache,
+    get_device_token,
     get_llm,
     get_sefaz,
     get_settings_dep,
@@ -36,10 +37,16 @@ async def search(
     sefaz: SefazClient = Depends(get_sefaz),
     llm: LLMClient = Depends(get_llm),
     cache: Cache = Depends(get_cache),
+    device_token: str | None = Depends(get_device_token),
 ) -> SearchResponse:
     try:
         return await run_search(
-            req, settings=settings, sefaz=sefaz, llm=llm, cache=cache
+            req,
+            settings=settings,
+            sefaz=sefaz,
+            llm=llm,
+            cache=cache,
+            device_token=device_token,
         )
     except HTTPException:
         raise

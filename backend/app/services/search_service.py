@@ -39,6 +39,7 @@ async def run_search(
     sefaz: SefazClient,
     llm: LLMClient,
     cache,
+    device_token: str | None = None,
 ) -> SearchResponse:
     lat = req.latitude if req.latitude is not None else MACEIO_LAT
     lon = req.longitude if req.longitude is not None else MACEIO_LON
@@ -102,6 +103,11 @@ async def run_search(
     # Persist the list under a UUID so it can be shared via a short link and
     # reused on identical searches. Never blocks the search if storage fails.
     list_id = await cache.save_search_list(req.items)
+
+    # If a consented device made this search, remember the list under that device
+    # (login-free server-side history). No-op for unknown/un-consented tokens.
+    if device_token and list_id:
+        await cache.attach_list(device_token, list_id)
 
     return SearchResponse(
         origin=Origin(latitude=lat, longitude=lon),

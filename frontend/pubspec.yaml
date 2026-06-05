@@ -27,6 +27,9 @@ dependencies:
   app_links: ^6.3.0
   # Local persistence for recent shopping lists.
   shared_preferences: ^2.3.0
+  # Secure storage (Android Keystore) for the pseudo-anonymous device token —
+  # it's a bearer credential, so it must not sit in plain shared_preferences.
+  flutter_secure_storage: ^9.2.0
 
 dev_dependencies:
   flutter_test:

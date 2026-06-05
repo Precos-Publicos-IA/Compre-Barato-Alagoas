@@ -28,6 +28,38 @@ def get_llm(request: Request) -> LLMClient:
     return request.app.state.llm
 
 
+# Pseudo-anonymous device identity: the client sends a high-entropy opaque token
+# (generated once, kept in the device's secure storage) as a bearer credential.
+# Treated like a password — never logged.
+_DEVICE_TOKEN_HEADER = "x-device-token"
+_MIN_TOKEN_LEN = 32
+_MAX_TOKEN_LEN = 128
+
+
+def _valid_token(token: str) -> bool:
+    return (
+        _MIN_TOKEN_LEN <= len(token) <= _MAX_TOKEN_LEN
+        and all(c in "0123456789abcdefABCDEF" for c in token)
+    )
+
+
+def get_device_token(request: Request) -> str | None:
+    """Optional device token (e.g. on /search): returns it only if well-formed."""
+    token = request.headers.get(_DEVICE_TOKEN_HEADER)
+    return token if token and _valid_token(token) else None
+
+
+def require_device_token(request: Request) -> str:
+    """Mandatory device token for the /device endpoints."""
+    token = get_device_token(request)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Identificação do dispositivo ausente ou inválida.",
+        )
+    return token
+
+
 def _client_id(request: Request) -> str:
     # Honour a proxy header (Caddy sets X-Forwarded-For), else peer address.
     fwd = request.headers.get("x-forwarded-for")

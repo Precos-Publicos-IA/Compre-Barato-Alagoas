@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
 import '../../data/recent_lists.dart';
+import '../privacy/cloud_sync_sheet.dart';
 import '../results/results_screen.dart';
 import 'apk_banner.dart';
 import 'voice_input.dart';
@@ -80,10 +81,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget build(BuildContext context) {
     final basket = ref.watch(basketProvider);
     final suggestions = ref.watch(suggestionsProvider);
+    final cloudOn = ref.watch(cloudSyncProvider).asData?.value ?? false;
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Salvar listas na nuvem',
+            icon: Icon(cloudOn ? Icons.cloud_done : Icons.cloud_outlined),
+            onPressed: () => CloudSyncSheet.show(context),
+          ),
+        ],
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

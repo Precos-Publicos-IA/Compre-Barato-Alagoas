@@ -35,8 +35,8 @@ def test_unknown_list_id_404():
 
 
 @pytest.mark.asyncio
-async def test_cache_save_and_get_roundtrip_memory():
-    cache = Cache(redis_url="")  # in-memory backend
+async def test_cache_save_and_get_roundtrip():
+    cache = Cache(redis_url="redis://test")
     list_id = await cache.save_search_list(["  Pão ", "café", ""])
     assert list_id
     assert await cache.get_search_list(list_id) == ["Pão", "café"]
