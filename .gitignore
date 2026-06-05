@@ -1,0 +1,42 @@
+# --- Secrets ---
+.env
+*.env
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Flutter / Dart ---
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/build/
+frontend/.idea/
+frontend/ios/Pods/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/**/*.g.dart
+frontend/**/*.freezed.dart
+*.iml
+
+# --- OS / editor ---
+.DS_Store
+*.swp
+.vscode/
+
+# --- Misc ---
+*.log
+
+# --- Claude / local context (never published) ---
+CLAUDE.md
+
+# --- SEFAZ developer manual (public doc; linked from README, not vendored) ---
+Economiza_Alagoas_Manual_de_Orientação_do_Desenvolvedor_versao1.0.pdf
+*.pdf
