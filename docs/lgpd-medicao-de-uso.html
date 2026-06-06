@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LGPD · Medição anônima de uso · Compre Barato Alagoas</title>
+  <meta name="description" content="Avaliação de legítimo interesse (LIA) da medição anônima e agregada de uso do Compre Barato Alagoas, conforme a LGPD." />
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+  <main class="content">
+    <span class="tag">LGPD · Avaliação de legítimo interesse</span>
+    <h1>Medição anônima de uso</h1>
+    <p class="lead">Como o Compre Barato Alagoas estima quantas pessoas usam o app,
+      de forma anônima e agregada, e por que isso é lícito sob a LGPD.</p>
+
+    <p><a href="index.html">← Voltar à documentação</a></p>
+
+    <div class="note">Este documento é a avaliação de legítimo interesse (LIA) exigida
+      pela ANPD para medição de audiência. Mantenha-o verdadeiro conforme o código evolui.</div>
+
+    <h2 id="proposito">Propósito</h2>
+    <p>Queremos saber quantas pessoas diferentes usam o app por dia, com que frequência e
+      em quais horários, para priorizar melhorias e dimensionar a infraestrutura. É
+      <strong>medição de audiência</strong> — não publicidade, não recomendação
+      personalizada, não venda de dados.</p>
+
+    <h2 id="base-legal">Base legal</h2>
+    <p>Legítimo interesse (LGPD, Art. 7º, IX e Art. 10). Conforme o <em>Guia Orientativo:
+      Cookies e Proteção de Dados Pessoais</em> da ANPD, a medição de audiência pode se
+      apoiar no legítimo interesse quando ocorre em uma <strong>configuração
+      restrita</strong>. Atendemos a todas as condições dessa configuração (abaixo).</p>
+
+    <h2 id="dados">Dados tratados e minimização</h2>
+    <ul>
+      <li>O app gera um <strong>identificador aleatório próprio da medição</strong>
+        (<code>frontend/lib/data/analytics_id.dart</code>, chave <code>analytics_id_v1</code>
+        em <code>shared_preferences</code>). Ele é <strong>separado</strong> do token de
+        identidade do dispositivo (o de "salvar na nuvem") e nunca é ligado às listas do
+        usuário, à localização ou a qualquer identidade.</li>
+      <li>Não contém nome, e-mail, telefone ou qualquer dado direto de identificação.</li>
+      <li>É enviado no cabeçalho <code>X-Analytics-Id</code> apenas em buscas, e só quando a
+        medição está ligada.</li>
+      <li>No servidor, o id é <strong>salgado e jogado em um HyperLogLog</strong>
+        (estrutura probabilística que guarda apenas uma <em>cardinalidade</em> — um número).
+        <strong>Não há registro por dispositivo</strong>, não há linha que possa ser
+        recuperada para um indivíduo.</li>
+      <li>O endereço IP <strong>não</strong> entra nos dados de medição.</li>
+    </ul>
+
+    <h2 id="anonimizacao">Resultado anonimizado (Art. 12)</h2>
+    <p>O dado armazenado é apenas um total agregado (estimativa de aparelhos únicos por
+      período). Agregação é técnica reconhecida de anonimização; o resultado não é
+      reversível por meios razoáveis e, portanto, <strong>não é dado pessoal</strong> (Art.
+      12). A exceção do Art. 12, §2 (perfil comportamental) <strong>não se aplica</strong>:
+      não traçamos perfis.</p>
+
+    <h2 id="configuracao-restrita">Configuração restrita (condições atendidas)</h2>
+    <ul>
+      <li><strong>Somente dados agregados</strong> — HyperLogLog guarda contagem, não rastros.</li>
+      <li><strong>Sem perfilamento</strong> do usuário.</li>
+      <li><strong>Sem combinação</strong> com outros rastreadores ou bases.</li>
+      <li><strong>Sem compartilhamento</strong> com terceiros — Redis próprio, auto-hospedado.</li>
+      <li><strong>Sem IP</strong> nos dados de medição.</li>
+    </ul>
+
+    <h2 id="necessidade">Necessidade e proporcionalidade</h2>
+    <p>Não há meio menos invasivo que entregue contagem de aparelhos únicos e retenção: um
+      id estável por aparelho é o mínimo necessário para distinguir "mesmo aparelho voltou"
+      de "aparelho novo". A expectativa do usuário é compatível (medição básica de uso de um
+      app gratuito), o impacto é mínimo (dado anonimizado, sem perfil) e há salvaguardas
+      claras (separação do id, opt-out, anonimização).</p>
+
+    <h2 id="direitos">Direitos do titular e opt-out (Art. 18, §2)</h2>
+    <p>A medição pode ser <strong>desligada a qualquer momento</strong> em Configurações →
+      "Estatísticas anônimas de uso". Ao desligar, o app deixa de enviar o id e
+      <strong>esquece o identificador localmente</strong>. Como o resultado armazenado já é
+      anonimizado, não há registro individual a apagar no servidor.</p>
+
+    <h2 id="transparencia">Transparência</h2>
+    <p>Esta medição é descrita em linguagem simples na
+      <a href="https://alagoas.precospublicos.ia.br/privacy.html">Política de Privacidade</a>
+      (seção "Medição anônima de uso"), idêntica à tela de privacidade dentro do app.</p>
+
+    <h2 id="referencias">Referências</h2>
+    <ul>
+      <li>LGPD — Art. 7º, IX e Art. 10 (legítimo interesse); Art. 12 (dados anonimizados);
+        Art. 18, §2 (oposição/opt-out).</li>
+      <li>ANPD — <em>Guia Orientativo: Cookies e Proteção de Dados Pessoais</em>
+        (medição de audiência em configuração restrita).</li>
+    </ul>
+  </main>
+</div>
+</body>
+</html>

@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     sefaz_base_url: str = (
         "http://api.sefaz.al.gov.br/sfz-economiza-alagoas-api/api/public/"
     )
+    # Legacy/bootstrap fallback only. Prefer setting the token via the admin panel
+    # (encrypted in Redis, never on disk). Leave empty in production.
     sefaz_app_token: str = ""  # secret; server-side only, never sent to clients
     sefaz_timeout_seconds: float = 15.0
 
@@ -68,6 +70,13 @@ class Settings(BaseSettings):
     # --- Admin dashboard ---
     # Bearer token guarding /admin/api/*. Empty => admin API is disabled (401).
     admin_token: str = ""
+
+    # --- Secret store (encryption at rest for runtime-managed secrets) ---
+    # Fernet key (urlsafe-base64, 32 bytes) used to encrypt secrets entered via the
+    # admin panel (e.g. the SEFAZ token) before they are stored in Redis. Generate
+    # once: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`.
+    # Empty => the admin secret panel is disabled; SEFAZ falls back to sefaz_app_token.
+    secret_encryption_key: str = ""
 
     # --- Database (Postgres + pgvector) — optional; core flow works without it ---
     database_url: str = ""

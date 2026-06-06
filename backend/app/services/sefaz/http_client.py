@@ -8,12 +8,18 @@ criterion (gtin OR descricao) and a geolocation establishment criterion.
 from __future__ import annotations
 
 import logging
+from typing import Awaitable, Callable
 
 import httpx
 
 from .models import PesquisaResponse
 
 logger = logging.getLogger(__name__)
+
+# Returns the current SEFAZ AppToken (from the encrypted secret store, with an env
+# fallback), or None if none is configured. Resolved per request so a token set or
+# rotated via the admin panel takes effect without a restart.
+TokenProvider = Callable[[], Awaitable[str | None]]
 
 
 class SefazApiError(RuntimeError):
@@ -24,15 +30,19 @@ class HttpSefazClient:
     source_name = "sefaz"
 
     def __init__(
-        self, base_url: str, app_token: str, timeout: float = 15.0
+        self,
+        base_url: str,
+        token_provider: TokenProvider,
+        timeout: float = 15.0,
     ) -> None:
-        if not app_token:
-            raise ValueError("SEFAZ AppToken is required for the real client")
         # The manual's base URL ends with a slash; endpoints are relative.
         self._endpoint = base_url.rstrip("/") + "/produto/pesquisa"
+        self._token_provider = token_provider
+        # The token is attached per request (never stored on the long-lived client),
+        # so rotation takes effect immediately and it's not held in client state.
         self._client = httpx.AsyncClient(
             timeout=timeout,
-            headers={"AppToken": app_token, "Content-Type": "application/json"},
+            headers={"Content-Type": "application/json"},
         )
 
     async def search_product(
@@ -50,6 +60,12 @@ class HttpSefazClient:
         if bool(descricao) == bool(gtin):
             raise ValueError("provide exactly one of descricao or gtin")
 
+        token = await self._token_provider()
+        if not token:
+            raise SefazApiError(
+                "Token da SEFAZ não configurado. Defina-o no painel admin."
+            )
+
         produto: dict = {"gtin": gtin} if gtin else {"descricao": descricao}
         body = {
             "produto": produto,
@@ -65,7 +81,9 @@ class HttpSefazClient:
             "registrosPorPagina": registros_por_pagina,
         }
 
-        resp = await self._client.post(self._endpoint, json=body)
+        resp = await self._client.post(
+            self._endpoint, json=body, headers={"AppToken": token}
+        )
         data = resp.json()
 
         # SEFAZ returns an error object {timestamp, message} on failure.

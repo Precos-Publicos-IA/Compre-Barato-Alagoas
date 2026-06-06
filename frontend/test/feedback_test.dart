@@ -30,6 +30,8 @@ class _FakeApi extends ApiClient {
     int? radiusKm,
     int? days,
     String? deviceToken,
+    String? analyticsId,
+    List<String> excludedCnpjs = const [],
   }) async {
     return SearchResponse(
       originLat: -9.65,

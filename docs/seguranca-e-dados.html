@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Segurança & dados pessoais (LGPD) · Compre Barato Alagoas</title>
+  <meta name="description" content="Inventário de dados pessoais tratados pelo Compre Barato Alagoas, base legal LGPD e como cada dado é protegido (criptografia, hashing, minimização)." />
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+  <main class="content">
+    <span class="tag">Segurança & LGPD · Inventário de dados</span>
+    <h1>Segurança e dados pessoais</h1>
+    <p class="lead">O que o app trata, qual a base legal sob a LGPD e como cada dado é
+      protegido. Princípio de fundo: <strong>minimização</strong> — só guardamos o que um
+      recurso realmente exige, pelo menor tempo possível, e nunca em texto claro quando dá
+      para evitar.</p>
+
+    <p><a href="index.html">← Voltar à documentação</a></p>
+
+    <div class="note">Mantenha este documento verdadeiro conforme o código evolui. Ele é o
+      inventário de tratamento de dados do projeto.</div>
+
+    <h2 id="inventario">Inventário de dados</h2>
+    <table>
+      <thead><tr><th>Dado</th><th>Onde / por quê</th><th>Base legal</th><th>Proteção</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Token de dispositivo</strong> (credencial pseudônima, sem login)</td>
+          <td>Identifica o aparelho para salvar listas na nuvem e registrar consentimento.</td>
+          <td>Consentimento (toggle "Salvar listas na nuvem").</td>
+          <td>No app: <em>secure storage</em>/Keystore. No servidor: <strong>nunca
+            armazenado em texto</strong> — as chaves do Redis usam um <strong>hash
+            SHA-256 salgado</strong> do token (como um hash de senha). Um dump do Redis
+            não revela token utilizável nem liga um token conhecido aos seus dados.
+            Nunca é logado.</td>
+        </tr>
+        <tr>
+          <td><strong>Id anônimo de medição</strong></td>
+          <td>Estimar usuários únicos (audiência).</td>
+          <td>Legítimo interesse, com opt-out.</td>
+          <td>Só entra <strong>salgado em um HyperLogLog</strong> (cardinalidade agregada,
+            irreversível). Sem registro por dispositivo. Detalhes na
+            <a href="lgpd-medicao-de-uso.html">LIA</a>.</td>
+        </tr>
+        <tr>
+          <td><strong>Localização</strong> (lat/lon)</td>
+          <td>Buscar preços perto do usuário (raio).</td>
+          <td>Execução do serviço pedido pelo usuário.</td>
+          <td><strong>Não é armazenada.</strong> Usada de forma transitória na chamada à
+            SEFAZ e arredondada (~11&nbsp;m) só na chave de cache. Não vai para logs (a
+            busca é <code>POST</code>). Nenhum evento de analytics guarda coordenada.</td>
+        </tr>
+        <tr>
+          <td><strong>Listas de compras</strong></td>
+          <td>Links compartilháveis e histórico na nuvem (quando há consentimento).</td>
+          <td>Consentimento (nuvem) / execução do serviço (link).</td>
+          <td>Guardadas sob UUID, ligadas ao dispositivo só via o hash acima. Apagáveis
+            (direito de eliminação). TTL ocioso de 30/90 dias.</td>
+        </tr>
+        <tr>
+          <td><strong>Endereço IP</strong></td>
+          <td>Limite diário de buscas (anti-abuso).</td>
+          <td>Legítimo interesse (segurança/abuso).</td>
+          <td>Nunca em texto: a chave do limite guarda apenas um <strong>hash salgado</strong>
+            do IP, com <strong>TTL de 24&nbsp;h</strong>. Bucketiza o cliente sem manter
+            endereços em disco.</td>
+        </tr>
+        <tr>
+          <td><strong>Texto de feedback</strong> (👍/👎, "item errado", nota livre)</td>
+          <td>Detectar erros de normalização da IA.</td>
+          <td>Legítimo interesse.</td>
+          <td>Anônimo (o token de dispositivo <strong>não</strong> é gravado junto). Fica em
+            um stream limitado (1000 itens) visível só no painel admin.</td>
+        </tr>
+        <tr>
+          <td><strong>Termos buscados</strong></td>
+          <td>Ranking de itens mais buscados / não encontrados.</td>
+          <td>Legítimo interesse.</td>
+          <td>Agregados por contagem (sorted set), sem ligação a usuário. O feed de eventos
+            guarda só nº de itens, taxa de acerto e fonte — <strong>sem</strong> os termos
+            por usuário, sem token, sem IP.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="segredos">Segredos de terceiros (token SEFAZ, chaves)</h2>
+    <p>Credenciais que o backend usa para falar com terceiros (o <code>AppToken</code> da
+      SEFAZ é o caso atual) <strong>não ficam no repositório, no <code>.env</code>, em logs
+      nem em nenhuma resposta de API</strong>. Elas são informadas uma vez pelo
+      <strong>painel admin</strong> (Configurações), criptografadas com <strong>Fernet
+      (AES-128-CBC + HMAC)</strong> e guardadas no Redis. O painel só mostra uma
+      <em>impressão digital</em> curta para o operador confirmar qual valor está ativo — o
+      valor em si nunca é devolvido. A troca (rotação) vale na hora, sem reiniciar.</p>
+
+    <h3 id="ameaca">Modelo de ameaça honesto</h3>
+    <p>O backend precisa enviar o token à SEFAZ em texto claro, então o processo
+      <strong>precisa</strong> ter o valor em memória. <strong>Nenhum esquema esconde um
+      segredo de quem tem <code>root</code> na mesma máquina</strong> (é possível ler a
+      memória do processo ou a chave de descriptografia). <em>Hashear</em> também não serve:
+      é via única, e precisamos do valor de volta. O que esta arquitetura garante de fato:</p>
+    <ul>
+      <li>o segredo <strong>nunca é escrito em disco em texto claro</strong> (dumps AOF/RDB
+        e backups do Redis só têm o texto cifrado);</li>
+      <li>ele <strong>nunca aparece</strong> em git, <code>.env</code>, logs ou respostas de
+        API (campo de escrita apenas);</li>
+      <li>um operador/agente em trabalho normal <strong>nunca esbarra</strong> no valor —
+        descriptografá-lo é um ato deliberado e visível.</li>
+    </ul>
+    <p>A única chave residual é a <code>SECRET_ENCRYPTION_KEY</code> (chave Fernet), no
+      <code>.env</code> do servidor. Texto cifrado (Redis) e chave (env) ficam em
+      <strong>locais separados</strong> — nenhum deles sozinho vaza o segredo. Esconder de
+      <code>root</code> de verdade exigiria um KMS/HSM externo, que esta VPS única não tem.</p>
+
+    <h2 id="direitos">Direitos do titular</h2>
+    <ul>
+      <li><strong>Eliminação:</strong> <code>DELETE /api/v1/device/me</code> apaga todo o
+        estado do dispositivo no servidor (consentimento + listas associadas).</li>
+      <li><strong>Acesso:</strong> <code>GET /api/v1/device/me</code> mostra o que o servidor
+        guarda daquele dispositivo.</li>
+      <li><strong>Oposição (medição):</strong> opt-out em Configurações → "Estatísticas
+        anônimas de uso".</li>
+    </ul>
+
+    <h2 id="referencias">Referências</h2>
+    <ul>
+      <li>LGPD — Art. 6º (minimização, segurança), Art. 7º/Art. 11 (bases legais),
+        Art. 18 (direitos do titular), Art. 46 (segurança da informação).</li>
+      <li>Veja também a <a href="lgpd-medicao-de-uso.html">LIA da medição de uso</a> e a
+        <a href="https://alagoas.precospublicos.ia.br/privacy.html">Política de Privacidade</a>.</li>
+    </ul>
+  </main>
+</div>
+</body>
+</html>

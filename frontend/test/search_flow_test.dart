@@ -32,6 +32,8 @@ class FakeApiClient extends ApiClient {
     int? radiusKm,
     int? days,
     String? deviceToken,
+    String? analyticsId,
+    List<String> excludedCnpjs = const [],
   }) async {
     StoreResult store(String cnpj, String name, double total) => StoreResult(
           cnpj: cnpj,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 
 from ...analytics import Analytics
 from ...cache import Cache
@@ -16,6 +16,7 @@ from ...services.sefaz.base import SefazClient
 from ..deps import (
     enforce_rate_limit,
     get_analytics,
+    get_analytics_id,
     get_cache,
     get_device_token,
     get_llm,
@@ -35,12 +36,14 @@ router = APIRouter(prefix="/api/v1", tags=["search"])
 )
 async def search(
     req: SearchRequest,
+    background: BackgroundTasks,
     settings: Settings = Depends(get_settings_dep),
     sefaz: SefazClient = Depends(get_sefaz),
     llm: LLMClient = Depends(get_llm),
     cache: Cache = Depends(get_cache),
     analytics: Analytics = Depends(get_analytics),
     device_token: str | None = Depends(get_device_token),
+    analytics_id: str | None = Depends(get_analytics_id),
 ) -> SearchResponse:
     try:
         return await run_search(
@@ -51,6 +54,8 @@ async def search(
             cache=cache,
             analytics=analytics,
             device_token=device_token,
+            analytics_id=analytics_id,
+            background=background,
         )
     except HTTPException:
         raise

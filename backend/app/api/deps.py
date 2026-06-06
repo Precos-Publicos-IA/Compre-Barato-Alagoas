@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException, Request, status
@@ -10,6 +11,7 @@ from ..analytics import Analytics
 from ..cache import Cache
 from ..config import Settings, get_settings
 from ..services.llm.base import LLMClient
+from ..services.secrets import SecretStore
 from ..services.sefaz.base import SefazClient
 
 
@@ -31,6 +33,10 @@ def get_sefaz(request: Request) -> SefazClient:
 
 def get_llm(request: Request) -> LLMClient:
     return request.app.state.llm
+
+
+def get_secrets(request: Request) -> SecretStore:
+    return request.app.state.secrets
 
 
 # Pseudo-anonymous device identity: the client sends a high-entropy opaque token
@@ -65,12 +71,33 @@ def require_device_token(request: Request) -> str:
     return token
 
 
+# Anonymous usage-measurement id (LGPD: legítimo interesse, opt-out). Sent on every
+# search unless the user turns off "Estatísticas anônimas de uso". Deliberately separate
+# from the consent device token: it only ever feeds a salted-hash HyperLogLog (aggregate
+# unique count), is never linked to lists/identity, and is never logged or stored as-is.
+_ANALYTICS_ID_HEADER = "x-analytics-id"
+
+
+def get_analytics_id(request: Request) -> str | None:
+    """Optional anonymous analytics id (same hex shape as the device token)."""
+    value = request.headers.get(_ANALYTICS_ID_HEADER)
+    return value if value and _valid_token(value) else None
+
+
+# Salt for the rate-limit client key. The IP is personal data (LGPD), so we never
+# store it raw: the key holds only a salted hash. It still uniquely buckets a client
+# for the 24h window, but a Redis dump reveals no addresses.
+_RATELIMIT_SALT = "compre-barato-alagoas/ratelimit/v1"
+
+
 def _client_id(request: Request) -> str:
     # Honour a proxy header (Caddy sets X-Forwarded-For), else peer address.
     fwd = request.headers.get("x-forwarded-for")
     if fwd:
-        return fwd.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+        ip = fwd.split(",")[0].strip()
+    else:
+        ip = request.client.host if request.client else "unknown"
+    return hashlib.sha256((_RATELIMIT_SALT + ip).encode()).hexdigest()[:32]
 
 
 async def enforce_rate_limit(

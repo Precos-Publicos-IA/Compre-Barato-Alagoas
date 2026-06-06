@@ -11,6 +11,9 @@ import hashlib
 import logging
 import time
 
+from fastapi import BackgroundTasks
+
+from ..analytics import SearchAnalyticsBatch
 from ..config import MACEIO_LAT, MACEIO_LON, Settings
 from ..schemas.search import (
     Origin,
@@ -49,11 +52,17 @@ async def run_search(
     cache,
     analytics=None,
     device_token: str | None = None,
+    analytics_id: str | None = None,
+    background: BackgroundTasks | None = None,
 ) -> SearchResponse:
     lat = req.latitude if req.latitude is not None else MACEIO_LAT
     lon = req.longitude if req.longitude is not None else MACEIO_LON
     radius = req.radius_km or settings.default_radius_km
     days = req.days or settings.default_days
+
+    # Analytics are collected on the hot path but written off it (see the dispatch at the
+    # end): a single best-effort background flush, so they never add to user wait time.
+    batch = SearchAnalyticsBatch() if analytics is not None else None
 
     # Stage timers (ms) feed the admin "Desempenho"/"Provedores" tabs. Best-effort:
     # perf_counter deltas only, recorded after the response is built.
@@ -71,10 +80,10 @@ async def run_search(
 
     # Provider (AI) health: in production a None usage means the real Claude call
     # failed and fell back to the mock parser — a meaningful degradation signal.
-    if analytics is not None:
+    if batch is not None:
         llm_ok = settings.use_mock_llm or usage is not None
-        await analytics.record_provider_call(
-            provider="llm", duration_ms=llm_ms, ok=llm_ok
+        batch.provider_calls.append(
+            {"provider": "llm", "duration_ms": llm_ms, "ok": llm_ok}
         )
     if usage is None:
         usage = LLMUsage(
@@ -83,21 +92,21 @@ async def run_search(
                 " ".join(f"{p.label}{p.search_term}" for p in parsed)
             ),
         )
-    if analytics is not None:
-        await analytics.record_llm_call(
-            model=settings.llm_model,
-            input_tokens=usage.input_tokens,
-            output_tokens=usage.output_tokens,
-            cache_read_tokens=usage.cache_read_tokens,
-            cache_creation_tokens=usage.cache_creation_tokens,
-            cost_usd=cost_usd(
+    if batch is not None:
+        batch.llm_call = {
+            "model": settings.llm_model,
+            "input_tokens": usage.input_tokens,
+            "output_tokens": usage.output_tokens,
+            "cache_read_tokens": usage.cache_read_tokens,
+            "cache_creation_tokens": usage.cache_creation_tokens,
+            "cost_usd": cost_usd(
                 settings.llm_model,
                 input_tokens=usage.input_tokens,
                 output_tokens=usage.output_tokens,
                 cache_read_tokens=usage.cache_read_tokens,
                 cache_creation_tokens=usage.cache_creation_tokens,
             ),
-        )
+        }
 
     offers_by_item: dict[str, list[NormalizedOffer]] = {}
     item_queries: list[str] = []
@@ -136,9 +145,9 @@ async def run_search(
             finally:
                 call_ms = (time.perf_counter() - t0) * 1000
                 sefaz_ms += call_ms
-                if analytics is not None:
-                    await analytics.record_provider_call(
-                        provider="sefaz", duration_ms=call_ms, ok=ok
+                if batch is not None:
+                    batch.provider_calls.append(
+                        {"provider": "sefaz", "duration_ms": call_ms, "ok": ok}
                     )
             t0 = time.perf_counter()
             await cache.set_json(
@@ -163,6 +172,7 @@ async def run_search(
         offers_by_item=offers_by_item,
         origin=(lat, lon),
         top_n=settings.top_stores,
+        excluded_cnpjs=set(req.excluded_cnpjs),
     )
     rank_ms = (time.perf_counter() - t0) * 1000
 
@@ -176,19 +186,20 @@ async def run_search(
         ),
     )
 
-    if analytics is not None:
+    if batch is not None:
         notfound = [lbl for lbl in item_queries if not offers_by_item.get(lbl)]
-        await analytics.record_search(
-            items_requested=len(item_queries),
-            items_with_match=items_with_match,
-            total_offers=total_offers,
-            parsed_offers=parsed_offers,
-            data_source=sefaz.source_name,
-            item_labels=item_queries,
-            notfound_labels=notfound,
-            parse_methods=parse_methods,
-            device_token=device_token,
-        )
+        batch.search = {
+            "items_requested": len(item_queries),
+            "items_with_match": items_with_match,
+            "total_offers": total_offers,
+            "parsed_offers": parsed_offers,
+            "data_source": sefaz.source_name,
+            "item_labels": item_queries,
+            "notfound_labels": notfound,
+            "parse_methods": parse_methods,
+            "device_token": device_token,
+            "analytics_id": analytics_id,
+        }
 
     # Persist the list under a UUID so it can be shared via a short link and
     # reused on identical searches. Never blocks the search if storage fails.
@@ -201,17 +212,22 @@ async def run_search(
         await cache.attach_list(device_token, list_id)
     cache_ms += (time.perf_counter() - t0) * 1000
 
-    if analytics is not None:
-        await analytics.record_timings(
-            {
-                "total": (time.perf_counter() - t_start) * 1000,
-                "llm": llm_ms,
-                "sefaz": sefaz_ms,
-                "cache": cache_ms,
-                "normalize": normalize_ms,
-                "rank": rank_ms,
-            }
-        )
+    # Dispatch all analytics writes off the request critical path. ``total`` is measured
+    # here, before dispatch, so it reflects the user's actual wait (analytics excluded).
+    if analytics is not None and batch is not None:
+        batch.timings = {
+            "total": (time.perf_counter() - t_start) * 1000,
+            "llm": llm_ms,
+            "sefaz": sefaz_ms,
+            "cache": cache_ms,
+            "normalize": normalize_ms,
+            "rank": rank_ms,
+        }
+        if background is not None:
+            background.add_task(analytics.flush, batch)
+        else:
+            # No background context (e.g. direct service-level tests): write inline.
+            await analytics.flush(batch)
 
     return SearchResponse(
         origin=Origin(latitude=lat, longitude=lon),

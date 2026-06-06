@@ -74,16 +74,41 @@ class ResultsScreen extends ConsumerWidget {
   }
 }
 
-class _Results extends StatelessWidget {
+class _Results extends ConsumerWidget {
   const _Results({required this.response, required this.items});
   final SearchResponse response;
   final List<String> items;
 
   @override
-  Widget build(BuildContext context) {
-    final stores = response.stores;
-    final savings = computeSavings(stores);
-    final bestTotal = savings?.cheapest.total ?? stores.first.total;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final avoided = ref.watch(avoidedStoresProvider).asData?.value ?? const {};
+    final favorites = ref.watch(favoriteStoresProvider).asData?.value ?? const {};
+
+    // The server already drops hidden stores; this is a belt-and-suspenders guard
+    // for results that predate a fresh "ocultar" (e.g. an undo race).
+    final visible =
+        response.stores.where((s) => !avoided.containsKey(s.cnpj)).toList();
+    if (visible.isEmpty) {
+      return const _Message(
+        icon: Icons.visibility_off,
+        text: 'Todas as lojas encontradas estão ocultas.\n'
+            'Gerencie em "Minhas lojas".',
+      );
+    }
+
+    final savings = computeSavings(visible);
+    final cheapest = savings?.cheapest ?? visible.first;
+    final bestTotal = cheapest.total;
+
+    // Cheapest stays on top (the headline value), then favourites, then the rest —
+    // each card still shows its own +R$ delta so the price story is never hidden.
+    final ordered = <StoreResult>[
+      cheapest,
+      ...visible.where(
+          (s) => !identical(s, cheapest) && favorites.containsKey(s.cnpj)),
+      ...visible.where(
+          (s) => !identical(s, cheapest) && !favorites.containsKey(s.cnpj)),
+    ];
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
@@ -91,12 +116,11 @@ class _Results extends StatelessWidget {
         if (savings != null && savings.amount > 0)
           _SavingsBanner(savings: savings, listId: response.listId),
         const _FreshnessLine(),
-        for (var i = 0; i < stores.length; i++)
+        for (final store in ordered)
           StoreCard(
-            store: stores[i],
-            isBest: identical(stores[i], savings?.cheapest) ||
-                (savings == null && i == 0),
-            deltaFromBest: stores[i].total - bestTotal,
+            store: store,
+            isBest: identical(store, cheapest),
+            deltaFromBest: store.total - bestTotal,
           ),
         _FeedbackCard(listId: response.listId, items: items),
       ],

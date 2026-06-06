@@ -9,7 +9,8 @@ Economiza Alagoas**, mantida pela Secretaria da Fazenda do Estado de Alagoas
 (SEFAZ-AL), e refletem vendas reais coletadas quase em tempo real.
 
 > Projeto **Preços Públicos IA** · Licença MIT · App online em
-> https://alagoas.precospublicos.ia.br
+> https://alagoas.precospublicos.ia.br · Documentação em
+> https://docs.alagoas.precospublicos.ia.br
 
 A SEFAZ-AL é, hoje, a única secretaria estadual do país a oferecer esse serviço de
 consulta de preços de forma pública e gratuita. Este projeto é uma forma de colocar
@@ -54,10 +55,20 @@ SEFAZ — o token **nunca** vai para o aplicativo do usuário.
 |-------|-----------|
 | `backend/` | API em FastAPI: intermediário seguro, normalização e ranqueamento. |
 | `frontend/` | App em Flutter (Android + web): Riverpod, mapa OpenStreetMap, voz. |
+| `admin-frontend/` | Painel administrativo estático (métricas de IA/produto + técnico). |
+| `docs/` | Documentação estática (pt-BR), publicada em `docs.<domínio>`. |
 | `deploy/` | docker-compose + nginx para subir o projeto em um servidor. |
 | `shared-assets/` | Arte/logo de origem do app. |
 
 Cada pasta tem o seu próprio README com instruções detalhadas.
+
+## Documentação
+
+A documentação funcional e técnica completa (em pt-BR) fica em
+[`docs/`](docs/index.html) e é publicada em
+**https://docs.alagoas.precospublicos.ia.br** — visão geral, arquitetura, fluxo de
+busca, normalização de preço justo, ranqueamento, privacidade/LGPD, API e uma seção
+honesta de limitações conhecidas. É um site estático (HTML/CSS, sem build).
 
 ## Rodando localmente
 

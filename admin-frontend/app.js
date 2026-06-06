@@ -36,6 +36,29 @@ async function api(path) {
   return res.json();
 }
 
+async function apiSend(path, method, body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: {
+      Authorization: "Bearer " + token(),
+      "Content-Type": "application/json",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401) {
+    showLogin(true);
+    throw new Error("unauthorized");
+  }
+  if (!res.ok) {
+    let detail = "HTTP " + res.status;
+    try {
+      detail = (await res.json()).detail || detail;
+    } catch (e) {}
+    throw new Error(detail);
+  }
+  return res.json();
+}
+
 function showLogin(error) {
   $("#app").hidden = true;
   $("#login").hidden = false;
@@ -213,7 +236,40 @@ function bucketLabels(bounds) {
 const STAGE_LABELS = {
   total: "Total (resposta)", llm: "IA (parse)", sefaz: "SEFAZ",
   cache: "Cache (Redis)", normalize: "Normalização", rank: "Ranking",
+  analytics: "Analytics (2º plano)",
 };
+
+const WEEKDAY_LABELS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+
+async function loadGrowth() {
+  const g = await api("/growth?days=" + days());
+  $("#growth-cards").innerHTML = [
+    card("Únicos hoje (DAU)", fmtNum(g.dau_today)),
+    card("Únicos 7 dias (WAU)", fmtNum(g.wau)),
+    card("Únicos 30 dias (MAU)", fmtNum(g.mau)),
+    card("Recorrência (DAU/MAU)", pct(g.stickiness)),
+    card("Total de usuários (est.)", fmtNum(g.total_unique_users)),
+  ].join("");
+
+  const labels = (g.days || []).map(dayLabel);
+  // New vs returning stack to the day's unique-user total (DAU).
+  bar("chart-dau", labels, [
+    { label: "Recorrentes", data: g.returning_users || [], backgroundColor: "#1f7a4d" },
+    { label: "Novos", data: g.new_users || [], backgroundColor: "#5b9bd5" },
+  ], true);
+
+  const hours = g.hours || [];
+  bar("chart-hourofday", hours.map((_, h) => String(h).padStart(2, "0") + "h"),
+    [{ label: "Buscas", data: hours, backgroundColor: "#36c98f" }]);
+
+  bar("chart-weekday", WEEKDAY_LABELS,
+    [{ label: "Buscas", data: g.weekday || [], backgroundColor: "#e0a458" }]);
+
+  line("chart-engagement", labels, [
+    { label: "Buscas / usuário", data: g.searches_per_user || [],
+      borderColor: "#36c98f", tension: 0.3 },
+  ]);
+}
 
 async function loadPerformance() {
   const t = await api("/timings?days=" + days());
@@ -268,10 +324,74 @@ async function loadProviders() {
   }).join("") || `<tr><td colspan="6" class="note">Sem dados ainda.</td></tr>`;
 }
 
+async function loadSettings() {
+  const s = await api("/secrets");
+  const warn = $("#secrets-warning");
+  if (!s.encryption_enabled) {
+    warn.hidden = false;
+    warn.textContent =
+      "Criptografia desativada: defina SECRET_ENCRYPTION_KEY no servidor para gerenciar segredos aqui.";
+  } else {
+    warn.hidden = true;
+  }
+  $("#secrets-list").innerHTML = (s.secrets || []).map((sec) => {
+    const status = sec.configured
+      ? `definido · impressão digital <code>${esc(sec.fingerprint)}</code>` +
+        (sec.updated_at ? ` · ${when(sec.updated_at)}` : "")
+      : "não definido";
+    const disabled = s.encryption_enabled ? "" : "disabled";
+    return `<div class="secret-card" data-name="${esc(sec.name)}">
+      <div class="label">${esc(sec.label)}</div>
+      <div class="note">${status}</div>
+      <form class="secret-form">
+        <input type="password" autocomplete="off" placeholder="Novo valor"
+          class="secret-input" ${disabled} />
+        <button type="submit" ${disabled}>Salvar</button>
+        ${sec.configured ? `<button type="button" class="secret-clear" ${disabled}>Remover</button>` : ""}
+      </form>
+      <p class="secret-msg note"></p>
+    </div>`;
+  }).join("") || `<p class="note">Nenhum segredo gerenciável.</p>`;
+
+  document.querySelectorAll(".secret-card").forEach((cardEl) => {
+    const name = cardEl.dataset.name;
+    const msg = cardEl.querySelector(".secret-msg");
+    cardEl.querySelector(".secret-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = cardEl.querySelector(".secret-input");
+      const value = input.value.trim();
+      if (!value) return;
+      msg.textContent = "Salvando…";
+      try {
+        await apiSend("/secrets/" + encodeURIComponent(name), "PUT", { value });
+        input.value = "";
+        msg.textContent = "Salvo com segurança.";
+        loadSettings();
+      } catch (err) {
+        msg.textContent = "Erro: " + err.message;
+      }
+    });
+    const clearBtn = cardEl.querySelector(".secret-clear");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", async () => {
+        if (!confirm("Remover este segredo?")) return;
+        try {
+          await apiSend("/secrets/" + encodeURIComponent(name), "DELETE");
+          loadSettings();
+        } catch (err) {
+          msg.textContent = "Erro: " + err.message;
+        }
+      });
+    }
+  });
+}
+
 const LOADERS = {
   overview: loadOverview, quality: loadQuality, costs: loadCosts,
   feedback: loadFeedback, searches: loadSearches, items: loadItems,
+  growth: loadGrowth,
   performance: loadPerformance, providers: loadProviders,
+  settings: loadSettings,
 };
 let activeTab = "overview";
 

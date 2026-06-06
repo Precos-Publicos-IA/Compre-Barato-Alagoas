@@ -23,6 +23,13 @@ SEARCH_LIST_TTL = 60 * 60 * 24 * 30
 # access. No portability by design: lose the device, lose the server-side data.
 DEVICE_TTL = 60 * 60 * 24 * 90
 
+# The device token is a bearer credential. We never store it raw: Redis keys use a
+# salted SHA-256 of it (like a password hash), so a Redis dump exposes neither a
+# usable token nor a link from a known token to its data. The client keeps sending
+# the raw token; the server hashes it on every lookup. 256-bit tokens make this
+# irreversible. Lookups are exact-match, so hashing is transparent to callers.
+_DEVICE_KEY_SALT = "compre-barato-alagoas/device-key/v1"
+
 
 class Cache:
     def __init__(
@@ -142,12 +149,16 @@ class Cache:
         return value.decode() if isinstance(value, bytes) else value
 
     @staticmethod
-    def _device_key(token: str) -> str:
-        return f"device:{token}"
+    def _device_hash(token: str) -> str:
+        return hashlib.sha256((_DEVICE_KEY_SALT + token).encode()).hexdigest()
 
-    @staticmethod
-    def _device_lists_key(token: str) -> str:
-        return f"device:{token}:lists"
+    @classmethod
+    def _device_key(cls, token: str) -> str:
+        return f"device:{cls._device_hash(token)}"
+
+    @classmethod
+    def _device_lists_key(cls, token: str) -> str:
+        return f"device:{cls._device_hash(token)}:lists"
 
     async def register_consent(self, token: str, policy_version: str) -> None:
         """Record (or refresh) the device's LGPD consent — the legal basis for

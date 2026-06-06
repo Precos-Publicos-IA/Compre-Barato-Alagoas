@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../data/models.dart';
+import '../../data/providers.dart';
 import 'store_actions.dart';
 
 /// One store in the vertical results list. Collapsed it shows the essentials
 /// (name, distance, total, and how much more it costs than the cheapest).
 /// Tapping expands the item-by-item breakdown and the action buttons.
 /// The cheapest store is highlighted and starts expanded.
-class StoreCard extends StatefulWidget {
+class StoreCard extends ConsumerStatefulWidget {
   const StoreCard({
     super.key,
     required this.store,
@@ -23,11 +25,46 @@ class StoreCard extends StatefulWidget {
   final double deltaFromBest;
 
   @override
-  State<StoreCard> createState() => _StoreCardState();
+  ConsumerState<StoreCard> createState() => _StoreCardState();
 }
 
-class _StoreCardState extends State<StoreCard> {
+class _StoreCardState extends ConsumerState<StoreCard> {
   late bool _expanded = widget.isBest;
+
+  /// Mark/unmark as a favourite. Favourites and hidden stores are mutually
+  /// exclusive, so favouriting also un-hides.
+  void _toggleFavorite(bool isFav) {
+    final store = widget.store;
+    if (isFav) {
+      ref.read(favoriteStoresProvider.notifier).remove(store.cnpj);
+    } else {
+      ref.read(favoriteStoresProvider.notifier).add(store.cnpj, store.name);
+      ref.read(avoidedStoresProvider.notifier).remove(store.cnpj);
+    }
+  }
+
+  /// Hide this store from results and re-run the search so it disappears now.
+  /// Offers an immediate undo.
+  Future<void> _hide() async {
+    final store = widget.store;
+    final avoided = ref.read(avoidedStoresProvider.notifier);
+    await ref.read(favoriteStoresProvider.notifier).remove(store.cnpj);
+    await avoided.add(store.cnpj, store.name);
+    ref.read(searchControllerProvider.notifier).run(ref.read(basketProvider));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${store.name} ocultada'),
+        action: SnackBarAction(
+          label: 'DESFAZER',
+          onPressed: () {
+            avoided.remove(store.cnpj);
+            ref.read(searchControllerProvider.notifier).run(ref.read(basketProvider));
+          },
+        ),
+      ),
+    );
+  }
 
   String _priceDetail(ItemOffer it) {
     if (!it.quantityParsed || it.unitPrice == null || it.baseUnit == null) {
@@ -43,6 +80,12 @@ class _StoreCardState extends State<StoreCard> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final store = widget.store;
+    final isFav = ref
+            .watch(favoriteStoresProvider)
+            .asData
+            ?.value
+            .containsKey(store.cnpj) ??
+        false;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -70,8 +113,20 @@ class _StoreCardState extends State<StoreCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (widget.isBest) const _BestBadge(),
-                        Text(store.name,
-                            style: Theme.of(context).textTheme.titleLarge),
+                        Row(
+                          children: [
+                            if (isFav) ...[
+                              const Icon(Icons.star,
+                                  size: 18, color: Colors.amber),
+                              const SizedBox(width: 4),
+                            ],
+                            Flexible(
+                              child: Text(store.name,
+                                  style:
+                                      Theme.of(context).textTheme.titleLarge),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 2),
                         Text(
                           [
@@ -182,6 +237,19 @@ class _StoreCardState extends State<StoreCard> {
                           label: 'Endereço',
                           onTap: () =>
                               StoreActions.copyAddress(context, store)),
+                    ],
+                  ),
+                  const Divider(height: 16),
+                  Row(
+                    children: [
+                      _ActionBtn(
+                          icon: isFav ? Icons.star : Icons.star_border,
+                          label: isFav ? 'Favorita' : 'Favoritar',
+                          onTap: () => _toggleFavorite(isFav)),
+                      _ActionBtn(
+                          icon: Icons.visibility_off_outlined,
+                          label: 'Ocultar',
+                          onTap: _hide),
                     ],
                   ),
                 ],

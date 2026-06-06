@@ -24,5 +24,5 @@ class AppConfig {
 
   /// Privacy policy / terms version recorded with each LGPD consent. Bump in
   /// lockstep with the backend `POLICY_VERSION` when the policy text changes.
-  static const String policyVersion = '2026-06-05';
+  static const String policyVersion = '2026-06-06';
 }

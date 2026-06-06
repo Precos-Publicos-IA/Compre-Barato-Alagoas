@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -47,11 +49,36 @@ def test_admin_endpoints_smoke(admin_env):
     with TestClient(create_app()) as c:
         c.post("/api/v1/search", json={"items": ["café"]})
         c.post("/api/v1/feedback", json={"kind": "helpful", "helpful": True})
-        for path in ("/admin/api/quality", "/admin/api/costs",
+        for path in ("/admin/api/growth", "/admin/api/quality", "/admin/api/costs",
                      "/admin/api/searches", "/admin/api/items",
                      "/admin/api/feedback", "/admin/api/timings",
                      "/admin/api/providers"):
             assert c.get(path, headers=headers).status_code == 200, path
+
+
+def test_admin_growth_counts_anonymous_id(admin_env):
+    """The always-sent X-Analytics-Id (independent of cloud-sync) drives DAU."""
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    with TestClient(create_app()) as c:
+        c.post("/api/v1/search", json={"items": ["arroz"]},
+               headers={"X-Analytics-Id": "b" * 40})
+        g = c.get("/admin/api/growth", headers=headers).json()
+        assert g["dau_today"] >= 1
+        assert len(g["dau"]) == len(g["days"])
+        assert len(g["hours"]) == 24 and len(g["weekday"]) == 7
+
+
+def test_search_event_stream_omits_id_and_cnpjs(admin_env):
+    """Privacy: the analytics id and excluded CNPJs must never land in any per-event
+    row (the id only ever feeds the aggregate HLL; CNPJs are ephemeral filters)."""
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    with TestClient(create_app()) as c:
+        c.post("/api/v1/search",
+               json={"items": ["arroz"], "excluded_cnpjs": ["12345678000199"]},
+               headers={"X-Analytics-Id": "c" * 40})
+        blob = json.dumps(c.get("/admin/api/searches", headers=headers).json())
+        assert "c" * 40 not in blob
+        assert "12345678000199" not in blob
 
 
 def test_admin_timings_and_providers_populated(admin_env):

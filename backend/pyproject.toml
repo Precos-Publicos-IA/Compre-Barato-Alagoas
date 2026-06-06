@@ -13,6 +13,8 @@ dependencies = [
     "httpx>=0.27",
     # Redis is a mandatory dependency (cache, shareable lists, device records).
     "redis>=5.0",
+    # Fernet encryption-at-rest for runtime-managed secrets (services/secrets.py).
+    "cryptography>=42.0",
 ]
 
 [project.optional-dependencies]

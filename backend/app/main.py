@@ -18,6 +18,7 @@ from .analytics import Analytics
 from .cache import Cache
 from .config import get_settings
 from .services.llm.factory import build_llm_client
+from .services.secrets import SecretStore
 from .services.sefaz.factory import build_sefaz_client
 
 
@@ -42,7 +43,10 @@ async def lifespan(app: FastAPI):
     app.state.cache = Cache(settings.redis_url, settings.cache_ttl_seconds)
     await app.state.cache.ping()  # fail fast: Redis is mandatory
     app.state.analytics = Analytics(client=app.state.cache.redis)
-    app.state.sefaz = build_sefaz_client(settings)
+    app.state.secrets = SecretStore(
+        app.state.cache.redis, settings.secret_encryption_key
+    )
+    app.state.sefaz = build_sefaz_client(settings, app.state.secrets)
     app.state.llm = build_llm_client(settings)
     try:
         yield

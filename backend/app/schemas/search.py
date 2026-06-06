@@ -11,6 +11,10 @@ class SearchRequest(BaseModel):
     longitude: float | None = None
     radius_km: int | None = Field(default=None, ge=1, le=15)  # SEFAZ limit
     days: int | None = Field(default=None, ge=1, le=10)        # SEFAZ limit
+    # CNPJs the user chose to hide ("lojas ocultas"). Filtered server-side *before*
+    # top-N truncation so a hidden store never silently eats a result slot. Ephemeral:
+    # used only to filter this request, never logged or persisted.
+    excluded_cnpjs: list[str] = Field(default_factory=list, max_length=200)
 
     @field_validator("items")
     @classmethod

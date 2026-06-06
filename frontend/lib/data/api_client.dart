@@ -49,6 +49,9 @@ class ApiClient {
   /// Header carrying the pseudo-anonymous device token (a bearer credential).
   static const String deviceTokenHeader = 'X-Device-Token';
 
+  /// Header carrying the anonymous usage-measurement id (not a credential).
+  static const String analyticsIdHeader = 'X-Analytics-Id';
+
   Future<SearchResponse> search(
     List<String> items, {
     double? latitude,
@@ -56,6 +59,8 @@ class ApiClient {
     int? radiusKm,
     int? days,
     String? deviceToken,
+    String? analyticsId,
+    List<String> excludedCnpjs = const [],
   }) async {
     final uri = Uri.parse('$_baseUrl/api/v1/search');
     final payload = <String, dynamic>{
@@ -64,6 +69,7 @@ class ApiClient {
       'longitude': ?longitude,
       'radius_km': ?radiusKm,
       'days': ?days,
+      if (excludedCnpjs.isNotEmpty) 'excluded_cnpjs': excludedCnpjs,
     };
     final resp = await _client.post(
       uri,
@@ -72,6 +78,8 @@ class ApiClient {
         // Sent only when the user opted into cloud sync, so consented devices
         // get this list saved to their server-side history.
         deviceTokenHeader: ?deviceToken,
+        // Sent on every search unless usage stats are off (LGPD opt-out).
+        analyticsIdHeader: ?analyticsId,
       },
       body: jsonEncode(payload),
     );

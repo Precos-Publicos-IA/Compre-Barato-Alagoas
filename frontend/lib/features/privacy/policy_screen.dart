@@ -33,9 +33,11 @@ class PolicyScreen extends StatelessWidget {
             _Section(
               'O que fica só no seu aparelho',
               'Suas listas de compras e o histórico recente ficam guardados no '
-                  'próprio aparelho. Sua localização é usada apenas no momento '
-                  'da busca, para encontrar lojas perto de você — não guardamos '
-                  'seu histórico de localização.',
+                  'próprio aparelho. As lojas que você marca como favoritas ou '
+                  'oculta também ficam só no aparelho — não vão para o servidor. '
+                  'Sua localização é usada apenas no momento da busca, para '
+                  'encontrar lojas perto de você — não guardamos seu histórico '
+                  'de localização.',
             ),
             _Section(
               'Identificação sem login',
@@ -48,12 +50,31 @@ class PolicyScreen extends StatelessWidget {
                   'perdem.',
             ),
             _Section(
+              'Medição anônima de uso',
+              'Para saber quantas pessoas usam o app e melhorá-lo, fazemos uma '
+                  'contagem anônima e agregada de uso (por exemplo, quantos '
+                  'aparelhos diferentes buscam por dia). Para isso o app usa um '
+                  'identificador aleatório próprio dessa medição — separado do '
+                  'identificador de "salvar na nuvem" e nunca ligado às suas '
+                  'listas. Ele não contém seu nome, e-mail ou telefone. No '
+                  'servidor, esse dado vira apenas um número total (uma '
+                  'estimativa de quantos aparelhos), de forma anonimizada, sem '
+                  'guardar um registro por aparelho e sem traçar perfil. Não '
+                  'compartilhamos com terceiros. A base legal é o legítimo '
+                  'interesse (LGPD). Você pode desligar quando quiser em '
+                  'Configurações → "Estatísticas anônimas de uso"; ao desligar, '
+                  'o identificador de medição é esquecido no aparelho.',
+            ),
+            _Section(
               'Quando guardamos algo no servidor',
-              'Só guardamos dados no servidor se você ativar "Salvar minhas '
-                  'listas na nuvem". A base legal é o seu consentimento (LGPD). '
-                  'Nesse caso, associamos suas listas ao identificador do '
-                  'aparelho. Links compartilhados guardam apenas os itens da '
-                  'lista, sem identificar quem criou.',
+              'Só guardamos dados ligados ao seu aparelho no servidor se você '
+                  'ativar "Salvar minhas listas na nuvem". A base legal é o seu '
+                  'consentimento (LGPD). Nesse caso, associamos suas listas ao '
+                  'identificador do aparelho. Links compartilhados guardam '
+                  'apenas os itens da lista, sem identificar quem criou. A '
+                  'medição anônima de uso, descrita acima, é a única exceção: '
+                  'ela não fica ligada ao seu aparelho — vira só um total '
+                  'agregado.',
             ),
             _Section(
               'Seus direitos (LGPD)',
@@ -73,7 +94,9 @@ class PolicyScreen extends StatelessWidget {
             _Section(
               'Contato',
               'Dúvidas sobre privacidade podem ser enviadas pelo repositório '
-                  'público do projeto (Preços Públicos IA).',
+                  'público do projeto (Preços Públicos IA). A avaliação de '
+                  'legítimo interesse da medição de uso está publicada na '
+                  'documentação do projeto.',
             ),
             const SizedBox(height: 24),
           ],

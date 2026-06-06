@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Documentação · Compre Barato Alagoas</title>
+  <meta name="description" content="Documentação técnica e funcional do Compre Barato Alagoas — comparador de preços de supermercados com dados públicos da SEFAZ-AL." />
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="logo.png" alt="logo" />
+      <b>Compre Barato Alagoas</b>
+    </div>
+    <p class="brand-sub">Documentação · Projeto Preços Públicos IA</p>
+
+    <nav class="nav">
+      <h4>Começando</h4>
+      <a href="#visao-geral">Visão geral</a>
+      <a href="#problema">O problema</a>
+      <a href="#arquitetura">Arquitetura</a>
+
+      <h4>Como funciona</h4>
+      <a href="#fluxo">Fluxo de uma busca</a>
+      <a href="#normalizacao">Preço justo (normalização)</a>
+      <a href="#ranqueamento">Ranqueamento da cesta</a>
+      <a href="#honestidade">Honestidade dos dados</a>
+      <a href="#cache">Cache e limite de uso</a>
+
+      <h4>Produto</h4>
+      <a href="#dispositivo">Identidade & LGPD</a>
+      <a href="seguranca-e-dados.html">Segurança & dados (LGPD)</a>
+      <a href="lgpd-medicao-de-uso.html">LGPD · Medição de uso</a>
+      <a href="#listas">Listas compartilhadas</a>
+      <a href="#feedback">Feedback do usuário</a>
+      <a href="#admin">Painel administrativo</a>
+
+      <h4>Referência</h4>
+      <a href="#api">API (endpoints)</a>
+      <a href="#mock">Modo mock vs. produção</a>
+      <a href="#stack">Stack & dependências</a>
+      <a href="#limitacoes">Limitações conhecidas</a>
+      <a href="#status">Status do projeto</a>
+    </nav>
+  </aside>
+
+  <!-- ================= CONTENT ================= -->
+  <main class="content">
+    <span class="tag">Documentação v1 · pt-BR</span>
+    <h1>Compre Barato Alagoas</h1>
+    <p class="lead">Comparador de preços de supermercados, farmácias e lojas em Alagoas,
+      construído sobre os dados públicos de notas fiscais (NFC-e) da SEFAZ-AL.</p>
+
+    <div class="note">
+      App online: <a href="https://alagoas.precospublicos.ia.br">alagoas.precospublicos.ia.br</a> ·
+      Painel: <a href="https://admin.alagoas.precospublicos.ia.br">admin.alagoas.precospublicos.ia.br</a> ·
+      Código: open source (MIT). Esta documentação descreve <strong>o que existe hoje no
+      código</strong>, incluindo uma seção honesta de <a href="#limitacoes">limitações</a>.
+    </div>
+
+    <!-- ====== VISÃO GERAL ====== -->
+    <h2 id="visao-geral">Visão geral</h2>
+    <p>O usuário digita (ou fala) uma lista de compras em linguagem natural —
+      ex.: <em>"5kg de arroz, 1L de leite, sabão em pó"</em>. O app consulta os preços
+      praticados perto dele, calcula o <strong>preço justo por unidade</strong>
+      (por kg, por litro, por unidade) e devolve uma lista de lojas ordenada da
+      <strong>mais barata para a mais cara</strong>, mostrando quanto se economiza e a
+      data de cada venda.</p>
+    <ul>
+      <li><b>Plataformas:</b> Flutter — uma base de código para <b>Android</b> e <b>web</b>.</li>
+      <li><b>Backend:</b> FastAPI (Python) — intermediário seguro, normalização e ranqueamento.</li>
+      <li><b>Dados:</b> API pública Economiza Alagoas (SEFAZ-AL).</li>
+      <li><b>Estado/cache:</b> Redis (obrigatório).</li>
+      <li><b>IA:</b> Claude Haiku interpreta a lista em linguagem natural.</li>
+    </ul>
+
+    <!-- ====== PROBLEMA ====== -->
+    <h2 id="problema">O problema</h2>
+    <p>A SEFAZ-AL é hoje a única secretaria estadual do país a publicar preços de NFC-e de
+      forma pública e gratuita. O valor está nos dados; o obstáculo é o acesso. O objetivo
+      do projeto é entregar a mesma informação de forma <strong>simples, rápida e
+      acessível</strong> para um público de baixa renda e baixa familiaridade técnica,
+      em uma interface pensada para isso (português, toques grandes, pouco texto).</p>
+    <div class="warn">
+      <strong>A parte difícil:</strong> a base da SEFAZ <strong>não tem um campo com o
+      tamanho da embalagem</strong> ("5kg", "1L"). Essa informação só existe no texto
+      livre da descrição do produto. Sem extraí-la, não dá para comparar produtos de
+      tamanhos diferentes de forma justa. Resolver isso é o coração do projeto — veja
+      <a href="#normalizacao">Normalização</a>.
+    </div>
+
+    <!-- ====== ARQUITETURA ====== -->
+    <h2 id="arquitetura">Arquitetura</h2>
+    <pre><code>  Usuário (Flutter — Android / web)
+          │  HTTPS, apenas para a nossa API
+          ▼
+  Backend (FastAPI)  ───►  API pública Economiza Alagoas (SEFAZ-AL)
+          │                 (o token de acesso fica SÓ no servidor)
+          ├── interpreta a lista ............ LLM (Claude Haiku)
+          ├── normaliza tamanho/unidade ..... preço justo por kg / L / un
+          ├── ranqueia as lojas ............. por cobertura da cesta + total
+          └── cache + estado ................ Redis (obrigatório)</code></pre>
+    <p>O backend é um <strong>intermediário seguro</strong>: é ele quem guarda o token da
+      SEFAZ. O aplicativo do usuário <strong>nunca</strong> fala diretamente com a SEFAZ e
+      <strong>nunca</strong> recebe o token. Toda chamada do app vai para
+      <code>/api/v1/*</code> do nosso backend.</p>
+    <table>
+      <tr><th>Pasta</th><th>Conteúdo</th></tr>
+      <tr><td><code>backend/</code></td><td>API FastAPI: intermediário, normalização, ranqueamento, cache, identidade de dispositivo, métricas.</td></tr>
+      <tr><td><code>frontend/</code></td><td>App Flutter (Android + web): Riverpod, mapa OpenStreetMap, entrada por voz.</td></tr>
+      <tr><td><code>admin-frontend/</code></td><td>Painel administrativo estático (HTML + JS), servido em <code>admin.&lt;domínio&gt;</code>.</td></tr>
+      <tr><td><code>docs/</code></td><td>Esta documentação (estática), servida em <code>docs.&lt;domínio&gt;</code>.</td></tr>
+      <tr><td><code>deploy/</code></td><td>docker-compose + vhosts nginx.</td></tr>
+    </table>
+
+    <!-- ====== FLUXO ====== -->
+    <h2 id="fluxo">Fluxo de uma busca</h2>
+    <p>Endpoint: <code>POST /api/v1/search</code> · Orquestração:
+      <code>backend/app/services/search_service.py</code>.</p>
+    <ol>
+      <li><b>Interpretação da lista (LLM):</b> o texto livre vira itens estruturados
+        (rótulo + termo de busca + quantidade). Linhas compostas ("arroz e feijão") são
+        separadas; quantidades e tamanhos são removidos do termo de busca.</li>
+      <li><b>Busca por item:</b> <strong>uma chamada à SEFAZ por item</strong> (a API
+        aceita só um critério por requisição), usando o termo como <code>descricao</code>
+        e a geolocalização + raio.</li>
+      <li><b>Normalização:</b> cada linha retornada vira uma "oferta" com preço por
+        unidade base (kg / L / un) — veja <a href="#normalizacao">abaixo</a>.</li>
+      <li><b>Ranqueamento:</b> as ofertas são agrupadas por loja e as lojas são ordenadas
+        por cobertura da cesta e preço total.</li>
+      <li><b>Cache + lista:</b> o resultado de cada item é cacheado no Redis e a lista
+        ganha um UUID para compartilhamento.</li>
+    </ol>
+    <div class="note">Cada item é uma chamada independente à SEFAZ, então o resultado é
+      cacheado por <code>(termo, origem, raio, dias)</code>. Buscas repetidas são servidas
+      do cache sem nova consulta à SEFAZ.</div>
+
+    <!-- ====== NORMALIZAÇÃO ====== -->
+    <h2 id="normalizacao">Preço justo (normalização)</h2>
+    <p>Código: <code>backend/app/services/normalization/</code>
+      (<code>quantity.py</code>, <code>units.py</code>, <code>matcher.py</code>).
+      É o componente central do projeto.</p>
+    <h3>A árvore de decisão do preço por unidade</h3>
+    <ol>
+      <li>Se a <code>unidadeMedida</code> da SEFAZ já é peso/volume (KG, G, L, ML…), o
+        produto é vendido a granel e o <code>valorVenda</code> já é o preço por aquela
+        unidade — apenas convertemos para a base canônica.</li>
+      <li>Caso contrário, o preço é de uma <b>embalagem</b>: extraímos o tamanho do texto
+        da descrição (<code>extract_quantity</code>) e dividimos.</li>
+      <li>Se não dá para determinar o tamanho, caímos no <b>preço por embalagem</b> e
+        marcamos <code>quantity_parsed = false</code> — o sinal de que a qualidade da
+        comparação caiu naquela linha.</li>
+    </ol>
+    <h3>Exemplos de extração</h3>
+    <table>
+      <tr><th>Descrição (texto livre)</th><th>Tamanho extraído</th></tr>
+      <tr><td>ARROZ BRANCO TIPO 1 PCT 5KG</td><td>5 kg</td></tr>
+      <tr><td>LEITE NA CAIXA 1L</td><td>1 L</td></tr>
+      <tr><td>CAFE A VACUO 250G</td><td>0,25 kg</td></tr>
+      <tr><td>CERVEJA LATA 350ML C/12</td><td>12 × 350 ml (multipack)</td></tr>
+      <tr><td>OVOS BRANCOS C/12</td><td>12 un</td></tr>
+    </table>
+    <div class="warn"><strong>"mg" é ignorado de propósito.</strong> Em mercearia/farmácia,
+      "500MG" é dosagem ("DIPIRONA 500MG"), nunca o tamanho da embalagem. Deixá-lo passar
+      transformaria uma caixa de 10 comprimidos em uma comparação sem sentido de 0,005 kg.</div>
+    <p>Cada oferta carrega ainda um método de extração (<code>unidade_medida</code> /
+      <code>description</code> / <code>fallback</code>) e uma confiança 0–1, usados nas
+      métricas de qualidade do painel.</p>
+
+    <!-- ====== RANQUEAMENTO ====== -->
+    <h2 id="ranqueamento">Ranqueamento da cesta</h2>
+    <p>Código: <code>backend/app/services/ranking.py</code>.</p>
+    <p>Para cada (loja, item) guardamos a <b>melhor oferta por valor</b> (menor preço por
+      unidade base). As lojas são ordenadas por:</p>
+    <ol>
+      <li><b>Cobertura</b> — mais itens da sua lista disponíveis primeiro (uma loja barata
+        que não tem metade da lista não ajuda de verdade);</li>
+      <li><b>Cesta mais barata</b> — soma dos preços de embalagem;</li>
+      <li><b>Mais perto</b> — distância (Haversine) a partir da sua origem.</li>
+    </ol>
+    <div class="note"><strong>Itens faltantes são sinalizados, nunca somados como zero.</strong>
+      Cada loja retorna <code>items_found</code>, <code>items_total</code> e a lista
+      <code>missing</code> com os itens que ela não tem. A interface mostra a loja mais
+      barata expandida ("MAIS BARATO") e as demais recolhidas com o "+R$ delta".</div>
+
+    <!-- ====== HONESTIDADE ====== -->
+    <h2 id="honestidade">Honestidade dos dados</h2>
+    <p>Preços de NFC-e refletem vendas <b>recentes</b>, não necessariamente de hoje. O app
+      é explícito sobre isso:</p>
+    <ul>
+      <li><b>Data por item:</b> cada preço mostra a data em que aquela venda foi registrada
+        (<code>sale_date</code>, vindo de <code>dataVenda</code>) — nunca um vago "últimos
+        N dias" global (preços mudam todo dia).</li>
+      <li><b>Aviso na tela de resultados:</b> "Cada preço mostra a data em que foi registrado."</li>
+      <li><b>Qualidade da comparação:</b> quando o tamanho não pôde ser extraído, a oferta
+        é marcada como comparação por embalagem (não por kg/L).</li>
+    </ul>
+
+    <!-- ====== CACHE / LIMITE ====== -->
+    <h2 id="cache">Cache e limite de uso</h2>
+    <p><b>Redis é obrigatório</b> (não há fallback em memória). Na inicialização o app faz
+      um <code>ping</code> e falha rápido se o Redis não estiver disponível
+      (<code>backend/app/cache.py</code>, <code>main.lifespan</code>). O Redis guarda:</p>
+    <ul>
+      <li>cache de busca por item (TTL padrão de 6 h);</li>
+      <li>UUIDs das listas compartilháveis (TTL de 30 dias, renovado a cada acesso);</li>
+      <li>registros de dispositivo (consentimento LGPD, listas salvas);</li>
+      <li>contadores de limite de uso e as métricas do painel.</li>
+    </ul>
+    <p><b>Limite diário:</b> <code>enforce_rate_limit</code> (<code>backend/app/api/deps.py</code>)
+      conta as buscas por cliente por dia (chave <code>ratelimit:{dia}:{cliente}</code>,
+      TTL de 24 h) e devolve <code>429</code> ao estourar. O valor é configurável via
+      <code>DAILY_SEARCH_LIMIT</code> (<code>0</code> desativa).</p>
+
+    <!-- ====== DISPOSITIVO / LGPD ====== -->
+    <h2 id="dispositivo">Identidade de dispositivo & LGPD (sem login)</h2>
+    <p>Não há contas. O app gera uma vez um token de 256 bits
+      (<code>frontend/lib/data/device_identity.dart</code>, guardado no armazenamento
+      seguro / Keystore) e o envia no cabeçalho <code>X-Device-Token</code>. É tratado
+      como uma credencial — <strong>nunca é registrado em log nem armazenado em claro</strong>.</p>
+    <table>
+      <tr><th>Endpoint</th><th>Função</th></tr>
+      <tr><td><code>POST /api/v1/device/consent</code></td><td>Registra o consentimento LGPD (base legal para salvar dados na nuvem).</td></tr>
+      <tr><td><code>GET /api/v1/device/me</code></td><td>Mostra o que o servidor guarda para aquele dispositivo.</td></tr>
+      <tr><td><code>DELETE /api/v1/device/me</code></td><td>Apagamento (LGPD): remove tudo que o servidor tem do dispositivo.</td></tr>
+    </table>
+    <p>Uma busca feita por um dispositivo <b>com consentimento</b> tem a lista salva
+      automaticamente no servidor (histórico sem login). O gatilho do consentimento é o
+      botão "Salvar listas na nuvem" (<code>CloudSyncSheet</code>). A política fica no
+      <code>PolicyScreen</code> do app e em <code>frontend/web/privacy.html</code>.</p>
+    <div class="warn"><strong>Por design, não há portabilidade.</strong> Perdeu o aparelho,
+      perdeu os dados do servidor. A maior parte dos dados continua no próprio dispositivo;
+      o servidor só guarda o que precisa (consentimento + ids das listas salvas).</div>
+    <p>A <strong>medição anônima de uso</strong> (contagem de aparelhos únicos para as métricas
+      de crescimento) usa um identificador <em>separado</em> deste token, com base legal de
+      legítimo interesse e opt-out — detalhada na
+      <a href="lgpd-medicao-de-uso.html">avaliação de legítimo interesse (LIA)</a>.</p>
+
+    <!-- ====== LISTAS ====== -->
+    <h2 id="listas">Listas compartilhadas</h2>
+    <p>Links têm o formato <code>…/abrir/&lt;uuid&gt;</code>: a cesta é guardada no servidor,
+      não na URL (os links ficam curtos para qualquer tamanho de lista).</p>
+    <ul>
+      <li><code>POST /search</code> devolve <code>list_id</code>; cestas idênticas
+        reutilizam o mesmo id (deduplicação por hash).</li>
+      <li><code>GET /api/v1/lists/{id}</code> resolve o uuid de volta para os itens;
+        <code>404</code> (expirou/desconhecido) leva o usuário à tela inicial.</li>
+      <li>Quem abre o link busca a partir da <b>sua própria</b> localização.</li>
+      <li>No Android, <b>App Links</b> abrem o app instalado direto (intent-filter com
+        <code>pathPrefix /abrir</code> + <code>assetlinks.json</code>).</li>
+    </ul>
+
+    <!-- ====== FEEDBACK ====== -->
+    <h2 id="feedback">Feedback do usuário</h2>
+    <p><code>POST /api/v1/feedback</code> (anônimo; <code>X-Device-Token</code> opcional).
+      A tela de resultados tem um cartão 👍/👎 e "reportar item errado". É best-effort e
+      nunca quebra o fluxo de uso. Os eventos alimentam a seção de feedback do painel.</p>
+
+    <!-- ====== ADMIN ====== -->
+    <h2 id="admin">Painel administrativo</h2>
+    <p>SPA estática em <code>admin-frontend/</code>, servida em
+      <code>admin.&lt;domínio&gt;</code>, protegida por <code>ADMIN_TOKEN</code> (bearer,
+      comparação em tempo constante, <b>falha fechado</b> quando não configurado → 401).
+      Os dados vêm de <code>backend/app/analytics.py</code>, <b>nativo de Redis</b> (sem
+      Postgres).</p>
+    <h3>Seção "IA & Produto"</h3>
+    <ul>
+      <li>Visão geral: total de buscas, usuários únicos estimados (HyperLogLog),
+        taxa de acerto (match rate), custo de LLM.</li>
+      <li>Qualidade: taxa de extração de tamanho, distribuição de métodos de parse.</li>
+      <li>Custos: custo de LLM por busca (<code>services/llm/pricing.py</code>; Haiku 4.5 a
+        US$1/US$5 por 1M de tokens). Marcado como "modo mock" até a chave real entrar.</li>
+      <li>Feedback, buscas por hora, itens mais buscados e não encontrados.</li>
+    </ul>
+    <h3>Seção "Técnico"</h3>
+    <ul>
+      <li><b>Desempenho:</b> histogramas de latência por etapa (total, llm, sefaz, cache,
+        normalize, rank) com p50/p95.</li>
+      <li><b>Provedores:</b> chamadas, erros e latência dos terceiros (<code>sefaz</code>,
+        <code>llm</code>).</li>
+      <li><b>Configurações:</b> cofre de segredos — define/troca o token da SEFAZ, que é
+        criptografado em repouso (Fernet) e nunca aparece em arquivos, logs ou na tela.
+        Veja <a href="seguranca-e-dados.html">Segurança & dados</a>.</li>
+    </ul>
+    <p>Toda a gravação de métricas é best-effort e <b>nunca</b> bloqueia uma busca.</p>
+
+    <!-- ====== API ====== -->
+    <h2 id="api">API (endpoints)</h2>
+    <table>
+      <tr><th>Método</th><th>Rota</th><th>Descrição</th></tr>
+      <tr><td>GET</td><td><code>/health</code></td><td>Status + fontes de dados ativas.</td></tr>
+      <tr><td>POST</td><td><code>/api/v1/search</code></td><td>Busca da cesta (corpo: <code>items</code>, <code>latitude</code>, <code>longitude</code>, <code>radius_km</code>, <code>days</code>).</td></tr>
+      <tr><td>GET</td><td><code>/api/v1/suggestions</code></td><td>Sugestões de itens comuns.</td></tr>
+      <tr><td>GET</td><td><code>/api/v1/lists/{id}</code></td><td>Resolve uma lista compartilhada.</td></tr>
+      <tr><td>POST</td><td><code>/api/v1/device/consent</code></td><td>Consentimento LGPD.</td></tr>
+      <tr><td>GET/DELETE</td><td><code>/api/v1/device/me</code></td><td>Ver / apagar dados do dispositivo.</td></tr>
+      <tr><td>POST</td><td><code>/api/v1/feedback</code></td><td>Feedback anônimo.</td></tr>
+      <tr><td>—</td><td><code>/admin/api/*</code></td><td>Métricas do painel (exige <code>ADMIN_TOKEN</code>).</td></tr>
+    </table>
+    <p>Limites impostos pela SEFAZ e respeitados pelo schema: raio 1–15 km, dias 1–10,
+      até 30 itens por busca. Documentação interativa em <code>/docs</code> (Swagger).</p>
+
+    <!-- ====== MOCK ====== -->
+    <h2 id="mock">Modo mock vs. produção</h2>
+    <p>Os dois serviços externos (SEFAZ e LLM) ficam atrás de um Protocol + factory.
+      Trocar entre simulado e real é só virar flags no <code>.env</code> da raiz —
+      <strong>sem mudar código</strong>.</p>
+    <table>
+      <tr><th>Flag</th><th>true (padrão hoje)</th><th>false (produção)</th></tr>
+      <tr><td><code>USE_MOCK_SEFAZ</code></td><td>catálogo sintético de Maceió (<code>data/mock_sefaz.json</code>)</td><td>API real da SEFAZ-AL (exige <code>SEFAZ_APP_TOKEN</code>)</td></tr>
+      <tr><td><code>USE_MOCK_LLM</code></td><td>parser determinístico por regras</td><td>Claude Haiku (exige <code>ANTHROPIC_API_KEY</code>)</td></tr>
+    </table>
+    <div class="note">O cliente real da SEFAZ (<code>services/sefaz/http_client.py</code>)
+      é o <strong>único</strong> lugar onde o token é anexado, e monta o corpo de
+      <code>produto/pesquisa</code> exatamente como o manual do desenvolvedor especifica.</div>
+
+    <!-- ====== STACK ====== -->
+    <h2 id="stack">Stack & dependências</h2>
+    <ul>
+      <li><b>Backend:</b> FastAPI, Pydantic, httpx, redis. Testes com fakeredis (sem
+        servidor). <code>73 testes</code> no backend, <code>21</code> no frontend.</li>
+      <li><b>Frontend:</b> Flutter + Riverpod, flutter_map (OpenStreetMap), speech_to_text
+        (voz), geolocator, flutter_secure_storage.</li>
+      <li><b>IA:</b> Claude Haiku 4.5 para interpretar a lista.</li>
+      <li><b>Observabilidade:</b> Sentry (ligado por DSN; no-op sem ele).</li>
+      <li><b>Deploy:</b> docker-compose atrás de nginx + certbot. App, painel e docs em
+        subdomínios próprios.</li>
+    </ul>
+
+    <!-- ====== LIMITAÇÕES ====== -->
+    <h2 id="limitacoes">Limitações conhecidas</h2>
+    <p>Transparência é um valor do projeto. O que ainda <b>não</b> está pronto ou é
+      simplificado hoje:</p>
+    <table>
+      <tr><th>Item</th><th>Situação</th></tr>
+      <tr><td>Casamento de produto entre lojas (GTIN / adjudicação por LLM)</td>
+          <td><span class="pill off">não feito</span> Hoje confiamos na busca por
+          palavra-chave da SEFAZ e agrupamos por loja; não há canonicalização do
+          "mesmo produto" por GTIN nem desambiguação por LLM. Termos ambíguos (ex.: "leite"
+          trazendo leite líquido e leite em pó) podem misturar variações.</td></tr>
+      <tr><td>Dados reais da SEFAZ</td>
+          <td><span class="pill partial">aguardando token</span> Roda em modo mock até o
+          token gratuito da SEFAZ ser configurado.</td></tr>
+      <tr><td>Chamadas à SEFAZ por item</td>
+          <td><span class="pill partial">sequencial</span> Uma lista longa, sem cache, faz
+          N chamadas em série (candidato a paralelização).</td></tr>
+      <tr><td>Notificações de promoção (push)</td>
+          <td><span class="pill off">não feito</span> Exigem FCM/Web-Push + pipeline de
+          monitoramento de preços + SEFAZ ao vivo. A identidade de dispositivo é só a base.</td></tr>
+      <tr><td>iOS</td>
+          <td><span class="pill off">não configurado</span> Base Flutter suporta, mas só
+          Android e web estão configurados.</td></tr>
+      <tr><td>Postgres / pgvector e Langfuse</td>
+          <td><span class="pill off">não usados</span> Declarados para o futuro (embeddings,
+          tracing de LLM), mas o app hoje é nativo de Redis e não os utiliza.</td></tr>
+      <tr><td>Avaliação de acurácia de casamento</td>
+          <td><span class="pill partial">parcial</span> Há métrica de qualidade de
+          <i>extração de tamanho</i>; ainda não há eval rotulado de precisão do
+          casamento termo→produto.</td></tr>
+    </table>
+
+    <!-- ====== STATUS ====== -->
+    <h2 id="status">Status do projeto</h2>
+    <ul>
+      <li><b>No ar:</b> app web + API e painel administrativo (em modo mock).</li>
+      <li><b>Para ir a produção com dados reais:</b> preencher <code>SEFAZ_APP_TOKEN</code> e
+        <code>ANTHROPIC_API_KEY</code> no <code>.env</code> e virar <code>USE_MOCK_*=false</code>.</li>
+      <li><b>Licença:</b> MIT.</li>
+    </ul>
+
+    <footer>
+      Projeto Preços Públicos IA · Compre Barato Alagoas · Licença MIT.<br/>
+      Dados de origem: API pública Economiza Alagoas (SEFAZ-AL).
+    </footer>
+  </main>
+</div>
+</body>
+</html>

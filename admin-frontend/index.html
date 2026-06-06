@@ -49,9 +49,14 @@
         <button class="tab" data-tab="items">Itens</button>
       </div>
       <div class="tab-group">
+        <span class="tab-group-label">Crescimento</span>
+        <button class="tab" data-tab="growth">Usuários</button>
+      </div>
+      <div class="tab-group">
         <span class="tab-group-label">Técnico</span>
         <button class="tab" data-tab="performance">Desempenho</button>
         <button class="tab" data-tab="providers">Provedores</button>
+        <button class="tab" data-tab="settings">Configurações</button>
       </div>
     </nav>
 
@@ -146,6 +151,31 @@
         </div>
       </section>
 
+      <!-- Crescimento (usuários: DAU/WAU/MAU, retenção, atividade) -->
+      <section id="tab-growth" class="panel" hidden>
+        <p class="section-note">Quantas pessoas usam o app, com que frequência e em que
+          horários — tudo por contagem anônima e agregada (sem saber quem é ninguém).</p>
+        <div class="cards" id="growth-cards"></div>
+        <div class="chart-box">
+          <h3>Usuários únicos por dia (novos vs. recorrentes)</h3>
+          <canvas id="chart-dau"></canvas>
+        </div>
+        <div class="grid-2">
+          <div class="chart-box">
+            <h3>Atividade por hora do dia</h3>
+            <canvas id="chart-hourofday"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Atividade por dia da semana</h3>
+            <canvas id="chart-weekday"></canvas>
+          </div>
+        </div>
+        <div class="chart-box">
+          <h3>Buscas por usuário ativo (por dia)</h3>
+          <canvas id="chart-engagement"></canvas>
+        </div>
+      </section>
+
       <!-- Desempenho (tempo de resposta + subsistemas) -->
       <section id="tab-performance" class="panel" hidden>
         <p class="section-note">Quanto tempo o usuário espera pela resposta completa e onde esse tempo é gasto.</p>
@@ -184,6 +214,16 @@
             <th>Latência média</th><th>p95</th><th>Última falha</th>
           </tr></thead><tbody></tbody></table>
         </div>
+      </section>
+
+      <!-- Configurações: segredos de terceiros (token SEFAZ) -->
+      <section id="tab-settings" class="panel" hidden>
+        <p class="section-note">Credenciais de terceiros são criptografadas no servidor
+          e nunca aparecem em arquivos, logs ou nesta tela. Informe o valor para defini-lo
+          ou trocá-lo; só mostramos uma “impressão digital” curta para você confirmar qual
+          valor está ativo.</p>
+        <div id="secrets-warning" class="badge warn" hidden></div>
+        <div id="secrets-list"></div>
       </section>
     </main>
     <p id="status" class="status"></p>

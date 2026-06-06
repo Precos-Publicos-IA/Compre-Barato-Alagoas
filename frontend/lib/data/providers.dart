@@ -3,9 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/config.dart';
 import '../core/location.dart';
+import 'analytics_id.dart';
 import 'api_client.dart';
 import 'device_identity.dart';
 import 'models.dart';
+import 'store_prefs.dart';
 
 /// Shared API client.
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
@@ -13,6 +15,50 @@ final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
 /// Pseudo-anonymous device identity (token in secure storage).
 final deviceIdentityProvider =
     Provider<DeviceIdentity>((ref) => DeviceIdentity());
+
+/// Anonymous usage-measurement id (separate from the credential above).
+final analyticsIdProvider = Provider<AnalyticsId>((ref) => AnalyticsId());
+
+/// Whether anonymous usage statistics are sent. Legal basis: legítimo interesse
+/// (LGPD); this is the Art. 18 §2 opt-out, so it defaults ON. Turning it off stops
+/// the id being sent and forgets it locally.
+class UsageStatsNotifier extends AsyncNotifier<bool> {
+  static const _kKey = 'usage_stats_v1';
+
+  @override
+  Future<bool> build() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_kKey) ?? true;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  Future<void> set(bool value) async {
+    state = AsyncValue.data(value);
+    if (!value) {
+      await ref.read(analyticsIdProvider).clear();
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_kKey, value);
+    } catch (_) {
+      // Best-effort mirror.
+    }
+  }
+}
+
+final usageStatsProvider =
+    AsyncNotifierProvider<UsageStatsNotifier, bool>(UsageStatsNotifier.new);
+
+/// Stores the user marked as favourites / hidden ("ocultas"), kept on-device.
+final favoriteStoresProvider =
+    AsyncNotifierProvider<StorePrefs, Map<String, String>>(
+        () => StorePrefs('favorite_stores_v1'));
+final avoidedStoresProvider =
+    AsyncNotifierProvider<StorePrefs, Map<String, String>>(
+        () => StorePrefs('avoided_stores_v1'));
 
 /// Whether the user opted into saving lists on the server ("cloud sync"). This
 /// is the LGPD consent toggle: enabling registers consent + a device record,
@@ -112,12 +158,20 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
       if (ref.read(cloudSyncProvider).asData?.value == true) {
         deviceToken = await ref.read(deviceIdentityProvider).getOrCreateToken();
       }
+      // Anonymous usage measurement (opt-out): sent on every search unless off.
+      String? analyticsId;
+      if (ref.read(usageStatsProvider).asData?.value ?? true) {
+        analyticsId = await ref.read(analyticsIdProvider).getOrCreate();
+      }
+      final avoided = ref.read(avoidedStoresProvider).asData?.value ?? const {};
       return ref.read(apiClientProvider).search(
             items,
             latitude: origin.latitude,
             longitude: origin.longitude,
             radiusKm: radiusKm,
             deviceToken: deviceToken,
+            analyticsId: analyticsId,
+            excludedCnpjs: avoided.keys.toList(),
           );
     });
   }

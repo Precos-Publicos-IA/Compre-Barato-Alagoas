@@ -26,15 +26,20 @@ def build_store_results(
     offers_by_item: dict[str, list[NormalizedOffer]],
     origin: tuple[float, float] | None,
     top_n: int,
+    excluded_cnpjs: set[str] | None = None,
 ) -> list[StoreResult]:
+    excluded = excluded_cnpjs or set()
     # store cnpj -> {item_query -> best offer at that store}
     by_store: dict[str, dict[str, NormalizedOffer]] = {}
     store_meta: dict[str, NormalizedOffer] = {}
 
     for query in item_queries:
-        # group this item's offers by store, keep best per store
+        # group this item's offers by store, keep best per store. Drop hidden stores
+        # here — *before* ranking/truncation — so they free their slot for a real result.
         per_store: dict[str, list[NormalizedOffer]] = {}
         for offer in offers_by_item.get(query, []):
+            if offer.cnpj in excluded:
+                continue
             per_store.setdefault(offer.cnpj, []).append(offer)
         for cnpj, offers in per_store.items():
             best = _best_offer(offers)

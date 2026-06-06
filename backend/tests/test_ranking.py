@@ -41,3 +41,17 @@ def test_distance_computed_when_origin_given(registro_factory):
     results = build_store_results(["arroz"], {"arroz": [a]}, origin=(-9.65, -35.71), top_n=5)
     assert results[0].distance_km is not None
     assert results[0].distance_km < 5
+
+
+def test_excluded_cnpjs_filtered_before_top_n(registro_factory):
+    # Two stores stock the item; B is cheaper, so B wins the single slot by default.
+    a = _offer(registro_factory(descricao="ARROZ 1KG", valor_venda=9.0, cnpj="A", nome="A"))
+    b = _offer(registro_factory(descricao="ARROZ 1KG", valor_venda=5.0, cnpj="B", nome="B"))
+    top1 = build_store_results(["arroz"], {"arroz": [a, b]}, origin=None, top_n=1)
+    assert top1[0].cnpj == "B"
+    # Hiding B must free its slot for A — i.e. filtered BEFORE ranking/truncation,
+    # not dropped after (which would leave an empty result).
+    excl = build_store_results(
+        ["arroz"], {"arroz": [a, b]}, origin=None, top_n=1, excluded_cnpjs={"B"}
+    )
+    assert [s.cnpj for s in excl] == ["A"]

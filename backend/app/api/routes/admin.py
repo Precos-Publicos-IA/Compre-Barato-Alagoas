@@ -10,10 +10,12 @@ from __future__ import annotations
 import hmac
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from pydantic import BaseModel, field_validator
 
 from ...analytics import Analytics
 from ...config import Settings
-from ..deps import get_analytics, get_settings_dep
+from ...services.secrets import MANAGED_SECRETS, SecretStore, SecretStoreUnavailable
+from ..deps import get_analytics, get_secrets, get_settings_dep
 
 router = APIRouter(prefix="/admin/api", tags=["admin"])
 
@@ -50,6 +52,15 @@ async def overview(
     data["llm_model"] = settings.llm_model
     data["policy_version"] = settings.policy_version
     return data
+
+
+@router.get("/growth", dependencies=[Depends(require_admin)])
+async def growth(
+    days: int = Query(14, ge=1, le=90),
+    analytics: Analytics = Depends(get_analytics),
+) -> dict:
+    """User-growth metrics: DAU/WAU/MAU, new-vs-returning, activity by hour & weekday."""
+    return await analytics.growth(days)
 
 
 @router.get("/quality", dependencies=[Depends(require_admin)])
@@ -100,6 +111,61 @@ async def timings(
 ) -> dict:
     """Response-time distribution/trend + per-subsystem latency."""
     return await analytics.timings(days)
+
+
+class SecretIn(BaseModel):
+    value: str
+
+    @field_validator("value")
+    @classmethod
+    def _non_empty(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("valor vazio")
+        return v
+
+
+async def _secrets_payload(secrets: SecretStore) -> dict:
+    return {
+        "encryption_enabled": secrets.enabled,
+        "secrets": [await secrets.status(name) for name in MANAGED_SECRETS],
+    }
+
+
+@router.get("/secrets", dependencies=[Depends(require_admin)])
+async def list_secrets(secrets: SecretStore = Depends(get_secrets)) -> dict:
+    """Status of operator-managed secrets — never the values, only a fingerprint."""
+    return await _secrets_payload(secrets)
+
+
+@router.put("/secrets/{name}", dependencies=[Depends(require_admin)])
+async def set_secret(
+    name: str,
+    body: SecretIn,
+    secrets: SecretStore = Depends(get_secrets),
+) -> dict:
+    """Store/rotate a managed secret. Encrypted at rest; the value is never echoed back."""
+    if name not in MANAGED_SECRETS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Segredo desconhecido.")
+    try:
+        await secrets.set_secret(name, body.value)
+    except SecretStoreUnavailable:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Criptografia de segredos desativada (defina SECRET_ENCRYPTION_KEY).",
+        )
+    return await _secrets_payload(secrets)
+
+
+@router.delete("/secrets/{name}", dependencies=[Depends(require_admin)])
+async def delete_secret(
+    name: str,
+    secrets: SecretStore = Depends(get_secrets),
+) -> dict:
+    if name not in MANAGED_SECRETS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Segredo desconhecido.")
+    await secrets.delete_secret(name)
+    return await _secrets_payload(secrets)
 
 
 @router.get("/providers", dependencies=[Depends(require_admin)])

@@ -18,6 +18,8 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import time
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -37,7 +39,21 @@ FEEDBACK_KINDS = ("helpful", "wrong_item", "other")
 _LATENCY_BUCKETS_MS = (50, 100, 250, 500, 1000, 2000, 4000, 8000)
 _N_BUCKETS = len(_LATENCY_BUCKETS_MS) + 1  # +1 overflow
 # Subsystem stages timed per search (goals: user wait time + subsystem health).
-TIMING_STAGES = ("total", "llm", "sefaz", "cache", "normalize", "rank")
+# ``analytics`` measures the best-effort analytics writes themselves: they now run in
+# the background (off the user's clock), so this should contribute ~nothing to ``total``.
+TIMING_STAGES = ("total", "llm", "sefaz", "cache", "normalize", "rank", "analytics")
+
+
+@dataclass
+class SearchAnalyticsBatch:
+    """Everything one search wants to record, collected on the hot path and written
+    later by :meth:`Analytics.flush` in the background. Keeps analytics off the user's
+    request clock (the writes are best-effort and never block the response)."""
+
+    provider_calls: list[dict[str, Any]] = field(default_factory=list)
+    llm_call: dict[str, Any] | None = None
+    search: dict[str, Any] | None = None
+    timings: dict[str, float] = field(default_factory=dict)
 
 
 def _bucket_index(ms: float) -> int:
@@ -78,6 +94,12 @@ def _last_days(n: int) -> list[str]:
     return [(today - timedelta(days=i)).strftime("%Y%m%d") for i in range(n - 1, -1, -1)]
 
 
+def _prev_days(day: str, n: int) -> list[str]:
+    """The ``n`` day buckets immediately *before* ``day`` (exclusive of ``day``)."""
+    d = datetime.strptime(day, "%Y%m%d").date()
+    return [(d - timedelta(days=i)).strftime("%Y%m%d") for i in range(1, n + 1)]
+
+
 class Analytics:
     def __init__(self, *, client: Any) -> None:
         self._redis = client
@@ -96,6 +118,7 @@ class Analytics:
         notfound_labels: list[str],
         parse_methods: dict[str, int],
         device_token: str | None = None,
+        analytics_id: str | None = None,
         approx_region: str | None = None,
     ) -> None:
         day = _today()
@@ -118,10 +141,12 @@ class Analytics:
                 pipe.zincrby(f"stats:items:searched:{day}", 1, label)
             for label in notfound_labels:
                 pipe.zincrby(f"stats:items:notfound:{day}", 1, label)
-            if device_token:
-                h = hashlib.sha256(
-                    (_DEVICE_SALT + device_token).encode()
-                ).hexdigest()
+            # Unique-user count: prefer the always-sent anonymous analytics id; fall
+            # back to the consent device token (rarely sent). Only a salted hash enters
+            # the HyperLogLog — aggregate cardinality, no per-device row, not reversible.
+            hll_id = analytics_id or device_token
+            if hll_id:
+                h = hashlib.sha256((_DEVICE_SALT + hll_id).encode()).hexdigest()
                 pipe.pfadd(f"stats:devices:{day}", h)
                 pipe.pfadd("stats:devices:total", h)
             fields = {
@@ -240,6 +265,28 @@ class Analytics:
         except Exception:  # pragma: no cover
             logger.exception("record_provider_call failed")
 
+    async def flush(self, batch: SearchAnalyticsBatch) -> None:
+        """Write one search's collected analytics, **off the request hot path**.
+
+        Dispatched as a FastAPI background task so the user's response is already sent.
+        Self-times the Redis work and records it as the ``analytics`` timing stage, so
+        the Desempenho tab can show analytics contributes ~nothing to user wait time.
+        Best-effort: never raises (each ``record_*`` already swallows its own errors).
+        """
+        t0 = time.perf_counter()
+        try:
+            for call in batch.provider_calls:
+                await self.record_provider_call(**call)
+            if batch.llm_call is not None:
+                await self.record_llm_call(**batch.llm_call)
+            if batch.search is not None:
+                await self.record_search(**batch.search)
+        except Exception:  # pragma: no cover - analytics never breaks anything
+            logger.exception("analytics flush failed")
+        finally:
+            analytics_ms = (time.perf_counter() - t0) * 1000
+            await self.record_timings({**batch.timings, "analytics": analytics_ms})
+
     # --- read path (admin dashboard) --------------------------------------
 
     async def _get_int(self, key: str) -> int:
@@ -255,6 +302,14 @@ class Analytics:
             return float(v) if v is not None else 0.0
         except (TypeError, ValueError):
             return 0.0
+
+    async def _pfcount(self, *keys: str) -> int:
+        """Unique-cardinality estimate over one or more HyperLogLogs. Multiple keys give
+        the **union** (Redis ``PFCOUNT key1 key2 …``) — used for WAU/MAU/returning."""
+        try:
+            return int(await self._redis.pfcount(*keys))
+        except Exception:  # pragma: no cover
+            return 0
 
     @staticmethod
     def _dec(value: Any) -> Any:
@@ -463,6 +518,67 @@ class Analytics:
                 }
             )
         return {"providers": out}
+
+    async def growth(self, days: int = 14) -> dict[str, Any]:
+        """User-growth metrics (the "Crescimento" tab). Derived almost entirely from the
+        per-day unique-user HyperLogLogs (``stats:devices:{day}``) and the search
+        counters/hour hashes we already write — so it adds ~no write-path cost.
+
+        New-vs-returning is estimated by inclusion–exclusion on the HLLs: a returning
+        user on day *d* is one also seen in the previous 7 days, i.e.
+        ``returning ≈ DAU(d) + |prev7| − |d ∪ prev7|``. Coarse but free."""
+        buckets = _last_days(days)
+        dau: list[int] = []
+        for day in buckets:
+            dau.append(await self._pfcount(f"stats:devices:{day}"))
+
+        search_counts: list[int] = []
+        for day in buckets:
+            search_counts.append(await self._get_int(f"stats:search:count:{day}"))
+        searches_per_user = [
+            round(s / u, 2) if u else 0.0 for s, u in zip(search_counts, dau)
+        ]
+
+        new_users: list[int] = []
+        returning_users: list[int] = []
+        for i, day in enumerate(buckets):
+            d = dau[i]
+            prev_keys = [f"stats:devices:{b}" for b in _prev_days(day, 7)]
+            wau_prev = await self._pfcount(*prev_keys) if prev_keys else 0
+            union = await self._pfcount(f"stats:devices:{day}", *prev_keys)
+            returning = min(d, max(0, d + wau_prev - union))
+            returning_users.append(returning)
+            new_users.append(max(0, d - returning))
+
+        hours = [0] * 24
+        for day in buckets:
+            rec = self._decode_map(
+                await self._redis.hgetall(f"stats:search:hour:{day}")
+            )
+            for h in range(24):
+                hours[h] += int(rec.get(f"{h:02d}", 0) or 0)
+
+        weekday = [0] * 7  # 0 = Monday … 6 = Sunday
+        for day, count in zip(buckets, search_counts):
+            weekday[datetime.strptime(day, "%Y%m%d").weekday()] += count
+
+        dau_today = await self._pfcount(f"stats:devices:{_today()}")
+        wau = await self._pfcount(*[f"stats:devices:{b}" for b in _last_days(7)])
+        mau = await self._pfcount(*[f"stats:devices:{b}" for b in _last_days(30)])
+        return {
+            "days": buckets,
+            "dau": dau,
+            "new_users": new_users,
+            "returning_users": returning_users,
+            "searches_per_user": searches_per_user,
+            "hours": hours,
+            "weekday": weekday,
+            "total_unique_users": await self._pfcount("stats:devices:total"),
+            "dau_today": dau_today,
+            "wau": wau,
+            "mau": mau,
+            "stickiness": self._rate(dau_today, mau),
+        }
 
     # --- helpers -----------------------------------------------------------
 

@@ -2,8 +2,11 @@ import pytest
 
 from app.analytics import (
     Analytics,
+    SearchAnalyticsBatch,
     _bucket_index,
     _percentile_from_buckets,
+    _prev_days,
+    _today,
 )
 from app.cache import Cache
 
@@ -117,6 +120,70 @@ async def test_record_timings_feeds_timings():
     assert sum(t["distribution"]) == 2
     assert t["total_series"]["count"][-1] == 2
     assert t["total_series"]["avg_ms"][-1] == pytest.approx(800.0, abs=0.1)
+
+
+@pytest.mark.asyncio
+async def test_growth_dau_new_returning_and_activity():
+    a = _analytics()
+    today = _today()
+    yesterday = _prev_days(today, 1)[0]
+    # "ua" seen yesterday + today (returning); "ub" only today (new).
+    await a._redis.pfadd(f"stats:devices:{yesterday}", "ua")
+    await a._redis.pfadd(f"stats:devices:{today}", "ua", "ub")
+    await a._redis.set(f"stats:search:count:{today}", 4)
+    await a._redis.hset(f"stats:search:hour:{today}", "13", 4)
+
+    g = await a.growth(days=2)
+    assert g["days"][-1] == today
+    assert g["dau"][-1] == 2 and g["dau_today"] == 2
+    assert g["returning_users"][-1] == 1  # ua
+    assert g["new_users"][-1] == 1  # ub
+    assert g["wau"] == 2 and g["mau"] == 2
+    assert g["stickiness"] == pytest.approx(1.0, abs=1e-6)  # 2 today / 2 monthly
+    # 4 searches / 2 active users today.
+    assert g["searches_per_user"][-1] == pytest.approx(2.0, abs=1e-6)
+    assert g["hours"][13] == 4 and len(g["hours"]) == 24
+    assert sum(g["weekday"]) == 4 and len(g["weekday"]) == 7
+
+
+@pytest.mark.asyncio
+async def test_flush_writes_everything_and_self_times():
+    a = _analytics()
+    batch = SearchAnalyticsBatch(
+        provider_calls=[
+            {"provider": "llm", "duration_ms": 50, "ok": True},
+            {"provider": "sefaz", "duration_ms": 300, "ok": True},
+        ],
+        llm_call={
+            "model": "claude-haiku-4-5",
+            "input_tokens": 100,
+            "output_tokens": 20,
+            "cost_usd": 0.001,
+        },
+        search={
+            "items_requested": 2,
+            "items_with_match": 2,
+            "total_offers": 4,
+            "parsed_offers": 4,
+            "data_source": "mock",
+            "item_labels": ["arroz", "leite"],
+            "notfound_labels": [],
+            "parse_methods": {"description": 4},
+            "analytics_id": "f" * 32,
+        },
+        timings={"total": 400, "llm": 50, "sefaz": 300, "cache": 5, "normalize": 2, "rank": 1},
+    )
+    await a.flush(batch)
+
+    ov = await a.overview()
+    assert ov["total_searches"] == 1
+    assert ov["estimated_unique_users"] == 1  # counted via the anonymous analytics_id
+    assert {x["name"] for x in (await a.providers(days=1))["providers"]} == {"llm", "sefaz"}
+    assert (await a.costs(days=1))["calls"][-1] == 1
+    t = await a.timings(days=1)
+    by_stage = {s["stage"]: s for s in t["stages"]}
+    assert "analytics" in by_stage  # flush records its own wall-time as a stage
+    assert by_stage["analytics"]["count"] == 1
 
 
 @pytest.mark.asyncio

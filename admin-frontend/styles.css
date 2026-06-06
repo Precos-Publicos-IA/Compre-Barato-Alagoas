@@ -119,3 +119,23 @@ td.bad { color: var(--bad); font-weight: 600; }
 
 .status { text-align: center; color: var(--muted); font-size: 12px; padding: 8px; }
 [hidden] { display: none !important; }
+
+/* Configurações (segredos) */
+.secret-card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; max-width: 640px;
+}
+.secret-card .label { font-weight: 600; margin-bottom: 4px; }
+.secret-card code { color: var(--accent); }
+.secret-form { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.secret-input {
+  flex: 1 1 260px; background: var(--bg-soft); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 14px;
+}
+.secret-form button {
+  background: var(--accent); color: #04130c; border: none; border-radius: 8px;
+  padding: 10px 16px; font-weight: 600; cursor: pointer;
+}
+.secret-form .secret-clear { background: transparent; color: var(--bad); border: 1px solid var(--line); }
+.secret-form button:disabled { opacity: .5; cursor: not-allowed; }
+.secret-msg { margin: 8px 0 0; }

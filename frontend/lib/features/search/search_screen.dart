@@ -5,6 +5,8 @@ import '../../data/providers.dart';
 import '../../data/recent_lists.dart';
 import '../privacy/cloud_sync_sheet.dart';
 import '../results/results_screen.dart';
+import '../settings/settings_sheet.dart';
+import '../stores/store_prefs_sheet.dart';
 import 'apk_banner.dart';
 import 'voice_input.dart';
 
@@ -91,6 +93,33 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             tooltip: 'Salvar listas na nuvem',
             icon: Icon(cloudOn ? Icons.cloud_done : Icons.cloud_outlined),
             onPressed: () => CloudSyncSheet.show(context),
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Mais opções',
+            onSelected: (value) {
+              switch (value) {
+                case 'stores':
+                  StorePrefsSheet.show(context);
+                case 'settings':
+                  SettingsSheet.show(context);
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'stores',
+                child: ListTile(
+                  leading: Icon(Icons.storefront),
+                  title: Text('Minhas lojas'),
+                ),
+              ),
+              PopupMenuItem(
+                value: 'settings',
+                child: ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text('Configurações'),
+                ),
+              ),
+            ],
           ),
         ],
         title: Row(
