@@ -45,6 +45,11 @@ class Cache:
     def backend_name(self) -> str:
         return "redis"
 
+    @property
+    def redis(self) -> Any:
+        """The live Redis client, shared with sibling services (e.g. Analytics)."""
+        return self._redis
+
     async def ping(self) -> None:
         """Fail fast at startup if Redis is unreachable."""
         await self._redis.ping()

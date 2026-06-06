@@ -14,6 +14,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .analytics import Analytics
 from .cache import Cache
 from .config import get_settings
 from .services.llm.factory import build_llm_client
@@ -40,6 +41,7 @@ async def lifespan(app: FastAPI):
     app.state.settings = settings
     app.state.cache = Cache(settings.redis_url, settings.cache_ttl_seconds)
     await app.state.cache.ping()  # fail fast: Redis is mandatory
+    app.state.analytics = Analytics(client=app.state.cache.redis)
     app.state.sefaz = build_sefaz_client(settings)
     app.state.llm = build_llm_client(settings)
     try:
@@ -64,12 +66,14 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    from .api.routes import device, health, search, suggestions
+    from .api.routes import admin, device, feedback, health, search, suggestions
 
     app.include_router(health.router)
     app.include_router(search.router)
     app.include_router(suggestions.router)
     app.include_router(device.router)
+    app.include_router(feedback.router)
+    app.include_router(admin.router)
     return app
 
 

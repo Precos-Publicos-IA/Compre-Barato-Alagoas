@@ -26,7 +26,7 @@ echo "==> Building Flutter web + release APK (API_BASE_URL=https://$DOMAIN)"
     --dart-define=API_BASE_URL="https://$DOMAIN" )
 
 echo "==> Ensuring remote dir"
-"${SSH[@]}" "mkdir -p $REMOTE_DIR/web"
+"${SSH[@]}" "mkdir -p $REMOTE_DIR/web $REMOTE_DIR/admin"
 
 echo "==> Syncing backend + deploy + .env.example + web"
 # Never sync a real .env (secrets stay on the server).
@@ -42,6 +42,10 @@ rsync -az --delete -e "$RSYNC_RSH" --exclude 'app/' \
 rsync -az -e "$RSYNC_RSH" \
   "$REPO_DIR/frontend/build/app/outputs/flutter-apk/app-release.apk" \
   "$HOST:$REMOTE_DIR/web/app/compre-barato-alagoas.apk"
+
+echo "==> Syncing admin dashboard (static; served at admin.$DOMAIN)"
+rsync -az --delete -e "$RSYNC_RSH" \
+  "$REPO_DIR/admin-frontend/" "$HOST:$REMOTE_DIR/admin/"
 
 echo "==> Building & starting containers (single .env at $REMOTE_DIR/.env)"
 "${SSH[@]}" "cd $REMOTE_DIR && [ -f .env ] || cp .env.example .env; \

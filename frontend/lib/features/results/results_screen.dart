@@ -57,7 +57,7 @@ class ResultsScreen extends ConsumerWidget {
                   'Tente mudar os itens da sua lista.',
             );
           }
-          return _Results(response: r);
+          return _Results(response: r, items: basket);
         },
       ),
       bottomNavigationBar: SafeArea(
@@ -75,8 +75,9 @@ class ResultsScreen extends ConsumerWidget {
 }
 
 class _Results extends StatelessWidget {
-  const _Results({required this.response});
+  const _Results({required this.response, required this.items});
   final SearchResponse response;
+  final List<String> items;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +98,175 @@ class _Results extends StatelessWidget {
                 (savings == null && i == 0),
             deltaFromBest: stores[i].total - bestTotal,
           ),
+        _FeedbackCard(listId: response.listId, items: items),
       ],
+    );
+  }
+}
+
+/// Lightweight feedback capture under the results. Anonymous and best-effort —
+/// it feeds the admin dashboard so we can spot bad AI normalization. Low-text,
+/// large touch targets for the low-tech audience.
+class _FeedbackCard extends ConsumerStatefulWidget {
+  const _FeedbackCard({required this.listId, required this.items});
+  final String? listId;
+  final List<String> items;
+
+  @override
+  ConsumerState<_FeedbackCard> createState() => _FeedbackCardState();
+}
+
+class _FeedbackCardState extends ConsumerState<_FeedbackCard> {
+  bool _done = false;
+
+  Future<void> _send({required bool helpful}) async {
+    await ref.read(apiClientProvider).submitFeedback(
+          kind: 'helpful',
+          helpful: helpful,
+          listId: widget.listId,
+        );
+    if (mounted) setState(() => _done = true);
+  }
+
+  Future<void> _report() async {
+    final sent = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _ReportSheet(items: widget.items, listId: widget.listId),
+    );
+    if (sent == true && mounted) setState(() => _done = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: _done
+            ? const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green),
+                  SizedBox(width: 8),
+                  Expanded(child: Text('Obrigado pelo feedback!')),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Este resultado foi útil?',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _send(helpful: true),
+                          icon: const Icon(Icons.thumb_up_alt_outlined),
+                          label: const Text('Sim'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _send(helpful: false),
+                          icon: const Icon(Icons.thumb_down_alt_outlined),
+                          label: const Text('Não'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: _report,
+                    icon: const Icon(Icons.flag_outlined),
+                    label: const Text('Reportar item errado'),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet to report a wrong item: pick the item + optional note.
+class _ReportSheet extends ConsumerStatefulWidget {
+  const _ReportSheet({required this.items, required this.listId});
+  final List<String> items;
+  final String? listId;
+
+  @override
+  ConsumerState<_ReportSheet> createState() => _ReportSheetState();
+}
+
+class _ReportSheetState extends ConsumerState<_ReportSheet> {
+  String? _item;
+  final _note = TextEditingController();
+  bool _sending = false;
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    setState(() => _sending = true);
+    await ref.read(apiClientProvider).submitFeedback(
+          kind: 'wrong_item',
+          item: _item,
+          note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+          listId: widget.listId,
+        );
+    if (mounted) Navigator.of(context).pop(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Reportar item errado',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          if (widget.items.isNotEmpty)
+            DropdownButtonFormField<String>(
+              initialValue: _item,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: 'Qual item?',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                for (final it in widget.items)
+                  DropdownMenuItem(value: it, child: Text(it)),
+              ],
+              onChanged: (v) => setState(() => _item = v),
+            ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _note,
+            maxLength: 500,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              labelText: 'O que houve? (opcional)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _sending ? null : _submit,
+              child: Text(_sending ? 'Enviando…' : 'ENVIAR'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException, Request, status
 
+from ..analytics import Analytics
 from ..cache import Cache
 from ..config import Settings, get_settings
 from ..services.llm.base import LLMClient
@@ -18,6 +19,10 @@ def get_settings_dep() -> Settings:
 
 def get_cache(request: Request) -> Cache:
     return request.app.state.cache
+
+
+def get_analytics(request: Request) -> Analytics:
+    return request.app.state.analytics
 
 
 def get_sefaz(request: Request) -> SefazClient:

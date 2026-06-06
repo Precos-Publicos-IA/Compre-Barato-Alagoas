@@ -65,6 +65,10 @@ class Settings(BaseSettings):
     # --- Rate limiting ---
     daily_search_limit: int = 300    # per client per day; 0 disables
 
+    # --- Admin dashboard ---
+    # Bearer token guarding /admin/api/*. Empty => admin API is disabled (401).
+    admin_token: str = ""
+
     # --- Database (Postgres + pgvector) — optional; core flow works without it ---
     database_url: str = ""
 

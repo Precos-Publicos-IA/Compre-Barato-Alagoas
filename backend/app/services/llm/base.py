@@ -7,7 +7,7 @@ contract, so flipping ``USE_MOCK_LLM`` is the only change needed later.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
 
@@ -21,10 +21,32 @@ class ParsedItem:
     quantity: int = 1  # how many they want (used for totals later; v1 keeps 1)
 
 
+@dataclass(frozen=True)
+class LLMUsage:
+    """Token usage for one LLM call — feeds cost tracking on the dashboard.
+
+    ``None`` from a client means "no real call" (mock parser, or the real client
+    fell back after an error); the caller estimates tokens in that case.
+    """
+
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_creation_tokens: int = 0
+
+
+@dataclass(frozen=True)
+class ParseResult:
+    """The parsed basket plus the token usage of the call that produced it."""
+
+    items: list[ParsedItem] = field(default_factory=list)
+    usage: LLMUsage | None = None
+
+
 @runtime_checkable
 class LLMClient(Protocol):
     source_name: str
 
-    async def parse_list(self, raw_items: list[str]) -> list[ParsedItem]:
+    async def parse_list(self, raw_items: list[str]) -> ParseResult:
         """Split/normalize free-text basket lines into searchable items."""
         ...
