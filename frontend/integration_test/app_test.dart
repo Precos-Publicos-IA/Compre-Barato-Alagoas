@@ -47,6 +47,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Mapa'), findsOneWidget);
 
+    // Feedback card at the bottom: send a 👍 to the live backend.
+    await tester.scrollUntilVisible(
+      find.text('Este resultado foi útil?'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Sim'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Obrigado pelo feedback!'), findsOneWidget);
+
     // Back to the search screen — the basket we just searched is now saved.
     await tester.tap(find.text('EDITAR LISTA'));
     await tester.pumpAndSettle();

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin · Compre Barato Alagoas</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Token gate -->
+  <div id="login" class="login" hidden>
+    <form id="login-form" class="login-card">
+      <h1>Painel Admin</h1>
+      <p>Compre Barato Alagoas</p>
+      <input id="token" type="password" placeholder="Token de acesso" autocomplete="off" />
+      <button type="submit">Entrar</button>
+      <p id="login-error" class="error" hidden>Token inválido.</p>
+    </form>
+  </div>
+
+  <!-- App -->
+  <div id="app" hidden>
+    <header class="topbar">
+      <div class="brand">Compre Barato Alagoas <span>· Admin</span></div>
+      <div class="topbar-right">
+        <span id="mode-badge" class="badge" hidden></span>
+        <label class="range">
+          Período
+          <select id="range">
+            <option value="7">7 dias</option>
+            <option value="14" selected>14 dias</option>
+            <option value="30">30 dias</option>
+          </select>
+        </label>
+        <button id="refresh" class="ghost">Atualizar</button>
+        <button id="logout" class="ghost">Sair</button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <div class="tab-group">
+        <span class="tab-group-label">IA &amp; Produto</span>
+        <button class="tab active" data-tab="overview">Visão geral</button>
+        <button class="tab" data-tab="quality">Qualidade da IA</button>
+        <button class="tab" data-tab="costs">Custos</button>
+        <button class="tab" data-tab="feedback">Feedback</button>
+        <button class="tab" data-tab="searches">Buscas recentes</button>
+        <button class="tab" data-tab="items">Itens</button>
+      </div>
+      <div class="tab-group">
+        <span class="tab-group-label">Técnico</span>
+        <button class="tab" data-tab="performance">Desempenho</button>
+        <button class="tab" data-tab="providers">Provedores</button>
+      </div>
+    </nav>
+
+    <main>
+      <!-- Overview -->
+      <section id="tab-overview" class="panel">
+        <div class="cards" id="overview-cards"></div>
+        <div class="chart-box">
+          <h3>Buscas por hora (hoje)</h3>
+          <canvas id="chart-hours"></canvas>
+        </div>
+      </section>
+
+      <!-- Quality -->
+      <section id="tab-quality" class="panel" hidden>
+        <div class="chart-box">
+          <h3>Taxa de acerto da normalização (por dia)</h3>
+          <canvas id="chart-match"></canvas>
+        </div>
+        <div class="grid-2">
+          <div class="chart-box">
+            <h3>Qualidade do tamanho/quantidade (por dia)</h3>
+            <canvas id="chart-parse"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Como o preço/un foi derivado</h3>
+            <canvas id="chart-method"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Costs -->
+      <section id="tab-costs" class="panel" hidden>
+        <div class="grid-2">
+          <div class="chart-box">
+            <h3>Custo de IA por dia (USD)</h3>
+            <canvas id="chart-cost"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Tokens por dia</h3>
+            <canvas id="chart-tokens"></canvas>
+          </div>
+        </div>
+        <div class="table-box">
+          <h3>Por modelo</h3>
+          <table id="model-table"><thead><tr>
+            <th>Modelo</th><th>Chamadas</th><th>Tokens entrada</th>
+            <th>Tokens saída</th><th>Custo (USD)</th>
+          </tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- Feedback -->
+      <section id="tab-feedback" class="panel" hidden>
+        <div class="cards" id="feedback-counts"></div>
+        <label class="range">
+          Filtrar
+          <select id="fb-kind">
+            <option value="">Todos</option>
+            <option value="helpful">Útil (👍/👎)</option>
+            <option value="wrong_item">Item errado</option>
+            <option value="other">Outro</option>
+          </select>
+        </label>
+        <div class="table-box">
+          <table id="feedback-table"><thead><tr>
+            <th>Quando</th><th>Tipo</th><th>Útil?</th><th>Item</th><th>Nota</th>
+          </tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- Recent searches -->
+      <section id="tab-searches" class="panel" hidden>
+        <div class="table-box">
+          <table id="search-table"><thead><tr>
+            <th>Quando</th><th>Itens</th><th>Encontrados</th><th>Fonte</th>
+          </tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- Items -->
+      <section id="tab-items" class="panel" hidden>
+        <div class="grid-2">
+          <div class="table-box">
+            <h3>Mais pesquisados</h3>
+            <table id="top-table"><thead><tr><th>Item</th><th>Buscas</th></tr></thead><tbody></tbody></table>
+          </div>
+          <div class="table-box">
+            <h3>Mais "não encontrados"</h3>
+            <table id="notfound-table"><thead><tr><th>Item</th><th>Vezes</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Desempenho (tempo de resposta + subsistemas) -->
+      <section id="tab-performance" class="panel" hidden>
+        <p class="section-note">Quanto tempo o usuário espera pela resposta completa e onde esse tempo é gasto.</p>
+        <div class="cards" id="performance-cards"></div>
+        <div class="grid-2">
+          <div class="chart-box">
+            <h3>Distribuição do tempo de resposta</h3>
+            <canvas id="chart-latency-dist"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Latência ao longo do tempo</h3>
+            <canvas id="chart-latency-trend"></canvas>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="chart-box">
+            <h3>Latência média por subsistema (ms)</h3>
+            <canvas id="chart-subsystems"></canvas>
+          </div>
+          <div class="table-box">
+            <h3>Por subsistema</h3>
+            <table id="subsystem-table"><thead><tr>
+              <th>Subsistema</th><th>Amostras</th><th>Média</th><th>p50</th><th>p95</th>
+            </tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Provedores (saúde de terceiros: IA, SEFAZ) -->
+      <section id="tab-providers" class="panel" hidden>
+        <p class="section-note">Saúde dos terceiros de quem dependemos. Latência alta ou erros indicam ajustar cache / reduzir consultas.</p>
+        <div class="cards" id="provider-cards"></div>
+        <div class="table-box">
+          <table id="provider-table"><thead><tr>
+            <th>Provedor</th><th>Chamadas</th><th>Taxa de erro</th>
+            <th>Latência média</th><th>p95</th><th>Última falha</th>
+          </tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+    </main>
+    <p id="status" class="status"></p>
+  </div>
+
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

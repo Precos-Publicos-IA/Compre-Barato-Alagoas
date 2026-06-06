@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 
-from .base import LLMClient, ParsedItem
+from .base import LLMClient, ParsedItem, ParseResult
 
 # Split on commas, semicolons, newlines, slashes and the conjunction " e ".
 _SPLIT_RE = re.compile(r"[,;\n/]+|\s+e\s+", re.IGNORECASE)
@@ -40,7 +40,7 @@ def _clean_term(token: str) -> tuple[str, int]:
 class MockLLMClient(LLMClient):
     source_name = "mock"
 
-    async def parse_list(self, raw_items: list[str]) -> list[ParsedItem]:
+    async def parse_list(self, raw_items: list[str]) -> ParseResult:
         out: list[ParsedItem] = []
         seen: set[str] = set()
         for raw in raw_items:
@@ -63,4 +63,5 @@ class MockLLMClient(LLMClient):
                         quantity=qty,
                     )
                 )
-        return out
+        # Mock parser does no real LLM call: usage=None signals "estimate cost".
+        return ParseResult(items=out, usage=None)

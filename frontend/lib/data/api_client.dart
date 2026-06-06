@@ -85,6 +85,39 @@ class ApiClient {
     return SearchResponse.fromJson(body);
   }
 
+  /// Sends user feedback on results (👍/👎 or "item errado"). Best-effort and
+  /// anonymous by default; a device token is sent only if the caller passes one
+  /// (consented devices). Never throws on the UI path — returns false on failure.
+  Future<bool> submitFeedback({
+    required String kind,
+    bool? helpful,
+    String? item,
+    String? note,
+    String? listId,
+    String? deviceToken,
+  }) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/api/v1/feedback');
+      final resp = await _client.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          deviceTokenHeader: ?deviceToken,
+        },
+        body: jsonEncode({
+          'kind': kind,
+          'helpful': ?helpful,
+          'item': ?item,
+          'note': ?note,
+          'list_id': ?listId,
+        }),
+      );
+      return resp.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // --- Pseudo-anonymous device (LGPD consent, login-free) -----------------
 
   /// Records this device's consent so the server may store its data (the basis

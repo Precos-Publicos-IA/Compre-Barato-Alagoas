@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import time
 
 from ..config import MACEIO_LAT, MACEIO_LON, Settings
 from ..schemas.search import (
@@ -17,7 +18,8 @@ from ..schemas.search import (
     SearchRequest,
     SearchResponse,
 )
-from .llm.base import LLMClient
+from .llm.base import LLMClient, LLMUsage
+from .llm.pricing import cost_usd
 from .normalization.matcher import NormalizedOffer, normalize_offer
 from .ranking import build_store_results
 from .sefaz.base import SefazClient
@@ -32,6 +34,12 @@ def _cache_key(term: str, lat: float, lon: float, radius: int, days: int) -> str
     return f"sefaz:search:{digest}"
 
 
+def _estimate_tokens(text: str) -> int:
+    """Rough token estimate (~4 chars/token) for the mock/fallback path so the
+    cost dashboard isn't empty before the real Claude key is wired."""
+    return max(1, len(text) // 4)
+
+
 async def run_search(
     req: SearchRequest,
     *,
@@ -39,6 +47,7 @@ async def run_search(
     sefaz: SefazClient,
     llm: LLMClient,
     cache,
+    analytics=None,
     device_token: str | None = None,
 ) -> SearchResponse:
     lat = req.latitude if req.latitude is not None else MACEIO_LAT
@@ -46,13 +55,56 @@ async def run_search(
     radius = req.radius_km or settings.default_radius_km
     days = req.days or settings.default_days
 
-    parsed = await llm.parse_list(req.items)
+    # Stage timers (ms) feed the admin "Desempenho"/"Provedores" tabs. Best-effort:
+    # perf_counter deltas only, recorded after the response is built.
+    t_start = time.perf_counter()
+    sefaz_ms = cache_ms = normalize_ms = 0.0
+
+    t0 = time.perf_counter()
+    result = await llm.parse_list(req.items)
+    llm_ms = (time.perf_counter() - t0) * 1000
+    parsed = result.items
+
+    # Token usage for cost tracking. Real client returns it; the mock/fallback
+    # path returns None, so we estimate from the text size and flag it as mock.
+    usage = result.usage
+
+    # Provider (AI) health: in production a None usage means the real Claude call
+    # failed and fell back to the mock parser — a meaningful degradation signal.
+    if analytics is not None:
+        llm_ok = settings.use_mock_llm or usage is not None
+        await analytics.record_provider_call(
+            provider="llm", duration_ms=llm_ms, ok=llm_ok
+        )
+    if usage is None:
+        usage = LLMUsage(
+            input_tokens=_estimate_tokens("\n".join(req.items)),
+            output_tokens=_estimate_tokens(
+                " ".join(f"{p.label}{p.search_term}" for p in parsed)
+            ),
+        )
+    if analytics is not None:
+        await analytics.record_llm_call(
+            model=settings.llm_model,
+            input_tokens=usage.input_tokens,
+            output_tokens=usage.output_tokens,
+            cache_read_tokens=usage.cache_read_tokens,
+            cache_creation_tokens=usage.cache_creation_tokens,
+            cost_usd=cost_usd(
+                settings.llm_model,
+                input_tokens=usage.input_tokens,
+                output_tokens=usage.output_tokens,
+                cache_read_tokens=usage.cache_read_tokens,
+                cache_creation_tokens=usage.cache_creation_tokens,
+            ),
+        )
 
     offers_by_item: dict[str, list[NormalizedOffer]] = {}
     item_queries: list[str] = []
     total_offers = 0
     parsed_offers = 0
     items_with_match = 0
+    parse_methods: dict[str, int] = {}
 
     for item in parsed:
         if item.label in offers_by_item:
@@ -60,35 +112,59 @@ async def run_search(
         item_queries.append(item.label)
 
         key = _cache_key(item.search_term, lat, lon, radius, days)
+        t0 = time.perf_counter()
         cached = await cache.get_json(key)
+        cache_ms += (time.perf_counter() - t0) * 1000
         if cached is not None:
             resp = PesquisaResponse.model_validate(cached)
         else:
-            resp = await sefaz.search_product(
-                descricao=item.search_term,
-                latitude=lat,
-                longitude=lon,
-                radius_km=radius,
-                days=days,
-                registros_por_pagina=settings.records_per_page,
-            )
+            # Provider (SEFAZ) health: time each real fetch and flag failures.
+            t0 = time.perf_counter()
+            ok = True
+            try:
+                resp = await sefaz.search_product(
+                    descricao=item.search_term,
+                    latitude=lat,
+                    longitude=lon,
+                    radius_km=radius,
+                    days=days,
+                    registros_por_pagina=settings.records_per_page,
+                )
+            except Exception:
+                ok = False
+                raise
+            finally:
+                call_ms = (time.perf_counter() - t0) * 1000
+                sefaz_ms += call_ms
+                if analytics is not None:
+                    await analytics.record_provider_call(
+                        provider="sefaz", duration_ms=call_ms, ok=ok
+                    )
+            t0 = time.perf_counter()
             await cache.set_json(
                 key, resp.model_dump(by_alias=True), ttl=settings.cache_ttl_seconds
             )
+            cache_ms += (time.perf_counter() - t0) * 1000
 
+        t0 = time.perf_counter()
         offers = [o for r in resp.conteudo if (o := normalize_offer(r)) is not None]
+        normalize_ms += (time.perf_counter() - t0) * 1000
         offers_by_item[item.label] = offers
         if offers:
             items_with_match += 1
         total_offers += len(offers)
         parsed_offers += sum(1 for o in offers if o.quantity_parsed)
+        for o in offers:
+            parse_methods[o.parse_method] = parse_methods.get(o.parse_method, 0) + 1
 
+    t0 = time.perf_counter()
     stores = build_store_results(
         item_queries=item_queries,
         offers_by_item=offers_by_item,
         origin=(lat, lon),
         top_n=settings.top_stores,
     )
+    rank_ms = (time.perf_counter() - t0) * 1000
 
     n = len(item_queries) or 1
     metrics = SearchMetrics(
@@ -100,14 +176,42 @@ async def run_search(
         ),
     )
 
+    if analytics is not None:
+        notfound = [lbl for lbl in item_queries if not offers_by_item.get(lbl)]
+        await analytics.record_search(
+            items_requested=len(item_queries),
+            items_with_match=items_with_match,
+            total_offers=total_offers,
+            parsed_offers=parsed_offers,
+            data_source=sefaz.source_name,
+            item_labels=item_queries,
+            notfound_labels=notfound,
+            parse_methods=parse_methods,
+            device_token=device_token,
+        )
+
     # Persist the list under a UUID so it can be shared via a short link and
     # reused on identical searches. Never blocks the search if storage fails.
+    t0 = time.perf_counter()
     list_id = await cache.save_search_list(req.items)
 
     # If a consented device made this search, remember the list under that device
     # (login-free server-side history). No-op for unknown/un-consented tokens.
     if device_token and list_id:
         await cache.attach_list(device_token, list_id)
+    cache_ms += (time.perf_counter() - t0) * 1000
+
+    if analytics is not None:
+        await analytics.record_timings(
+            {
+                "total": (time.perf_counter() - t_start) * 1000,
+                "llm": llm_ms,
+                "sefaz": sefaz_ms,
+                "cache": cache_ms,
+                "normalize": normalize_ms,
+                "rank": rank_ms,
+            }
+        )
 
     return SearchResponse(
         origin=Origin(latitude=lat, longitude=lon),

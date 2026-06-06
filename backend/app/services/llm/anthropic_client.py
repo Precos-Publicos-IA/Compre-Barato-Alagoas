@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import logging
 
-from .base import LLMClient, ParsedItem
+from .base import LLMClient, LLMUsage, ParsedItem, ParseResult
 from .mock_client import MockLLMClient
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class AnthropicLLMClient(LLMClient):
         self._model = model
         self._fallback = MockLLMClient()
 
-    async def parse_list(self, raw_items: list[str]) -> list[ParsedItem]:
+    async def parse_list(self, raw_items: list[str]) -> ParseResult:
         prompt = "Itens:\n" + "\n".join(f"- {i}" for i in raw_items)
         try:
             msg = await self._client.messages.create(
@@ -59,7 +59,17 @@ class AnthropicLLMClient(LLMClient):
                 if it.get("search_term") or it.get("label")
             ]
             if items:
-                return items
+                u = msg.usage
+                usage = LLMUsage(
+                    input_tokens=getattr(u, "input_tokens", 0) or 0,
+                    output_tokens=getattr(u, "output_tokens", 0) or 0,
+                    cache_read_tokens=getattr(u, "cache_read_input_tokens", 0) or 0,
+                    cache_creation_tokens=(
+                        getattr(u, "cache_creation_input_tokens", 0) or 0
+                    ),
+                )
+                return ParseResult(items=items, usage=usage)
         except Exception:  # pragma: no cover - network/parse resilience
             logger.exception("Claude parse_list failed; falling back to mock parser")
+        # Fallback: mock parser (usage=None → caller estimates cost).
         return await self._fallback.parse_list(raw_items)
