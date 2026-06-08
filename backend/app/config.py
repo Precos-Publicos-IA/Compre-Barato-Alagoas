@@ -12,8 +12,10 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-# Maceió city center — used as the default search origin (manual Anexo II IBGE 2704302).
-MACEIO_LAT = -9.6498
+# Default search origin (busy Pajuçara / orla neighborhood). Must stay in sync
+# with frontend/lib/core/location.dart:kMaceioDefault so that location-denied
+# users and backend fallbacks see comparable results and radius filtering.
+MACEIO_LAT = -9.6633
 MACEIO_LON = -35.7089
 MACEIO_IBGE = "2704302"
 
@@ -62,7 +64,8 @@ class Settings(BaseSettings):
 
     # --- Privacy (LGPD) ---
     # Bump when the privacy policy / terms change; stored with each consent record.
-    policy_version: str = "2026-06-05"
+    # Keep in lockstep with frontend AppConfig.policyVersion and .env.example.
+    policy_version: str = "2026-06-06"
 
     # --- Rate limiting ---
     daily_search_limit: int = 300    # per client per day; 0 disables

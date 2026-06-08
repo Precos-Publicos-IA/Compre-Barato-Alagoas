@@ -52,3 +52,13 @@ def test_decimal_comma_and_dot_equivalent():
     a = extract_quantity("REFRI 2,5L")
     b = extract_quantity("REFRI 2.5L")
     assert a and b and a.base_value == pytest.approx(b.base_value)
+
+
+def test_explicit_single_count_unit_is_parsed():
+    """Probe: '1UN', '1 pc', '1 unidade' must parse as quantity (not fallback).
+    Previously the >1 guard dropped legitimate single count markers."""
+    for desc in ("ITEM 1UN", "WIDGET 1 PC", "COISA 1 UNIDADE"):
+        pq = extract_quantity(desc)
+        assert pq is not None, desc
+        assert pq.base_unit == "un"
+        assert pq.base_value == pytest.approx(1.0)

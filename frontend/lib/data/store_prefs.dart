@@ -44,12 +44,16 @@ class StorePrefs extends AsyncNotifier<Map<String, String>> {
   Future<void> add(String cnpj, String name) async {
     final current = state.asData?.value ?? await _load();
     if (current[cnpj] == name) return;
-    await _persist({...current, cnpj: name});
+    final next = Map<String, String>.from(current);
+    next[cnpj] = name;
+    await _persist(next);
   }
 
   Future<void> remove(String cnpj) async {
     final current = state.asData?.value ?? await _load();
     if (!current.containsKey(cnpj)) return;
-    await _persist({...current}..remove(cnpj));
+    final next = Map<String, String>.from(current);
+    next.remove(cnpj);
+    await _persist(next);
   }
 }

@@ -43,3 +43,20 @@ async def test_cache_save_and_get_roundtrip():
     assert await cache.get_search_list("missing") is None
     # Empty list isn't stored.
     assert await cache.save_search_list(["  ", ""]) is None
+
+
+@pytest.mark.asyncio
+async def test_get_search_list_refreshes_hash_ttl_for_dedup():
+    """Probe for the hash-key refresh on get (prevents dedup breakage when
+    share links are opened repeatedly without new saves)."""
+    cache = Cache(redis_url="redis://test")
+    # First search creates the list + listhash pointer.
+    id1 = await cache.save_search_list(["arroz", "leite"])
+    assert id1
+    # Simulate a share-link open: get the list (should refresh both list and hash).
+    got = await cache.get_search_list(id1)
+    assert got == ["arroz", "leite"]
+    # A semantically identical (case/padding diff) search must still reuse the id
+    # because the hash pointer was kept alive by the get.
+    id2 = await cache.save_search_list(["  Arroz", "LEITE"])
+    assert id2 == id1

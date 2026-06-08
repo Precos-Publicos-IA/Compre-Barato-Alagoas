@@ -135,7 +135,18 @@ class Cache:
             return None
         await self._expire(f"list:{list_id}", ttl)
         items = data.get("items")
-        return items if isinstance(items, list) else None
+        if isinstance(items, list):
+            # Also refresh the content-hash pointer so that identical-list dedup
+            # continues to work even if only gets (share link opens) happen for a
+            # while; prevents the hash key expiring while the list is still live.
+            norm = [s.strip() for s in items if s and s.strip()]
+            if norm:
+                digest = hashlib.sha256(
+                    "|".join(s.lower() for s in norm).encode()
+                ).hexdigest()
+                await self._expire(f"listhash:{digest}", ttl)
+            return items
+        return None
 
     # --- Pseudo-anonymous device records (no login) ------------------------
     #
@@ -195,7 +206,9 @@ class Cache:
         """Associate a shareable-list UUID with a device — only if the device has
         consented (an unknown/un-consented token stores nothing)."""
         key = self._device_key(token)
-        if not await self._redis.exists(key):
+        # Must have an explicit consent record (presence of consent_at), not just
+        # any key. Prevents attaching lists for devices that never opted in.
+        if not await self._redis.hexists(key, "consent_at"):
             return
         lists_key = self._device_lists_key(token)
         await self._redis.sadd(lists_key, list_id)

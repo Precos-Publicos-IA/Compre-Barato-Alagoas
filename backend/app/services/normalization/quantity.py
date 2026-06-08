@@ -148,12 +148,14 @@ def extract_quantity(description: str) -> ParsedQuantity | None:
             source=pack.group(0),  # type: ignore[union-attr]
         )
 
-    # 4) A bare count unit like "... 12UN" or "DUZIA".
+    # 4) A bare count unit like "... 12UN", "1UN" or "DUZIA".
+    # Accept >= 1 so explicit single-unit markers ("1 unidade", "1 pc") are
+    # treated as parsed sizes instead of falling back to per-package.
     count_sizes = [s for s in sizes if _dimension(s[1]) == "count"]
     if count_sizes:
         value, unit, src = count_sizes[0]
         base = to_base(value, unit)
-        if base and base[0] > 1:
+        if base and base[0] >= 1:
             return ParsedQuantity(
                 value=value,
                 unit=normalize_unit_token(unit),

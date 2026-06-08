@@ -67,7 +67,11 @@ async def search(
         )
 
 
-@router.get("/lists/{list_id}", response_model=SavedList)
+@router.get(
+    "/lists/{list_id}",
+    response_model=SavedList,
+    dependencies=[Depends(enforce_rate_limit)],
+)
 async def get_list(
     list_id: str,
     cache: Cache = Depends(get_cache),

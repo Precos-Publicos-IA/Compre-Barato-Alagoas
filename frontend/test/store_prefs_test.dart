@@ -26,6 +26,21 @@ void main() {
     expect(container.read(favoriteStoresProvider).value, {'111': 'Mercado A'});
     expect(container.read(avoidedStoresProvider).value, {'222': 'Mercado B'});
 
+    // Probe: multiple entries for the *same* pref type must be retained (previously
+    // all adds clobbered under the literal key "cnpj").
+    await avoided.add('333', 'Mercado C');
+    await avoided.add('444', 'Mercado D');
+    expect(container.read(avoidedStoresProvider).value, {
+      '222': 'Mercado B',
+      '333': 'Mercado C',
+      '444': 'Mercado D',
+    });
+
+    // Clean probe additions so the subsequent persisted-container assertions
+    // still see the originally expected single entry for avoided.
+    await avoided.remove('333');
+    await avoided.remove('444');
+
     // Persisted to shared_preferences (survives a fresh container).
     final container2 = ProviderContainer();
     addTearDown(container2.dispose);

@@ -7,7 +7,7 @@ from app.main import create_app
 # A well-formed (hex, 32–128 chars) device token.
 TOKEN = "a" * 64
 HEADERS = {"X-Device-Token": TOKEN}
-POLICY = "2026-06-05"
+POLICY = "2026-06-06"
 
 
 def _client() -> TestClient:
@@ -78,6 +78,38 @@ def test_search_with_consented_device_saves_list_then_erasure_wipes_it():
 
         me = c.get("/api/v1/device/me", headers=HEADERS).json()
         assert list_id in me["saved_lists"]
+
+
+def test_non_consented_device_header_does_not_attach_list():
+    """Probe for the consent gate in attach_list (only hexists 'consent_at' allows
+    list association). A search bearing a device token that never consented must
+    not create or pollute a device record with the list."""
+    with _client() as c:
+        # Search with a device token but *no* prior consent.
+        search = c.post(
+            "/api/v1/search", headers=HEADERS, json={"items": ["banana"]}
+        ).json()
+        list_id = search["list_id"]
+        assert list_id
+
+        # Device should be unknown (no record created by the attach attempt).
+        me = c.get("/api/v1/device/me", headers=HEADERS).json()
+        assert me["known"] is False
+        assert list_id not in (me.get("saved_lists") or [])
+
+        # Now consent; a *new* search should attach going forward.
+        c.post(
+            "/api/v1/device/consent",
+            headers=HEADERS,
+            json={"accepted": True, "policy_version": POLICY},
+        )
+        search2 = c.post(
+            "/api/v1/search", headers=HEADERS, json={"items": ["tomate"]}
+        ).json()
+        list_id2 = search2["list_id"]
+        me2 = c.get("/api/v1/device/me", headers=HEADERS).json()
+        assert me2["known"] and me2["consented"]
+        assert list_id2 in me2["saved_lists"]
 
         # LGPD erasure removes the device record entirely.
         deleted = c.delete("/api/v1/device/me", headers=HEADERS).json()
