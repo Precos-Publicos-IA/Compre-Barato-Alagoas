@@ -17,14 +17,23 @@ class AnalyticsId {
   String? _cached;
 
   /// Returns the id, generating and persisting one on first call.
+  ///
+  /// Resilient by design: this id is a convenience for *aggregate* counting, never
+  /// essential. If device storage is unavailable (e.g. `shared_preferences` isn't
+  /// registered on the web target) it falls back to a volatile in-memory id and
+  /// never throws — a non-critical analytics read must not abort the core search.
   Future<String> getOrCreate() async {
     if (_cached != null) return _cached!;
-    final prefs = await SharedPreferences.getInstance();
-    final existing = prefs.getString(_key);
-    if (existing != null && existing.isNotEmpty) return _cached = existing;
-    final id = _generate();
-    await prefs.setString(_key, id);
-    return _cached = id;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final existing = prefs.getString(_key);
+      if (existing != null && existing.isNotEmpty) return _cached = existing;
+      final id = _generate();
+      await prefs.setString(_key, id);
+      return _cached = id;
+    } catch (_) {
+      return _cached ??= _generate();
+    }
   }
 
   /// Forget the id (opt-out / erasure). A future opt-in mints a fresh one, so past
