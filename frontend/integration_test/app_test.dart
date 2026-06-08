@@ -37,6 +37,19 @@ void main() {
     // The share affordance is present.
     expect(find.text('COMPARTILHAR ECONOMIA'), findsOneWidget);
 
+    // Simulate user opening "Minhas lojas" from the more options menu (tests the fixed StorePrefs multi-store UI, as the sheet shows ocultas/favoritas persisted from previous hides).
+    // This is real UI tap simulation for the menu and sheet.
+    await tester.tap(find.byTooltip('Mais opções'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Minhas lojas'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Minhas lojas'), findsOneWidget);
+    expect(find.textContaining('Ocultas'), findsOneWidget);
+    expect(find.textContaining('Favoritas'), findsOneWidget);
+    // Close the sheet by tapping outside (simulates user dismissing).
+    await tester.tapAt(const Offset(20, 20));
+    await tester.pumpAndSettle();
+
     // Expand/collapse the best store: its action buttons toggle visibility.
     // Only the best store starts expanded, so "Mapa" is unique to it.
     expect(find.text('Mapa'), findsOneWidget);
@@ -46,6 +59,15 @@ void main() {
     await tester.tap(find.text('MAIS BARATO')); // expand again
     await tester.pumpAndSettle();
     expect(find.text('Mapa'), findsOneWidget);
+
+    // Tap the map icon in results app bar (if visible) to simulate opening map view.
+    if (find.byIcon(Icons.map).evaluate().isNotEmpty) {
+      await tester.tap(find.byIcon(Icons.map));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      // Map screen would be open; go back by pageBack (simulates back navigation).
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+    }
 
     // Feedback card at the bottom: send a 👍 to the live backend.
     await tester.scrollUntilVisible(

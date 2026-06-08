@@ -26,6 +26,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Separate applicationId for debug variant so it can be installed
+            // side-by-side with the release APK on the same device.
+            // This prevents MIUI/HyperOS from revoking permissions when
+            // switching between debug (used by integration tests) and release.
+            // Professional Flutter practice on strict devices (Xiaomi etc.).
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
