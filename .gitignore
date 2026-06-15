@@ -41,3 +41,7 @@ CLAUDE.md
 Economiza_Alagoas_Manual_de_Orientação_do_Desenvolvedor_versao1.0.pdf
 *.pdf
 BUGS_ANALYSIS.txt
+
+# --- Confidential security audit (contains real infra/IP; never publish) ---
+Relatorio_Analise_Seguranca_CompraBaratoAlagoas.docx
+*.docx
