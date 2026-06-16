@@ -48,11 +48,10 @@ class SettingsSheet extends ConsumerWidget {
             const Divider(),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Estatísticas anônimas de uso',
+              title: const Text('Estatísticas anônimas de uso (ajuda a melhorar o app para todo mundo)',
                   style: TextStyle(fontSize: 18)),
               subtitle: const Text(
-                  'Ajuda a melhorar o app. Contagem anônima e agregada, sem '
-                  'identificar você.'),
+                  'Contagem anônima e agregada (HyperLogLog). Não vemos o que você busca, não vendemos nada, não identificamos você. Desligue quando quiser. Usamos só para saber se o app está ajudando gente de verdade e para manter o servidor.'),
               value: usageOn,
               onChanged: (v) => ref.read(usageStatsProvider.notifier).set(v),
             ),
