@@ -31,6 +31,7 @@
       <a href="#ranqueamento">Ranqueamento da cesta</a>
       <a href="#honestidade">Honestidade dos dados</a>
       <a href="#cache">Cache e limite de uso</a>
+      <span style="font-size:0.85em;opacity:0.7">(fundação para custo logarítmico em escala — veja <a href="data-patterns.html">padrões + escadas</a>)</span>
 
       <h4>Produto</h4>
       <a href="#dispositivo">Identidade & LGPD</a>
@@ -46,6 +47,10 @@
       <a href="#stack">Stack & dependências</a>
       <a href="#limitacoes">Limitações conhecidas</a>
       <a href="#status">Status do projeto</a>
+
+      <h4>Escala &amp; Dados (IA em produção)</h4>
+      <a href="data-patterns.html">Análise de padrões de dados + Plano de Escadas</a>
+      <a href="#ai-arq">Arquitetura de agentes IA (futuro)</a>
     </nav>
   </aside>
 
@@ -216,6 +221,8 @@
       conta as buscas por cliente por dia (chave <code>ratelimit:{dia}:{cliente}</code>,
       TTL de 24 h) e devolve <code>429</code> ao estourar. O valor é configurável via
       <code>DAILY_SEARCH_LIMIT</code> (<code>0</code> desativa).</p>
+
+    <div class="note">A análise de padrões reais dos dados da SEFAZ (o que volta nas buscas, timing, taxa de parse de tamanho, itens que nunca aparecem, etc) é a base para todas as otimizações de cache futuras. Veja o relatório gerado + plano de escadas em <a href="data-patterns.html">data-patterns.html</a>. Os números do admin (qualidade, timings, itens mais buscados) são a versão "live rolling" disso.</div>
 
     <!-- ====== DISPOSITIVO / LGPD ====== -->
     <h2 id="dispositivo">Identidade de dispositivo & LGPD (sem login)</h2>
