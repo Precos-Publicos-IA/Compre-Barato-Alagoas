@@ -145,6 +145,14 @@ def run_headless_sims():
     print("  suggested_refinements from Verifier:", data2.get("metrics", {}).get("suggested_refinements"))
     print("(In longer sessions the Requester rewrites + Verifier suggests alternatives to the poor user.)")
 
+    # Pre-warm popular for scale demo (creative bootstrap of RAG for 5k+ users)
+    import subprocess, sys
+    print("\n=== SCALE PRE-WARM (creative: bootstrap RAG from popular items) ===")
+    # In real would be background job; here we call the script logic via import for demo
+    # (to avoid subprocess complexity in the TestClient context we just note it)
+    print("Pre-warm would run nightly using analytics top_searched to populate RAG for vague common terms.")
+    print("(See backend/scripts/prewarm_popular.py)")
+
     # === Creative multi-step user journey sim (search -> share -> reopen list) ===
     print("\n=== MULTI-STEP USER JOURNEY (headless simulation of web UI flow) ===")
     # Dumb user searches
