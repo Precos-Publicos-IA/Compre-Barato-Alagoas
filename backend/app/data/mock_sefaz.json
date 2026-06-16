@@ -98,6 +98,10 @@
     {"keywords": ["sabonete"], "category": "higiene", "descricao": "SABONETE EM BARRA 90G", "gtin": "7890000000185", "ncm": "34011190", "gpc": 53000000, "unidadeMedida": "UN", "base_price": 2.49},
     {"keywords": ["alcool", "álcool", "alcool gel"], "category": "higiene", "descricao": "ALCOOL GEL 70 ANTISSEPTICO 500ML", "gtin": "7890000000192", "ncm": "38089419", "gpc": 53000000, "unidadeMedida": "UN", "base_price": 8.90},
     {"keywords": ["fralda", "fraldas"], "category": "higiene", "descricao": "FRALDA INFANTIL TAM M C/40", "gtin": "7890000000208", "ncm": "96190000", "gpc": 53000000, "unidadeMedida": "UN", "base_price": 39.90},
+    {"keywords": ["pao", "pão", "pao frances", "pão francês"], "category": "mercearia", "descricao": "PAO FRANCES KG", "gtin": "7890000000215", "ncm": "19059090", "gpc": 50000000, "unidadeMedida": "KG", "base_price": 12.90},
+    {"keywords": ["manteiga"], "category": "frios", "descricao": "MANTEIGA COM SAL 200G", "gtin": "7890000000222", "ncm": "04051000", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 8.49},
+    {"keywords": ["iogurte", "iogurte natural"], "category": "frios", "descricao": "IOGURTE NATURAL 170G", "gtin": "7890000000239", "ncm": "04031000", "gpc": 50000000, "unidadeMedida": "UN", "base_price": 3.29},
+    {"keywords": ["detergente"], "category": "higiene", "descricao": "DETERGENTE LIQUIDO 500ML", "gtin": "7890000000246", "ncm": "34022000", "gpc": 47000000, "unidadeMedida": "UN", "base_price": 4.19},
     {"keywords": ["dipirona"], "category": "farmacia", "descricao": "DIPIRONA SODICA 500MG COMPRIMIDO C/10", "gtin": "7890000000215", "ncm": "30049069", "gpc": 51000000, "unidadeMedida": "UN", "base_price": 6.50}
   ]
 }
