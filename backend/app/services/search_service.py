@@ -23,6 +23,8 @@ from ..schemas.search import (
 )
 from .llm.base import LLMClient, LLMUsage
 from .llm.pricing import cost_usd
+from .llm.requester import BasicRequester
+from .llm.verifier import BasicVerifier
 from .normalization.matcher import NormalizedOffer, normalize_offer
 from .ranking import build_store_results
 from .sefaz.base import SefazClient
@@ -70,7 +72,9 @@ async def run_search(
     sefaz_ms = cache_ms = normalize_ms = 0.0
 
     t0 = time.perf_counter()
-    result = await llm.parse_list(req.items)
+    # Use Requester agent (wraps LLM + RAG refinement from past successful mappings)
+    requester = BasicRequester(inner=llm)
+    result = await requester.refine_and_parse(req.items, cache=cache)
     llm_ms = (time.perf_counter() - t0) * 1000
     parsed = result.items
 
@@ -165,6 +169,13 @@ async def run_search(
         parsed_offers += sum(1 for o in offers if o.quantity_parsed)
         for o in offers:
             parse_methods[o.parse_method] = parse_methods.get(o.parse_method, 0) + 1
+
+    # Verifier agent (before ranking): records successful mappings into RAG for the
+    # Requester to learn from, and can filter/augment. Main value today = learning loop.
+    verifier = BasicVerifier()
+    offers_by_item, _suggestions = await verifier.verify_and_organize(
+        parsed_items=parsed, offers_by_item=offers_by_item, cache=cache
+    )
 
     t0 = time.perf_counter()
     stores = build_store_results(

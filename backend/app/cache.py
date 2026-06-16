@@ -229,3 +229,43 @@ class Cache:
             await self._redis.aclose()
         except Exception:
             pass
+
+    # --- Simple RAG / known mappings for agents (lightweight, no vector yet) ---
+    # Records "user spoke X, effective SEFAZ search_term Y gave good matches".
+    # Used by future Requester/Verifier to rewrite vague terms without extra SEFAZ calls.
+    # Keys are cheap Redis hashes + zsets. TTL long for historical value.
+
+    MAPPING_TTL = 60 * 60 * 24 * 180  # 180 days
+
+    async def record_successful_mapping(
+        self, user_term: str, effective_search_term: str, offers_found: int
+    ) -> None:
+        """Record that a user term mapped well to a SEFAZ term (for RAG in agents)."""
+        if not user_term or not effective_search_term or offers_found < 1:
+            return
+        u = user_term.lower().strip()[:64]
+        e = effective_search_term.lower().strip()[:64]
+        try:
+            pipe = self._redis.pipeline()
+            # Hash of user_term -> best effective
+            pipe.hset(f"rag:user_to_term:{u}", mapping={e: str(offers_found)})
+            pipe.expire(f"rag:user_to_term:{u}", self.MAPPING_TTL)
+            # Global top effective terms for a user_term stem (for suggestions)
+            pipe.zincrby(f"rag:effective_for:{u}", offers_found, e)
+            pipe.expire(f"rag:effective_for:{u}", self.MAPPING_TTL)
+            await pipe.execute()
+        except Exception:  # pragma: no cover
+            logger.exception("record_successful_mapping failed")
+
+    async def lookup_effective_terms(self, user_term: str, limit: int = 3) -> list[str]:
+        """Return previously successful SEFAZ search_terms for this user term."""
+        u = user_term.lower().strip()[:64]
+        try:
+            raw = await self._redis.zrevrange(f"rag:effective_for:{u}", 0, limit - 1)
+            return [r.decode() if isinstance(r, bytes) else r for r in raw]
+        except Exception:  # pragma: no cover
+            return []
+
+    async def get_best_effective_term(self, user_term: str) -> str | None:
+        terms = await self.lookup_effective_terms(user_term, 1)
+        return terms[0] if terms else None

@@ -54,7 +54,9 @@ class ResultsScreen extends ConsumerWidget {
             return const _Message(
               icon: Icons.sentiment_dissatisfied,
               text: 'Nenhuma loja encontrada por perto.\n'
-                  'Tente mudar os itens da sua lista.',
+                  'Experimente termos comuns que as pessoas usam: '
+                  '"pão francês", "arroz 5kg", "leite 1L", "feijão", "manteiga". '
+                  'Evite marcas muito específicas no começo.',
             );
           }
           return _Results(response: r, items: basket);
