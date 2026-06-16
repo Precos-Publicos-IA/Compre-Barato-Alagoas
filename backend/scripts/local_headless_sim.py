@@ -133,6 +133,16 @@ def run_headless_sims():
     print("\nLocal instance + simulated user inputs: exercised (including the 3 previously painful ones).")
     print("RAG mappings were recorded by Verifier during the calls (future requests can benefit).")
 
+    # === Extra: demonstrate cross-call RAG learning (adversarial + learning) ===
+    print("\n=== RAG LEARNING DEMO (two sequential calls) ===")
+    # First populate knowledge with a "good" term the user might say
+    client.post("/api/v1/search", json={"items": ["pao frances"], "latitude": -9.6633, "longitude": -35.7089})
+    # Now the vague version - Requester should be able to use the recorded mapping in the same process? 
+    # (note: within one request the record happens after, so this shows the population)
+    r2 = client.post("/api/v1/search", json={"items": ["pao"], "latitude": -9.6633, "longitude": -35.7089})
+    print("After searching 'pao frances' then 'pao':", r2.json().get("metrics", {}).get("match_rate"))
+    print("(In longer sessions or with pre-warm the Requester will rewrite 'pao' -> 'pao frances' automatically.)")
+
     # Cleanup overrides
     app.dependency_overrides.clear()
 
