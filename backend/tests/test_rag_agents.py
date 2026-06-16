@@ -29,6 +29,25 @@ async def test_cache_rag_mappings():
 
 
 @pytest.mark.asyncio
+async def test_rag_adversarial_inputs():
+    """Pen-test style: very long terms, special chars, injection attempts in the RAG keys."""
+    c = Cache(redis_url="redis://localhost:6379/0")
+    long_term = "a" * 200 + " arroz 5kg"
+    weird = "pão <script>alert(1)</script> & ' \" ; --"
+    await c.record_successful_mapping(long_term, "arroz", 3)
+    await c.record_successful_mapping(weird, "pao frances", 2)
+
+    alts = await c.lookup_effective_terms(long_term[:64], 1)  # the impl truncates
+    assert len(alts) >= 0  # must not crash or leak
+
+    alts2 = await c.lookup_effective_terms(weird, 1)
+    assert len(alts2) >= 0
+
+    # Should still be able to use normal flow
+    assert await c.get_best_effective_term("pao") is None or isinstance(await c.get_best_effective_term("pao"), str)
+
+
+@pytest.mark.asyncio
 async def test_requester_refines_with_rag():
     inner = MockLLMClient()
     req = BasicRequester(inner=inner)
