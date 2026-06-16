@@ -10,8 +10,10 @@ from app.services.normalization.matcher import NormalizedOffer
 
 
 @pytest.mark.asyncio
-async def test_cache_rag_mappings(fakeredis_client):
-    c = Cache(client=fakeredis_client)
+async def test_cache_rag_mappings():
+    # The autouse _fake_redis fixture in conftest monkeypatches aioredis.from_url
+    # so plain Cache(redis_url=...) gets an isolated FakeRedis.
+    c = Cache(redis_url="redis://localhost:6379/0")
     await c.record_successful_mapping("pao", "pao frances", 5)
     await c.record_successful_mapping("pao", "pao frances", 3)
     await c.record_successful_mapping("manteiga", "manteiga com sal", 4)
@@ -27,10 +29,10 @@ async def test_cache_rag_mappings(fakeredis_client):
 
 
 @pytest.mark.asyncio
-async def test_requester_refines_with_rag(fakeredis_client):
+async def test_requester_refines_with_rag():
     inner = MockLLMClient()
     req = BasicRequester(inner=inner)
-    c = Cache(client=fakeredis_client)
+    c = Cache(redis_url="redis://localhost:6379/0")
     # Pre-populate knowledge
     await c.record_successful_mapping("pao", "pao frances", 6)
 
@@ -42,9 +44,9 @@ async def test_requester_refines_with_rag(fakeredis_client):
 
 
 @pytest.mark.asyncio
-async def test_verifier_records_and_suggests(fakeredis_client):
+async def test_verifier_records_and_suggests():
     v = BasicVerifier()
-    c = Cache(client=fakeredis_client)
+    c = Cache(redis_url="redis://localhost:6379/0")
 
     # Simulate a low-match item + one good
     parsed = [ParsedItem(raw="iogurte", label="iogurte", search_term="iogurte", quantity=1)]
