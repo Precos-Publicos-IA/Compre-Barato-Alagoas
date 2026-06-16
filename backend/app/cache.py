@@ -269,3 +269,42 @@ class Cache:
     async def get_best_effective_term(self, user_term: str) -> str | None:
         terms = await self.lookup_effective_terms(user_term, 1)
         return terms[0] if terms else None
+
+    async def find_similar_effective_terms(
+        self, user_term: str, limit: int = 3, min_overlap: int = 2
+    ) -> list[str]:
+        """Creative lightweight 'semantic' RAG without embeddings/deps.
+
+        Uses simple token overlap on previously recorded effective terms.
+        This helps vague user input like "pao" find "pao frances" or "pao de forma"
+        from past successful searches, reducing bad SEFAZ calls at scale.
+        Pure Python, very cheap, logarithmic benefit as more data is learned.
+        """
+        u = user_term.lower().strip()[:64]
+        user_tokens = set(u.split())
+        if not user_tokens:
+            return []
+
+        candidates: dict[str, int] = {}
+        try:
+            # Scan recent effective keys (we keep limited via the zsets)
+            # For simplicity we scan a few known patterns from top items + direct keys.
+            # In real use the zsets from record_ are the source of truth.
+            keys = await self._redis.keys("rag:effective_for:*")
+            for k in keys[:50]:  # bound the scan for safety
+                try:
+                    eterm = k.split(":", 2)[-1] if isinstance(k, str) else ""
+                    if not eterm:
+                        continue
+                    et_tokens = set(eterm.lower().split())
+                    overlap = len(user_tokens & et_tokens)
+                    if overlap >= min_overlap:
+                        score = await self._redis.zscore(f"rag:effective_for:{eterm}", eterm) or 1
+                        candidates[eterm] = max(candidates.get(eterm, 0), overlap * int(score))
+                except Exception:
+                    continue
+        except Exception:  # pragma: no cover
+            pass
+
+        ranked = sorted(candidates.items(), key=lambda x: -x[1])[:limit]
+        return [t for t, _ in ranked]

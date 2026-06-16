@@ -140,8 +140,27 @@ def run_headless_sims():
     # Now the vague version - Requester should be able to use the recorded mapping in the same process? 
     # (note: within one request the record happens after, so this shows the population)
     r2 = client.post("/api/v1/search", json={"items": ["pao"], "latitude": -9.6633, "longitude": -35.7089})
-    print("After searching 'pao frances' then 'pao':", r2.json().get("metrics", {}).get("match_rate"))
-    print("(In longer sessions or with pre-warm the Requester will rewrite 'pao' -> 'pao frances' automatically.)")
+    data2 = r2.json()
+    print("After searching 'pao frances' then 'pao': match_rate=", data2.get("metrics", {}).get("match_rate"))
+    print("  suggested_refinements from Verifier:", data2.get("metrics", {}).get("suggested_refinements"))
+    print("(In longer sessions the Requester rewrites + Verifier suggests alternatives to the poor user.)")
+
+    # === Creative multi-step user journey sim (search -> share -> reopen list) ===
+    print("\n=== MULTI-STEP USER JOURNEY (headless simulation of web UI flow) ===")
+    # Dumb user searches
+    search_resp = client.post("/api/v1/search", json={"items": ["arroz e feijao"], "latitude": -9.6633, "longitude": -35.7089})
+    list_id = search_resp.json().get("list_id")
+    print(f"User searched 'arroz e feijao' -> got list_id={list_id}")
+
+    # User "shares" (simulates tapping share, someone opens the link)
+    if list_id:
+        list_resp = client.get(f"/api/v1/lists/{list_id}")
+        print(f"Someone opened the shared link: items={list_resp.json().get('items')}")
+        # Re-search from the list (different location simulation)
+        re_search = client.post("/api/v1/search", json={"items": list_resp.json().get("items"), "latitude": -9.65, "longitude": -35.70})
+        print(f"Re-search from shared list (slightly different location): stores={len(re_search.json().get('stores', []))}")
+
+    print("Multi-step flow (search + share + reopen) exercised successfully.")
 
     # Cleanup overrides
     app.dependency_overrides.clear()

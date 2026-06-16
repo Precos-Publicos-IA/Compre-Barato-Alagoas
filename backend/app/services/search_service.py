@@ -171,9 +171,9 @@ async def run_search(
             parse_methods[o.parse_method] = parse_methods.get(o.parse_method, 0) + 1
 
     # Verifier agent (before ranking): records successful mappings into RAG for the
-    # Requester to learn from, and can filter/augment. Main value today = learning loop.
+    # Requester to learn from, and produces audience-friendly refinements for vague terms.
     verifier = BasicVerifier()
-    offers_by_item, _suggestions = await verifier.verify_and_organize(
+    offers_by_item, suggested_refinements = await verifier.verify_and_organize(
         parsed_items=parsed, offers_by_item=offers_by_item, cache=cache
     )
 
@@ -239,6 +239,10 @@ async def run_search(
         else:
             # No background context (e.g. direct service-level tests): write inline.
             await analytics.flush(batch)
+
+    # Include verifier suggestions so the app can show "Talvez você quis dizer..."
+    # or pre-fill better terms for poor users who type vaguely.
+    metrics.suggested_refinements = suggested_refinements
 
     return SearchResponse(
         origin=Origin(latitude=lat, longitude=lon),

@@ -65,11 +65,13 @@ class BasicVerifier:
             )
 
             if good_count == 0:
-                # Verifier looks up known good alternatives from RAG
+                # Verifier looks up known good alternatives from RAG (exact + creative overlap)
                 alts = await cache.lookup_effective_terms(item.label, limit=2)
+                if not alts:
+                    alts = await cache.find_similar_effective_terms(item.label, limit=2)
                 if alts:
                     suggestions.append(f"Tente '{alts[0]}' em vez de '{item.label}'")
                     # Note: actual re-query would be done by orchestrator in a later iteration.
-                    # For now we surface the knowledge.
+                    # For now we surface the knowledge for the UI to show the user.
 
         return offers_by_item, suggestions

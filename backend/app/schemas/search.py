@@ -60,6 +60,10 @@ class SearchMetrics(BaseModel):
     stores_found: int
     match_rate: float                     # fraction of requested items matched anywhere
     quantity_parse_rate: float            # fraction of matched offers with a parsed size
+    # Added by Verifier agent: helpful rewrites for items the user typed vaguely.
+    # Audience-friendly: shows things like "pão" -> "pão francês" so poor users
+    # who don't know exact names still get results next time or see tips.
+    suggested_refinements: list[str] = Field(default_factory=list)
 
 
 class Origin(BaseModel):

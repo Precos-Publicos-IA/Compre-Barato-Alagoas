@@ -44,12 +44,15 @@ class BasicRequester:
 
         refined: list[ParsedItem] = []
         for item in base.items:
-            # Try to find a historically successful search_term for this user label/term
+            # Try exact historical first, then creative lightweight similarity (token overlap)
             candidates = await cache.lookup_effective_terms(item.label, limit=2)
+            if not candidates:
+                candidates = await cache.find_similar_effective_terms(item.label, limit=2)
+
             if candidates:
                 best = candidates[0]
                 if best and best != item.search_term.lower():
-                    logger.debug("requester: refined %r -> %r (from RAG)", item.search_term, best)
+                    logger.debug("requester: refined %r -> %r (from RAG+overlap)", item.search_term, best)
                     refined.append(
                         ParsedItem(
                             raw=item.raw,
