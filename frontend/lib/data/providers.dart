@@ -210,7 +210,7 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
   Future<void> run(List<String> items, {int? radiusKm, int? days}) async {
     if (items.isEmpty) return;
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final result = await AsyncValue.guard(() async {
       final origin = await ref.read(locationServiceProvider).resolveOrigin();
       // User-tuned search params (Configurações); fall back to backend defaults.
       final prefs = ref.read(searchPrefsProvider).asData?.value;
@@ -239,6 +239,11 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
             excludedCnpjs: avoided.keys.toList(),
           );
     });
+    // The search can outlive the provider (user navigated away, or the test
+    // ended). Don't write state into a disposed notifier.
+    if (ref.mounted) {
+      state = result;
+    }
   }
 }
 
