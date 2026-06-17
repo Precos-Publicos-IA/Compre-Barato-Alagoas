@@ -53,5 +53,20 @@ void main() {
     expect(store.items.first.unitPrice, 4.98);
     expect(store.missing, ['leite']);
     expect(resp.metrics.matchRate, 0.5);
+    // requested_quantity / line_total default when the backend omits them.
+    expect(store.items.first.requestedQuantity, 1);
+    expect(store.items.first.lineTotal, isNull);
+  });
+
+  test('ItemOffer parses requested_quantity and line_total', () {
+    final offer = ItemOffer.fromJson({
+      'query': '3 arroz',
+      'found': true,
+      'price': 22.63,
+      'requested_quantity': 3,
+      'line_total': 67.89,
+    });
+    expect(offer.requestedQuantity, 3);
+    expect(offer.lineTotal, 67.89);
   });
 }

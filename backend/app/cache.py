@@ -45,7 +45,14 @@ class Cache:
                 )
             import redis.asyncio as aioredis
 
-            self._redis = aioredis.from_url(redis_url, decode_responses=True)
+            # Explicit connect/socket timeouts so a stalled Redis surfaces fast
+            # instead of hanging a request indefinitely.
+            self._redis = aioredis.from_url(
+                redis_url,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=10,
+            )
         logger.info("Cache backend: Redis")
 
     @property

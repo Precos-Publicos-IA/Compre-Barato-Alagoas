@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -21,9 +22,35 @@ class ApiClient {
   final http.Client _client;
   final String _baseUrl;
 
+  /// Per-request ceiling so a stalled network surfaces instead of hanging the UI.
+  static const Duration _timeout = Duration(seconds: 12);
+
+  /// Runs [send] with a timeout and a single retry on transient transport
+  /// failures (timeout / connection drop). HTTP error *statuses* return a
+  /// normal Response and are handled by the caller — they are not retried.
+  Future<http.Response> _retry(Future<http.Response> Function() send) async {
+    for (var attempt = 0;; attempt++) {
+      try {
+        return await send().timeout(_timeout);
+      } on TimeoutException {
+        if (attempt >= 1) rethrow;
+      } on http.ClientException {
+        if (attempt >= 1) rethrow;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+    }
+  }
+
+  Future<http.Response> _get(Uri uri, {Map<String, String>? headers}) =>
+      _retry(() => _client.get(uri, headers: headers));
+
+  Future<http.Response> _post(Uri uri,
+          {Map<String, String>? headers, Object? body}) =>
+      _retry(() => _client.post(uri, headers: headers, body: body));
+
   Future<List<Suggestion>> fetchSuggestions() async {
     final uri = Uri.parse('$_baseUrl/api/v1/suggestions');
-    final resp = await _client.get(uri);
+    final resp = await _get(uri);
     if (resp.statusCode != 200) {
       throw ApiException('Falha ao carregar sugestões (${resp.statusCode})');
     }
@@ -37,7 +64,7 @@ class ApiClient {
   /// expired or doesn't exist (HTTP 404).
   Future<List<String>?> fetchList(String listId) async {
     final uri = Uri.parse('$_baseUrl/api/v1/lists/$listId');
-    final resp = await _client.get(uri);
+    final resp = await _get(uri);
     if (resp.statusCode == 404) return null;
     if (resp.statusCode != 200) {
       throw ApiException('Não foi possível abrir a lista compartilhada.');
@@ -71,7 +98,7 @@ class ApiClient {
       'days': ?days,
       if (excludedCnpjs.isNotEmpty) 'excluded_cnpjs': excludedCnpjs,
     };
-    final resp = await _client.post(
+    final resp = await _post(
       uri,
       headers: {
         'Content-Type': 'application/json',
@@ -139,7 +166,7 @@ class ApiClient {
         deviceTokenHeader: deviceToken,
       },
       body: jsonEncode({'accepted': true, 'policy_version': policyVersion}),
-    );
+    ).timeout(_timeout);
     if (resp.statusCode != 200) {
       throw ApiException('Não foi possível salvar sua preferência.');
     }
@@ -151,7 +178,7 @@ class ApiClient {
     final resp = await _client.delete(
       uri,
       headers: {deviceTokenHeader: deviceToken},
-    );
+    ).timeout(_timeout);
     if (resp.statusCode != 200) {
       throw ApiException('Não foi possível apagar seus dados.');
     }

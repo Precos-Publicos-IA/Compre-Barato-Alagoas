@@ -27,8 +27,10 @@ def build_store_results(
     origin: tuple[float, float] | None,
     top_n: int,
     excluded_cnpjs: set[str] | None = None,
+    quantities: dict[str, int] | None = None,
 ) -> list[StoreResult]:
     excluded = excluded_cnpjs or set()
+    qtys = quantities or {}
     # store cnpj -> {item_query -> best offer at that store}
     by_store: dict[str, dict[str, NormalizedOffer]] = {}
     store_meta: dict[str, NormalizedOffer] = {}
@@ -61,7 +63,9 @@ def build_store_results(
             offer = item_map.get(query)
             if offer is None:
                 continue
-            total += offer.price
+            qty = max(1, qtys.get(query, 1))
+            line_total = round(offer.price * qty, 2)
+            total += line_total
             item_offers.append(
                 ItemOffer(
                     query=query,
@@ -76,6 +80,8 @@ def build_store_results(
                     unidade_medida=offer.unidade_medida,
                     sale_date=offer.sale_date,
                     quantity_parsed=offer.quantity_parsed,
+                    requested_quantity=qty,
+                    line_total=line_total,
                 )
             )
 

@@ -56,6 +56,12 @@ class Settings(BaseSettings):
     default_days: int = 7            # SEFAZ allows 1..10
     records_per_page: int = 500      # SEFAZ allows 50..5000
     top_stores: int = 5             # how many ranked stores we return by default
+    # Per-item items are fetched concurrently to cut wall time for cold baskets;
+    # bound the fan-out so we stay polite to SEFAZ.
+    sefaz_concurrency: int = 6
+    # How many SEFAZ result pages to pull per item (>1 follows totalPaginas).
+    # 1 keeps today's single-page behaviour; the mock always returns one page.
+    max_sefaz_pages: int = 1
 
     # --- Cache + storage (Redis is MANDATORY; the app fails fast without it) ---
     # Holds the search cache, shareable-list UUIDs, device records and rate limits.

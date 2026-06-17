@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 
 from ...analytics import Analytics
 from ...cache import Cache
@@ -37,6 +37,7 @@ router = APIRouter(prefix="/api/v1", tags=["search"])
 async def search(
     req: SearchRequest,
     background: BackgroundTasks,
+    request: Request,
     settings: Settings = Depends(get_settings_dep),
     sefaz: SefazClient = Depends(get_sefaz),
     llm: LLMClient = Depends(get_llm),
@@ -60,10 +61,12 @@ async def search(
     except HTTPException:
         raise
     except Exception:
-        logger.exception("search failed")
+        rid = getattr(getattr(request, "state", None), "request_id", None)
+        logger.exception("search failed rid=%s", rid)
+        ref = f" (ref: {rid})" if rid else ""
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Não foi possível consultar os preços agora. Tente novamente.",
+            detail=f"Não foi possível consultar os preços agora. Tente novamente.{ref}",
         )
 
 

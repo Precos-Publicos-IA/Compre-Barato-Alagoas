@@ -30,7 +30,7 @@ class ItemOffer(BaseModel):
     found: bool
     description: str | None = None
     gtin: str | None = None
-    price: float | None = None            # package price (what you pay)
+    price: float | None = None            # package price (what you pay for one)
     unit_price: float | None = None       # price per base_unit (fair comparison)
     base_unit: str | None = None          # kg | L | un
     quantity: float | None = None
@@ -38,6 +38,8 @@ class ItemOffer(BaseModel):
     unidade_medida: str | None = None
     sale_date: str | None = None
     quantity_parsed: bool = False
+    requested_quantity: int = 1           # how many of this item the user asked for
+    line_total: float | None = None       # price * requested_quantity (cost of the line)
 
 
 class StoreResult(BaseModel):
@@ -50,7 +52,7 @@ class StoreResult(BaseModel):
     distance_km: float | None = None
     items_found: int
     items_total: int
-    total: float                          # sum of package prices for found items
+    total: float                          # sum of (price * requested_quantity) for found items
     items: list[ItemOffer]
     missing: list[str] = Field(default_factory=list)
 

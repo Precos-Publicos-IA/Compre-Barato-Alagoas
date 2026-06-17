@@ -294,13 +294,31 @@ class _StoreCardState extends ConsumerState<StoreCard> {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            it.price != null ? formatBRL(it.price!) : '-',
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                _lineFigure(it),
+                style:
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+              if (it.requestedQuantity > 1 && it.price != null)
+                Text(
+                  '${it.requestedQuantity} × ${formatBRL(it.price!)}',
+                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  /// What the line costs: the scaled line total when the user asked for more
+  /// than one, otherwise the package price.
+  String _lineFigure(ItemOffer it) {
+    final value = it.lineTotal ?? it.price;
+    return value != null ? formatBRL(value) : '-';
   }
 }
 

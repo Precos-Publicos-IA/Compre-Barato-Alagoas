@@ -7,6 +7,7 @@ fast and to limit load on SEFAZ once we're live.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import logging
 import time
@@ -112,26 +113,68 @@ async def run_search(
             ),
         }
 
-    offers_by_item: dict[str, list[NormalizedOffer]] = {}
-    item_queries: list[str] = []
-    total_offers = 0
-    parsed_offers = 0
-    items_with_match = 0
-    parse_methods: dict[str, int] = {}
-
+    # Unique items in first-seen order. We carry the user's desired quantity per item
+    # (parsed by the LLM/mock, e.g. "3 arroz", "meia dúzia ovos") into ranking so basket
+    # totals reflect how much they actually want to buy.
+    seen_labels: set[str] = set()
+    unique_items = []
     for item in parsed:
-        if item.label in offers_by_item:
+        if item.label in seen_labels:
             continue
-        item_queries.append(item.label)
+        seen_labels.add(item.label)
+        unique_items.append(item)
+    item_queries: list[str] = [it.label for it in unique_items]
+    desired_qtys: dict[str, int] = {
+        it.label: max(1, int(it.quantity or 1)) for it in unique_items
+    }
 
+    # Per-item fetch, run concurrently (bounded) to cut wall time for cold multi-item
+    # baskets. Each item is independent (one SEFAZ criterion per call). A per-item
+    # failure yields *partial* results instead of failing the whole search.
+    sem = asyncio.Semaphore(max(1, settings.sefaz_concurrency))
+
+    async def _fetch_one(item) -> dict:
+        out = {
+            "label": item.label,
+            "offers": [],
+            "sefaz_ms": 0.0,
+            "cache_ms": 0.0,
+            "normalize_ms": 0.0,
+            "provider_calls": [],
+        }
         key = _cache_key(item.search_term, lat, lon, radius, days)
         t0 = time.perf_counter()
         cached = await cache.get_json(key)
-        cache_ms += (time.perf_counter() - t0) * 1000
+        out["cache_ms"] += (time.perf_counter() - t0) * 1000
         if cached is not None:
             resp = PesquisaResponse.model_validate(cached)
         else:
-            # Provider (SEFAZ) health: time each real fetch and flag failures.
+            try:
+                async with sem:
+                    resp = await _fetch_all_pages(item, out)
+            except Exception:
+                # Resilience: one failing item must not 502 the whole basket.
+                logger.warning("SEFAZ fetch failed for %r; partial results", item.label)
+                return out
+            t0 = time.perf_counter()
+            await cache.set_json(
+                key, resp.model_dump(by_alias=True), ttl=settings.cache_ttl_seconds
+            )
+            out["cache_ms"] += (time.perf_counter() - t0) * 1000
+
+        t0 = time.perf_counter()
+        out["offers"] = [
+            o for r in resp.conteudo if (o := normalize_offer(r)) is not None
+        ]
+        out["normalize_ms"] += (time.perf_counter() - t0) * 1000
+        return out
+
+    async def _fetch_all_pages(item, out: dict) -> PesquisaResponse:
+        """Fetch up to ``max_sefaz_pages`` pages and merge them. Records per-call
+        timing/health on ``out`` so provider stats stay accurate."""
+        merged: PesquisaResponse | None = None
+        page = 1
+        while page <= max(1, settings.max_sefaz_pages):
             t0 = time.perf_counter()
             ok = True
             try:
@@ -141,6 +184,7 @@ async def run_search(
                     longitude=lon,
                     radius_km=radius,
                     days=days,
+                    pagina=page,
                     registros_por_pagina=settings.records_per_page,
                 )
             except Exception:
@@ -148,21 +192,34 @@ async def run_search(
                 raise
             finally:
                 call_ms = (time.perf_counter() - t0) * 1000
-                sefaz_ms += call_ms
-                if batch is not None:
-                    batch.provider_calls.append(
-                        {"provider": "sefaz", "duration_ms": call_ms, "ok": ok}
-                    )
-            t0 = time.perf_counter()
-            await cache.set_json(
-                key, resp.model_dump(by_alias=True), ttl=settings.cache_ttl_seconds
-            )
-            cache_ms += (time.perf_counter() - t0) * 1000
+                out["sefaz_ms"] += call_ms
+                out["provider_calls"].append(
+                    {"provider": "sefaz", "duration_ms": call_ms, "ok": ok}
+                )
+            if merged is None:
+                merged = resp
+            else:
+                merged.conteudo.extend(resp.conteudo)
+            if page >= (resp.total_paginas or 1):
+                break
+            page += 1
+        return merged  # type: ignore[return-value]
 
-        t0 = time.perf_counter()
-        offers = [o for r in resp.conteudo if (o := normalize_offer(r)) is not None]
-        normalize_ms += (time.perf_counter() - t0) * 1000
-        offers_by_item[item.label] = offers
+    results = await asyncio.gather(*(_fetch_one(it) for it in unique_items))
+
+    offers_by_item: dict[str, list[NormalizedOffer]] = {}
+    total_offers = 0
+    parsed_offers = 0
+    items_with_match = 0
+    parse_methods: dict[str, int] = {}
+    for r in results:
+        sefaz_ms += r["sefaz_ms"]
+        cache_ms += r["cache_ms"]
+        normalize_ms += r["normalize_ms"]
+        if batch is not None and r["provider_calls"]:
+            batch.provider_calls.extend(r["provider_calls"])
+        offers = r["offers"]
+        offers_by_item[r["label"]] = offers
         if offers:
             items_with_match += 1
         total_offers += len(offers)
@@ -184,6 +241,7 @@ async def run_search(
         origin=(lat, lon),
         top_n=settings.top_stores,
         excluded_cnpjs=set(req.excluded_cnpjs),
+        quantities=desired_qtys,
     )
     rank_ms = (time.perf_counter() - t0) * 1000
 

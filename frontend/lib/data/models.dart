@@ -26,6 +26,12 @@ class ItemOffer {
   final String? saleDate;
   final bool quantityParsed;
 
+  /// How many of this item the user asked for ("3 arroz" -> 3). Defaults to 1.
+  final int requestedQuantity;
+
+  /// price * requestedQuantity (what the line actually costs).
+  final double? lineTotal;
+
   const ItemOffer({
     required this.query,
     required this.found,
@@ -37,6 +43,8 @@ class ItemOffer {
     this.unit,
     this.saleDate,
     this.quantityParsed = false,
+    this.requestedQuantity = 1,
+    this.lineTotal,
   });
 
   factory ItemOffer.fromJson(Map<String, dynamic> j) => ItemOffer(
@@ -50,6 +58,8 @@ class ItemOffer {
         unit: j['unit'] as String?,
         saleDate: j['sale_date'] as String?,
         quantityParsed: j['quantity_parsed'] as bool? ?? false,
+        requestedQuantity: (j['requested_quantity'] as num?)?.toInt() ?? 1,
+        lineTotal: (j['line_total'] as num?)?.toDouble(),
       );
 }
 

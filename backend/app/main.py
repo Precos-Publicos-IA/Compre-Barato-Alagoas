@@ -9,10 +9,12 @@ Redis is the one hard dependency: startup fails fast if it's unreachable.
 from __future__ import annotations
 
 import logging
+import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from .analytics import Analytics
 from .cache import Cache
@@ -20,6 +22,19 @@ from .config import get_settings
 from .services.llm.factory import build_llm_client
 from .services.secrets import SecretStore
 from .services.sefaz.factory import build_sefaz_client
+
+
+class RequestIdMiddleware(BaseHTTPMiddleware):
+    """Attach a short request id (propagated from ``X-Request-ID`` or generated) to
+    every request/response. Lets us correlate a user-facing error reference with the
+    server logs without pulling in a heavy tracing stack."""
+
+    async def dispatch(self, request: Request, call_next):
+        rid = request.headers.get("x-request-id") or uuid.uuid4().hex[:12]
+        request.state.request_id = rid
+        response = await call_next(request)
+        response.headers["x-request-id"] = rid
+        return response
 
 
 def _init_sentry(settings) -> None:
@@ -68,7 +83,11 @@ def create_app() -> FastAPI:
         allow_origins=settings.cors_origin_list,
         allow_methods=["*"],
         allow_headers=["*"],
+        # So cross-origin clients (admin SPA, local dev) can read the request id
+        # for support/correlation; same-origin prod calls are unaffected.
+        expose_headers=["X-Request-ID"],
     )
+    app.add_middleware(RequestIdMiddleware)
 
     from .api.routes import admin, device, feedback, health, search, suggestions
 

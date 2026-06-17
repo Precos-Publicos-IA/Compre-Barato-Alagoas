@@ -52,6 +52,66 @@ class UsageStatsNotifier extends AsyncNotifier<bool> {
 final usageStatsProvider =
     AsyncNotifierProvider<UsageStatsNotifier, bool>(UsageStatsNotifier.new);
 
+/// User-tunable search parameters (radius + recency window), kept on-device and
+/// applied to every search. Defaults mirror the backend (8 km / 7 days). Bounds
+/// match the SEFAZ limits enforced server-side (radius 1..15, days 1..10).
+class SearchPrefs {
+  const SearchPrefs({this.radiusKm = 8, this.days = 7});
+  final int radiusKm;
+  final int days;
+
+  SearchPrefs copyWith({int? radiusKm, int? days}) =>
+      SearchPrefs(radiusKm: radiusKm ?? this.radiusKm, days: days ?? this.days);
+}
+
+class SearchPrefsNotifier extends AsyncNotifier<SearchPrefs> {
+  static const _kRadius = 'search_radius_km_v1';
+  static const _kDays = 'search_days_v1';
+  static const defaultRadius = 8;
+  static const defaultDays = 7;
+
+  @override
+  Future<SearchPrefs> build() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return SearchPrefs(
+        radiusKm: prefs.getInt(_kRadius) ?? defaultRadius,
+        days: prefs.getInt(_kDays) ?? defaultDays,
+      );
+    } catch (_) {
+      return const SearchPrefs();
+    }
+  }
+
+  Future<void> _persist(SearchPrefs value) async {
+    state = AsyncValue.data(value);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_kRadius, value.radiusKm);
+      await prefs.setInt(_kDays, value.days);
+    } catch (_) {
+      // Best-effort mirror.
+    }
+  }
+
+  Future<void> setRadius(int km) async {
+    final cur = state.asData?.value ?? const SearchPrefs();
+    await _persist(cur.copyWith(radiusKm: km.clamp(1, 15)));
+  }
+
+  Future<void> setDays(int days) async {
+    final cur = state.asData?.value ?? const SearchPrefs();
+    await _persist(cur.copyWith(days: days.clamp(1, 10)));
+  }
+
+  Future<void> reset() =>
+      _persist(const SearchPrefs(radiusKm: defaultRadius, days: defaultDays));
+}
+
+final searchPrefsProvider =
+    AsyncNotifierProvider<SearchPrefsNotifier, SearchPrefs>(
+        SearchPrefsNotifier.new);
+
 /// Stores the user marked as favourites / hidden ("ocultas"), kept on-device.
 final favoriteStoresProvider =
     AsyncNotifierProvider<StorePrefs, Map<String, String>>(
@@ -147,11 +207,15 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
   @override
   Future<SearchResponse?> build() async => null;
 
-  Future<void> run(List<String> items, {int? radiusKm}) async {
+  Future<void> run(List<String> items, {int? radiusKm, int? days}) async {
     if (items.isEmpty) return;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final origin = await ref.read(locationServiceProvider).resolveOrigin();
+      // User-tuned search params (Configurações); fall back to backend defaults.
+      final prefs = ref.read(searchPrefsProvider).asData?.value;
+      final effRadius = radiusKm ?? prefs?.radiusKm;
+      final effDays = days ?? prefs?.days;
       // Only consented (cloud-sync on) devices identify themselves, so the
       // backend saves this list to their server-side history.
       String? deviceToken;
@@ -168,7 +232,8 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
             items,
             latitude: origin.latitude,
             longitude: origin.longitude,
-            radiusKm: radiusKm,
+            radiusKm: effRadius,
+            days: effDays,
             deviceToken: deviceToken,
             analyticsId: analyticsId,
             excludedCnpjs: avoided.keys.toList(),
