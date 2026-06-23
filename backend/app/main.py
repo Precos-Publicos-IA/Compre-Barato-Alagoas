@@ -72,11 +72,21 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    # In production we disable Swagger/ReDoc/openapi.json by default. Open source
+    # and a public *application* API are intentional; an interactive schema UI in
+    # prod is not a security boundary and only helps automated scanners. See
+    # docs/seguranca-postura.md. Override with EXPOSE_API_DOCS=true if needed.
+    docs_url = "/docs" if settings.api_docs_enabled else None
+    redoc_url = "/redoc" if settings.api_docs_enabled else None
+    openapi_url = "/openapi.json" if settings.api_docs_enabled else None
     app = FastAPI(
         title=settings.app_name,
         version="0.1.0",
         description="Secure intermediary over SEFAZ-AL public NFC-e price data.",
         lifespan=lifespan,
+        docs_url=docs_url,
+        redoc_url=redoc_url,
+        openapi_url=openapi_url,
     )
     app.add_middleware(
         CORSMiddleware,

@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     # Comma-separated list of allowed CORS origins; "*" allows all (dev only).
     cors_origins: str = "*"
+    # Interactive API docs (Swagger / ReDoc / openapi.json). Empty = auto:
+    # off in production, on otherwise. Set true/false to override explicitly.
+    expose_api_docs: str = ""
 
     # --- Mock flags (the heart of the "build first, get token later" strategy) ---
     use_mock_sefaz: bool = True
@@ -99,6 +102,26 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment.strip().lower() in {"prod", "production"}
+
+    @property
+    def api_docs_enabled(self) -> bool:
+        """Whether /docs, /redoc and /openapi.json are mounted.
+
+        Default: enabled outside production (local dev, tests). In production the
+        interactive OpenAPI UI is off so scanners and casual browsers don't get a
+        free attack map; the *application* API remains intentionally public for
+        the Flutter client. Override with EXPOSE_API_DOCS=true|false.
+        """
+        raw = (self.expose_api_docs or "").strip().lower()
+        if raw in {"1", "true", "yes", "on"}:
+            return True
+        if raw in {"0", "false", "no", "off"}:
+            return False
+        return not self.is_production
 
 
 @lru_cache

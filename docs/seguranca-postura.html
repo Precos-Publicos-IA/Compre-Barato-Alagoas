@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Postura de segurança · Compre Barato Alagoas</title>
+  <meta name="description" content="Modelo de ameaça e fronteiras de controle: API pública por desenho, open source, OpenAPI desligado em produção." />
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+  <main class="content" style="max-width:48rem;margin:0 auto;padding:2rem 1.25rem 4rem">
+    <p><a href="index.html">← Documentação</a>
+      · <a href="seguranca-e-dados.html">Segurança &amp; dados</a>
+      · <a href="lgpd-medicao-de-uso.html">LGPD · Medição</a></p>
+
+    <span class="tag">Segurança · postura</span>
+    <h1>Postura de segurança</h1>
+    <p class="lead">Modelo de ameaça e fronteiras de controle do Compre Barato Alagoas — para revisões, scanners e quem avalia se código aberto é compatível com produção.</p>
+
+    <div class="note"><strong>Resumo:</strong> a API de aplicação é <strong>pública por desenho</strong>
+      (o app Flutter/web é cliente não confiável). O código pode permanecer <strong>open source</strong>.
+      A proteção não vem de esconder rotas no GitHub; vem de segredos fora do repositório,
+      admin fechado por padrão, limites de abuso, minimização de dados (LGPD) e
+      <strong>desligar a UI interativa do OpenAPI em produção</strong>.
+      Versão em Markdown no repositório: <code>docs/seguranca-postura.md</code>.</div>
+
+    <h2>1. O que é público de propósito</h2>
+    <table>
+      <thead><tr><th>Superfície</th><th>Por quê</th><th>Controle principal</th></tr></thead>
+      <tbody>
+        <tr><td>Código no GitHub (MIT)</td><td>Transparência, LGPD, reuso cívico</td><td>Segredos nunca no git (<code>.env.example</code> só)</td></tr>
+        <tr><td><code>POST /api/v1/search</code> e rotas de produto</td><td>O app precisa do backend</td><td>Rate limit, validação, cache, sem PII extra</td></tr>
+        <tr><td>Site <code>docs.*</code></td><td>Produto e privacidade</td><td>Sem credenciais</td></tr>
+        <tr><td>Preços (origem SEFAZ-AL)</td><td>Dados públicos de NFC-e</td><td>Token SEFAZ só no servidor</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Achado típico de scanner:</strong> “API documentada / endpoints visíveis.”<br />
+      <strong>Resposta:</strong> o cliente já revela o contrato. Código aberto e docs de produto
+      não substituem autenticação nem limites — e não são vulnerabilidade por si só se os
+      controles abaixo estiverem ativos.</p>
+
+    <h2>2. O que <em>não</em> é fronteira de segurança</h2>
+    <ul>
+      <li><strong>Visibilidade do repositório</strong> — ocultar o código não remove a API HTTPS do app.</li>
+      <li><strong>Só esconder a URL do admin</strong> — sem <code>ADMIN_TOKEN</code> a API admin responde <strong>401</strong> (fail-closed).</li>
+      <li><strong>Swagger/ReDoc em produção</strong> — facilita varredura; por isso fica desligado em produção (secção 4).</li>
+    </ul>
+
+    <h2>3. Superfícies e controles</h2>
+    <h3>API de aplicação</h3>
+    <ul>
+      <li>Sem login de conta; identidade de dispositivo opcional (consentimento / listas na nuvem).</li>
+      <li>Token de dispositivo no servidor só como <strong>hash com sal</strong>.</li>
+      <li>Limite diário de buscas (<code>DAILY_SEARCH_LIMIT</code>).</li>
+      <li>Localização na busca; sem reter trajetos como perfil.</li>
+    </ul>
+    <h3>API administrativa (<code>/admin/api/*</code>)</h3>
+    <ul>
+      <li><code>ADMIN_TOKEN</code> vazio ⇒ <strong>401</strong> em todas as rotas admin.</li>
+      <li>Comparação em tempo constante (<code>hmac.compare_digest</code>).</li>
+      <li>Vhost <code>admin.&lt;domínio&gt;</code>; cofre Fernet no Redis (status só com fingerprint).</li>
+    </ul>
+    <h3>Segredos</h3>
+    <p><code>ADMIN_TOKEN</code>, <code>SECRET_ENCRYPTION_KEY</code>, token SEFAZ, chave Anthropic e senhas de banco
+      vivem no <code>.env</code> <strong>só na VPS</strong> (ou painel cifrado) — nunca no git nem no app cliente.
+      API publicada no host apenas em <code>127.0.0.1:8000</code> atrás do nginx.</p>
+    <h3>LLM / SEFAZ</h3>
+    <ul>
+      <li>Entrada do usuário como dados inertes no prompt; fallback determinístico se o modelo falhar.</li>
+      <li>Fan-out SEFAZ limitado; cache Redis reduz repetição.</li>
+    </ul>
+
+    <h2 id="openapi-prod">4. OpenAPI / Swagger em produção</h2>
+    <table>
+      <thead><tr><th>Ambiente</th><th><code>/docs</code>, <code>/redoc</code>, <code>/openapi.json</code></th></tr></thead>
+      <tbody>
+        <tr><td><code>development</code> (local)</td><td><strong>Ligados</strong></td></tr>
+        <tr><td><code>production</code> (deploy)</td><td><strong>Desligados</strong> (404)</td></tr>
+        <tr><td><code>EXPOSE_API_DOCS=true</code></td><td>Ligados (escape hatch)</td></tr>
+        <tr><td><code>EXPOSE_API_DOCS=false</code></td><td>Desligados</td></tr>
+      </tbody>
+    </table>
+    <p>O nginx do app só faz proxy de <code>/api</code> e <code>/health</code> — não publica explorador interativo na borda.
+      Endpoints em linguagem de produto continuam em <a href="index.html#api">Documentação → API</a>.</p>
+    <p><strong>Importante:</strong> desligar o OpenAPI <em>não</em> esconde o contrato do app; reduz ruído em pentests
+      automatizados e evita consola de exploração desnecessária no mesmo host da API.</p>
+
+    <h2>5. Achados frequentes</h2>
+    <table>
+      <thead><tr><th>Achado</th><th>Severidade que adotamos</th><th>Tratamento</th></tr></thead>
+      <tbody>
+        <tr><td>API pública / “documentada”</td><td>Informativo se secção 3 ok</td><td>Manter open source; citar este doc; garantir secção 4 em prod</td></tr>
+        <tr><td>OpenAPI em produção</td><td>Higiene baixa/média</td><td>Desligado por padrão em <code>production</code></td></tr>
+        <tr><td>Admin sem autenticação</td><td>Crítica se token vazio e dados sensíveis</td><td>Fail-closed; token forte na VPS</td></tr>
+        <tr><td>Segredo no repositório</td><td>Crítica</td><td>Rotacionar; nunca commitar <code>.env</code></td></tr>
+        <tr><td>Abuso / custo LLM</td><td>Média operacional</td><td>Rate limit, cache, monitorar admin</td></tr>
+        <tr><td>Prompt injection</td><td>Média</td><td>Prompt endurecido + fallback + testes</td></tr>
+      </tbody>
+    </table>
+
+    <h2>6. Checklist rápido</h2>
+    <ol>
+      <li>Com <code>ENVIRONMENT=production</code>: <code>GET /docs</code> e <code>/openapi.json</code> → <strong>404</strong>.</li>
+      <li><code>/admin/api/...</code> sem token → <strong>401</strong>.</li>
+      <li>Nenhum <code>.env</code> real ou token SEFAZ no repositório público.</li>
+      <li>Redis/Postgres só na rede do compose; API só localhost no host.</li>
+      <li><code>CORS_ORIGINS</code> restrito em produção (não <code>*</code> com cenários sensíveis).</li>
+      <li>Privacidade alinhada ao código (hashes, consentimento para listas na nuvem).</li>
+    </ol>
+
+    <h2>7. Por que open source</h2>
+    <ol>
+      <li>Preços já são públicos (SEFAZ-AL); o valor está na ponte segura e na UX honesta.</li>
+      <li>Alegações de LGPD ficam auditáveis.</li>
+      <li>Fechar o GitHub <strong>não fecha</strong> a API HTTPS do app.</li>
+    </ol>
+    <p>Restrito ao time (repo privado ou só VPS): segredos de operação e notas internas — não este desenho.</p>
+
+    <h2>8. Limitações honestas</h2>
+    <ul>
+      <li>Root na VPS ainda lê memória e <code>.env</code> no disco (HSM/KMS seria outro patamar).</li>
+      <li>Sem Redis a API não sobe (falha rápida).</li>
+      <li>Este texto não substitui pentest formal nem laudo de DPO externo.</li>
+    </ul>
+
+    <p style="opacity:.75;font-size:.9rem;margin-top:2.5rem">Alinhado ao código: <code>backend/app/config.py</code> (<code>api_docs_enabled</code>),
+      <code>backend/app/main.py</code>, <code>deploy/nginx/alagoas.precospublicos.ia.br.conf</code>.</p>
+  </main>
+</div>
+</body>
+</html>

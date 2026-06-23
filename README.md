@@ -122,6 +122,16 @@ de um nginx com TLS. Toda configuração sensível (token, senhas, domínio) fic
 [MIT](LICENSE) — © 2026 Preços Públicos IA. Sinta-se livre para usar, estudar e
 contribuir.
 
+
+## Postura de segurança
+
+A API de aplicação é pública por desenho (cliente Flutter/web). Em **produção** a UI
+interativa do OpenAPI (`/docs`, `/redoc`, `/openapi.json`) fica **desligada**; o nginx
+do app só faz proxy de `/api` e `/health`. Modelo de ameaça e resposta a scanners:
+
+- [docs/seguranca-postura.md](docs/seguranca-postura.md) (Markdown no repo)
+- Site: [Postura de segurança](https://docs.alagoas.precospublicos.ia.br/seguranca-postura.html) (após deploy dos docs)
+
 ## Manutenção interna
 
 Notas de sessão, guias on-device, arte-fonte (`.xcf`), relatórios informais de segurança
