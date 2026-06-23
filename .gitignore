@@ -45,3 +45,13 @@ BUGS_ANALYSIS.txt
 # --- Confidential security audit (contains real infra/IP; never publish) ---
 Relatorio_Analise_Seguranca_CompraBaratoAlagoas.docx
 *.docx
+
+# --- Internal / moved to Compre-Barato-Alagoas-Privado ---
+SESSION_SUMMARY_*.md
+docs/pen-test-findings.md
+docs/on-device-ui-testing-guide.md
+docs/ux-sim-10-tests.md
+docs/data-patterns-report.json
+docs/data-patterns.html
+docs/ai-architecture.html
+shared-assets/*.xcf

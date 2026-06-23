@@ -121,3 +121,11 @@ de um nginx com TLS. Toda configuração sensível (token, senhas, domínio) fic
 
 [MIT](LICENSE) — © 2026 Preços Públicos IA. Sinta-se livre para usar, estudar e
 contribuir.
+
+## Manutenção interna
+
+Notas de sessão, guias on-device, arte-fonte (`.xcf`), relatórios informais de segurança
+e outputs de pesquisa de agente ficam no repositório privado
+[Compre-Barato-Alagoas-Privado](https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas-Privado)
+(acesso restrito ao time).
+
