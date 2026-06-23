@@ -61,10 +61,40 @@ sudo certbot --nginx -d SEU_DOMINIO      # emite e instala o certificado
 curl -s https://SEU_DOMINIO/health
 ```
 
-## Atualizações
+## CI/CD (deploy automático a cada push na `main`)
+
+O workflow `.github/workflows/deploy.yml` faz deploy automático sempre que algo é
+enviado para a `main`:
+
+1. **test** — instala o backend (`.[dev]`) e roda `pytest`. Se falhar, nada é publicado.
+2. **deploy** (só roda se os testes passarem):
+   - constrói a imagem do backend (Dockerfile multi-stage, imagem enxuta) **no runner**,
+     nunca no servidor — então nenhum cache de build se acumula no host compartilhado;
+   - constrói a web Flutter + APK release;
+   - envia tudo por SSH: a imagem vai por `docker save | docker load` (sem registry),
+     e `web/`, `admin/`, `docs/` por `rsync`;
+   - no servidor, `deploy/remote-update.sh` faz uma **checagem de disco** (aborta se
+     houver menos de ~2 GB livres, para não arriscar os outros sites do host), sobe o
+     stack com a imagem nova, remove imagens antigas **só deste app** e roda o health check.
+
+Configure uma vez os *secrets* do repositório (nada específico do host fica versionado):
+
+| Secret | Conteúdo |
+|--------|----------|
+| `DEPLOY_HOST` | `usuario@host` do servidor |
+| `DEPLOY_SSH_KEY` | chave SSH **privada** do deploy (conteúdo do arquivo) |
+| `DEPLOY_DIR` | diretório do app no servidor |
+| `DEPLOY_DOMAIN` | domínio público (usado no build do Flutter) |
+
+O nginx/TLS do host **não** é tocado pelo pipeline (segue gerido à mão no servidor).
+Para rodar manualmente sem push, use **Actions → este workflow → Run workflow**.
+
+## Atualizações manuais (fallback)
 
 `deploy.sh` reconstrói a web + APK, sincroniza backend/deploy/web e recria os
-containers. Rode-o novamente com as mesmas variáveis de ambiente do primeiro deploy.
+containers **construindo a imagem no próprio servidor**. É o caminho de emergência;
+o normal é deixar o CI/CD acima cuidar do deploy. Rode-o com as mesmas variáveis de
+ambiente do primeiro deploy.
 
 ## Indo ao ar com dados reais
 

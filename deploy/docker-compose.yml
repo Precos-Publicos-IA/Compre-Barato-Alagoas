@@ -9,7 +9,9 @@ services:
   api:
     build:
       context: ../backend
-    image: compre-barato-alagoas-api:latest
+    # CI pins a specific tag via API_IMAGE (built in the pipeline and loaded onto
+    # the host); a manual `docker compose up --build` falls back to :latest.
+    image: ${API_IMAGE:-compre-barato-alagoas-api:latest}
     env_file: ../.env
     environment:
       ENVIRONMENT: production

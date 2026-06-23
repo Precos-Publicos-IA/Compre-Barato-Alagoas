@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Runs ON the VPS to (re)start the stack with an already-present API image.
+# The CI pipeline builds the image elsewhere and loads it onto the host, then
+# calls this script over SSH. Nothing here builds images, so no build cache
+# accumulates on the (shared) server.
+#
+#   API_IMAGE   tag of the API image to run   (e.g. compre-barato-alagoas-api:<sha>)
+#   DEPLOY_DIR  app directory on the server    (default: /srv/apps/compre-barato-alagoas)
+#   MIN_FREE_MB minimum free disk to proceed   (default: 2048)
+set -euo pipefail
+
+DEPLOY_DIR="${DEPLOY_DIR:-/srv/apps/compre-barato-alagoas}"
+API_IMAGE="${API_IMAGE:-compre-barato-alagoas-api:latest}"
+MIN_FREE_MB="${MIN_FREE_MB:-2048}"
+
+# --- Disk pre-check: never risk filling a shared host. ---
+avail_mb=$(($(df -Pk "$DEPLOY_DIR" | awk 'NR==2{print $4}') / 1024))
+echo "==> Free disk at $DEPLOY_DIR: ${avail_mb}MB (need >= ${MIN_FREE_MB}MB)"
+if [ "$avail_mb" -lt "$MIN_FREE_MB" ]; then
+  echo "ABORT: not enough free disk. Deployment stopped before touching the stack." >&2
+  exit 1
+fi
+
+if [ ! -f "$DEPLOY_DIR/.env" ]; then
+  echo "ABORT: $DEPLOY_DIR/.env is missing (secrets live only on the server)." >&2
+  exit 1
+fi
+
+cd "$DEPLOY_DIR/deploy"
+export API_IMAGE
+
+echo "==> Starting stack with API_IMAGE=$API_IMAGE"
+# No --build: the image is already loaded on the host.
+docker compose --env-file ../.env up -d --no-build
+
+# Remove our own previous API images so per-commit tags don't pile up. Scoped
+# strictly to this app's repository name, so other clients' images are never
+# touched; the image we just deployed is kept.
+echo "==> Removing older compre-barato-alagoas-api images (keep $API_IMAGE)"
+docker images 'compre-barato-alagoas-api' --format '{{.Repository}}:{{.Tag}}' \
+  | grep -vx "$API_IMAGE" \
+  | xargs -r docker rmi -f >/dev/null 2>&1 || true
+# Drop any now-dangling layers (own leftovers only; never touches running refs).
+docker image prune -f >/dev/null 2>&1 || true
+
+echo "==> Health check"
+for i in 1 2 3 4 5 6; do
+  if curl -fsS http://127.0.0.1:8000/health; then echo; echo "==> Healthy."; exit 0; fi
+  echo "   …waiting for API ($i/6)"; sleep 5
+done
+echo "ABORT: API did not become healthy." >&2
+exit 1

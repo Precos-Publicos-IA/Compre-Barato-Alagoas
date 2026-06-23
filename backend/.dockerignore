@@ -1,0 +1,16 @@
+# Keep the build context (and image) lean: nothing here is needed at runtime.
+tests/
+scripts/
+run_local.py
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.env
+*.env
+*.md
+!README.md
