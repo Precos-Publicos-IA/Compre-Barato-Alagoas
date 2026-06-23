@@ -5,8 +5,19 @@ name: CI/CD — test, build & deploy to VPS
 # admin/docs → just sync the static files. Pure README/LICENSE changes don't
 # even start the pipeline. Forks/PRs never get the deploy secrets (GitHub only
 # exposes them to workflows running from the base repo on push).
+#
+# Headless routine (AGENTS.md):
+#   • e2e-local  — PR/push gate when app surfaces or e2e harness change (mock stack)
+#   • live-verify — after successful deploy on main (production URLs)
 on:
   push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'shared-assets/**'
+  pull_request:
     branches: [main]
     paths-ignore:
       - 'README.md'
@@ -17,8 +28,8 @@ on:
 
 # Never let two deploys race on the single shared host.
 concurrency:
-  group: deploy-vps
-  cancel-in-progress: false
+  group: deploy-vps-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # ---- Work out what actually changed. workflow_dispatch forces everything. ----
@@ -30,7 +41,9 @@ jobs:
       admin: ${{ steps.f.outputs.admin == 'true' || github.event_name == 'workflow_dispatch' }}
       docs: ${{ steps.f.outputs.docs == 'true' || github.event_name == 'workflow_dispatch' }}
       deploycfg: ${{ steps.f.outputs.deploycfg == 'true' || github.event_name == 'workflow_dispatch' }}
+      e2e: ${{ steps.f.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch' }}
       deployable: ${{ steps.f.outputs.backend == 'true' || steps.f.outputs.frontend == 'true' || steps.f.outputs.admin == 'true' || steps.f.outputs.docs == 'true' || steps.f.outputs.deploycfg == 'true' || github.event_name == 'workflow_dispatch' }}
+      needs_e2e: ${{ steps.f.outputs.backend == 'true' || steps.f.outputs.frontend == 'true' || steps.f.outputs.admin == 'true' || steps.f.outputs.docs == 'true' || steps.f.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -45,6 +58,9 @@ jobs:
               - 'admin-frontend/**'
             docs:
               - 'docs/**'
+            e2e:
+              - 'e2e/**'
+              - 'AGENTS.md'
             deploycfg:
               - 'deploy/**'
               - '.env.example'
@@ -69,15 +85,55 @@ jobs:
         working-directory: backend
         run: pytest
 
-  # ---- Build only what changed, then ship over SSH. ----
+  # ---- Headless full suite on a mock stack (PR + main; efficient path filter). ----
+  e2e-local:
+    needs: changes
+    if: needs.changes.outputs.needs_e2e == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - name: Backend mock deps (for run_local.py)
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[dev]"
+      - name: Install e2e + Chrome for Puppeteer
+        working-directory: e2e
+        run: |
+          npm ci || npm install
+          npx puppeteer browsers install chrome
+      - name: Full headless suite (admin + docs + API journeys)
+        working-directory: e2e
+        env:
+          ADMIN_TOKEN: test-admin-token-0123456789
+        run: npm run full:local
+      - name: Upload e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-local
+          path: e2e/screenshots/
+          if-no-files-found: ignore
+
+  # ---- Build only what changed, then ship over SSH (main only). ----
   deploy:
-    needs: [changes, test]
+    needs: [changes, test, e2e-local]
     # Run when there's something deployable AND (tests passed OR weren't needed).
     if: >-
       always() &&
+      github.event_name != 'pull_request' &&
       github.ref == 'refs/heads/main' &&
       needs.changes.outputs.deployable == 'true' &&
-      (needs.test.result == 'success' || needs.test.result == 'skipped')
+      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
+      (needs.e2e-local.result == 'success' || needs.e2e-local.result == 'skipped')
     runs-on: ubuntu-latest
     env:
       API_IMAGE: compre-barato-alagoas-api:${{ github.sha }}
@@ -190,3 +246,47 @@ jobs:
           else
             echo "==> Static-only change → no stack restart needed."
           fi
+
+  # ---- After deploy: same philosophy against live hosts (main only). ----
+  live-verify:
+    needs: [changes, deploy]
+    if: >-
+      always() &&
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main' &&
+      needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - name: Install e2e + Chrome
+        working-directory: e2e
+        run: |
+          npm ci || npm install
+          npx puppeteer browsers install chrome
+      - name: Live headless suite (app + API + docs)
+        working-directory: e2e
+        env:
+          APP_URL: https://${{ secrets.DEPLOY_DOMAIN }}
+          API_URL: https://${{ secrets.DEPLOY_DOMAIN }}
+          DOCS_URL: https://docs.${{ secrets.DEPLOY_DOMAIN }}
+          LIVE_ADMIN_URL: https://admin.${{ secrets.DEPLOY_DOMAIN }}
+          # Optional: set repo secret LIVE_ADMIN_TOKEN to exercise admin login on prod
+          LIVE_ADMIN_TOKEN: ${{ secrets.LIVE_ADMIN_TOKEN }}
+        run: npm run live
+      - name: Upload live screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-live
+          path: e2e/screenshots/
+          if-no-files-found: ignore
+      - name: Phone / integration_test reminder
+        run: |
+          echo "::notice::On-device Flutter integration_test against live API is required for full delivery (AGENTS.md §6)."
+          echo "Example: cd frontend && flutter test integration_test/app_test.dart \\"
+          echo "  --dart-define=API_BASE_URL=https://${{ secrets.DEPLOY_DOMAIN }} -d <device>"

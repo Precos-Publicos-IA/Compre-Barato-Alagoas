@@ -58,9 +58,13 @@ SEFAZ — o token **nunca** vai para o aplicativo do usuário.
 | `admin-frontend/` | Painel administrativo estático (métricas de IA/produto + técnico). |
 | `docs/` | Documentação estática (pt-BR), publicada em `docs.<domínio>`. |
 | `deploy/` | docker-compose + nginx para subir o projeto em um servidor. |
+| `e2e/` | Testes headless (Puppeteer): inputs simulados + screenshots (local e live). |
 | `shared-assets/` | Arte/logo de origem do app. |
 
 Cada pasta tem o seu próprio README com instruções detalhadas.
+
+**Entrega (agentes):** branch → PR → review → merge `main` → deploy VPS (CI) → testes live.
+Ver [`AGENTS.md`](AGENTS.md). Local: `cd e2e && npm run full:local`. Pós-deploy: `cd e2e && npm run live`.
 
 ## Documentação
 

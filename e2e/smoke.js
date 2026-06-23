@@ -26,7 +26,7 @@ const path = require('path');
 
 const APP_URL = process.env.APP_URL || 'https://alagoas.precospublicos.ia.br/';
 const API_URL = (process.env.API_URL || new URL(APP_URL).origin).replace(/\/$/, '');
-const EXEC = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome';
+const { launchOpts } = require('./lib/chrome');
 const SHOTS = path.join(__dirname, 'screenshots');
 fs.mkdirSync(SHOTS, { recursive: true });
 
@@ -37,13 +37,9 @@ const ok = (name, pass, detail = '') => {
 };
 
 (async () => {
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    executablePath: fs.existsSync(EXEC) ? EXEC : undefined,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage',
-      '--disable-gpu', '--window-size=390,820', '--lang=pt-BR'],
-    defaultViewport: { width: 390, height: 820, isMobile: true, hasTouch: true },
-  });
+  const browser = await puppeteer.launch(launchOpts({
+    width: 390, height: 820, isMobile: true, hasTouch: true,
+  }));
 
   const consoleErrors = [];
   const pageErrors = [];

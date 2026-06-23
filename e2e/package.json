@@ -2,9 +2,12 @@
   "name": "compre-barato-alagoas-e2e",
   "version": "1.0.0",
   "private": true,
-  "description": "Headless browser smoke tests for the Compre Barato Alagoas web app + API.",
+  "description": "Headless browser tests (inputs + screenshots) for all Compre Barato Alagoas surfaces.",
   "scripts": {
-    "smoke": "node smoke.js"
+    "smoke": "node smoke.js",
+    "full": "node full.js",
+    "full:local": "bash run_local.sh",
+    "live": "node live.js"
   },
   "dependencies": {
     "puppeteer": "^21.11.0"
