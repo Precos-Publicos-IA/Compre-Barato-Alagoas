@@ -1,11 +1,19 @@
 name: CI/CD — test, build & deploy to VPS
 
-# Auto-deploys every push to main. Forks/PRs never get the deploy secrets
-# (GitHub only exposes them to workflows running from the base repo on push).
+# Auto-deploys pushes to main, but only does the work that the change actually
+# needs: backend code → rebuild image + restart; frontend → rebuild Flutter;
+# admin/docs → just sync the static files. Pure README/LICENSE changes don't
+# even start the pipeline. Forks/PRs never get the deploy secrets (GitHub only
+# exposes them to workflows running from the base repo on push).
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'shared-assets/**'
+  workflow_dispatch: # manual run forces a full deploy (handy for rollback/redeploy)
 
 # Never let two deploys race on the single shared host.
 concurrency:
@@ -13,8 +21,39 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ---- Gate 1: backend tests must pass before anything ships. ----
+  # ---- Work out what actually changed. workflow_dispatch forces everything. ----
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.f.outputs.backend == 'true' || github.event_name == 'workflow_dispatch' }}
+      frontend: ${{ steps.f.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch' }}
+      admin: ${{ steps.f.outputs.admin == 'true' || github.event_name == 'workflow_dispatch' }}
+      docs: ${{ steps.f.outputs.docs == 'true' || github.event_name == 'workflow_dispatch' }}
+      deploycfg: ${{ steps.f.outputs.deploycfg == 'true' || github.event_name == 'workflow_dispatch' }}
+      deployable: ${{ steps.f.outputs.backend == 'true' || steps.f.outputs.frontend == 'true' || steps.f.outputs.admin == 'true' || steps.f.outputs.docs == 'true' || steps.f.outputs.deploycfg == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: f
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            admin:
+              - 'admin-frontend/**'
+            docs:
+              - 'docs/**'
+            deploycfg:
+              - 'deploy/**'
+              - '.env.example'
+              - '.github/workflows/deploy.yml'
+
+  # ---- Gate: backend tests, only when backend code changed. ----
   test:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,11 +69,16 @@ jobs:
         working-directory: backend
         run: pytest
 
-  # ---- Build the lean image + Flutter artifacts, then ship over SSH. ----
+  # ---- Build only what changed, then ship over SSH. ----
   deploy:
-    needs: test
+    needs: [changes, test]
+    # Run when there's something deployable AND (tests passed OR weren't needed).
+    if: >-
+      always() &&
+      github.ref == 'refs/heads/main' &&
+      needs.changes.outputs.deployable == 'true' &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped')
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     env:
       API_IMAGE: compre-barato-alagoas-api:${{ github.sha }}
       DOMAIN: ${{ secrets.DEPLOY_DOMAIN }}
@@ -42,10 +86,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- Build the production image (multi-stage; build happens here, never
-      #     on the disk-constrained host). ---
-      - uses: docker/setup-buildx-action@v3
+      # --- Backend image: only when backend changed (build off the host). ---
+      - if: needs.changes.outputs.backend == 'true'
+        uses: docker/setup-buildx-action@v3
       - name: Build API image
+        if: needs.changes.outputs.backend == 'true'
         uses: docker/build-push-action@v6
         with:
           context: backend
@@ -56,19 +101,20 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # --- Build the Flutter web bundle + release APK (static, served by nginx). ---
-      - uses: subosito/flutter-action@v2
+      # --- Flutter web + APK: only when the frontend changed. ---
+      - if: needs.changes.outputs.frontend == 'true'
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
       - name: Build Flutter web + APK
+        if: needs.changes.outputs.frontend == 'true'
         working-directory: frontend
         run: |
           flutter pub get
           flutter build web --release --dart-define=API_BASE_URL="https://${DOMAIN}"
           flutter build apk --release --dart-define=API_BASE_URL="https://${DOMAIN}"
 
-      # --- SSH setup (all host details come from secrets; nothing host-specific
-      #     is committed in this public repo). ---
+      # --- SSH setup (host details come only from secrets). ---
       - name: Configure SSH
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -79,37 +125,68 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "${DEPLOY_HOST##*@}" >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Ship build to the VPS
+      - name: Ship changed parts to the VPS
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          CH_BACKEND: ${{ needs.changes.outputs.backend }}
+          CH_FRONTEND: ${{ needs.changes.outputs.frontend }}
+          CH_ADMIN: ${{ needs.changes.outputs.admin }}
+          CH_DOCS: ${{ needs.changes.outputs.docs }}
+          CH_DEPLOYCFG: ${{ needs.changes.outputs.deploycfg }}
         run: |
+          set -euo pipefail
           SSH="ssh -i ~/.ssh/deploy_key"
-          RSH="$SSH"
+          H="$DEPLOY_HOST"
+          $SSH "$H" "mkdir -p '$DEPLOY_DIR/web/app' '$DEPLOY_DIR/admin' '$DEPLOY_DIR/docs'"
 
-          echo "==> Ensure remote dirs"
-          $SSH "$DEPLOY_HOST" "mkdir -p '$DEPLOY_DIR/web/app' '$DEPLOY_DIR/admin' '$DEPLOY_DIR/docs'"
+          # Disk pre-check before touching anything (protects the shared host).
+          avail_mb=$(( $($SSH "$H" "df -Pk '$DEPLOY_DIR' | awk 'NR==2{print \$4}'") / 1024 ))
+          echo "==> Free disk on VPS: ${avail_mb}MB"
+          if [ "$avail_mb" -lt 2048 ]; then
+            echo "ABORT: <2GB free on the VPS; not deploying." >&2; exit 1
+          fi
 
-          echo "==> Sync deploy/ (compose + remote-update.sh + nginx refs) and .env.example"
-          rsync -az --delete -e "$RSH" \
-            --exclude '.env' \
-            deploy "$DEPLOY_HOST:$DEPLOY_DIR/"
-          rsync -az -e "$RSH" .env.example "$DEPLOY_HOST:$DEPLOY_DIR/.env.example"
+          restart=false
+          image_tag=""
 
-          echo "==> Sync Flutter web (keep hosted APK under web/app)"
-          rsync -az --delete -e "$RSH" --exclude 'app/' \
-            frontend/build/web/ "$DEPLOY_HOST:$DEPLOY_DIR/web/"
-          rsync -az -e "$RSH" \
-            frontend/build/app/outputs/flutter-apk/app-release.apk \
-            "$DEPLOY_HOST:$DEPLOY_DIR/web/app/compre-barato-alagoas.apk"
+          if [ "$CH_BACKEND" = "true" ] || [ "$CH_DEPLOYCFG" = "true" ]; then
+            echo "==> Sync deploy/ (compose + remote-update.sh) and .env.example"
+            rsync -az --delete -e "$SSH" --exclude '.env' deploy "$H:$DEPLOY_DIR/"
+            rsync -az -e "$SSH" .env.example "$H:$DEPLOY_DIR/.env.example"
+            restart=true
+          fi
 
-          echo "==> Sync admin dashboard + docs (static)"
-          rsync -az --delete -e "$RSH" admin-frontend/ "$DEPLOY_HOST:$DEPLOY_DIR/admin/"
-          rsync -az --delete -e "$RSH" docs/ "$DEPLOY_HOST:$DEPLOY_DIR/docs/"
+          if [ "$CH_BACKEND" = "true" ]; then
+            echo "==> Backend changed → load freshly built image onto the host"
+            docker save "$API_IMAGE" | gzip | $SSH "$H" "gunzip | docker load"
+            image_tag="$API_IMAGE"
+          elif [ "$CH_DEPLOYCFG" = "true" ]; then
+            echo "==> Deploy config changed → restart with the image already running"
+            image_tag="$($SSH "$H" "docker inspect --format '{{.Config.Image}}' deploy-api-1")"
+          fi
 
-          echo "==> Load the prebuilt API image onto the host (no build, no registry)"
-          docker save "$API_IMAGE" | gzip | \
-            $SSH "$DEPLOY_HOST" "gunzip | docker load"
+          if [ "$CH_FRONTEND" = "true" ]; then
+            echo "==> Frontend changed → sync web bundle + APK"
+            rsync -az --delete -e "$SSH" --exclude 'app/' \
+              frontend/build/web/ "$H:$DEPLOY_DIR/web/"
+            rsync -az -e "$SSH" \
+              frontend/build/app/outputs/flutter-apk/app-release.apk \
+              "$H:$DEPLOY_DIR/web/app/compre-barato-alagoas.apk"
+          fi
 
-          echo "==> Restart stack via remote-update.sh (disk pre-check + health check)"
-          $SSH "$DEPLOY_HOST" \
-            "API_IMAGE='$API_IMAGE' DEPLOY_DIR='$DEPLOY_DIR' bash '$DEPLOY_DIR/deploy/remote-update.sh'"
+          if [ "$CH_ADMIN" = "true" ]; then
+            echo "==> Admin dashboard changed → sync"
+            rsync -az --delete -e "$SSH" admin-frontend/ "$H:$DEPLOY_DIR/admin/"
+          fi
+
+          if [ "$CH_DOCS" = "true" ]; then
+            echo "==> Docs changed → sync (static only; no app redeploy)"
+            rsync -az --delete -e "$SSH" docs/ "$H:$DEPLOY_DIR/docs/"
+          fi
+
+          if [ "$restart" = "true" ]; then
+            echo "==> Restart stack via remote-update.sh (disk pre-check + health check)"
+            $SSH "$H" "API_IMAGE='$image_tag' DEPLOY_DIR='$DEPLOY_DIR' bash '$DEPLOY_DIR/deploy/remote-update.sh'"
+          else
+            echo "==> Static-only change → no stack restart needed."
+          fi

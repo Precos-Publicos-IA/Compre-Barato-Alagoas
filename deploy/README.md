@@ -63,19 +63,25 @@ curl -s https://SEU_DOMINIO/health
 
 ## CI/CD (deploy automático a cada push na `main`)
 
-O workflow `.github/workflows/deploy.yml` faz deploy automático sempre que algo é
-enviado para a `main`:
+O workflow `.github/workflows/deploy.yml` faz deploy automático a cada push na
+`main`, mas **só faz o que mudou de verdade** (job `changes` detecta os caminhos):
 
-1. **test** — instala o backend (`.[dev]`) e roda `pytest`. Se falhar, nada é publicado.
-2. **deploy** (só roda se os testes passarem):
-   - constrói a imagem do backend (Dockerfile multi-stage, imagem enxuta) **no runner**,
-     nunca no servidor — então nenhum cache de build se acumula no host compartilhado;
-   - constrói a web Flutter + APK release;
-   - envia tudo por SSH: a imagem vai por `docker save | docker load` (sem registry),
-     e `web/`, `admin/`, `docs/` por `rsync`;
-   - no servidor, `deploy/remote-update.sh` faz uma **checagem de disco** (aborta se
-     houver menos de ~2 GB livres, para não arriscar os outros sites do host), sobe o
-     stack com a imagem nova, remove imagens antigas **só deste app** e roda o health check.
+| Mudou… | O que o pipeline faz |
+|--------|----------------------|
+| `backend/**` | roda `pytest`, reconstrói a imagem e reinicia o stack |
+| `frontend/**` | reconstrói a web Flutter + APK e sincroniza (sem reiniciar a API) |
+| `deploy/**`, `.env.example`, o próprio workflow | sincroniza e reinicia o stack com a imagem atual |
+| `admin-frontend/**` | só sincroniza o dashboard (sem rebuild/restart) |
+| `docs/**` | só sincroniza o site de docs (sem rebuild/restart) |
+| só `README.md` / `LICENSE` / `.gitignore` / `shared-assets/**` | **nada** — o pipeline nem inicia |
+
+Detalhes do deploy quando há código:
+- a imagem do backend (Dockerfile multi-stage, enxuta) é construída **no runner**,
+  nunca no servidor — nenhum cache de build se acumula no host compartilhado;
+- envio por SSH: imagem via `docker save | docker load` (sem registry), estáticos via `rsync`;
+- antes de tocar no host há uma **checagem de disco** (aborta se houver < ~2 GB livres);
+  `deploy/remote-update.sh` sobe o stack, remove imagens antigas **só deste app** e roda health check.
+- `workflow_dispatch` (Run workflow) força um deploy completo — útil para redeploy/rollback.
 
 Configure uma vez os *secrets* do repositório (nada específico do host fica versionado):
 
