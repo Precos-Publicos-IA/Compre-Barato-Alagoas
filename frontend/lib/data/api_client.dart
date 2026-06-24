@@ -8,9 +8,18 @@ import 'models.dart';
 
 class ApiException implements Exception {
   final String message;
-  ApiException(this.message);
+
+  /// Server `X-Request-ID` when present — helps support correlate logs/Sentry (#136).
+  final String? requestId;
+
+  ApiException(this.message, {this.requestId});
+
   @override
-  String toString() => message;
+  String toString() {
+    final id = requestId?.trim();
+    if (id == null || id.isEmpty) return message;
+    return '$message (ref: $id)';
+  }
 }
 
 /// Thin HTTP client for the Compre Barato Alagoas backend.
@@ -48,11 +57,22 @@ class ApiClient {
           {Map<String, String>? headers, Object? body}) =>
       _retry(() => _client.post(uri, headers: headers, body: body));
 
+  /// Reads `X-Request-ID` from a response (header names are case-insensitive in http).
+  static String? requestIdOf(http.Response resp) {
+    final raw = resp.headers['x-request-id'] ?? resp.headers['X-Request-ID'];
+    if (raw == null) return null;
+    final t = raw.trim();
+    return t.isEmpty ? null : t;
+  }
+
+  Never _throwHttp(String message, http.Response resp) =>
+      throw ApiException(message, requestId: requestIdOf(resp));
+
   Future<List<Suggestion>> fetchSuggestions() async {
     final uri = Uri.parse('$_baseUrl/api/v1/suggestions');
     final resp = await _get(uri);
     if (resp.statusCode != 200) {
-      throw ApiException('Falha ao carregar sugestões (${resp.statusCode})');
+      _throwHttp('Falha ao carregar sugestões (${resp.statusCode})', resp);
     }
     final body = jsonDecode(utf8.decode(resp.bodyBytes)) as Map<String, dynamic>;
     return (body['items'] as List<dynamic>)
@@ -67,7 +87,7 @@ class ApiClient {
     final resp = await _get(uri);
     if (resp.statusCode == 404) return null;
     if (resp.statusCode != 200) {
-      throw ApiException('Não foi possível abrir a lista compartilhada.');
+      _throwHttp('Não foi possível abrir a lista compartilhada.', resp);
     }
     final body = jsonDecode(utf8.decode(resp.bodyBytes)) as Map<String, dynamic>;
     return (body['items'] as List<dynamic>).map((e) => e as String).toList();
@@ -111,10 +131,10 @@ class ApiClient {
       body: jsonEncode(payload),
     );
     if (resp.statusCode == 429) {
-      throw ApiException('Você atingiu o limite de buscas de hoje.');
+      _throwHttp('Você atingiu o limite de buscas de hoje.', resp);
     }
     if (resp.statusCode != 200) {
-      throw ApiException('Não foi possível buscar os preços agora.');
+      _throwHttp('Não foi possível buscar os preços agora.', resp);
     }
     final body = jsonDecode(utf8.decode(resp.bodyBytes)) as Map<String, dynamic>;
     return SearchResponse.fromJson(body);
@@ -168,7 +188,7 @@ class ApiClient {
       body: jsonEncode({'accepted': true, 'policy_version': policyVersion}),
     ).timeout(_timeout);
     if (resp.statusCode != 200) {
-      throw ApiException('Não foi possível salvar sua preferência.');
+      _throwHttp('Não foi possível salvar sua preferência.', resp);
     }
   }
 
@@ -180,7 +200,7 @@ class ApiClient {
       headers: {deviceTokenHeader: deviceToken},
     ).timeout(_timeout);
     if (resp.statusCode != 200) {
-      throw ApiException('Não foi possível apagar seus dados.');
+      _throwHttp('Não foi possível apagar seus dados.', resp);
     }
   }
 }
