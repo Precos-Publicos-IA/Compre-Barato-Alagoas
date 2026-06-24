@@ -11,7 +11,12 @@ from fastapi import APIRouter, Depends
 
 from ...analytics import Analytics
 from ...schemas.feedback import FeedbackAck, FeedbackRequest
-from ..deps import enforce_rate_limit, get_analytics, get_device_token
+from ..deps import (
+    enforce_rate_limit,
+    get_analytics,
+    get_analytics_id,
+    get_device_token,
+)
 
 router = APIRouter(prefix="/api/v1", tags=["feedback"])
 
@@ -25,7 +30,10 @@ router = APIRouter(prefix="/api/v1", tags=["feedback"])
 async def submit_feedback(
     body: FeedbackRequest,
     analytics: Analytics = Depends(get_analytics),
+    # Optional headers: device bearer (consented clients) + non-credential analytics id.
+    # Stored only as device_fp hash / analytics_id in the stream (#354/#355).
     device_token: str | None = Depends(get_device_token),
+    analytics_id: str | None = Depends(get_analytics_id),
 ) -> FeedbackAck:
     await analytics.record_feedback(
         kind=body.kind,
@@ -33,5 +41,7 @@ async def submit_feedback(
         item=body.item,
         note=body.note,
         list_id=body.list_id,
+        device_token=device_token,
+        analytics_id=analytics_id,
     )
     return FeedbackAck(recorded=True)

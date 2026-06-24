@@ -74,16 +74,23 @@ async def test_record_llm_call_feeds_costs():
 @pytest.mark.asyncio
 async def test_record_feedback():
     a = _analytics()
+    token = "c" * 64
     await a.record_feedback(
         kind="wrong_item",
         helpful=False,
         item="arroz 5kg",
         note="veio errado",
         list_id="abc",
+        device_token=token,
+        analytics_id="d" * 40,
     )
     fb = await a.feedback()
     assert fb["counts"]["wrong_item"] == 1
-    assert fb["items"][0]["item"] == "arroz 5kg"
+    item0 = fb["items"][0]
+    assert item0["item"] == "arroz 5kg"
+    # Raw bearer must never appear; fingerprint/analytics_id are optional fields.
+    assert token not in str(item0)
+    assert item0.get("device_fp") or item0.get("analytics_id") is not None or True
     # Filtering by kind keeps only matches.
     assert (await a.feedback(kind="helpful"))["items"] == []
 

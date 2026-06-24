@@ -49,6 +49,8 @@
 		<string>99app</string>
 		<string>comgooglemaps</string>
 		<string>maps</string>
+		<string>waze</string>
+		<string>geo</string>
 		<string>http</string>
 		<string>https</string>
 	</array>

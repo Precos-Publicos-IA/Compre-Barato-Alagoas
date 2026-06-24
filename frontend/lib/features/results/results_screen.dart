@@ -9,6 +9,34 @@ import '../share/share_service.dart';
 import 'savings.dart';
 import 'store_card.dart';
 
+/// Wires optional device/analytics headers for feedback posts (#354).
+Future<bool> _submitFeedback(
+  WidgetRef ref, {
+  required String kind,
+  bool? helpful,
+  String? item,
+  String? note,
+  String? listId,
+}) async {
+  String? deviceToken;
+  if (ref.read(cloudSyncProvider).asData?.value ?? false) {
+    deviceToken = await ref.read(deviceIdentityProvider).getOrCreateToken();
+  }
+  String? analyticsId;
+  if (ref.read(usageStatsProvider).asData?.value ?? true) {
+    analyticsId = await ref.read(analyticsIdProvider).getOrCreate();
+  }
+  return ref.read(apiClientProvider).submitFeedback(
+        kind: kind,
+        helpful: helpful,
+        item: item,
+        note: note,
+        listId: listId,
+        deviceToken: deviceToken,
+        analyticsId: analyticsId,
+      );
+}
+
 class ResultsScreen extends ConsumerWidget {
   const ResultsScreen({super.key});
 
@@ -164,11 +192,12 @@ class _FeedbackCardState extends ConsumerState<_FeedbackCard> {
   Future<void> _send({required bool helpful}) async {
     if (_busy) return;
     setState(() => _busy = true);
-    final ok = await ref.read(apiClientProvider).submitFeedback(
-          kind: 'helpful',
-          helpful: helpful,
-          listId: widget.listId,
-        );
+    final ok = await _submitFeedback(
+      ref,
+      kind: 'helpful',
+      helpful: helpful,
+      listId: widget.listId,
+    );
     if (!mounted) return;
     setState(() => _busy = false);
     if (ok) {
@@ -263,12 +292,13 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
   Future<void> _submit() async {
     if (_sending) return;
     setState(() => _sending = true);
-    final ok = await ref.read(apiClientProvider).submitFeedback(
-          kind: 'wrong_item',
-          item: _item,
-          note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-          listId: widget.listId,
-        );
+    final ok = await _submitFeedback(
+      ref,
+      kind: 'wrong_item',
+      item: _item,
+      note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+      listId: widget.listId,
+    );
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pop(true);
@@ -347,6 +377,13 @@ class _SavingsBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final amountLabel = formatBRL(savings.amount);
+    final storeName = savings.cheapest.name;
+    final summary =
+        'Você pode economizar até $amountLabel comprando na $storeName '
+        'em vez da loja mais cara.';
+    final shareEnabled = listId != null;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
       padding: const EdgeInsets.all(16),
@@ -357,42 +394,77 @@ class _SavingsBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.savings, color: scheme.onPrimary, size: 28),
-              const SizedBox(width: 8),
-              Text('Você pode economizar até',
-                  style: TextStyle(fontSize: 16, color: scheme.onPrimary)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            formatBRL(savings.amount),
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.w900,
-              color: scheme.onPrimary,
+          Semantics(
+            label: summary,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.savings, color: scheme.onPrimary, size: 28),
+                    const SizedBox(width: 8),
+                    Text('Você pode economizar até',
+                        style:
+                            TextStyle(fontSize: 16, color: scheme.onPrimary)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  amountLabel,
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w900,
+                    color: scheme.onPrimary,
+                  ),
+                ),
+                Text(
+                  'comprando na $storeName em vez da loja mais cara.',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: scheme.onPrimary.withValues(alpha: 0.9)),
+                ),
+              ],
             ),
           ),
-          Text(
-            'comprando na ${savings.cheapest.name} em vez da loja mais cara.',
-            style: TextStyle(
-                fontSize: 14, color: scheme.onPrimary.withValues(alpha: 0.9)),
-          ),
           const SizedBox(height: 12),
+          if (!shareEnabled)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                'Link de compartilhamento indisponível para esta busca. '
+                'Tente buscar de novo para gerar um link.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: scheme.onPrimary.withValues(alpha: 0.85),
+                ),
+              ),
+            ),
           SizedBox(
             width: double.infinity,
             child: Builder(
-              builder: (btnContext) => FilledButton.tonalIcon(
-                onPressed: listId == null
-                    ? null
-                    : () => shareSavings(
-                          listId!,
-                          savings.amount,
-                          context: btnContext,
-                        ),
-                icon: const Icon(Icons.share),
-                label: const Text('COMPARTILHAR ECONOMIA'),
+              builder: (btnContext) => Semantics(
+                button: true,
+                enabled: shareEnabled,
+                label: 'Compartilhar economia',
+                hint: shareEnabled
+                    ? 'Compartilha o link desta economia'
+                    : 'Indisponível porque o servidor não gerou um link para esta busca',
+                child: Tooltip(
+                  message: shareEnabled
+                      ? 'Compartilhar economia'
+                      : 'Link indisponível — tente buscar de novo',
+                  child: FilledButton.tonalIcon(
+                    onPressed: shareEnabled
+                        ? () => shareSavings(
+                              listId!,
+                              savings.amount,
+                              context: btnContext,
+                            )
+                        : null,
+                    icon: const Icon(Icons.share),
+                    label: const Text('COMPARTILHAR ECONOMIA'),
+                  ),
+                ),
               ),
             ),
           ),

@@ -9,7 +9,7 @@ Runner.xcodeproj, Podfile, assets, IPA/TestFlight).
 | File / work | Purpose | Issues |
 |-------------|---------|--------|
 | `Runner/Info.plist` | `NSMicrophoneUsageDescription`, `NSSpeechRecognitionUsageDescription`, `NSLocationWhenInUseUsageDescription` | #5 |
-| `Runner/Info.plist` | `LSApplicationQueriesSchemes` (`uber`, `taxis99`, `99app`, `comgooglemaps`, `maps`, `http`, `https`) | #10 |
+| `Runner/Info.plist` | `LSApplicationQueriesSchemes` (`uber`, `taxis99`, `99app`, `comgooglemaps`, `maps`, `waze`, `geo`, `http`, `https`) | #10 #357 |
 | `Runner/InfoPlist.strings` | pt-BR copies of the privacy strings | #5 |
 | Full `flutter create --platforms=ios` / pods / IPA | Complete target | #4 |
 | iOS Keychain options (Dart) | Device token storage | #9 |

@@ -141,8 +141,10 @@ class ApiClient {
   }
 
   /// Sends user feedback on results (👍/👎 or "item errado"). Best-effort and
-  /// anonymous by default; a device token is sent only if the caller passes one
-  /// (consented devices). Never throws on the UI path — returns false on failure.
+  /// anonymous by default; [deviceToken] / [analyticsId] are sent when the caller
+  /// supplies them (cloud-sync consented / usage stats on). Uses the same
+  /// timeout+retry transport as search (#354). Never throws on the UI path —
+  /// returns false on failure.
   Future<bool> submitFeedback({
     required String kind,
     bool? helpful,
@@ -150,14 +152,16 @@ class ApiClient {
     String? note,
     String? listId,
     String? deviceToken,
+    String? analyticsId,
   }) async {
     try {
       final uri = Uri.parse('$_baseUrl/api/v1/feedback');
-      final resp = await _client.post(
+      final resp = await _post(
         uri,
         headers: {
           'Content-Type': 'application/json',
           deviceTokenHeader: ?deviceToken,
+          analyticsIdHeader: ?analyticsId,
         },
         body: jsonEncode({
           'kind': kind,

@@ -38,6 +38,19 @@ class _MemorySecureStorage extends FlutterSecureStorage {
       _data[key] = value;
     }
   }
+
+  @override
+  Future<void> delete({
+    required String key,
+    IOSOptions? iOptions,
+    AndroidOptions? aOptions,
+    LinuxOptions? lOptions,
+    WebOptions? webOptions,
+    MacOsOptions? mOptions,
+    WindowsOptions? wOptions,
+  }) async {
+    _data.remove(key);
+  }
 }
 
 void main() {
@@ -67,5 +80,16 @@ void main() {
     );
     final id = DeviceIdentity(storage: mem);
     expect(await id.getOrCreateToken(), equals('a' * 64));
+  });
+
+  test('clear removes token; next getOrCreateToken mints a different one',
+      () async {
+    final mem = _MemorySecureStorage();
+    final id = DeviceIdentity(storage: mem);
+    final first = await id.getOrCreateToken();
+    await id.clear();
+    final second = await id.getOrCreateToken();
+    expect(second, matches(RegExp(r'^[0-9a-f]{64}$')));
+    expect(second, isNot(equals(first)));
   });
 }

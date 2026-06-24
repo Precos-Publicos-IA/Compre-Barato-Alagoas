@@ -46,6 +46,17 @@ class DeviceIdentity {
     return _cached = token;
   }
 
+  /// Forget the local bearer after successful server-side LGPD erasure (#358).
+  /// Next [getOrCreateToken] mints a fresh identity so re-consent is a new record.
+  Future<void> clear() async {
+    _cached = null;
+    try {
+      await _storage.delete(key: _key);
+    } catch (_) {
+      // Best-effort; in-memory cache is already cleared.
+    }
+  }
+
   /// 256 bits of CSPRNG entropy as lowercase hex (64 chars) — matches the
   /// backend's accepted token format.
   static String _generateToken() {

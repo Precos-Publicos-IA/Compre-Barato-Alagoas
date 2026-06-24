@@ -88,6 +88,16 @@ def _today() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%d")
 
 
+def _feedback_device_fp(device_token: str | None) -> str:
+    """Short salted hash of an optional device bearer for feedback correlation (#355).
+
+    Empty when no token; never returns the raw credential.
+    """
+    if not device_token:
+        return ""
+    return hashlib.sha256((_DEVICE_SALT + device_token).encode()).hexdigest()[:16]
+
+
 def _last_days(n: int) -> list[str]:
     """Day buckets for the last ``n`` days, oldest first (inclusive of today)."""
     today = datetime.now(timezone.utc).date()
@@ -197,6 +207,10 @@ class Analytics:
         item: str | None,
         note: str | None,
         list_id: str | None,
+        # Optional pseudo-anonymous correlation (#354/#355). Never store the raw
+        # device bearer; analytics_id is already non-credential (same as search).
+        device_token: str | None = None,
+        analytics_id: str | None = None,
     ) -> None:
         day = _today()
         try:
@@ -208,6 +222,10 @@ class Analytics:
                 "item": item or "",
                 "note": note or "",
                 "list_id": list_id or "",
+                # Short one-way fingerprint only — enough to group consented-device
+                # reports in admin without retaining the bearer credential.
+                "device_fp": _feedback_device_fp(device_token),
+                "analytics_id": (analytics_id or "")[:64],
             }
             pipe.xadd("events:feedback", fields, maxlen=_STREAM_MAXLEN, approximate=True)
             pipe.incr(f"stats:feedback:{kind}:{day}")

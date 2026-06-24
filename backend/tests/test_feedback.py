@@ -17,6 +17,23 @@ def test_feedback_recorded():
         assert r.json()["recorded"] is True
 
 
+def test_feedback_accepts_optional_device_and_analytics_headers():
+    """Optional correlation headers must not 4xx; server stores fp/id only (#355)."""
+    token = "a" * 64
+    analytics = "b" * 40
+    with _client() as c:
+        r = c.post(
+            "/api/v1/feedback",
+            json={"kind": "helpful", "helpful": False, "list_id": "list-1"},
+            headers={
+                "X-Device-Token": token,
+                "X-Analytics-Id": analytics,
+            },
+        )
+        assert r.status_code == 200, r.text
+        assert r.json()["recorded"] is True
+
+
 def test_feedback_rejects_unknown_kind():
     with _client() as c:
         r = c.post("/api/v1/feedback", json={"kind": "bogus"})

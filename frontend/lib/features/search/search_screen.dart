@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../data/providers.dart';
 import '../../data/recent_lists.dart';
@@ -59,19 +61,50 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       },
     );
     if (!ok) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Voz indisponível neste aparelho (microfone ou reconhecimento '
-              'de fala). Digite o item ou tente outro idioma nas ajustes do sistema.',
-            ),
-          ),
-        );
-      }
+      if (mounted) await _showVoiceUnavailable();
       return;
     }
     setState(() => _listening = true);
+  }
+
+  /// Differentiates permanently-denied mic (Settings path) from other failures (#356).
+  Future<void> _showVoiceUnavailable() async {
+    final needsSettings = !kIsWeb && _voice.micNeedsSystemSettings;
+    if (!needsSettings) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Voz indisponível neste aparelho (microfone ou reconhecimento '
+            'de fala). Digite o item ou tente outro idioma nas ajustes do sistema.',
+          ),
+        ),
+      );
+      return;
+    }
+    final open = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Microfone bloqueado'),
+        content: const Text(
+          'O acesso ao microfone foi negado nas configurações do aparelho. '
+          'Abra as configurações do app, permita o microfone e tente de novo. '
+          'Enquanto isso, você pode digitar os itens da lista.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Agora não'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Abrir configurações'),
+          ),
+        ],
+      ),
+    );
+    if (open == true) {
+      await openAppSettings();
+    }
   }
 
   void _goToResults() {

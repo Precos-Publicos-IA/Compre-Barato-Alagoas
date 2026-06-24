@@ -154,9 +154,13 @@ class CloudSyncNotifier extends AsyncNotifier<bool> {
   }
 
   /// Opt out: LGPD erasure of everything stored server-side for this device.
+  /// On success, clears the local bearer so the next opt-in uses a new identity
+  /// (#358). Analytics id is intentionally untouched (separate usage-stats toggle).
   Future<void> disable() async {
-    final token = await ref.read(deviceIdentityProvider).getOrCreateToken();
+    final identity = ref.read(deviceIdentityProvider);
+    final token = await identity.getOrCreateToken();
     await ref.read(apiClientProvider).deleteDevice(token);
+    await identity.clear();
     await _setLocal(false);
   }
 }

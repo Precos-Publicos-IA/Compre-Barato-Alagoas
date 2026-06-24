@@ -54,18 +54,26 @@ class VoiceInput {
     SpeechToText? speech,
     /// Injected for tests; defaults to real `Permission.microphone.request`.
     Future<PermissionStatus> Function()? requestMicrophone,
+    /// Injected for tests; defaults to real `Permission.microphone.status`.
+    Future<PermissionStatus> Function()? checkMicrophone,
     /// Override web detection in tests (defaults to [kIsWeb]).
     bool? isWeb,
   })  : _speech = speech ?? SpeechToText(),
         _requestMicrophone =
             requestMicrophone ?? (() => Permission.microphone.request()),
+        _checkMicrophone = checkMicrophone,
         _isWeb = isWeb ?? kIsWeb;
 
   final SpeechToText _speech;
   final Future<PermissionStatus> Function() _requestMicrophone;
+  final Future<PermissionStatus> Function()? _checkMicrophone;
   final bool _isWeb;
   bool _available = false;
   String? _localeId;
+
+  /// Last mic permission outcome on native (after [ensureReady]); null on web
+  /// or before the first pre-check. Used for denied-forever / Settings UX (#356).
+  PermissionStatus? lastMicStatus;
 
   bool get isListening => _speech.isListening;
 
@@ -75,9 +83,26 @@ class VoiceInput {
   /// Whether the microphone permission pre-check runs (false on web).
   bool get usesPermissionHandlerPrecheck => !_isWeb;
 
+  /// True when the OS will not show the permission dialog again until the user
+  /// changes it in system Settings (#356).
+  bool get micNeedsSystemSettings {
+    final s = lastMicStatus;
+    if (s == null) return false;
+    return s.isPermanentlyDenied || s.isRestricted;
+  }
+
   Future<bool> ensureReady() async {
     if (!_isWeb) {
-      final status = await _requestMicrophone();
+      // Prefer an explicit check first so permanentlyDenied is accurate even
+      // when request() no-ops after "Don't ask again".
+      final check = _checkMicrophone ?? (() => Permission.microphone.status);
+      PermissionStatus status = await check();
+      if (!status.isGranted &&
+          !status.isPermanentlyDenied &&
+          !status.isRestricted) {
+        status = await _requestMicrophone();
+      }
+      lastMicStatus = status;
       if (!status.isGranted) return false;
     }
     if (!_available) {
