@@ -75,7 +75,8 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ${{ env.CI_E2E_IMAGE }}
+      # NOTE: job container.image cannot use env.* (GHA 422 / empty jobs).
+      image: ghcr.io/precos-publicos-ia/compre-barato-alagoas/ci-e2e:latest
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -98,7 +99,8 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ${{ env.CI_E2E_IMAGE }}
+      # NOTE: job container.image cannot use env.* (GHA 422 / empty jobs).
+      image: ghcr.io/precos-publicos-ia/compre-barato-alagoas/ci-e2e:latest
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -251,7 +253,8 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ${{ env.CI_E2E_IMAGE }}
+      # NOTE: job container.image cannot use env.* (GHA 422 / empty jobs).
+      image: ghcr.io/precos-publicos-ia/compre-barato-alagoas/ci-e2e:latest
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
