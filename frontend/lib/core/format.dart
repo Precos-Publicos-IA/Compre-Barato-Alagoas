@@ -27,12 +27,37 @@ String formatDistance(double? km) {
   return '${km.toStringAsFixed(1)} km';
 }
 
+/// Fixed offset for America/Maceio (Alagoas) and most of Brazil: UTC−3.
+/// Brazil no longer observes DST (since 2019), so a constant offset is accurate
+/// without pulling in `intl` / timezone databases for v1.
+const Duration kBrazilUtcOffset = Duration(hours: -3);
+
+/// Converts an instant to the Brazil (Maceió) civil calendar date.
+///
+/// Exposed for unit tests so we prove the shipped offset logic, not a reimplementation.
+DateTime brazilCivilDateTime(DateTime instant) {
+  final utc = instant.isUtc ? instant : instant.toUtc();
+  return utc.add(kBrazilUtcOffset);
+}
+
 /// "03/06/2026" from an ISO timestamp. Empty for null/invalid input.
-/// Uses the recorded (UTC) date so it matches SEFAZ's `dataVenda`.
+///
+/// SEFAZ `dataVenda` is shown to users in Alagoas; instants in UTC (or with an
+/// offset) are converted to **America/Maceio (UTC−3)** before taking Y/M/D so
+/// late-evening UTC does not display as the next calendar day on iPhone/device
+/// clocks set to Brazil (issue #59).
+///
+/// Date-only strings (`2026-06-05`) have no time zone; the calendar day is kept
+/// as written (typical for pure sale dates without a time component).
 String formatDate(String? iso) {
   if (iso == null || iso.isEmpty) return '';
-  final dt = DateTime.tryParse(iso);
+  final trimmed = iso.trim();
+  final dt = DateTime.tryParse(trimmed);
   if (dt == null) return '';
   String two(int n) => n.toString().padLeft(2, '0');
-  return '${two(dt.day)}/${two(dt.month)}/${dt.year}';
+
+  final hasTime = trimmed.contains('T') ||
+      RegExp(r'\d{4}-\d{2}-\d{2}\s+\d').hasMatch(trimmed);
+  final civil = hasTime ? brazilCivilDateTime(dt) : dt;
+  return '${two(civil.day)}/${two(civil.month)}/${civil.year}';
 }
