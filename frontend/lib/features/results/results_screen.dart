@@ -112,20 +112,24 @@ class _Results extends ConsumerWidget {
           (s) => !identical(s, cheapest) && !favorites.containsKey(s.cnpj)),
     ];
 
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 16),
-      children: [
-        if (savings != null && savings.amount > 0)
-          _SavingsBanner(savings: savings, listId: response.listId),
-        const _FreshnessLine(),
-        for (final store in ordered)
-          StoreCard(
-            store: store,
-            isBest: identical(store, cheapest),
-            deltaFromBest: store.total - bestTotal,
-          ),
-        _FeedbackCard(listId: response.listId, items: items),
-      ],
+    return RefreshIndicator(
+      onRefresh: () => ref.read(searchControllerProvider.notifier).run(items),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 16),
+        children: [
+          if (savings != null && savings.amount > 0)
+            _SavingsBanner(savings: savings, listId: response.listId),
+          const _FreshnessLine(),
+          for (final store in ordered)
+            StoreCard(
+              store: store,
+              isBest: identical(store, cheapest),
+              deltaFromBest: store.total - bestTotal,
+            ),
+          _FeedbackCard(listId: response.listId, items: items),
+        ],
+      ),
     );
   }
 }
@@ -378,11 +382,18 @@ class _SavingsBanner extends StatelessWidget {
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.tonalIcon(
-              onPressed:
-                  listId == null ? null : () => shareSavings(listId!, savings.amount),
-              icon: const Icon(Icons.share),
-              label: const Text('COMPARTILHAR ECONOMIA'),
+            child: Builder(
+              builder: (btnContext) => FilledButton.tonalIcon(
+                onPressed: listId == null
+                    ? null
+                    : () => shareSavings(
+                          listId!,
+                          savings.amount,
+                          context: btnContext,
+                        ),
+                icon: const Icon(Icons.share),
+                label: const Text('COMPARTILHAR ECONOMIA'),
+              ),
             ),
           ),
         ],

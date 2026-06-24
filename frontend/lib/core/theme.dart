@@ -39,5 +39,11 @@ ThemeData buildAppTheme() {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     ),
+    // Floating + bottom inset keeps action snackbars (e.g. DESFAZER) above the
+    // iPhone home indicator and above bottomNavigationBar CTAs.
+    snackBarTheme: const SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      insetPadding: EdgeInsets.fromLTRB(12, 0, 12, 16),
+    ),
   );
 }
