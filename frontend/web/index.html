@@ -21,10 +21,15 @@
   <!-- Stop Safari/iOS from turning prices, CNPJs, and other digit runs into tel: links. -->
   <meta name="format-detection" content="telephone=no">
   <meta name="description" content="Compare preços de supermercados, farmácias e lojas em Alagoas com dados públicos da SEFAZ-AL.">
+  <!-- iPhone Safari / A2HS: correct CSS pixels + safe-area env vars for notch/home indicator.
+       viewport-fit=cover lets Flutter SafeArea / MediaQuery.padding work on notched iPhones. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <!-- apple-mobile-web-app-capable is still required on some iOS versions for standalone A2HS. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Compre Barato Alagoas">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
