@@ -5,7 +5,9 @@ import '../../core/format.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../map/map_screen.dart';
+import '../settings/settings_sheet.dart';
 import '../share/share_service.dart';
+import '../stores/store_prefs_sheet.dart';
 import 'savings.dart';
 import 'store_card.dart';
 
@@ -51,13 +53,7 @@ class ResultsScreen extends ConsumerWidget {
             return const _Message(icon: Icons.search, text: 'Faça uma busca.');
           }
           if (r.stores.isEmpty) {
-            return const _Message(
-              icon: Icons.sentiment_dissatisfied,
-              text: 'Nenhuma loja encontrada por perto.\n'
-                  'Experimente termos comuns que as pessoas usam: '
-                  '"pão francês", "arroz 5kg", "leite 1L", "feijão", "manteiga". '
-                  'Evite marcas muito específicas no começo.',
-            );
+            return _EmptyResults(basket: basket);
           }
           return _Results(response: r, items: basket);
         },
@@ -70,6 +66,125 @@ class ResultsScreen extends ConsumerWidget {
             icon: const Icon(Icons.edit),
             label: const Text('EDITAR LISTA'),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Empty-results with actionable CTAs (issue #297): widen radius/days, clear
+/// avoided stores, open settings, or retry search.
+class _EmptyResults extends ConsumerWidget {
+  const _EmptyResults({required this.basket});
+  final List<String> basket;
+
+  Future<void> _widenAndRetry(WidgetRef ref, {int? addKm, int? addDays}) async {
+    final prefs = ref.read(searchPrefsProvider).asData?.value;
+    final curR = prefs?.radiusKm ?? 8;
+    final curD = prefs?.days ?? 7;
+    if (addKm != null) {
+      await ref.read(searchPrefsProvider.notifier).setRadius(curR + addKm);
+    }
+    if (addDays != null) {
+      await ref.read(searchPrefsProvider.notifier).setDays(curD + addDays);
+    }
+    await ref.read(searchControllerProvider.notifier).run(basket);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final params = ref.watch(searchPrefsProvider).asData?.value;
+    final radius = params?.radiusKm ?? 8;
+    final days = params?.days ?? 7;
+    final avoided = ref.watch(avoidedStoresProvider).asData?.value ?? const {};
+    final hasAvoided = avoided.isNotEmpty;
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.sentiment_dissatisfied,
+                size: 64, color: Colors.black38),
+            const SizedBox(height: 16),
+            const Text(
+              'Nenhuma loja encontrada por perto.\n'
+              'Experimente termos comuns: "pão francês", "arroz 5kg", '
+              '"leite 1L", "feijão", "manteiga". Evite marcas muito específicas.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Busca atual: até $radius km · últimos $days dias'
+              '${hasAvoided ? ' · ${avoided.length} loja(s) oculta(s)' : ''}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
+            ),
+            const SizedBox(height: 20),
+            if (radius < 15)
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => _widenAndRetry(ref, addKm: 4),
+                  icon: const Icon(Icons.social_distance),
+                  label: Text(
+                      'Aumentar distância (${radius}→${(radius + 4).clamp(1, 15)} km) e buscar'),
+                ),
+              ),
+            if (radius < 15) const SizedBox(height: 8),
+            if (days < 30)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _widenAndRetry(ref, addDays: 7),
+                  icon: const Icon(Icons.calendar_month),
+                  label: Text(
+                      'Incluir preços mais antigos (${days}→${(days + 7).clamp(1, 30)} dias)'),
+                ),
+              ),
+            if (days < 30) const SizedBox(height: 8),
+            if (hasAvoided)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final n = ref.read(avoidedStoresProvider.notifier);
+                    for (final cnpj in avoided.keys.toList()) {
+                      await n.remove(cnpj);
+                    }
+                    await ref
+                        .read(searchControllerProvider.notifier)
+                        .run(basket);
+                  },
+                  icon: const Icon(Icons.visibility),
+                  label: Text(
+                      'Mostrar lojas ocultas de novo (${avoided.length}) e buscar'),
+                ),
+              ),
+            if (hasAvoided) const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: () => SettingsSheet.show(context),
+                icon: const Icon(Icons.tune),
+                label: const Text('Abrir configurações de busca'),
+              ),
+            ),
+            if (hasAvoided)
+              TextButton.icon(
+                onPressed: () => StorePrefsSheet.show(context),
+                icon: const Icon(Icons.storefront),
+                label: const Text('Gerenciar lojas ocultas'),
+              ),
+            TextButton.icon(
+              onPressed: () =>
+                  ref.read(searchControllerProvider.notifier).run(basket),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Tentar de novo sem mudar filtros'),
+            ),
+          ],
         ),
       ),
     );
@@ -120,6 +235,7 @@ class _Results extends ConsumerWidget {
         children: [
           if (savings != null && savings.amount > 0)
             _SavingsBanner(savings: savings, listId: response.listId),
+          _MissingItemsBanner(stores: visible, items: items),
           const _FreshnessLine(),
           for (final store in ordered)
             StoreCard(
@@ -129,6 +245,87 @@ class _Results extends ConsumerWidget {
             ),
           _FeedbackCard(listId: response.listId, items: items),
         ],
+      ),
+    );
+  }
+}
+
+/// Results-level summary when some basket lines are missing at stores (#298).
+class _MissingItemsBanner extends StatelessWidget {
+  const _MissingItemsBanner({required this.stores, required this.items});
+  final List<StoreResult> stores;
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) {
+    if (stores.isEmpty || items.isEmpty) return const SizedBox.shrink();
+
+    // Items missing at *every* visible store (or at least at cheapest incomplete).
+    final alwaysMissing = <String>{};
+    final anyMissing = <String>{};
+    for (final it in items) {
+      var missCount = 0;
+      for (final s in stores) {
+        if (s.missing.any((m) =>
+            m.toLowerCase().trim() == it.toLowerCase().trim() ||
+            s.missing.contains(it))) {
+          missCount++;
+          anyMissing.add(it);
+        } else if (s.missing.isNotEmpty) {
+          // also count fuzzy: store.missing strings may not equal basket lines
+          for (final m in s.missing) {
+            anyMissing.add(m);
+          }
+        }
+      }
+      if (missCount == stores.length) alwaysMissing.add(it);
+    }
+    // Prefer server-reported missing strings across stores.
+    for (final s in stores) {
+      for (final m in s.missing) {
+        anyMissing.add(m);
+      }
+    }
+    if (anyMissing.isEmpty) return const SizedBox.shrink();
+
+    final incompleteStores =
+        stores.where((s) => s.missing.isNotEmpty).length;
+    final sample = anyMissing.take(4).join(', ');
+    final more = anyMissing.length > 4 ? ' (+${anyMissing.length - 4})' : '';
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      color: Colors.amber.shade50,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.warning_amber_rounded,
+                color: Colors.amber.shade900, size: 28),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    incompleteStores == stores.length
+                        ? 'Nenhuma loja tem a lista completa'
+                        : '$incompleteStores de ${stores.length} lojas com itens em falta',
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Itens sem preço em alguma loja: $sample$more. '
+                    'Totais comparam só o que cada loja conseguiu montar — refine termos ou remova itens raros.',
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

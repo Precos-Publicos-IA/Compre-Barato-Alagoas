@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
@@ -110,6 +111,7 @@ class SettingsSheet extends ConsumerWidget {
                 value: usageOn,
                 onChanged: (v) => ref.read(usageStatsProvider.notifier).set(v),
               ),
+              const _DeviceTokenTile(),
               TextButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
@@ -123,6 +125,87 @@ class SettingsSheet extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// LGPD support: titular can copy the pseudo-anonymous device token to
+/// correlate rights requests or support tickets (issue #295).
+class _DeviceTokenTile extends ConsumerStatefulWidget {
+  const _DeviceTokenTile();
+
+  @override
+  ConsumerState<_DeviceTokenTile> createState() => _DeviceTokenTileState();
+}
+
+class _DeviceTokenTileState extends ConsumerState<_DeviceTokenTile> {
+  String? _token;
+  bool _loading = true;
+  bool _revealed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final t = await ref.read(deviceIdentityProvider).getOrCreateToken();
+      if (!mounted) return;
+      setState(() {
+        _token = t;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _copy() async {
+    final t = _token;
+    if (t == null || t.isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: t));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Identificador do aparelho copiado. Use só em pedidos de suporte ou direitos LGPD — não compartilhe em redes sociais.',
+        ),
+        duration: Duration(seconds: 5),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = _token == null
+        ? null
+        : (_revealed
+            ? _token!
+            : '${_token!.substring(0, 8)}…${_token!.substring(_token!.length - 4)}');
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.fingerprint_outlined),
+      title: const Text('Identificador do aparelho',
+          style: TextStyle(fontSize: 18)),
+      subtitle: Text(
+        _loading
+            ? 'Carregando…'
+            : (preview ??
+                'Indisponível neste aparelho. Necessário para suporte ou pedidos LGPD.'),
+        style: const TextStyle(fontSize: 13, fontFamily: 'monospace'),
+      ),
+      trailing: _loading || _token == null
+          ? null
+          : IconButton(
+              icon: Icon(_revealed ? Icons.visibility_off : Icons.visibility),
+              tooltip: _revealed ? 'Ocultar' : 'Mostrar completo',
+              onPressed: () => setState(() => _revealed = !_revealed),
+            ),
+      onTap: _loading || _token == null ? null : _copy,
+      onLongPress: _loading || _token == null ? null : _copy,
     );
   }
 }
