@@ -95,6 +95,32 @@ Configure uma vez os *secrets* do repositório (nada específico do host fica ve
 O nginx/TLS do host **não** é tocado pelo pipeline (segue gerido à mão no servidor).
 Para rodar manualmente sem push, use **Actions → este workflow → Run workflow**.
 
+## Image pinning (#269)
+
+Imagens no `deploy/docker-compose.yml` usam tags de linha principal (`redis:7-alpine`,
+`pgvector/pgvector:pg16`, `API_IMAGE` com fallback `:latest`) para simplicidade de
+bootstrap. Em produção endureça assim:
+
+1. **API:** o workflow de deploy deve publicar `API_IMAGE=compre-barato-alagoas-api:<git-sha>`
+   (imutável por commit). Evite `:latest` em `.env` do servidor.
+2. **Redis / Postgres:** após validar um upgrade, registre o digest e use override:
+   ```bash
+   docker inspect --format='{{index .RepoDigests 0}}' redis:7-alpine
+   # compose override exemplo:
+   # services.redis.image: redis@sha256:…
+   ```
+   Ou exporte `REDIS_IMAGE` / `POSTGRES_IMAGE` no `.env` do host.
+3. **GIT_SHA:** defina no `.env` ou no compose (`GIT_SHA`) para aparecer em `/health`
+   e como `release` no Sentry (#267).
+4. **TRUSTED_PROXY_IPS:** mantenha `127.0.0.1,::1` enquanto só o nginx local fala com
+   a API na porta 8000 (#264).
+
+Placeholders em `deploy/well-known/assetlinks.json` (`REPLACE_WITH_*`) e
+`apple-app-site-association` (`TEAMID`) continuam sendo passos de operador antes de
+App Links / Universal Links em produção (#257 / #6); o script
+`scripts/check_android_deploy_hardening.sh` emite **WARN** (não falha o CI) até
+substituídos.
+
 ## Atualizações manuais (fallback)
 
 `deploy.sh` reconstrói a web + APK, sincroniza backend/deploy/web e recria os

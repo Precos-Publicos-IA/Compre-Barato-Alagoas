@@ -15,9 +15,12 @@ from pydantic import BaseModel, field_validator
 from ...analytics import Analytics
 from ...config import Settings
 from ...services.secrets import MANAGED_SECRETS, SecretStore, SecretStoreUnavailable
-from ..deps import get_analytics, get_secrets, get_settings_dep
-
-router = APIRouter(prefix="/admin/api", tags=["admin"])
+from ..deps import (
+    enforce_admin_rate_limit,
+    get_analytics,
+    get_secrets,
+    get_settings_dep,
+)
 
 
 def require_admin(
@@ -40,7 +43,15 @@ def require_admin(
         )
 
 
-@router.get("/overview", dependencies=[Depends(require_admin)])
+# Router-level: auth first, then per-token/IP hourly throttle (#266).
+router = APIRouter(
+    prefix="/admin/api",
+    tags=["admin"],
+    dependencies=[Depends(require_admin), Depends(enforce_admin_rate_limit)],
+)
+
+
+@router.get("/overview")
 async def overview(
     analytics: Analytics = Depends(get_analytics),
     settings: Settings = Depends(get_settings_dep),
@@ -54,7 +65,7 @@ async def overview(
     return data
 
 
-@router.get("/growth", dependencies=[Depends(require_admin)])
+@router.get("/growth")
 async def growth(
     days: int = Query(14, ge=1, le=90),
     analytics: Analytics = Depends(get_analytics),
@@ -63,7 +74,7 @@ async def growth(
     return await analytics.growth(days)
 
 
-@router.get("/quality", dependencies=[Depends(require_admin)])
+@router.get("/quality")
 async def quality(
     days: int = Query(14, ge=1, le=90),
     analytics: Analytics = Depends(get_analytics),
@@ -71,7 +82,7 @@ async def quality(
     return await analytics.quality(days)
 
 
-@router.get("/costs", dependencies=[Depends(require_admin)])
+@router.get("/costs")
 async def costs(
     days: int = Query(14, ge=1, le=90),
     analytics: Analytics = Depends(get_analytics),
@@ -79,7 +90,7 @@ async def costs(
     return await analytics.costs(days)
 
 
-@router.get("/searches", dependencies=[Depends(require_admin)])
+@router.get("/searches")
 async def searches(
     limit: int = Query(50, ge=1, le=200),
     analytics: Analytics = Depends(get_analytics),
@@ -87,7 +98,7 @@ async def searches(
     return {"items": await analytics.recent_searches(limit)}
 
 
-@router.get("/items", dependencies=[Depends(require_admin)])
+@router.get("/items")
 async def items(
     days: int = Query(14, ge=1, le=90),
     analytics: Analytics = Depends(get_analytics),
@@ -95,7 +106,7 @@ async def items(
     return await analytics.items(days)
 
 
-@router.get("/feedback", dependencies=[Depends(require_admin)])
+@router.get("/feedback")
 async def feedback(
     limit: int = Query(50, ge=1, le=200),
     kind: str | None = Query(None),
@@ -104,7 +115,7 @@ async def feedback(
     return await analytics.feedback(limit, kind)
 
 
-@router.get("/timings", dependencies=[Depends(require_admin)])
+@router.get("/timings")
 async def timings(
     days: int = Query(14, ge=1, le=90),
     analytics: Analytics = Depends(get_analytics),
@@ -132,13 +143,13 @@ async def _secrets_payload(secrets: SecretStore) -> dict:
     }
 
 
-@router.get("/secrets", dependencies=[Depends(require_admin)])
+@router.get("/secrets")
 async def list_secrets(secrets: SecretStore = Depends(get_secrets)) -> dict:
     """Status of operator-managed secrets — never the values, only a fingerprint."""
     return await _secrets_payload(secrets)
 
 
-@router.put("/secrets/{name}", dependencies=[Depends(require_admin)])
+@router.put("/secrets/{name}")
 async def set_secret(
     name: str,
     body: SecretIn,
@@ -157,7 +168,7 @@ async def set_secret(
     return await _secrets_payload(secrets)
 
 
-@router.delete("/secrets/{name}", dependencies=[Depends(require_admin)])
+@router.delete("/secrets/{name}")
 async def delete_secret(
     name: str,
     secrets: SecretStore = Depends(get_secrets),
@@ -168,7 +179,7 @@ async def delete_secret(
     return await _secrets_payload(secrets)
 
 
-@router.get("/providers", dependencies=[Depends(require_admin)])
+@router.get("/providers")
 async def providers(
     days: int = Query(14, ge=1, le=90),
     analytics: Analytics = Depends(get_analytics),

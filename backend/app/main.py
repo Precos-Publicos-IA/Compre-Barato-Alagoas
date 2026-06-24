@@ -37,13 +37,67 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         return response
 
 
+# Header/body fragments we never want in Sentry (LGPD / credential hygiene — #267).
+_SENTRY_SCRUB_KEYS = frozenset(
+    {
+        "authorization",
+        "x-admin-token",
+        "x-device-token",
+        "x-analytics-id",
+        "cookie",
+        "set-cookie",
+        "admin_token",
+        "sefaz_app_token",
+        "anthropic_api_key",
+        "secret_encryption_key",
+        "password",
+        "token",
+    }
+)
+
+
+def _sentry_scrub_event(event: dict, _hint: dict) -> dict | None:
+    """Drop obvious secrets and truncate long request bodies before send."""
+    try:
+        req = event.get("request") or {}
+        headers = req.get("headers")
+        if isinstance(headers, dict):
+            for k in list(headers.keys()):
+                if str(k).lower() in _SENTRY_SCRUB_KEYS:
+                    headers[k] = "[Filtered]"
+        data = req.get("data")
+        if isinstance(data, str) and len(data) > 512:
+            req["data"] = data[:512] + "…[truncated]"
+        elif isinstance(data, dict):
+            for k in list(data.keys()):
+                lk = str(k).lower()
+                if lk in _SENTRY_SCRUB_KEYS or lk in {"items", "raw_items", "note"}:
+                    data[k] = "[Filtered]"
+        event["request"] = req
+    except Exception:
+        pass
+    return event
+
+
 def _init_sentry(settings) -> None:
     if not settings.sentry_dsn:
         return
     try:  # pragma: no cover - optional dependency
         import sentry_sdk
 
-        sentry_sdk.init(dsn=settings.sentry_dsn, environment=settings.environment)
+        init_kwargs: dict = {
+            "dsn": settings.sentry_dsn,
+            "environment": settings.environment,
+            "send_default_pii": False,
+            "traces_sample_rate": max(
+                0.0, min(1.0, float(settings.sentry_traces_sample_rate or 0.0))
+            ),
+            "before_send": _sentry_scrub_event,
+        }
+        release = (settings.git_sha or "").strip()
+        if release:
+            init_kwargs["release"] = release
+        sentry_sdk.init(**init_kwargs)
     except Exception:
         logging.getLogger(__name__).exception("Sentry init failed")
 
@@ -98,6 +152,21 @@ def create_app() -> FastAPI:
         expose_headers=["X-Request-ID"],
     )
     app.add_middleware(RequestIdMiddleware)
+
+    # Tag Sentry scope with request id when SDK is active (best-effort).
+    class _SentryRequestIdMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request: Request, call_next):
+            rid = getattr(request.state, "request_id", None)
+            if rid:
+                try:  # pragma: no cover
+                    import sentry_sdk
+
+                    sentry_sdk.set_tag("request_id", rid)
+                except Exception:
+                    pass
+            return await call_next(request)
+
+    app.add_middleware(_SentryRequestIdMiddleware)
 
     from .api.routes import admin, device, feedback, health, search, suggestions
 

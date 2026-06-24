@@ -21,18 +21,24 @@ keytool -list -v -keystore /path/to/release.keystore -alias YOUR_ALIAS
 
 3. Replace `REPLACE_WITH_*_SHA256_CERT_FINGERPRINT` in `assetlinks.json` with colon-less
    or colon-separated form as required by Google (Play Console also shows App signing key cert).
+   **Do not deploy placeholders to production** — Digital Asset Links verification fails
+   and `/abrir` links open in the browser only (#257). `scripts/check_android_deploy_hardening.sh`
+   prints a WARN while placeholders remain (CI does not hard-fail, because fingerprints are
+   operator/keystore secrets not committed here).
 4. Deploy file + nginx; verify:
 
 ```bash
 curl -sI https://alagoas.precospublicos.ia.br/.well-known/assetlinks.json
-# Expect 200, application/json
+# Expect 200, application/json; body must not contain REPLACE_WITH_
+# Optional live check (after real fingerprints are live):
+# curl -s "https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://alagoas.precospublicos.ia.br&relation=delegate_permission/common.handle_all_urls"
 adb shell pm get-app-links br.ia.precospublicos.compre_barato_alagoas
 ```
 
 ## `apple-app-site-association` — iOS Universal Links (#6)
 
 If present in this directory (or added in a sibling PR), same nginx `/.well-known/` location
-serves it. Replace `TEAMID` before production.
+serves it. Replace `TEAMID` before production (hardening script WARNs while present).
 
 ## `robots.txt` — crawler policy (#130)
 

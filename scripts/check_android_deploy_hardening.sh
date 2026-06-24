@@ -34,11 +34,31 @@ check_grep "$root/frontend/android/app/src/main/res/xml/network_security_config.
   echo "FAIL: missing assetlinks.json (#125)" >&2; fail=1; }
 check_grep "$root/deploy/well-known/assetlinks.json" \
   'br.ia.precospublicos.compre_barato_alagoas' "assetlinks package name (#125)"
+# Warn (not fail) when production fingerprints are still placeholders (#257).
+# Operators must replace these before App Links verify; CI still surfaces the debt.
+if grep -qE 'REPLACE_WITH_' "$root/deploy/well-known/assetlinks.json" 2>/dev/null; then
+  echo "WARN: assetlinks.json still has REPLACE_WITH_* fingerprints (#257) — App Links will not verify in production until operators set real SHA-256 cert fingerprints (see deploy/well-known/README.md)." >&2
+fi
+if [[ -f "$root/deploy/well-known/apple-app-site-association" ]]; then
+  if grep -qE 'TEAMID' "$root/deploy/well-known/apple-app-site-association" 2>/dev/null; then
+    echo "WARN: apple-app-site-association still has TEAMID placeholder (#6) — replace with Apple Team ID before Universal Links production." >&2
+  fi
+fi
 
 check_grep "$root/deploy/nginx/alagoas.precospublicos.ia.br.conf" \
   '\.well-known' "nginx must serve /.well-known/ (#125)"
 check_grep "$root/deploy/nginx/alagoas.precospublicos.ia.br.conf" \
   'X-Robots-Tag' "nginx API location should set X-Robots-Tag (#130)"
+
+# Admin/docs static hosts should carry baseline security headers (#208).
+for vhost in \
+  "$root/deploy/nginx/admin.alagoas.precospublicos.ia.br.conf" \
+  "$root/deploy/nginx/docs.alagoas.precospublicos.ia.br.conf"; do
+  [[ -f "$vhost" ]] || { echo "FAIL: missing $vhost" >&2; fail=1; continue; }
+  check_grep "$vhost" 'X-Content-Type-Options' "static vhost should set nosniff (#208)"
+  check_grep "$vhost" 'X-Frame-Options' "static vhost should set X-Frame-Options (#208)"
+  check_grep "$vhost" 'Referrer-Policy' "static vhost should set Referrer-Policy (#208)"
+done
 
 [[ -f "$root/frontend/web/robots.txt" ]] || {
   echo "FAIL: missing frontend/web/robots.txt (#130)" >&2; fail=1; }

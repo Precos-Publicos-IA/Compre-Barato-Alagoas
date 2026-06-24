@@ -5,6 +5,13 @@
 # Fronting is handled by an nginx + certbot on the host (see deploy/nginx/).
 # The API is published only on localhost; the Flutter web build is served by nginx
 # directly from the deployed web/ directory.
+#
+# Supply-chain posture (#269): prefer immutable tags/digests in production.
+# - API: CI should set API_IMAGE=compre-barato-alagoas-api:<git-sha> (never rely on
+#   :latest in prod). Optional: pin as image@sha256:… after `docker inspect`.
+# - Redis/Postgres: major tags below are the documented baseline; operators may
+#   override via compose override file with digest pins after a verified upgrade.
+# See deploy/README.md "Image pinning".
 services:
   api:
     build:
@@ -18,6 +25,9 @@ services:
       REDIS_URL: redis://redis:6379/0
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-alagoas}:${POSTGRES_PASSWORD:-alagoas}@postgres:5432/${POSTGRES_DB:-alagoas}
       WEB_CONCURRENCY: "2"
+      # Optional observability / client policy (also read from .env via env_file).
+      GIT_SHA: ${GIT_SHA:-}
+      TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-127.0.0.1,::1}
     depends_on:
       postgres:
         condition: service_healthy
@@ -35,7 +45,8 @@ services:
       - "127.0.0.1:8000:8000"
 
   postgres:
-    image: pgvector/pgvector:pg16
+    # Baseline major tag; pin digest in a compose override for strict prod (#269).
+    image: ${POSTGRES_IMAGE:-pgvector/pgvector:pg16}
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-alagoas}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alagoas}
@@ -50,7 +61,8 @@ services:
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    # Baseline major tag; pin digest in a compose override for strict prod (#269).
+    image: ${REDIS_IMAGE:-redis:7-alpine}
     # AOF persistence so shared-list UUIDs survive restarts (30-day TTLs).
     command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
     volumes:

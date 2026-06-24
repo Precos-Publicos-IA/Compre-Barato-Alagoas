@@ -78,10 +78,19 @@ class Settings(BaseSettings):
 
     # --- Rate limiting ---
     daily_search_limit: int = 300    # per client per day; 0 disables
+    # Comma-separated peer IPs allowed to supply X-Forwarded-For for rate-limit
+    # identity (typically loopback / docker gateway where host nginx terminates TLS).
+    # Empty => never trust XFF; always use request.client.host (safe default for
+    # direct gunicorn access). Production behind nginx on 127.0.0.1:8000 should set
+    # TRUSTED_PROXY_IPS=127.0.0.1,::1 (see #264).
+    trusted_proxy_ips: str = "127.0.0.1,::1"
 
     # --- Admin dashboard ---
     # Bearer token guarding /admin/api/*. Empty => admin API is disabled (401).
     admin_token: str = ""
+    # Per admin-token hash + IP bucket; higher than public search to allow dashboards.
+    # 0 disables admin rate limiting (#266). Failed auth is still cheap (hmac only).
+    admin_hourly_request_limit: int = 1200
 
     # --- Secret store (encryption at rest for runtime-managed secrets) ---
     # Fernet key (urlsafe-base64, 32 bytes) used to encrypt secrets entered via the
@@ -95,13 +104,30 @@ class Settings(BaseSettings):
 
     # --- Observability (no-op when unset) ---
     sentry_dsn: str = ""
+    # 0..1 fraction of transactions to send when Sentry is enabled (#267).
+    sentry_traces_sample_rate: float = 0.0
+    # Optional release tag (git sha / image tag). Empty => omit.
+    git_sha: str = ""
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""
     langfuse_host: str = "https://cloud.langfuse.com"
 
+    # --- Client policy (public; app/web may gate outdated builds later — #268) ---
+    # Semver strings; empty => not enforced (endpoint still reports them as null).
+    min_app_version: str = ""
+    min_web_build: str = ""
+    client_update_message: str = (
+        "Atualize o app ou recarregue a página para continuar usando o Compre Barato Alagoas."
+    )
+    client_update_url: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def trusted_proxy_ip_set(self) -> set[str]:
+        return {p.strip() for p in self.trusted_proxy_ips.split(",") if p.strip()}
 
     @property
     def is_production(self) -> bool:
