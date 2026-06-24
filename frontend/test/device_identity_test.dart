@@ -45,9 +45,11 @@ void main() {
 
   test('createDefaultSecureStorage sets iOS Keychain accessibility', () {
     final storage = createDefaultSecureStorage();
+    // flutter_secure_storage 9.x keeps accessibility private; the public view is
+    // the serialized options map passed to the platform channel.
     expect(
-      storage.iOptions.accessibility,
-      KeychainAccessibility.first_unlock_this_device,
+      storage.iOptions.toMap()['accessibility'],
+      'first_unlock_this_device',
     );
   });
 

@@ -174,19 +174,28 @@ final suggestionsProvider = FutureProvider<List<Suggestion>>((ref) {
 });
 
 /// The user's shopping list (the basket).
+/// Max basket size. Mirrors the backend SearchRequest cap (items max_length=30):
+/// enforcing it client-side avoids an opaque 422 when a share link or recent list
+/// would push the basket over the limit (#340).
+const int kMaxBasketItems = 30;
+
 class BasketNotifier extends Notifier<List<String>> {
   @override
   List<String> build() => <String>[];
 
+  /// Adds an item. No-op when empty, a case-insensitive duplicate (#409), or when
+  /// the basket is already full (#340).
   void add(String item) {
     final value = item.trim();
     if (value.isEmpty) return;
+    if (state.length >= kMaxBasketItems) return;
     if (state.any((e) => e.toLowerCase() == value.toLowerCase())) return;
     state = [...state, value];
   }
 
   void addMany(Iterable<String> items) {
     for (final i in items) {
+      if (state.length >= kMaxBasketItems) break;
       add(i);
     }
   }
@@ -204,11 +213,16 @@ final basketProvider =
 
 /// Search controller: holds the latest results as an AsyncValue.
 class SearchController extends AsyncNotifier<SearchResponse?> {
+  // Monotonic id for the latest run. A slower earlier search must not overwrite the
+  // results of a newer one that the user kicked off in the meantime (#337).
+  int _runGeneration = 0;
+
   @override
   Future<SearchResponse?> build() async => null;
 
   Future<void> run(List<String> items, {int? radiusKm, int? days}) async {
     if (items.isEmpty) return;
+    final generation = ++_runGeneration;
     state = const AsyncValue.loading();
     final result = await AsyncValue.guard(() async {
       final origin = await ref.read(locationServiceProvider).resolveOrigin();
@@ -240,8 +254,9 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
           );
     });
     // The search can outlive the provider (user navigated away, or the test
-    // ended). Don't write state into a disposed notifier.
-    if (ref.mounted) {
+    // ended). Don't write state into a disposed notifier, and don't let a stale
+    // run clobber a newer one's result/loading state (#337).
+    if (ref.mounted && generation == _runGeneration) {
       state = result;
     }
   }

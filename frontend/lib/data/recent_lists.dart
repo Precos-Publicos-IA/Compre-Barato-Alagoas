@@ -1,21 +1,32 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-const _kKey = 'recent_lists_v1';
+import 'device_identity.dart' show createDefaultSecureStorage;
+
+// v2: moved off plain shared_preferences into secure storage (#385). The old
+// plaintext `recent_lists_v1` is simply abandoned (convenience data, not critical).
+const _kKey = 'recent_lists_v2';
 const _kMax = 5;
 
+/// Secure storage used for recent lists. Overridable in tests with an in-memory fake.
+final recentListsStorageProvider =
+    Provider<FlutterSecureStorage>((ref) => createDefaultSecureStorage());
+
 /// The user's recently searched shopping lists, persisted on the device so they
-/// can be reused without retyping. Resilient: any storage failure yields [].
+/// can be reused without retyping. Stored in secure storage (Android Keystore /
+/// iOS Keychain) rather than plaintext prefs, so a shared/family device doesn't
+/// leak the household's shopping history (#385). Resilient: any failure yields [].
 class RecentLists extends AsyncNotifier<List<List<String>>> {
+  FlutterSecureStorage get _storage => ref.read(recentListsStorageProvider);
+
   @override
   Future<List<List<String>>> build() => _load();
 
   Future<List<List<String>>> _load() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString(_kKey);
+      final raw = await _storage.read(key: _kKey);
       if (raw == null) return [];
       final decoded = jsonDecode(raw) as List<dynamic>;
       return decoded
@@ -28,8 +39,7 @@ class RecentLists extends AsyncNotifier<List<List<String>>> {
 
   Future<void> _persist(List<List<String>> lists) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_kKey, jsonEncode(lists));
+      await _storage.write(key: _kKey, value: jsonEncode(lists));
     } catch (_) {
       // Best-effort; recent lists are a convenience, not critical state.
     }
