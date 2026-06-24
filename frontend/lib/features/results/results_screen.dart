@@ -38,7 +38,20 @@ class ResultsScreen extends ConsumerWidget {
         ],
       ),
       body: result.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => Center(
+          child: Semantics(
+            liveRegion: true,
+            label: 'Buscando preços nas lojas. Aguarde.',
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Buscando preços…'),
+              ],
+            ),
+          ),
+        ),
         error: (e, _) => _Message(
           icon: Icons.error_outline,
           text: e.toString(),

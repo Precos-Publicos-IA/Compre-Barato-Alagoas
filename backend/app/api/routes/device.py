@@ -11,8 +11,9 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ...cache import Cache
+from ...config import Settings
 from ...schemas.device import ConsentRequest, DeletionResult, DeviceState
-from ..deps import get_cache, require_device_token
+from ..deps import get_cache, get_settings_dep, require_device_token
 
 router = APIRouter(prefix="/api/v1/device", tags=["device"])
 
@@ -35,15 +36,29 @@ async def grant_consent(
     body: ConsentRequest,
     token: str = Depends(require_device_token),
     cache: Cache = Depends(get_cache),
+    settings: Settings = Depends(get_settings_dep),
 ) -> DeviceState:
     """Record LGPD consent for this device (the legal basis for storing its data).
-    Idempotent: re-posting refreshes the record and its idle TTL."""
+    Idempotent: re-posting refreshes the record and its idle TTL.
+
+    ``policy_version`` must match the server canonical version so old/forked
+    clients cannot register consent against an arbitrary/stale policy (#344).
+    """
     if not body.accepted:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Consentimento não concedido.",
         )
-    await cache.register_consent(token, body.policy_version)
+    canonical = settings.policy_version.strip()
+    if body.policy_version.strip() != canonical:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=(
+                "Versão da política desatualizada ou inválida. "
+                f"Atualize o app e aceite a versão vigente ({canonical})."
+            ),
+        )
+    await cache.register_consent(token, canonical)
     return _state_from_record(await cache.get_device(token))
 
 

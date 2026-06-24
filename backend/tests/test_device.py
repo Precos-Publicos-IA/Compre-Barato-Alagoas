@@ -63,6 +63,18 @@ def test_consent_must_be_accepted():
         assert r.status_code == 400
 
 
+def test_consent_rejects_stale_or_invented_policy_version():
+    """Server canonical POLICY_VERSION only — clients cannot invent consent versions (#344)."""
+    with _client() as c:
+        r = c.post(
+            "/api/v1/device/consent",
+            headers=HEADERS,
+            json={"accepted": True, "policy_version": "1999-01-01"},
+        )
+        assert r.status_code == 422, r.text
+        assert "política" in r.json()["detail"].lower() or "policy" in r.json()["detail"].lower() or "Versão" in r.json()["detail"]
+
+
 def test_search_with_consented_device_saves_list_then_erasure_wipes_it():
     with _client() as c:
         c.post(

@@ -158,12 +158,14 @@
     }
   </style>
 
-  <!-- On Chromium/Android we suppress the mini-install prompt and point users at
-       the APK/Play path in-app. iOS Safari never fires beforeinstallprompt; it
-       uses Share → Add to Home Screen instead (see install banner in Flutter). -->
+  <!-- Chromium/Android: capture install prompt for a possible future in-app CTA
+       (#343) while still suppressing the automatic mini-bar (APK/Play path is
+       primary via ApkBanner). Stash on window; preventDefault keeps UX intentional.
+       iOS Safari never fires beforeinstallprompt (Share → Add to Home Screen). -->
   <script>
     window.addEventListener('beforeinstallprompt', function (e) {
       e.preventDefault();
+      window._cbaDeferredInstallPrompt = e;
     });
   </script>
 </head>

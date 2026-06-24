@@ -8,15 +8,25 @@ import 'policy_screen.dart';
 ///
 /// Enabling records consent + a server-side device record; disabling erases
 /// everything stored for the device. The privacy policy is one tap away.
+///
+/// While consent/erase is in flight, [PopScope] blocks route pop (swipe/back)
+/// so partial server/local state is less likely (#346).
 class CloudSyncSheet extends ConsumerStatefulWidget {
-  const CloudSyncSheet({super.key});
+  const CloudSyncSheet({super.key, this.onBusyChanged});
+
+  /// Notifies the modal host when consent/erase is in progress (#346).
+  final ValueChanged<bool>? onBusyChanged;
 
   static Future<void> show(BuildContext context) {
     return showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (_) => const CloudSyncSheet(),
+      // Barrier dismiss remains possible on some platforms; PopScope inside
+      // blocks system/back and most modal pops while busy.
+      isDismissible: true,
+      enableDrag: true,
+      builder: (ctx) => const _CloudSyncSheetRoute(),
     );
   }
 
@@ -24,11 +34,48 @@ class CloudSyncSheet extends ConsumerStatefulWidget {
   ConsumerState<CloudSyncSheet> createState() => _CloudSyncSheetState();
 }
 
+/// Owns busy state + [PopScope] for the modal route (#346).
+class _CloudSyncSheetRoute extends StatefulWidget {
+  const _CloudSyncSheetRoute();
+
+  @override
+  State<_CloudSyncSheetRoute> createState() => _CloudSyncSheetRouteState();
+}
+
+class _CloudSyncSheetRouteState extends State<_CloudSyncSheetRoute> {
+  bool _busy = false;
+
+  void _setBusy(bool value) {
+    if (!mounted || _busy == value) return;
+    setState(() => _busy = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: !_busy,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _busy && context.mounted) {
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Aguarde o consentimento terminar antes de fechar.',
+              ),
+            ),
+          );
+        }
+      },
+      child: CloudSyncSheet(onBusyChanged: _setBusy),
+    );
+  }
+}
+
 class _CloudSyncSheetState extends ConsumerState<CloudSyncSheet> {
   bool _busy = false;
 
   Future<void> _toggle(bool value) async {
     setState(() => _busy = true);
+    widget.onBusyChanged?.call(true);
     final notifier = ref.read(cloudSyncProvider.notifier);
     try {
       if (value) {
@@ -43,7 +90,10 @@ class _CloudSyncSheetState extends ConsumerState<CloudSyncSheet> {
         );
       }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+        widget.onBusyChanged?.call(false);
+      }
     }
   }
 
@@ -79,16 +129,22 @@ class _CloudSyncSheetState extends ConsumerState<CloudSyncSheet> {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Ativar', style: TextStyle(fontSize: 18)),
-              subtitle: _busy ? const Text('Salvando…') : null,
+              subtitle: _busy
+                  ? const Text(
+                      'Processando consentimento… não feche esta tela.',
+                    )
+                  : null,
               value: enabled,
               onChanged: _busy ? null : _toggle,
             ),
             TextButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PolicyScreen()),
-                );
-              },
+              onPressed: _busy
+                  ? null
+                  : () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const PolicyScreen()),
+                      );
+                    },
               icon: const Icon(Icons.privacy_tip_outlined),
               label: const Text('Política de Privacidade e Termos'),
             ),

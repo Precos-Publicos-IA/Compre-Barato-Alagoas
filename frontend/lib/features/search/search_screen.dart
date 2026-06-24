@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
@@ -38,6 +39,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     ref.read(basketProvider.notifier).add(text);
     _controller.clear();
     _dismissKeyboard();
+  }
+
+  /// Field submit: non-empty text adds an item; empty field + non-empty basket
+  /// runs search (desktop/keyboard-friendly path, #347).
+  void _onFieldSubmitted(String _) {
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      _addCurrent();
+      return;
+    }
+    if (ref.read(basketProvider).isNotEmpty) {
+      _goToResults();
+    }
   }
 
   Future<void> _toggleVoice() async {
@@ -96,7 +110,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final suggestions = ref.watch(suggestionsProvider);
     final cloudOn = ref.watch(cloudSyncProvider).asData?.value ?? false;
 
-    return Scaffold(
+    // Desktop/web: Ctrl/Cmd+Enter runs search without leaving the keyboard (#347).
+    return CallbackShortcuts(
+      bindings: <ShortcutActivator, VoidCallback>{
+        const SingleActivator(LogicalKeyboardKey.enter, control: true):
+            _goToResults,
+        const SingleActivator(LogicalKeyboardKey.enter, meta: true):
+            _goToResults,
+      },
+      child: Scaffold(
       appBar: AppBar(
         centerTitle: true,
         actions: [
@@ -165,9 +187,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     child: TextField(
                       controller: _controller,
                       textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => _addCurrent(),
+                      onSubmitted: _onFieldSubmitted,
                       decoration: const InputDecoration(
                         hintText: 'Ex.: arroz, feijão, leite',
+                        helperText:
+                            'Enter adiciona o item; Enter com campo vazio (ou Ctrl/⌘+Enter) busca preços.',
+                        helperMaxLines: 2,
                       ),
                       style: const TextStyle(fontSize: 20),
                     ),
@@ -239,6 +264,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }
