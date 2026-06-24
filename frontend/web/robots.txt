@@ -1,0 +1,7 @@
+# Compre Barato Alagoas — public app host crawler policy (#130)
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /health
+# Share links are useful for humans/previews; allow crawl but prefer OG when added (#103)
+Allow: /abrir/
