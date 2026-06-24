@@ -130,8 +130,16 @@ function draw(canvasId, type, labels, datasets, scales) {
 const dayLabel = (d) => d.slice(6, 8) + "/" + d.slice(4, 6);
 
 // --- renderers -------------------------------------------------------------
-function card(label, value) {
-  return `<div class="card"><div class="label">${label}</div><div class="value">${value}</div></div>`;
+// Escape untrusted API strings before any innerHTML interpolation (#133).
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+function card(label, valueHtml) {
+  // Labels are static/trusted; values may include safe HTML spans we build ourselves
+  // (fmt* helpers only emit numbers/currency). Still escape the label.
+  return `<div class="card"><div class="label">${esc(label)}</div><div class="value">${valueHtml}</div></div>`;
 }
 
 async function loadOverview() {
@@ -147,13 +155,13 @@ async function loadOverview() {
     badge.textContent = "produção · " + (o.llm_model || "");
   }
   $("#overview-cards").innerHTML = [
-    card("Buscas (total)", fmtNum(o.total_searches)),
-    card("Buscas (hoje)", fmtNum(o.today_searches)),
-    card("Usuários únicos (est.)", fmtNum(o.estimated_unique_users)),
-    card("Custo de IA (total)", fmtUSD(o.total_llm_cost_usd)),
-    card("Custo médio / busca", fmtUSD(o.avg_cost_per_search_usd)),
-    card("Taxa de acerto", pct(o.overall_match_rate)),
-    card("Qualidade tamanho/qtd", pct(o.overall_quantity_parse_rate)),
+    card("Buscas (total)", esc(fmtNum(o.total_searches))),
+    card("Buscas (hoje)", esc(fmtNum(o.today_searches))),
+    card("Usuários únicos (est.)", esc(fmtNum(o.estimated_unique_users))),
+    card("Custo de IA (total)", esc(fmtUSD(o.total_llm_cost_usd))),
+    card("Custo médio / busca", esc(fmtUSD(o.avg_cost_per_search_usd))),
+    card("Taxa de acerto", esc(pct(o.overall_match_rate))),
+    card("Qualidade tamanho/qtd", esc(pct(o.overall_quantity_parse_rate))),
   ].join("");
   const hours = o.hours_today || [];
   bar("chart-hours", hours.map((_, h) => String(h).padStart(2, "0") + "h"),
@@ -186,8 +194,8 @@ async function loadCosts() {
     { label: "Saída", data: c.output_tokens, backgroundColor: "#e0a458" },
   ], true);
   $("#model-table tbody").innerHTML = (c.per_model || []).map((m) =>
-    `<tr><td>${m.model}</td><td>${fmtNum(m.calls)}</td><td>${fmtNum(m.input_tokens)}</td>
-     <td>${fmtNum(m.output_tokens)}</td><td>${fmtUSD(m.cost_usd)}</td></tr>`).join("")
+    `<tr><td>${esc(m.model)}</td><td>${esc(fmtNum(m.calls))}</td><td>${esc(fmtNum(m.input_tokens))}</td>
+     <td>${esc(fmtNum(m.output_tokens))}</td><td>${esc(fmtUSD(m.cost_usd))}</td></tr>`).join("")
     || `<tr><td colspan="5" class="note">Sem dados ainda.</td></tr>`;
 }
 
@@ -196,13 +204,13 @@ async function loadFeedback() {
   const f = await api("/feedback?limit=100" + (kind ? "&kind=" + kind : ""));
   const counts = f.counts || {};
   $("#feedback-counts").innerHTML = [
-    card("Útil (👍/👎)", fmtNum(counts.helpful)),
-    card("Item errado", fmtNum(counts.wrong_item)),
-    card("Outro", fmtNum(counts.other)),
+    card("Útil (👍/👎)", esc(fmtNum(counts.helpful))),
+    card("Item errado", esc(fmtNum(counts.wrong_item))),
+    card("Outro", esc(fmtNum(counts.other))),
   ].join("");
   $("#feedback-table tbody").innerHTML = (f.items || []).map((i) => {
     const help = i.helpful === "1" ? "👍" : i.helpful === "0" ? "👎" : "—";
-    return `<tr><td>${when(i.ts)}</td><td>${i.kind}</td><td>${help}</td>
+    return `<tr><td>${esc(when(i.ts))}</td><td>${esc(i.kind)}</td><td>${help}</td>
       <td>${esc(i.item)}</td><td class="note">${esc(i.note)}</td></tr>`;
   }).join("") || `<tr><td colspan="5" class="note">Sem feedback ainda.</td></tr>`;
 }
@@ -210,7 +218,7 @@ async function loadFeedback() {
 async function loadSearches() {
   const s = await api("/searches?limit=100");
   $("#search-table tbody").innerHTML = (s.items || []).map((i) =>
-    `<tr><td>${when(i.ts)}</td><td>${i.n_items}</td><td>${i.matched}</td><td>${i.source}</td></tr>`
+    `<tr><td>${esc(when(i.ts))}</td><td>${esc(i.n_items)}</td><td>${esc(i.matched)}</td><td>${esc(i.source)}</td></tr>`
   ).join("") || `<tr><td colspan="4" class="note">Sem buscas ainda.</td></tr>`;
 }
 
@@ -244,11 +252,11 @@ const WEEKDAY_LABELS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 async function loadGrowth() {
   const g = await api("/growth?days=" + days());
   $("#growth-cards").innerHTML = [
-    card("Únicos hoje (DAU)", fmtNum(g.dau_today)),
-    card("Únicos 7 dias (WAU)", fmtNum(g.wau)),
-    card("Únicos 30 dias (MAU)", fmtNum(g.mau)),
-    card("Recorrência (DAU/MAU)", pct(g.stickiness)),
-    card("Total de usuários (est.)", fmtNum(g.total_unique_users)),
+    card("Únicos hoje (DAU)", esc(fmtNum(g.dau_today))),
+    card("Únicos 7 dias (WAU)", esc(fmtNum(g.wau))),
+    card("Únicos 30 dias (MAU)", esc(fmtNum(g.mau))),
+    card("Recorrência (DAU/MAU)", esc(pct(g.stickiness))),
+    card("Total de usuários (est.)", esc(fmtNum(g.total_unique_users))),
   ].join("");
 
   const labels = (g.days || []).map(dayLabel);
@@ -276,10 +284,10 @@ async function loadPerformance() {
   const stages = t.stages || [];
   const total = stages.find((s) => s.stage === "total") || {};
   $("#performance-cards").innerHTML = [
-    card("Tempo médio (resposta)", fmtMs(total.avg_ms)),
-    card("Mediana (p50)", fmtMs(total.p50_ms)),
-    card("p95", fmtMs(total.p95_ms)),
-    card("Buscas medidas", fmtNum(total.count)),
+    card("Tempo médio (resposta)", esc(fmtMs(total.avg_ms))),
+    card("Mediana (p50)", esc(fmtMs(total.p50_ms))),
+    card("p95", esc(fmtMs(total.p95_ms))),
+    card("Buscas medidas", esc(fmtNum(total.count))),
   ].join("");
 
   bar("chart-latency-dist", bucketLabels(t.buckets_ms || []),
@@ -297,8 +305,8 @@ async function loadPerformance() {
   hbar("chart-subsystems", subs.map((s) => STAGE_LABELS[s.stage] || s.stage),
     subs.map((s) => s.avg_ms), "#5b9bd5");
   $("#subsystem-table tbody").innerHTML = stages.map((s) =>
-    `<tr><td>${STAGE_LABELS[s.stage] || s.stage}</td><td>${fmtNum(s.count)}</td>
-     <td>${fmtMs(s.avg_ms)}</td><td>${fmtMs(s.p50_ms)}</td><td>${fmtMs(s.p95_ms)}</td></tr>`
+    `<tr><td>${esc(STAGE_LABELS[s.stage] || s.stage)}</td><td>${esc(fmtNum(s.count))}</td>
+     <td>${esc(fmtMs(s.avg_ms))}</td><td>${esc(fmtMs(s.p50_ms))}</td><td>${esc(fmtMs(s.p95_ms))}</td></tr>`
   ).join("") || `<tr><td colspan="5" class="note">Sem dados ainda.</td></tr>`;
 }
 
@@ -314,13 +322,13 @@ async function loadProviders() {
   const NAMES = { sefaz: "SEFAZ (dados NFC-e)", llm: "IA (Claude)" };
   $("#provider-cards").innerHTML = provs.map((x) =>
     card(NAMES[x.name] || x.name,
-      `${fmtMs(x.avg_ms)} <span class="sub">méd · ${pct(x.error_rate)} erro</span>`)
+      `${esc(fmtMs(x.avg_ms))} <span class="sub">méd · ${esc(pct(x.error_rate))} erro</span>`)
   ).join("") || card("Provedores", "—");
   $("#provider-table tbody").innerHTML = provs.map((x) => {
     const errClass = x.error_rate > 0 ? ' class="bad"' : "";
-    return `<tr><td>${NAMES[x.name] || x.name}</td><td>${fmtNum(x.calls)}</td>
-      <td${errClass}>${pct(x.error_rate)}</td><td>${fmtMs(x.avg_ms)}</td>
-      <td>${fmtMs(x.p95_ms)}</td><td>${when(x.last_error_ts)}</td></tr>`;
+    return `<tr><td>${esc(NAMES[x.name] || x.name)}</td><td>${esc(fmtNum(x.calls))}</td>
+      <td${errClass}>${esc(pct(x.error_rate))}</td><td>${esc(fmtMs(x.avg_ms))}</td>
+      <td>${esc(fmtMs(x.p95_ms))}</td><td>${esc(when(x.last_error_ts))}</td></tr>`;
   }).join("") || `<tr><td colspan="6" class="note">Sem dados ainda.</td></tr>`;
 }
 
@@ -409,11 +417,7 @@ async function refresh() {
 function when(iso) {
   if (!iso) return "—";
   const d = new Date(iso);
-  return isNaN(d) ? iso : d.toLocaleString("pt-BR");
-}
-function esc(s) {
-  return (s || "").replace(/[&<>"]/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  return isNaN(d) ? String(iso) : d.toLocaleString("pt-BR");
 }
 
 // --- wiring ----------------------------------------------------------------

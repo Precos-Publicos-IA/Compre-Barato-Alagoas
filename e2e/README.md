@@ -10,6 +10,7 @@ Puppeteer drives real **Chrome/Chromium** with **simulated user input** and
 | `npm run full` | Same suite against already-running URLs |
 | `npm run live` | Production app/API/docs (+ optional admin) post-deploy |
 | `npm run smoke` | Lighter live app + API shape check |
+| `npm run admin_smoke` | Admin SPA gate + `esc()` presence (#134); optional `ADMIN_TOKEN` |
 
 ## iPhone / Safari / WebKit limitation (issue #16)
 
