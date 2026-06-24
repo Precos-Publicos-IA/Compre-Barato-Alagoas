@@ -11,12 +11,17 @@ from fastapi import APIRouter, Depends
 
 from ...analytics import Analytics
 from ...schemas.feedback import FeedbackAck, FeedbackRequest
-from ..deps import get_analytics, get_device_token
+from ..deps import enforce_rate_limit, get_analytics, get_device_token
 
 router = APIRouter(prefix="/api/v1", tags=["feedback"])
 
 
-@router.post("/feedback", response_model=FeedbackAck)
+@router.post(
+    "/feedback",
+    response_model=FeedbackAck,
+    # Same IP-hash daily bucket as search/lists — stops unauthenticated spam (#137).
+    dependencies=[Depends(enforce_rate_limit)],
+)
 async def submit_feedback(
     body: FeedbackRequest,
     analytics: Analytics = Depends(get_analytics),
