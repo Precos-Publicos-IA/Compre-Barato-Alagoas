@@ -19,12 +19,17 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Compare preços de supermercados, farmácias e lojas em Alagoas com dados públicos da SEFAZ-AL.">
+  <!-- viewport-fit=cover: respect iPhone notch / home indicator safe areas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1B7F3B">
 
-  <!-- iOS meta tags & icons -->
+  <!-- iOS / Safari "Add to Home Screen" (PWA-lite) -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Compre Barato Alagoas">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
@@ -32,8 +37,9 @@
   <title>Compre Barato Alagoas</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- Suppress the browser's "install this web app" (PWA) prompt. We steer users
-       to the Android APK instead (and, in the future, the Play Store). -->
+  <!-- On Chromium/Android we suppress the mini-install prompt and point users at
+       the APK/Play path in-app. iOS Safari never fires beforeinstallprompt; it
+       uses Share → Add to Home Screen instead (see install banner in Flutter). -->
   <script>
     window.addEventListener('beforeinstallprompt', function (e) {
       e.preventDefault();

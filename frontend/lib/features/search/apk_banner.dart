@@ -4,10 +4,29 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config.dart';
 
-/// Web-only, dismissible banner inviting the user to install the Android app.
+/// Detects iPhone/iPad/iPod in the browser user-agent (web only).
+///
+/// Kept pure/testable so we do not show Android APK CTAs on iOS Safari, where
+/// the only install path today is "Add to Home Screen" (no App Store build yet).
+bool isIosWebUserAgent(String userAgent) {
+  final ua = userAgent.toLowerCase();
+  return ua.contains('iphone') ||
+      ua.contains('ipad') ||
+      ua.contains('ipod');
+}
+
+/// Web-only, dismissible install / home-screen banner.
+///
+/// - **Android / non-iOS browsers**: offer the APK download.
+/// - **iPhone/iPad Safari**: explain how to add the web app to the Home Screen
+///   (native iOS app is tracked separately; no misleading APK button).
+///
 /// Renders nothing outside the web build.
 class ApkBanner extends StatefulWidget {
-  const ApkBanner({super.key});
+  const ApkBanner({super.key, this.userAgentOverride});
+
+  /// Injected in tests; production reads [AppConfig.webUserAgent] / platform.
+  final String? userAgentOverride;
 
   @override
   State<ApkBanner> createState() => _ApkBannerState();
@@ -16,10 +35,14 @@ class ApkBanner extends StatefulWidget {
 class _ApkBannerState extends State<ApkBanner> {
   bool _dismissed = false;
 
+  String get _ua =>
+      widget.userAgentOverride ?? AppConfig.webUserAgent ?? '';
+
   @override
   Widget build(BuildContext context) {
     if (!kIsWeb || _dismissed) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
+    final ios = isIosWebUserAgent(_ua);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -28,22 +51,27 @@ class _ApkBannerState extends State<ApkBanner> {
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.android, size: 28),
+          Icon(ios ? Icons.ios_share : Icons.android, size: 28),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Use no celular: baixe o app Android.',
-              style: TextStyle(fontSize: 15),
+              ios
+                  ? 'No iPhone/iPad: toque em Compartilhar e depois em '
+                      '"Adicionar à Tela de Início" para usar como app.'
+                  : 'Use no celular: baixe o app Android.',
+              style: const TextStyle(fontSize: 15),
             ),
           ),
-          TextButton(
-            onPressed: () => launchUrl(
-              Uri.parse(AppConfig.androidApkUrl),
-              mode: LaunchMode.externalApplication,
+          if (!ios)
+            TextButton(
+              onPressed: () => launchUrl(
+                Uri.parse(AppConfig.androidApkUrl),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: const Text('Baixar APK'),
             ),
-            child: const Text('Baixar APK'),
-          ),
           IconButton(
             icon: const Icon(Icons.close),
             tooltip: 'Fechar',
