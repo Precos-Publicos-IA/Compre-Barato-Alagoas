@@ -51,6 +51,12 @@ void main() {
     );
   });
 
+  test('createDefaultSecureStorage enables Android encryptedSharedPreferences',
+      () {
+    final storage = createDefaultSecureStorage();
+    expect(storage.aOptions.encryptedSharedPreferences, isTrue);
+  });
+
   test('getOrCreateToken mints a 64-char hex token and reuses it', () async {
     final id = DeviceIdentity(storage: _MemorySecureStorage());
     final first = await id.getOrCreateToken();

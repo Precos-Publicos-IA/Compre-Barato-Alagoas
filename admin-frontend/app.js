@@ -1,8 +1,37 @@
 "use strict";
 
 // API base: same-origin in production (nginx proxies /admin/api on the admin host).
-// Override for local dev with ?api=http://localhost:8000/admin/api
-const API = new URLSearchParams(location.search).get("api") || "/admin/api";
+// Local/dev only: ?api=http://localhost:8000/admin/api (or 127.0.0.1 / relative /…).
+// Arbitrary absolute URLs are rejected so a crafted link cannot exfiltrate the
+// sessionStorage admin bearer to an attacker origin (#333).
+function resolveAdminApiBase() {
+  const DEFAULT = "/admin/api";
+  const raw = new URLSearchParams(location.search).get("api");
+  if (!raw || !raw.trim()) return DEFAULT;
+  const candidate = raw.trim();
+  // Relative path on this host only (must start with single /).
+  if (candidate.startsWith("/") && !candidate.startsWith("//")) {
+    return candidate.replace(/\/+$/, "") || DEFAULT;
+  }
+  // Absolute URL: only loopback hosts, and only when this page is also loopback
+  // (never honour ?api=https://evil… on the production admin host).
+  try {
+    const u = new URL(candidate);
+    const pageHost = (location.hostname || "").toLowerCase();
+    const apiHost = (u.hostname || "").toLowerCase();
+    const loopback = (h) =>
+      h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "::1";
+    if (!loopback(pageHost) || !loopback(apiHost)) return DEFAULT;
+    if (u.protocol !== "http:" && u.protocol !== "https:") return DEFAULT;
+    // Preserve path; strip trailing slash for consistent concatenation with /overview etc.
+    const path = (u.pathname || "/").replace(/\/+$/, "") || "";
+    return u.origin + path;
+  } catch (_) {
+    return DEFAULT;
+  }
+}
+
+const API = resolveAdminApiBase();
 
 const $ = (sel) => document.querySelector(sel);
 const charts = {};

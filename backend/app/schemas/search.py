@@ -2,7 +2,17 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, field_validator
+import math
+
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+# SEFAZ-AL scope: loose Brazil-ish bounds (not a precise state polygon). Far-outside
+# coordinates (0,0 / poles / wrong hemisphere) waste SEFAZ/LLM and mislead users (#334).
+# Slightly wider than Alagoas so border/GPS noise near AL does not 422 spuriously.
+_BR_LAT_MIN = -34.0
+_BR_LAT_MAX = 6.0
+_BR_LON_MIN = -74.0
+_BR_LON_MAX = -28.0
 
 
 class SearchRequest(BaseModel):
@@ -23,6 +33,36 @@ class SearchRequest(BaseModel):
         if not cleaned:
             raise ValueError("at least one non-empty item is required")
         return cleaned
+
+    @field_validator("latitude", "longitude")
+    @classmethod
+    def _finite_coord(cls, v: float | None) -> float | None:
+        if v is None:
+            return v
+        if not math.isfinite(v):
+            raise ValueError("coordinate must be a finite number")
+        return v
+
+    @model_validator(mode="after")
+    def _coords_in_brazil_scope(self) -> SearchRequest:
+        lat, lon = self.latitude, self.longitude
+        if lat is None and lon is None:
+            return self
+        if lat is None or lon is None:
+            raise ValueError(
+                "latitude and longitude must both be set, or both omitted"
+            )
+        if not (_BR_LAT_MIN <= lat <= _BR_LAT_MAX):
+            raise ValueError(
+                "latitude outside Brazil/Alagoas search scope "
+                f"(expected {_BR_LAT_MIN}..{_BR_LAT_MAX})"
+            )
+        if not (_BR_LON_MIN <= lon <= _BR_LON_MAX):
+            raise ValueError(
+                "longitude outside Brazil/Alagoas search scope "
+                f"(expected {_BR_LON_MIN}..{_BR_LON_MAX})"
+            )
+        return self
 
 
 class ItemOffer(BaseModel):

@@ -4,7 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Default secure-storage options used when the caller does not inject storage.
 ///
-/// - **Android**: encrypted preferences / Keystore-backed (plugin default).
+/// - **Android**: [AndroidOptions.encryptedSharedPreferences] so the bearer
+///   device token is not stored in plain SharedPreferences on modern APIs
+///   (issue #331). Still device-local; not a substitute for accounts.
 /// - **iOS**: Keychain with [KeychainAccessibility.first_unlock_this_device] so
 ///   the pseudo-anonymous bearer token is available after first unlock on this
 ///   device only (not backed up / not portable across restores — matches the
@@ -13,6 +15,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// Exposed so tests can assert the shipped configuration without going through
 /// platform channels.
 FlutterSecureStorage createDefaultSecureStorage() => const FlutterSecureStorage(
+      aOptions: AndroidOptions(
+        encryptedSharedPreferences: true,
+      ),
       iOptions: IOSOptions(
         accessibility: KeychainAccessibility.first_unlock_this_device,
       ),

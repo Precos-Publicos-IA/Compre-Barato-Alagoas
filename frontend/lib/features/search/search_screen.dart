@@ -158,6 +158,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 'O que você precisa comprar?',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
+              const SizedBox(height: 8),
+              Text(
+                'Preços com base em dados públicos de NFC-e (SEFAZ-AL). '
+                'Não são preços oficiais garantidos nem cotação em tempo real.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
