@@ -24,7 +24,7 @@ on:
   workflow_dispatch:
 
 env:
-  CI_E2E_IMAGE: ghcr.io/${{ github.repository_owner }}/compre-barato-alagoas/ci-e2e:latest
+  # owner forced lowercase for GHCR (see ci-image job step if pull fails)
   CI_E2E_LOCAL: ci-e2e:local
 
 concurrency:

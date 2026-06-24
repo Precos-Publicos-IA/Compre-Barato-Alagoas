@@ -28,9 +28,6 @@ concurrency:
   group: ci-image-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/compre-barato-alagoas/ci-e2e
-
 jobs:
   build-push:
     runs-on: ubuntu-latest
@@ -47,23 +44,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # PRs push a :pr-<n> tag (no :latest) so main keeps a stable gate image.
-      # Main / workflow_dispatch updates :latest used by deploy.yml.
+      # GHCR requires fully lowercase image names (org may be mixed-case on GitHub).
       - name: Docker meta
         id: meta
         run: |
           set -euo pipefail
-          tags="${IMAGE}:${GITHUB_SHA}"
+          owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner}/compre-barato-alagoas/ci-e2e"
+          tags="${image}:${GITHUB_SHA}"
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            tags="${tags}"$'\n'"${IMAGE}:pr-${{ github.event.pull_request.number }}"
+            tags="${tags}"$'\n'"${image}:pr-${{ github.event.pull_request.number }}"
           else
-            tags="${tags}"$'\n'"${IMAGE}:latest"
+            tags="${tags}"$'\n'"${image}:latest"
           fi
           {
+            echo "image=${image}"
             echo "tags<<EOF"
             echo "$tags"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+          echo "Image: $image"
           echo "Tags:" && echo "$tags"
 
       - name: Build and push
@@ -79,4 +79,4 @@ jobs:
       - name: Hint for deploy.yml on first PR
         if: github.event_name == 'pull_request'
         run: |
-          echo "::notice::Pushed ${IMAGE}:pr-${{ github.event.pull_request.number }}. Until :latest exists on main, set CI_E2E_IMAGE override or merge ci-image first."
+          echo "::notice::Pushed ${{ steps.meta.outputs.image }}:pr-${{ github.event.pull_request.number }}"
