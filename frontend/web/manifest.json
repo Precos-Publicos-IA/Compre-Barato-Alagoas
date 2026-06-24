@@ -1,7 +1,7 @@
 {
     "name": "Compre Barato Alagoas",
     "short_name": "Compre Barato",
-    "start_url": ".",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#1B7F3B",

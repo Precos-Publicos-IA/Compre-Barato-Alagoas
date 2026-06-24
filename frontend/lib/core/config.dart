@@ -1,3 +1,6 @@
+import 'web_user_agent_stub.dart'
+    if (dart.library.html) 'web_user_agent_web.dart' as web_ua;
+
 /// App-wide configuration.
 class AppConfig {
   /// Backend base URL. Override at build/run time, e.g.:
@@ -8,7 +11,7 @@ class AppConfig {
     defaultValue: 'https://alagoas.precospublicos.ia.br',
   );
 
-  /// Public download URL for the Android APK (shown to web users).
+  /// Public download URL for the Android APK (shown to non-iOS web users).
   static const String androidApkUrl =
       '$apiBaseUrl/app/compre-barato-alagoas.apk';
 
@@ -16,6 +19,7 @@ class AppConfig {
   static const String webBaseUrl = apiBaseUrl;
 
   /// Domain used for Android App Links verification (no scheme).
+  /// iOS Universal Links (AASA) should use the same host when the ios/ target lands.
   static const String appLinkHost = 'alagoas.precospublicos.ia.br';
 
   /// Path prefix for shareable search links: `/abrir/<uuid>`. Scoped so it
@@ -25,4 +29,17 @@ class AppConfig {
   /// Privacy policy / terms version recorded with each LGPD consent. Bump in
   /// lockstep with the backend `POLICY_VERSION` when the policy text changes.
   static const String policyVersion = '2026-06-06';
+
+  /// Browser user-agent on web builds (`null` on VM/native). Used to tailor the
+  /// install banner (APK vs iOS "Add to Home Screen"). Overridable in tests via
+  /// [setWebUserAgentForTest].
+  static String? _webUserAgentOverride;
+
+  static String? get webUserAgent =>
+      _webUserAgentOverride ?? web_ua.readBrowserUserAgent();
+
+  /// Test-only: force the UA string seen by install/PWA helpers.
+  static void setWebUserAgentForTest(String? value) {
+    _webUserAgentOverride = value;
+  }
 }
