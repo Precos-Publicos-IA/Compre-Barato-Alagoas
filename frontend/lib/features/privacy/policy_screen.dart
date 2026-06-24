@@ -84,6 +84,21 @@ class PolicyScreen extends StatelessWidget {
                   'associados ao seu aparelho.',
             ),
             _Section(
+              'Como melhoramos as buscas',
+              'Para ajudar quem digita de forma vaga, guardamos no servidor uma '
+                  'associação anônima entre termos de busca (por exemplo, "pao" → '
+                  '"pão francês"). Esse dado é só de texto de produto: não é '
+                  'ligado ao seu aparelho, à sua identidade nem às suas listas, e '
+                  'é descartado automaticamente após cerca de 180 dias.',
+            ),
+            _Section(
+              'Crianças e adolescentes',
+              'O app não é direcionado a menores de 18 anos e não coleta '
+                  'intencionalmente dados de crianças ou adolescentes — o uso não '
+                  'exige cadastro nem dados pessoais. Se um responsável acreditar '
+                  'que um menor forneceu algum dado, pode nos contatar para apagá-lo.',
+            ),
+            _Section(
               'Avisos de promoção (futuro)',
               'Quando os avisos de promoção forem lançados, pediremos um '
                   'consentimento específico. O envio poderá usar serviços de '
