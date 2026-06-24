@@ -2,12 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../data/api_client.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../map/map_screen.dart';
 import '../share/share_service.dart';
+import '../stores/store_prefs_sheet.dart';
 import 'savings.dart';
 import 'store_card.dart';
+
+/// User-facing search error copy (avoids raw Exception: noise for a11y/UX) (#368).
+String searchErrorMessage(Object error) {
+  if (error is ApiException) {
+    final id = error.requestId?.trim();
+    if (id != null && id.isNotEmpty) {
+      return '${error.message}\n(ref: $id)';
+    }
+    return error.message;
+  }
+  final s = error.toString();
+  if (s.contains('TimeoutException') || s.toLowerCase().contains('timeout')) {
+    return 'A busca demorou demais. Verifique a conexão e tente de novo.';
+  }
+  if (s.contains('ClientException') || s.contains('SocketException')) {
+    return 'Sem conexão com o servidor. Verifique a rede e tente de novo.';
+  }
+  return 'Não foi possível buscar os preços agora. Tente de novo em instantes.';
+}
 
 class ResultsScreen extends ConsumerWidget {
   const ResultsScreen({super.key});
@@ -38,10 +59,17 @@ class ResultsScreen extends ConsumerWidget {
         ],
       ),
       body: result.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: Semantics(
+            liveRegion: true,
+            label: 'Buscando preços, aguarde',
+            child: CircularProgressIndicator(),
+          ),
+        ),
         error: (e, _) => _Message(
           icon: Icons.error_outline,
-          text: e.toString(),
+          text: searchErrorMessage(e),
+          semanticsLive: true,
           actionLabel: 'Tentar de novo',
           onAction: () =>
               ref.read(searchControllerProvider.notifier).run(basket),
@@ -91,10 +119,13 @@ class _Results extends ConsumerWidget {
     final visible =
         response.stores.where((s) => !avoided.containsKey(s.cnpj)).toList();
     if (visible.isEmpty) {
-      return const _Message(
+      return _Message(
         icon: Icons.visibility_off,
         text: 'Todas as lojas encontradas estão ocultas.\n'
-            'Gerencie em "Minhas lojas".',
+            'Gerencie em "Minhas lojas" para exibir de novo.',
+        semanticsLive: true,
+        actionLabel: 'Gerenciar lojas ocultas',
+        onAction: () => StorePrefsSheet.show(context),
       );
     }
 
@@ -455,16 +486,18 @@ class _Message extends StatelessWidget {
     required this.text,
     this.actionLabel,
     this.onAction,
+    this.semanticsLive = false,
   });
 
   final IconData icon;
   final String text;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final bool semanticsLive;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    final body = Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -482,6 +515,12 @@ class _Message extends StatelessWidget {
           ],
         ),
       ),
+    );
+    if (!semanticsLive) return body;
+    return Semantics(
+      liveRegion: true,
+      label: text,
+      child: body,
     );
   }
 }

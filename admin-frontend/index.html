@@ -25,7 +25,7 @@
     <header class="topbar">
       <div class="brand">Compre Barato Alagoas <span>· Admin</span></div>
       <div class="topbar-right">
-        <span id="mode-badge" class="badge" hidden></span>
+        <span id="mode-badge" class="badge" role="status" aria-live="polite" hidden></span>
         <label class="range">
           Período
           <select id="range">
@@ -227,7 +227,7 @@
         <div id="secrets-list"></div>
       </section>
     </main>
-    <p id="status" class="status"></p>
+    <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></p>
   </div>
 
   <script src="vendor/chart.umd.min.js"></script>

@@ -19,7 +19,16 @@ class SearchRequest(BaseModel):
     @field_validator("items")
     @classmethod
     def _clean_items(cls, v: list[str]) -> list[str]:
-        cleaned = [s.strip() for s in v if s and s.strip()]
+        # Per-line ceiling keeps voice/paste/share from multi-KB SEFAZ/LLM rows (#369).
+        _max_item = 120
+        cleaned: list[str] = []
+        for s in v:
+            if not s or not str(s).strip():
+                continue
+            t = str(s).strip()
+            if len(t) > _max_item:
+                t = t[:_max_item]
+            cleaned.append(t)
         if not cleaned:
             raise ValueError("at least one non-empty item is required")
         return cleaned

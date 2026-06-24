@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
+import '../../data/recent_lists.dart';
 import '../privacy/cloud_sync_sheet.dart';
 import '../privacy/policy_screen.dart';
 import '../stores/store_prefs_sheet.dart';
@@ -109,6 +110,24 @@ class SettingsSheet extends ConsumerWidget {
                     'Contagem anônima e agregada (HyperLogLog). Não vemos o que você busca, não vendemos nada, não identificamos você. Desligue quando quiser. Usamos só para saber se o app está ajudando gente de verdade e para manter o servidor.'),
                 value: usageOn,
                 onChanged: (v) => ref.read(usageStatsProvider.notifier).set(v),
+              ),
+              // Local recent baskets (SharedPreferences) — LGPD/shared-device (#385).
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.history),
+                title: const Text('Limpar listas recentes',
+                    style: TextStyle(fontSize: 18)),
+                subtitle: const Text(
+                    'Remove do aparelho as últimas listas salvas neste dispositivo (não afeta o servidor).'),
+                onTap: () async {
+                  await ref.read(recentListsProvider.notifier).clear();
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Listas recentes apagadas neste aparelho.'),
+                    ),
+                  );
+                },
               ),
               TextButton.icon(
                 onPressed: () {

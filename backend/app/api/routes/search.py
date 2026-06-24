@@ -28,6 +28,16 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["search"])
 
+# Shareable list IDs are minted as uuid.uuid4().hex (32 lowercase/upper hex chars).
+_LIST_ID_LEN = 32
+
+
+def _valid_list_id(list_id: str) -> bool:
+    return (
+        len(list_id) == _LIST_ID_LEN
+        and all(c in "0123456789abcdefABCDEF" for c in list_id)
+    )
+
 
 @router.post(
     "/search",
@@ -81,9 +91,15 @@ async def get_list(
 ) -> SavedList:
     """Resolve a shareable link UUID back into its shopping list.
 
-    404 once the list has expired (30 idle days) so the app can send the user
-    back to the home screen.
+    404 once the list has expired (30 idle days, with absolute max lifetime)
+    so the app can send the user back to the home screen. Malformed ids are
+    400 before any Redis lookup (#381).
     """
+    if not _valid_list_id(list_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Identificador de lista inválido.",
+        )
     items = await cache.get_search_list(list_id)
     if not items:
         raise HTTPException(

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config.dart';
 
 /// In-app Política de Privacidade e Termos (pt-BR). Rendered in-app so it works
 /// offline and identically on Android and web. A static mirror is also served at
-/// `/privacy.html` for a public, canonical URL.
+/// `/privacy.html` for a public, canonical URL (#377).
 class PolicyScreen extends StatelessWidget {
   const PolicyScreen({super.key});
+
+  static final Uri webPrivacyUri =
+      Uri.parse('${AppConfig.webBaseUrl}/privacy.html');
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +34,18 @@ class PolicyScreen extends StatelessWidget {
                   '(NFC-e) divulgados pela SEFAZ-AL. Ele ajuda você a encontrar '
                   'os lugares mais baratos para sua lista de compras.',
             ),
-            _Section(
+            const _Section(
               'O que fica só no seu aparelho',
-              'Suas listas de compras e o histórico recente ficam guardados no '
-                  'próprio aparelho. As lojas que você marca como favoritas ou '
-                  'oculta também ficam só no aparelho — não vão para o servidor. '
-                  'Sua localização é usada apenas no momento da busca, para '
-                  'encontrar lojas perto de você — não guardamos seu histórico '
-                  'de localização.',
+              'Suas listas de compras e o histórico recente (últimas buscas, '
+                  'em texto simples nas preferências do aparelho) ficam guardados '
+                  'no próprio aparelho — inclusive em dispositivos compartilhados '
+                  'da família, até você limpar em Configurações. As lojas que '
+                  'você marca como favoritas ou oculta também ficam só no '
+                  'aparelho — não vão para o servidor. Sua localização é usada '
+                  'apenas no momento da busca, para encontrar lojas perto de '
+                  'você — não guardamos seu histórico de localização.',
             ),
-            _Section(
+            const _Section(
               'Identificação sem login',
               'Para oferecer recursos que normalmente exigiriam uma conta (como '
                   'salvar suas listas na nuvem e, no futuro, avisos de promoção), '
@@ -49,7 +55,7 @@ class PolicyScreen extends StatelessWidget {
                   'você trocar, perder ou redefinir o aparelho, esses dados se '
                   'perdem.',
             ),
-            _Section(
+            const _Section(
               'Medição anônima de uso',
               'Para saber quantas pessoas usam o app e melhorá-lo, fazemos uma '
                   'contagem anônima e agregada de uso (por exemplo, quantos '
@@ -65,7 +71,7 @@ class PolicyScreen extends StatelessWidget {
                   'Configurações → "Estatísticas anônimas de uso"; ao desligar, '
                   'o identificador de medição é esquecido no aparelho.',
             ),
-            _Section(
+            const _Section(
               'Quando guardamos algo no servidor',
               'Só guardamos dados ligados ao seu aparelho no servidor se você '
                   'ativar "Salvar minhas listas na nuvem". A base legal é o seu '
@@ -76,14 +82,39 @@ class PolicyScreen extends StatelessWidget {
                   'ela não fica ligada ao seu aparelho — vira só um total '
                   'agregado.',
             ),
-            _Section(
+            const _Section(
+              'Por quanto tempo guardamos (retenção)',
+              'Se você consentiu em salvar listas na nuvem, o registro do '
+                  'aparelho no servidor pode expirar após cerca de 90 dias sem '
+                  'uso (sem novas buscas/consentimento/atualizações). Links '
+                  'compartilhados (/abrir/…) podem expirar após cerca de 30 dias '
+                  'sem acesso, com limite máximo de cerca de 90 dias desde a '
+                  'criação (abrir o link renova o prazo ocioso, mas não além '
+                  'desse teto). Desativar "Salvar minhas listas na nuvem" apaga '
+                  'de imediato os dados do aparelho no servidor, sem esperar o prazo.',
+            ),
+            const _Section(
+              'Melhoria da busca (termos sem identificar você)',
+              'Para melhorar correspondências de produtos (ex.: termos vagos '
+                  'para nomes mais úteis na SEFAZ), o servidor pode guardar, de '
+                  'forma agregada e sem ligar ao seu aparelho, associações entre '
+                  'o que as pessoas digitam e termos de busca que funcionaram. '
+                  'Esses registros podem permanecer por até cerca de 180 dias e '
+                  'não entraram no apagamento do consentimento de nuvem (não são '
+                  'dados pessoais do seu aparelho). A base legal é o legítimo '
+                  'interesse (LGPD), com a mesma possibilidade de desligar a '
+                  'medição anônima de uso em Configurações quando aplicável ao '
+                  'fluxo de busca.',
+            ),
+            const _Section(
               'Seus direitos (LGPD)',
               'Você pode retirar o consentimento e apagar tudo o que guardamos '
                   'no servidor a qualquer momento, desativando "Salvar minhas '
                   'listas na nuvem" — isso apaga, de imediato, os dados '
-                  'associados ao seu aparelho.',
+                  'associados ao seu aparelho. Para apagar só o histórico recente '
+                  'local, use "Limpar listas recentes" em Configurações.',
             ),
-            _Section(
+            const _Section(
               'Avisos de promoção (futuro)',
               'Quando os avisos de promoção forem lançados, pediremos um '
                   'consentimento específico. O envio poderá usar serviços de '
@@ -91,12 +122,21 @@ class PolicyScreen extends StatelessWidget {
                   'Messaging), o que pode envolver transferência internacional '
                   'de dados. Isso será detalhado antes da ativação.',
             ),
-            _Section(
+            const _Section(
               'Contato',
               'Dúvidas sobre privacidade podem ser enviadas pelo repositório '
                   'público do projeto (Preços Públicos IA). A avaliação de '
                   'legítimo interesse da medição de uso está publicada na '
                   'documentação do projeto.',
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () => launchUrl(
+                webPrivacyUri,
+                mode: LaunchMode.externalApplication,
+              ),
+              icon: const Icon(Icons.open_in_browser),
+              label: const Text('Abrir política no navegador (privacy.html)'),
             ),
             const SizedBox(height: 24),
           ],

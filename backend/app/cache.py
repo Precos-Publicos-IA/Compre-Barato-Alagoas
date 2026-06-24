@@ -17,8 +17,11 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Saved search lists (for shareable links) live for 30 days, refreshed on access.
+# Saved search lists (for shareable links): sliding idle TTL on access, plus an
+# absolute max lifetime from creation so periodic hits cannot keep a list forever
+# (#382 / LGPD idle expectation in policy).
 SEARCH_LIST_TTL = 60 * 60 * 24 * 30
+SEARCH_LIST_MAX_AGE = 60 * 60 * 24 * 90  # hard ceiling even with keep-alive gets
 # Device records (pseudo-anonymous identity) live for 90 idle days, refreshed on
 # access. No portability by design: lose the device, lose the server-side data.
 DEVICE_TTL = 60 * 60 * 24 * 90
@@ -109,8 +112,8 @@ class Cache:
         """Store a shopping list under a UUID for shareable links.
 
         Identical lists (same items, case-insensitive, same order) reuse the same
-        UUID. Any access refreshes the 30-day TTL; after 30 idle days it expires
-        and the link becomes invalid.
+        UUID. Access refreshes a 30-day idle TTL, capped at 90 days from first
+        create so keep-alive GETs cannot extend a link forever (#382).
         """
         norm = [s.strip() for s in items if s and s.strip()]
         if not norm:
@@ -122,38 +125,82 @@ class Cache:
         try:
             existing = await self.get_json(hash_key)
             if isinstance(existing, str):
-                await self._expire(f"list:{existing}", ttl)
-                await self._expire(hash_key, ttl)
-                return existing
+                # Reuse id; refresh idle TTL only if the list still exists and
+                # has not passed absolute max age.
+                existing_data = await self.get_json(f"list:{existing}")
+                if isinstance(existing_data, dict):
+                    remaining = self._list_remaining_ttl(existing_data, idle_ttl=ttl)
+                    if remaining is not None:
+                        await self._expire(f"list:{existing}", remaining)
+                        await self._expire(hash_key, remaining)
+                        return existing
+                # Expired or missing — fall through to mint a new id.
             new_id = uuid.uuid4().hex
-            await self.set_json(f"list:{new_id}", {"items": norm}, ttl=ttl)
+            payload = {
+                "items": norm,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            await self.set_json(f"list:{new_id}", payload, ttl=ttl)
             await self.set_json(hash_key, new_id, ttl=ttl)
             return new_id
         except Exception:  # pragma: no cover
             logger.exception("save_search_list failed")
             return None
 
+    def _list_remaining_ttl(
+        self, data: dict, idle_ttl: int = SEARCH_LIST_TTL
+    ) -> int | None:
+        """Sliding idle TTL capped by absolute max age from created_at (#382).
+
+        Returns seconds for EXPIRE, or None if the list is past max age (caller
+        should treat as expired/missing).
+        """
+        created_raw = data.get("created_at")
+        if not created_raw:
+            # Legacy keys without created_at: sliding-only behaviour (no hard
+            # ceiling until they are rewritten by a new save).
+            return idle_ttl
+        try:
+            created = datetime.fromisoformat(str(created_raw).replace("Z", "+00:00"))
+            if created.tzinfo is None:
+                created = created.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            return idle_ttl
+        age = (datetime.now(timezone.utc) - created).total_seconds()
+        remaining_abs = SEARCH_LIST_MAX_AGE - age
+        if remaining_abs <= 0:
+            return None
+        return max(1, min(idle_ttl, int(remaining_abs)))
+
     async def get_search_list(
         self, list_id: str, ttl: int = SEARCH_LIST_TTL
     ) -> list[str] | None:
-        """Resolve a shareable list UUID back to its items, refreshing the TTL."""
-        data = await self.get_json(f"list:{list_id}")
+        """Resolve a shareable list UUID; refresh idle TTL up to absolute max (#382)."""
+        key = f"list:{list_id}"
+        data = await self.get_json(key)
         if not isinstance(data, dict):
             return None
-        await self._expire(f"list:{list_id}", ttl)
         items = data.get("items")
-        if isinstance(items, list):
-            # Also refresh the content-hash pointer so that identical-list dedup
-            # continues to work even if only gets (share link opens) happen for a
-            # while; prevents the hash key expiring while the list is still live.
-            norm = [s.strip() for s in items if s and s.strip()]
-            if norm:
-                digest = hashlib.sha256(
-                    "|".join(s.lower() for s in norm).encode()
-                ).hexdigest()
-                await self._expire(f"listhash:{digest}", ttl)
-            return items
-        return None
+        if not isinstance(items, list):
+            return None
+        remaining = self._list_remaining_ttl(data, idle_ttl=ttl)
+        if remaining is None:
+            try:
+                await self._redis.delete(key)
+            except Exception:  # pragma: no cover
+                pass
+            return None
+        await self._expire(key, remaining)
+        # Also refresh the content-hash pointer so that identical-list dedup
+        # continues to work even if only gets (share link opens) happen for a
+        # while; prevents the hash key expiring while the list is still live.
+        norm = [s.strip() for s in items if s and s.strip()]
+        if norm:
+            digest = hashlib.sha256(
+                "|".join(s.lower() for s in norm).encode()
+            ).hexdigest()
+            await self._expire(f"listhash:{digest}", remaining)
+        return items
 
     # --- Pseudo-anonymous device records (no login) ------------------------
     #

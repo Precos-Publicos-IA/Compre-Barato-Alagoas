@@ -173,15 +173,25 @@ final suggestionsProvider = FutureProvider<List<Suggestion>>((ref) {
   return ref.watch(apiClientProvider).fetchSuggestions();
 });
 
+/// Max characters per basket line (voice/paste/share hygiene; aligned with API) (#369).
+const kMaxBasketItemLength = 120;
+
+/// Soft client cap matching backend SearchRequest list max_length (#340 / #104 area).
+const kMaxBasketItems = 30;
+
 /// The user's shopping list (the basket).
 class BasketNotifier extends Notifier<List<String>> {
   @override
   List<String> build() => <String>[];
 
   void add(String item) {
-    final value = item.trim();
+    var value = item.trim();
     if (value.isEmpty) return;
+    if (value.length > kMaxBasketItemLength) {
+      value = value.substring(0, kMaxBasketItemLength);
+    }
     if (state.any((e) => e.toLowerCase() == value.toLowerCase())) return;
+    if (state.length >= kMaxBasketItems) return;
     state = [...state, value];
   }
 

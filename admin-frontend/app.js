@@ -24,12 +24,19 @@ function token() {
   return sessionStorage.getItem("admin_token") || "";
 }
 
+/** Shared 401 handler: clear bearer + wipe dashboard DOM (#379, #383). */
+function handleUnauthorized() {
+  sessionStorage.removeItem("admin_token");
+  resetDashboardUi();
+  showLogin(true);
+}
+
 async function api(path) {
   const res = await fetch(API + path, {
     headers: { Authorization: "Bearer " + token() },
   });
   if (res.status === 401) {
-    showLogin(true);
+    handleUnauthorized();
     throw new Error("unauthorized");
   }
   if (!res.ok) throw new Error("HTTP " + res.status);
@@ -46,7 +53,7 @@ async function apiSend(path, method, body) {
     body: body ? JSON.stringify(body) : undefined,
   });
   if (res.status === 401) {
-    showLogin(true);
+    handleUnauthorized();
     throw new Error("unauthorized");
   }
   if (!res.ok) {
@@ -75,7 +82,55 @@ function days() {
 }
 
 function setStatus(msg) {
-  $("#status").textContent = msg;
+  const el = $("#status");
+  if (!el) return;
+  el.textContent = msg;
+  // Errors are more urgent for operators on assistive tech (#366).
+  el.setAttribute(
+    "aria-live",
+    /erro|falha|inválid/i.test(String(msg || "")) ? "assertive" : "polite"
+  );
+}
+
+/** Wipe dashboard DOM + Chart.js after logout/401 so shared consoles do not leak last refresh (#379). */
+function resetDashboardUi() {
+  Object.keys(charts).forEach((id) => {
+    try {
+      charts[id].destroy();
+    } catch (e) {}
+    delete charts[id];
+  });
+  [
+    "overview-cards",
+    "model-table",
+    "feedback-counts",
+    "feedback-table",
+    "search-table",
+    "top-table",
+    "notfound-table",
+    "growth-cards",
+    "performance-cards",
+    "subsystem-table",
+    "provider-cards",
+    "provider-table",
+    "secrets-list",
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === "TBODY") el.innerHTML = "";
+    else if (el.tagName === "TABLE") {
+      const tb = el.querySelector("tbody");
+      if (tb) tb.innerHTML = "";
+    } else el.innerHTML = "";
+  });
+  const badge = $("#mode-badge");
+  if (badge) {
+    badge.hidden = true;
+    badge.textContent = "";
+  }
+  setStatus("");
+  const tok = $("#token");
+  if (tok) tok.value = "";
 }
 
 // --- chart helpers ---------------------------------------------------------
@@ -436,6 +491,7 @@ $("#range").addEventListener("change", refresh);
 $("#fb-kind").addEventListener("change", loadFeedback);
 $("#logout").addEventListener("click", () => {
   sessionStorage.removeItem("admin_token");
+  resetDashboardUi();
   showLogin(false);
 });
 $("#login-form").addEventListener("submit", async (e) => {
@@ -447,6 +503,7 @@ $("#login-form").addEventListener("submit", async (e) => {
     refresh();
   } catch (err) {
     sessionStorage.removeItem("admin_token");
+    resetDashboardUi();
     showLogin(true);
   }
 });
@@ -459,6 +516,9 @@ $("#login-form").addEventListener("submit", async (e) => {
     showApp();
     refresh();
   } catch (e) {
+    // Dead/stored token: ensure no partial dashboard residue (#383).
+    sessionStorage.removeItem("admin_token");
+    resetDashboardUi();
     showLogin(false);
   }
 })();

@@ -13,7 +13,9 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
+            <!-- fullUser: allow system rotation on tablets/foldables; Flutter
+                 still requests portrait on phones via SystemChrome (#384, #372). -->
+            android:screenOrientation="fullUser"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
