@@ -18,17 +18,22 @@ class SavingsInfo {
   });
 }
 
+/// Returns null when there are not at least two stores on equal item-count
+/// footing, or when the price gap is zero (#410).
 SavingsInfo? computeSavings(List<StoreResult> stores) {
   if (stores.isEmpty) return null;
   final maxFound =
       stores.map((s) => s.itemsFound).reduce((a, b) => a > b ? a : b);
   final comparable = stores.where((s) => s.itemsFound == maxFound).toList();
+  if (comparable.length < 2) return null;
   final cheapest =
       comparable.reduce((a, b) => a.total <= b.total ? a : b);
   final priciest =
       comparable.reduce((a, b) => a.total >= b.total ? a : b);
+  final amount = priciest.total - cheapest.total;
+  if (amount <= 0) return null;
   return SavingsInfo(
-    amount: priciest.total - cheapest.total,
+    amount: amount,
     cheapest: cheapest,
     comparedStores: comparable.length,
   );

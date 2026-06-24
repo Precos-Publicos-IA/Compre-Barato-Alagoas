@@ -9,6 +9,8 @@ import 'device_identity.dart';
 import 'models.dart';
 import 'store_prefs.dart';
 
+export 'store_prefs.dart' show PrefsWriteException;
+
 /// Shared API client.
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
 
@@ -35,17 +37,21 @@ class UsageStatsNotifier extends AsyncNotifier<bool> {
     }
   }
 
+  /// Persists opt-out/in; throws [PrefsWriteException] if prefs write fails (#408).
   Future<void> set(bool value) async {
-    state = AsyncValue.data(value);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final ok = await prefs.setBool(_kKey, value);
+      if (!ok) throw const PrefsWriteException();
+    } on PrefsWriteException {
+      rethrow;
+    } catch (_) {
+      throw const PrefsWriteException();
+    }
     if (!value) {
       await ref.read(analyticsIdProvider).clear();
     }
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_kKey, value);
-    } catch (_) {
-      // Best-effort mirror.
-    }
+    state = AsyncValue.data(value);
   }
 }
 
@@ -178,11 +184,13 @@ class BasketNotifier extends Notifier<List<String>> {
   @override
   List<String> build() => <String>[];
 
-  void add(String item) {
+  /// Case-insensitive de-dupe; returns false if the line was already present (#409).
+  bool add(String item) {
     final value = item.trim();
-    if (value.isEmpty) return;
-    if (state.any((e) => e.toLowerCase() == value.toLowerCase())) return;
+    if (value.isEmpty) return false;
+    if (state.any((e) => e.toLowerCase() == value.toLowerCase())) return false;
     state = [...state, value];
+    return true;
   }
 
   void addMany(Iterable<String> items) {

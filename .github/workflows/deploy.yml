@@ -161,8 +161,15 @@ jobs:
         working-directory: frontend
         run: |
           flutter pub get
-          flutter build web --release --dart-define=API_BASE_URL="https://${DOMAIN}"
-          flutter build apk --release --dart-define=API_BASE_URL="https://${DOMAIN}"
+          # Inject semver+build for in-app support line (#404 / #411); pubspec is source of truth.
+          VER_LINE=$(grep -E '^version:' pubspec.yaml | head -1 | awk '{print $2}')
+          APP_VERSION="${VER_LINE%%+*}"
+          APP_BUILD="${VER_LINE##*+}"
+          [ "$APP_BUILD" = "$VER_LINE" ] && APP_BUILD="${GITHUB_RUN_NUMBER:-1}"
+          echo "Building app version=${APP_VERSION} build=${APP_BUILD}"
+          DEFINES="--dart-define=API_BASE_URL=https://${DOMAIN} --dart-define=APP_VERSION=${APP_VERSION} --dart-define=APP_BUILD=${APP_BUILD}"
+          flutter build web --release $DEFINES
+          flutter build apk --release $DEFINES
 
       - name: Configure SSH
         env:

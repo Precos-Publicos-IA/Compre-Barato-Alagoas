@@ -62,6 +62,8 @@ async def run_search(
     lon = req.longitude if req.longitude is not None else MACEIO_LON
     radius = req.radius_km or settings.default_radius_km
     days = req.days or settings.default_days
+    # Raw non-empty lines the client sent (before LLM/unique labels) (#415).
+    items_submitted = sum(1 for s in req.items if s and str(s).strip())
 
     # Analytics are collected on the hot path but written off it (see the dispatch at the
     # end): a single best-effort background flush, so they never add to user wait time.
@@ -259,6 +261,7 @@ async def run_search(
         notfound = [lbl for lbl in item_queries if not offers_by_item.get(lbl)]
         batch.search = {
             "items_requested": len(item_queries),
+            "items_submitted": items_submitted,
             "items_with_match": items_with_match,
             "total_offers": total_offers,
             "parsed_offers": parsed_offers,
@@ -307,6 +310,7 @@ async def run_search(
         radius_km=radius,
         days=days,
         items_requested=len(item_queries),
+        items_submitted=items_submitted,
         data_source=sefaz.source_name,
         list_id=list_id,
         stores=stores,

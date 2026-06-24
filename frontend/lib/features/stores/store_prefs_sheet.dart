@@ -45,8 +45,22 @@ class StorePrefsSheet extends ConsumerWidget {
                 title: 'Favoritas',
                 stores: favorites,
                 emptyText: 'Nenhuma loja favorita ainda.',
-                onRemove: (cnpj) =>
-                    ref.read(favoriteStoresProvider.notifier).remove(cnpj),
+                onRemove: (cnpj) async {
+                  try {
+                    await ref
+                        .read(favoriteStoresProvider.notifier)
+                        .remove(cnpj);
+                  } on PrefsWriteException {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Não foi possível atualizar favoritas neste aparelho.',
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
               const SizedBox(height: 16),
               _Group(
@@ -55,8 +69,20 @@ class StorePrefsSheet extends ConsumerWidget {
                 title: 'Ocultas',
                 stores: avoided,
                 emptyText: 'Nenhuma loja oculta.',
-                onRemove: (cnpj) =>
-                    ref.read(avoidedStoresProvider.notifier).remove(cnpj),
+                onRemove: (cnpj) async {
+                  try {
+                    await ref.read(avoidedStoresProvider.notifier).remove(cnpj);
+                  } on PrefsWriteException {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Não foi possível atualizar lojas ocultas neste aparelho.',
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
             ],
           ),
@@ -79,6 +105,7 @@ class _Group extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String title;
+  // ignore: unused_element_parameter — onRemove may be async (PrefsWriteException handlers).
   final Map<String, String> stores;
   final String emptyText;
   final void Function(String cnpj) onRemove;

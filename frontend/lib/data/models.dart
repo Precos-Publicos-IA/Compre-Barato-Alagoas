@@ -137,7 +137,10 @@ class SearchResponse {
   final double originLon;
   final int radiusKm;
   final int days;
+  /// Unique labels after server parse/de-dupe (SEFAZ criteria).
   final int itemsRequested;
+  /// Non-empty lines the client submitted (pre-LLM), when server sends it (#415).
+  final int itemsSubmitted;
   final String dataSource;
 
   /// Shareable UUID for this shopping list (null if storage was unavailable).
@@ -151,6 +154,7 @@ class SearchResponse {
     required this.radiusKm,
     required this.days,
     required this.itemsRequested,
+    this.itemsSubmitted = 0,
     required this.dataSource,
     this.listId,
     required this.stores,
@@ -163,6 +167,7 @@ class SearchResponse {
         radiusKm: j['radius_km'] as int,
         days: j['days'] as int,
         itemsRequested: j['items_requested'] as int,
+        itemsSubmitted: (j['items_submitted'] as int?) ?? 0,
         dataSource: j['data_source'] as String,
         listId: j['list_id'] as String?,
         stores: (j['stores'] as List<dynamic>)

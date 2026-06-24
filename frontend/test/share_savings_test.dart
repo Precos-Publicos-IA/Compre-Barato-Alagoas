@@ -82,10 +82,17 @@ void main() {
       expect(s.comparedStores, 2);
     });
 
-    test('zero savings when only one comparable store', () {
+    test('null when only one comparable store (#410)', () {
       final s = computeSavings([_store('A', 10.0, 3), _store('B', 9.0, 2)]);
-      expect(s!.amount, 0);
-      expect(s.cheapest.name, 'A');
+      expect(s, isNull);
+    });
+
+    test('null when two stores have equal totals', () {
+      final s = computeSavings([
+        _store('A', 10.0, 3),
+        _store('B', 10.0, 3),
+      ]);
+      expect(s, isNull);
     });
   });
 }

@@ -77,7 +77,9 @@ class SearchResponse(BaseModel):
     origin: Origin
     radius_km: int
     days: int
-    items_requested: int
+    items_requested: int                  # unique labels after parse/de-dupe (SEFAZ criteria)
+    # Non-empty request lines as submitted by the client (pre-LLM), for analytics (#415).
+    items_submitted: int = 0
     data_source: str                      # "mock" | "sefaz"
     list_id: str | None = None            # shareable UUID for this shopping list
     stores: list[StoreResult]

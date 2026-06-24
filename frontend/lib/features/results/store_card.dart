@@ -32,14 +32,29 @@ class _StoreCardState extends ConsumerState<StoreCard> {
   late bool _expanded = widget.isBest;
 
   /// Mark/unmark as a favourite. Favourites and hidden stores are mutually
+  void _prefsWriteFailed() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Não foi possível salvar lojas neste aparelho. Tente de novo.',
+        ),
+      ),
+    );
+  }
+
   /// exclusive, so favouriting also un-hides.
-  void _toggleFavorite(bool isFav) {
+  Future<void> _toggleFavorite(bool isFav) async {
     final store = widget.store;
-    if (isFav) {
-      ref.read(favoriteStoresProvider.notifier).remove(store.cnpj);
-    } else {
-      ref.read(favoriteStoresProvider.notifier).add(store.cnpj, store.name);
-      ref.read(avoidedStoresProvider.notifier).remove(store.cnpj);
+    try {
+      if (isFav) {
+        await ref.read(favoriteStoresProvider.notifier).remove(store.cnpj);
+      } else {
+        await ref.read(favoriteStoresProvider.notifier).add(store.cnpj, store.name);
+        await ref.read(avoidedStoresProvider.notifier).remove(store.cnpj);
+      }
+    } on PrefsWriteException {
+      _prefsWriteFailed();
     }
   }
 
@@ -48,8 +63,13 @@ class _StoreCardState extends ConsumerState<StoreCard> {
   Future<void> _hide() async {
     final store = widget.store;
     final avoided = ref.read(avoidedStoresProvider.notifier);
-    await ref.read(favoriteStoresProvider.notifier).remove(store.cnpj);
-    await avoided.add(store.cnpj, store.name);
+    try {
+      await ref.read(favoriteStoresProvider.notifier).remove(store.cnpj);
+      await avoided.add(store.cnpj, store.name);
+    } on PrefsWriteException {
+      _prefsWriteFailed();
+      return;
+    }
     ref.read(searchControllerProvider.notifier).run(ref.read(basketProvider));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -57,8 +77,12 @@ class _StoreCardState extends ConsumerState<StoreCard> {
         content: Text('${store.name} ocultada'),
         action: SnackBarAction(
           label: 'DESFAZER',
-          onPressed: () {
-            avoided.remove(store.cnpj);
+          onPressed: () async {
+            try {
+              await avoided.remove(store.cnpj);
+            } on PrefsWriteException {
+              return;
+            }
             ref.read(searchControllerProvider.notifier).run(ref.read(basketProvider));
           },
         ),

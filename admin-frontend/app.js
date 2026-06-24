@@ -249,34 +249,47 @@ const STAGE_LABELS = {
 
 const WEEKDAY_LABELS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
+/** Pad/truncate a numeric series to `n` entries for Chart.js (#413). */
+function seriesAlign(arr, n, fill) {
+  const a = Array.isArray(arr) ? arr.slice(0, n) : [];
+  while (a.length < n) a.push(fill);
+  return a;
+}
+
 async function loadGrowth() {
-  const g = await api("/growth?days=" + days());
-  $("#growth-cards").innerHTML = [
-    card("Únicos hoje (DAU)", esc(fmtNum(g.dau_today))),
-    card("Únicos 7 dias (WAU)", esc(fmtNum(g.wau))),
-    card("Únicos 30 dias (MAU)", esc(fmtNum(g.mau))),
-    card("Recorrência (DAU/MAU)", esc(pct(g.stickiness))),
-    card("Total de usuários (est.)", esc(fmtNum(g.total_unique_users))),
-  ].join("");
+  try {
+    const g = await api("/growth?days=" + days());
+    $("#growth-cards").innerHTML = [
+      card("Únicos hoje (DAU)", esc(fmtNum(g.dau_today))),
+      card("Únicos 7 dias (WAU)", esc(fmtNum(g.wau))),
+      card("Únicos 30 dias (MAU)", esc(fmtNum(g.mau))),
+      card("Recorrência (DAU/MAU)", esc(pct(g.stickiness))),
+      card("Total de usuários (est.)", esc(fmtNum(g.total_unique_users))),
+    ].join("");
 
-  const labels = (g.days || []).map(dayLabel);
-  // New vs returning stack to the day's unique-user total (DAU).
-  bar("chart-dau", labels, [
-    { label: "Recorrentes", data: g.returning_users || [], backgroundColor: "#1f7a4d" },
-    { label: "Novos", data: g.new_users || [], backgroundColor: "#5b9bd5" },
-  ], true);
+    const labels = (g.days || []).map(dayLabel);
+    const n = labels.length;
+    // New vs returning stack to the day's unique-user total (DAU).
+    bar("chart-dau", labels, [
+      { label: "Recorrentes", data: seriesAlign(g.returning_users, n, 0), backgroundColor: "#1f7a4d" },
+      { label: "Novos", data: seriesAlign(g.new_users, n, 0), backgroundColor: "#5b9bd5" },
+    ], true);
 
-  const hours = g.hours || [];
-  bar("chart-hourofday", hours.map((_, h) => String(h).padStart(2, "0") + "h"),
-    [{ label: "Buscas", data: hours, backgroundColor: "#36c98f" }]);
+    const hours = seriesAlign(g.hours, 24, 0);
+    bar("chart-hourofday", hours.map((_, h) => String(h).padStart(2, "0") + "h"),
+      [{ label: "Buscas", data: hours, backgroundColor: "#36c98f" }]);
 
-  bar("chart-weekday", WEEKDAY_LABELS,
-    [{ label: "Buscas", data: g.weekday || [], backgroundColor: "#e0a458" }]);
+    bar("chart-weekday", WEEKDAY_LABELS,
+      [{ label: "Buscas", data: seriesAlign(g.weekday, 7, 0), backgroundColor: "#e0a458" }]);
 
-  line("chart-engagement", labels, [
-    { label: "Buscas / usuário", data: g.searches_per_user || [],
-      borderColor: "#36c98f", tension: 0.3 },
-  ]);
+    line("chart-engagement", labels, [
+      { label: "Buscas / usuário", data: seriesAlign(g.searches_per_user, n, 0),
+        borderColor: "#36c98f", tension: 0.3 },
+    ]);
+  } catch (e) {
+    $("#growth-cards").innerHTML = card("Crescimento indisponível", "—");
+    throw e;
+  }
 }
 
 async function loadPerformance() {
@@ -402,14 +415,28 @@ const LOADERS = {
   settings: loadSettings,
 };
 let activeTab = "overview";
+// Ignore stale responses when user switches tab/range quickly (#412 / #261).
+let refreshSeq = 0;
+let refreshInFlight = false;
 
 async function refresh() {
+  if (refreshInFlight) return;
+  const seq = ++refreshSeq;
+  const tabAtStart = activeTab;
+  refreshInFlight = true;
+  const refreshBtn = $("#refresh");
+  if (refreshBtn) refreshBtn.disabled = true;
   try {
     setStatus("Carregando…");
-    await LOADERS[activeTab]();
+    await LOADERS[tabAtStart]();
+    if (seq !== refreshSeq || tabAtStart !== activeTab) return;
     setStatus("Atualizado " + new Date().toLocaleTimeString("pt-BR"));
   } catch (e) {
+    if (seq !== refreshSeq) return;
     if (e.message !== "unauthorized") setStatus("Erro ao carregar dados.");
+  } finally {
+    if (seq === refreshSeq) refreshInFlight = false;
+    if (refreshBtn && seq === refreshSeq) refreshBtn.disabled = false;
   }
 }
 

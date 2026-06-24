@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/config.dart';
 import '../../data/providers.dart';
 import '../privacy/cloud_sync_sheet.dart';
 import '../privacy/policy_screen.dart';
@@ -108,7 +109,20 @@ class SettingsSheet extends ConsumerWidget {
                 subtitle: const Text(
                     'Contagem anônima e agregada (HyperLogLog). Não vemos o que você busca, não vendemos nada, não identificamos você. Desligue quando quiser. Usamos só para saber se o app está ajudando gente de verdade e para manter o servidor.'),
                 value: usageOn,
-                onChanged: (v) => ref.read(usageStatsProvider.notifier).set(v),
+                onChanged: (v) async {
+                  try {
+                    await ref.read(usageStatsProvider.notifier).set(v);
+                  } on PrefsWriteException {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Não foi possível salvar a preferência neste aparelho. Tente de novo.',
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
               TextButton.icon(
                 onPressed: () {
@@ -118,6 +132,11 @@ class SettingsSheet extends ConsumerWidget {
                 },
                 icon: const Icon(Icons.privacy_tip_outlined),
                 label: const Text('Política de Privacidade e Termos'),
+              ),
+              const SizedBox(height: 12),
+              SelectableText(
+                AppConfig.supportVersionLine,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
               ),
             ],
           ),

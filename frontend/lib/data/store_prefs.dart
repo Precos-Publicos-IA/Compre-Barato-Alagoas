@@ -9,8 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// Stays only on the device (`shared_preferences`). The only thing that ever
 /// leaves is the list of hidden CNPJs, which rides along with a search request as
-/// an ephemeral server-side filter — it is never stored server-side. Resilient:
-/// any storage failure yields an empty map.
+/// an ephemeral server-side filter — it is never stored server-side. Load failures
+/// yield `{}`; **write** failures throw [PrefsWriteException] so UI can surface
+/// them (same class of issue as CloudSync #399 / #408).
 class StorePrefs extends AsyncNotifier<Map<String, String>> {
   StorePrefs(this._key);
 
@@ -31,14 +32,18 @@ class StorePrefs extends AsyncNotifier<Map<String, String>> {
     }
   }
 
+  /// Writes then updates in-memory state only on success (#408).
   Future<void> _persist(Map<String, String> value) async {
-    state = AsyncValue.data(value);
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_key, jsonEncode(value));
+      final ok = await prefs.setString(_key, jsonEncode(value));
+      if (!ok) throw const PrefsWriteException();
+    } on PrefsWriteException {
+      rethrow;
     } catch (_) {
-      // Best-effort; store preferences are a convenience, not critical state.
+      throw const PrefsWriteException();
     }
+    state = AsyncValue.data(value);
   }
 
   Future<void> add(String cnpj, String name) async {
@@ -56,4 +61,12 @@ class StorePrefs extends AsyncNotifier<Map<String, String>> {
     next.remove(cnpj);
     await _persist(next);
   }
+}
+
+/// Local SharedPreferences write failed (#408).
+class PrefsWriteException implements Exception {
+  const PrefsWriteException();
+
+  @override
+  String toString() => 'PrefsWriteException';
 }
