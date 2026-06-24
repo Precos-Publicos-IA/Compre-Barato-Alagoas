@@ -28,11 +28,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     super.dispose();
   }
 
+  void _dismissKeyboard() {
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   void _addCurrent() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     ref.read(basketProvider.notifier).add(text);
     _controller.clear();
+    _dismissKeyboard();
   }
 
   Future<void> _toggleVoice() async {
@@ -48,7 +53,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         _controller.selection =
             TextSelection.collapsed(offset: text.length);
         if (isFinal) {
-          _addCurrent();
+          _addCurrent(); // also dismisses keyboard via _dismissKeyboard
           setState(() => _listening = false);
         }
       },
@@ -72,6 +77,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       );
       return;
     }
+    _dismissKeyboard();
     ref.read(recentListsProvider.notifier).record(basket);
     ref.read(searchControllerProvider.notifier).run(basket);
     Navigator.of(context).push(
@@ -184,8 +190,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ActionChip(
                         label: Text('${s.emoji} ${s.label}',
                             style: const TextStyle(fontSize: 16)),
-                        onPressed: () =>
-                            ref.read(basketProvider.notifier).add(s.label),
+                        onPressed: () {
+                          ref.read(basketProvider.notifier).add(s.label);
+                          _dismissKeyboard();
+                        },
                       ),
                   ],
                 ),
