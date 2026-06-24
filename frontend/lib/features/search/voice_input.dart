@@ -95,17 +95,34 @@ class VoiceInput {
   }
 
   /// Starts listening; [onResult] receives the (possibly partial) transcript.
+  ///
+  /// [onError] is optional UI feedback when the engine fails or cancels.
+  /// [listenFor] / [pauseFor] avoid a stuck red-mic state (#328).
   Future<bool> start({
     required void Function(String text, bool isFinal) onResult,
+    void Function(String message)? onError,
+    Duration listenFor = const Duration(seconds: 30),
+    Duration pauseFor = const Duration(seconds: 4),
   }) async {
     if (!await ensureReady()) return false;
-    await _speech.listen(
-      onResult: (r) => onResult(r.recognizedWords, r.finalResult),
-      listenOptions: SpeechListenOptions(
-        partialResults: true,
-        localeId: _localeId ?? 'pt_BR',
-      ),
-    );
+    try {
+      await _speech.listen(
+        onResult: (r) => onResult(r.recognizedWords, r.finalResult),
+        listenOptions: SpeechListenOptions(
+          partialResults: true,
+          cancelOnError: true,
+          listenFor: listenFor,
+          pauseFor: pauseFor,
+          localeId: _localeId ?? 'pt_BR',
+        ),
+      );
+    } catch (e) {
+      onError?.call('Não foi possível ouvir. Tente de novo.');
+      try {
+        await _speech.stop();
+      } catch (_) {}
+      return false;
+    }
     return true;
   }
 

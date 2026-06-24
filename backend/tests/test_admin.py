@@ -32,6 +32,21 @@ def test_admin_rejects_wrong_token(admin_env):
         assert r.status_code == 401
 
 
+def test_admin_rejects_wrong_length_token_with_401_not_500(admin_env):
+    """hmac.compare_digest raises on unequal lengths; auth must still be 401 (#329)."""
+    with TestClient(create_app()) as c:
+        short = c.get(
+            "/admin/api/overview",
+            headers={"Authorization": "Bearer x"},
+        )
+        assert short.status_code == 401
+        long = c.get(
+            "/admin/api/overview",
+            headers={"Authorization": f"Bearer {TOKEN}extra"},
+        )
+        assert long.status_code == 401
+
+
 def test_admin_overview_with_token(admin_env):
     with TestClient(create_app()) as c:
         # Generate some data first.

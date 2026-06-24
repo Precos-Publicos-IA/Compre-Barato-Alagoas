@@ -20,6 +20,20 @@ from ..deps import get_analytics, get_secrets, get_settings_dep
 router = APIRouter(prefix="/admin/api", tags=["admin"])
 
 
+def _tokens_match(presented: str, configured: str) -> bool:
+    """Constant-time compare that never raises on unequal lengths (#329).
+
+    ``hmac.compare_digest`` requires equal-length strings (ValueError otherwise),
+    which would turn wrong-length probes into 500s instead of clean 401s.
+    Length mismatch returns False; equal-length paths use compare_digest.
+    """
+    if not presented or not configured:
+        return False
+    if len(presented) != len(configured):
+        return False
+    return hmac.compare_digest(presented, configured)
+
+
 def require_admin(
     request: Request,
     settings: Settings = Depends(get_settings_dep),
@@ -32,7 +46,7 @@ def require_admin(
         presented = auth[7:].strip()
     else:
         presented = request.headers.get("x-admin-token", "")
-    if not configured or not presented or not hmac.compare_digest(presented, configured):
+    if not configured or not _tokens_match(presented, configured):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Acesso negado.",

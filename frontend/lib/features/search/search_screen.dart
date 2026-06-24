@@ -54,12 +54,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             TextSelection.collapsed(offset: text.length);
         if (isFinal) {
           _addCurrent(); // also dismisses keyboard via _dismissKeyboard
-          setState(() => _listening = false);
+          if (mounted) setState(() => _listening = false);
         }
+      },
+      onError: (msg) {
+        if (!mounted) return;
+        setState(() => _listening = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       },
     );
     if (!ok) {
       if (mounted) {
+        setState(() => _listening = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -71,7 +77,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       }
       return;
     }
-    setState(() => _listening = true);
+    if (mounted) setState(() => _listening = true);
   }
 
   void _goToResults() {

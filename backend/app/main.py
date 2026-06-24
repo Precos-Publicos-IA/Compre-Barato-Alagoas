@@ -91,8 +91,17 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        # Explicit allow-lists (#317): public/admin clients only need these verbs/headers.
+        allow_methods=["GET", "POST", "DELETE", "OPTIONS", "HEAD"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "Accept",
+            "X-Device-Token",
+            "X-Analytics-Id",
+            "X-Request-ID",
+            "X-Admin-Token",
+        ],
         # So cross-origin clients (admin SPA, local dev) can read the request id
         # for support/correlation; same-origin prod calls are unaffected.
         expose_headers=["X-Request-ID"],

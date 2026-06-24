@@ -1,0 +1,3 @@
+# Admin console — operator only; do not index (#326).
+User-agent: *
+Disallow: /

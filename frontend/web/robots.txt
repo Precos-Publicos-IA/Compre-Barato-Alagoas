@@ -3,5 +3,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /health
+# Sideload APK path — not a content page; avoid crawl/index/bandwidth (#325)
+Disallow: /app/
 # Share links are useful for humans/previews; allow crawl but prefer OG when added (#103)
 Allow: /abrir/

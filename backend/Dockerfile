@@ -41,9 +41,10 @@ USER appuser
 
 EXPOSE 8000
 
-# gunicorn with uvicorn workers; tune workers via $WEB_CONCURRENCY.
-CMD ["gunicorn", "app.main:app", \
-     "--worker-class", "uvicorn.workers.UvicornWorker", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "2", \
-     "--timeout", "60"]
+# Shell form so WEB_CONCURRENCY / GUNICORN_TIMEOUT from compose/.env apply (#320).
+# Exec-form CMD cannot interpolate env; compose sets WEB_CONCURRENCY=2 by default.
+CMD gunicorn app.main:app \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:8000 \
+    --workers "${WEB_CONCURRENCY:-2}" \
+    --timeout "${GUNICORN_TIMEOUT:-60}"
