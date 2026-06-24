@@ -1,0 +1,4 @@
+/* pt-BR privacy strings (explicit localization; Info.plist has the same defaults). Issue #5 */
+"NSMicrophoneUsageDescription" = "O microfone é usado para adicionar itens à lista de compras por voz.";
+"NSSpeechRecognitionUsageDescription" = "O reconhecimento de fala converte sua voz em itens da lista de compras.";
+"NSLocationWhenInUseUsageDescription" = "Sua localização é usada para ordenar mercados próximos em Alagoas. Sem permissão, usamos Maceió como referência.";
