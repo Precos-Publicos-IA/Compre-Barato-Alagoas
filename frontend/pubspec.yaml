@@ -49,9 +49,13 @@ flutter:
 # are derived from it (white-bg square for legacy/web, padded transparent
 # foreground for Android adaptive icons). Regenerate with:
 #   dart run flutter_launcher_icons
+# ios: true is set so icons are ready once the full Xcode project exists (#4);
+# the current ios/ tree is still a privacy/queries scaffold only (#5, #10).
 flutter_launcher_icons:
   image_path: "assets/icon/icon-white.png"
   android: true
+  ios: true
+  remove_alpha_ios: true
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/icon/icon-foreground.png"
   web:
