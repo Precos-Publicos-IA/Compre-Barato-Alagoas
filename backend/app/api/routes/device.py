@@ -12,9 +12,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from ...cache import Cache
 from ...schemas.device import ConsentRequest, DeletionResult, DeviceState
-from ..deps import get_cache, require_device_token
+from ..deps import enforce_rate_limit, get_cache, require_device_token
 
-router = APIRouter(prefix="/api/v1/device", tags=["device"])
+# Share the daily IP-hash rate limit with search/feedback (#303): device consent
+# and erasure are cheaper than SEFAZ but still must not be unthrottled.
+router = APIRouter(
+    prefix="/api/v1/device",
+    tags=["device"],
+    dependencies=[Depends(enforce_rate_limit)],
+)
 
 
 def _state_from_record(record: dict | None) -> DeviceState:

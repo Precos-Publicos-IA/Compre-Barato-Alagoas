@@ -5,6 +5,10 @@
 # Fronting is handled by an nginx + certbot on the host (see deploy/nginx/).
 # The API is published only on localhost; the Flutter web build is served by nginx
 # directly from the deployed web/ directory.
+#
+# Resource ceilings (#307): tune via env if the VPS is smaller/larger than defaults.
+# Redis uses volatile-ttl so keys with TTL (lists, devices, rate limits, analytics)
+# are preferred eviction candidates; keys without TTL are retained until policy allows.
 services:
   api:
     build:
@@ -24,6 +28,8 @@ services:
       redis:
         condition: service_started
     restart: unless-stopped
+    mem_limit: ${API_MEM_LIMIT:-1g}
+    cpus: ${API_CPUS:-1.0}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status==200 else 1)"]
       interval: 30s
@@ -43,6 +49,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
+    # App state is Redis-primary; Postgres is auxiliary/RAG — keep modest by default.
+    mem_limit: ${POSTGRES_MEM_LIMIT:-512m}
+    cpus: ${POSTGRES_CPUS:-0.5}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-alagoas}"]
       interval: 10s
@@ -51,11 +60,23 @@ services:
 
   redis:
     image: redis:7-alpine
-    # AOF persistence so shared-list UUIDs survive restarts (30-day TTLs).
-    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    # AOF + maxmemory so the container cannot OOM the host under key growth (#307).
+    # maxmemory is slightly under mem_limit so Redis can evict before cgroup kill.
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory
+      - ${REDIS_MAXMEMORY:-400mb}
+      - --maxmemory-policy
+      - ${REDIS_MAXMEMORY_POLICY:-volatile-ttl}
     volumes:
       - redisdata:/data
     restart: unless-stopped
+    mem_limit: ${REDIS_MEM_LIMIT:-512m}
+    cpus: ${REDIS_CPUS:-0.5}
 
 volumes:
   pgdata:

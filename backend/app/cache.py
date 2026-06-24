@@ -22,6 +22,9 @@ SEARCH_LIST_TTL = 60 * 60 * 24 * 30
 # Device records (pseudo-anonymous identity) live for 90 idle days, refreshed on
 # access. No portability by design: lose the device, lose the server-side data.
 DEVICE_TTL = 60 * 60 * 24 * 90
+# Cap cloud-saved list UUIDs per device (#306). Excess oldest members are dropped
+# on attach/read; expired list payloads are pruned on GET /me.
+DEVICE_SAVED_LISTS_MAX = 50
 
 # The device token is a bearer credential. We never store it raw: Redis keys use a
 # salted SHA-256 of it (like a password hash), so a Redis dump exposes neither a
@@ -191,27 +194,51 @@ class Cache:
         )
         await self._expire(key, DEVICE_TTL)
 
+    async def _prune_saved_lists(self, lists_key: str) -> list[str]:
+        """Drop members whose list:{id} payload is gone; keep at most
+        [DEVICE_SAVED_LISTS_MAX] (sorted lexicographically as a stable trim)."""
+        saved = [self._decode(s) for s in await self._redis.smembers(lists_key)]
+        if not saved:
+            return []
+        alive: list[str] = []
+        stale: list[str] = []
+        for lid in saved:
+            if await self._redis.exists(f"list:{lid}"):
+                alive.append(lid)
+            else:
+                stale.append(lid)
+        if stale:
+            await self._redis.srem(lists_key, *stale)
+        alive.sort()
+        if len(alive) > DEVICE_SAVED_LISTS_MAX:
+            drop = alive[: len(alive) - DEVICE_SAVED_LISTS_MAX]
+            if drop:
+                await self._redis.srem(lists_key, *drop)
+            alive = alive[len(alive) - DEVICE_SAVED_LISTS_MAX :]
+        return alive
+
     async def get_device(self, token: str) -> dict[str, Any] | None:
         """Return the device record (consent + saved lists), or None if unknown.
-        Refreshes the idle TTL on access."""
+        Refreshes the idle TTL on access. Prunes dead/over-cap list IDs (#306)."""
         key = self._device_key(token)
         record = await self._redis.hgetall(key)
         if not record:
             return None
         record = {self._decode(k): self._decode(v) for k, v in record.items()}
         lists_key = self._device_lists_key(token)
-        saved = await self._redis.smembers(lists_key)
+        saved_lists = await self._prune_saved_lists(lists_key)
         await self._expire(key, DEVICE_TTL)
         await self._expire(lists_key, DEVICE_TTL)
         return {
             "consent_at": record.get("consent_at"),
             "policy_version": record.get("policy_version"),
-            "saved_lists": sorted(self._decode(s) for s in saved),
+            "saved_lists": saved_lists,
         }
 
     async def attach_list(self, token: str, list_id: str) -> None:
         """Associate a shareable-list UUID with a device — only if the device has
-        consented (an unknown/un-consented token stores nothing)."""
+        consented (an unknown/un-consented token stores nothing). Caps cardinality
+        and drops expired list payloads (#306)."""
         key = self._device_key(token)
         # Must have an explicit consent record (presence of consent_at), not just
         # any key. Prevents attaching lists for devices that never opted in.
@@ -219,6 +246,7 @@ class Cache:
             return
         lists_key = self._device_lists_key(token)
         await self._redis.sadd(lists_key, list_id)
+        await self._prune_saved_lists(lists_key)
         await self._expire(key, DEVICE_TTL)
         await self._expire(lists_key, DEVICE_TTL)
 
