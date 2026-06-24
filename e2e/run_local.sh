@@ -20,16 +20,20 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "[run_local] installing e2e deps…"
+# Prefer pre-baked CI toolchain (GHCR image) — only install locally if missing.
 cd "$E2E"
-if [[ ! -d node_modules/puppeteer ]]; then
+if [[ -d /opt/ci/e2e/node_modules/puppeteer ]]; then
+  export NODE_PATH="${NODE_PATH:-/opt/ci/e2e/node_modules}"
+  echo "[run_local] using pre-baked /opt/ci toolchain (no npm install)"
+elif [[ ! -d node_modules/puppeteer ]]; then
+  echo "[run_local] installing e2e deps (dev machine)…"
   npm install --silent
 fi
 
 echo "[run_local] starting backend on :${API_PORT} (ADMIN_TOKEN set)…"
 cd "$ROOT/backend"
-PY="$ROOT/backend/.venv/bin/python"
-if [[ ! -x "$PY" ]]; then PY=python3; fi
+PY=python3
+if [[ -x "$ROOT/backend/.venv/bin/python" ]]; then PY="$ROOT/backend/.venv/bin/python"; fi
 ADMIN_TOKEN="$ADMIN_TOKEN" \
 USE_MOCK_SEFAZ=true USE_MOCK_LLM=true ENVIRONMENT=development \
 CORS_ORIGINS='*' DAILY_SEARCH_LIMIT=0 \
@@ -60,10 +64,19 @@ for i in $(seq 1 60); do
   fi
 done
 
-export API_URL ADMIN_URL DOCS_URL ADMIN_TOKEN
+export API_URL ADMIN_URL DOCS_URL ADMIN_TOKEN NODE_PATH
 cd "$E2E"
+# Prefer image node_modules via NODE_PATH; fall back to local node_modules
+NODE_BIN=node
+if [[ -x /opt/ci/e2e/node_modules/.bin/node ]]; then :; fi
 echo "[run_local] running full suite…"
-node full.js
-status=$?
+if [[ -f /opt/ci/e2e/node_modules/puppeteer/package.json ]]; then
+  NODE_PATH=/opt/ci/e2e/node_modules node -e "require('puppeteer')" >/dev/null 2>&1 \
+    && NODE_PATH=/opt/ci/e2e/node_modules node full.js
+  status=$?
+else
+  node full.js
+  status=$?
+fi
 echo "[run_local] screenshots in $E2E/screenshots/"
 exit "$status"

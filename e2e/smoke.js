@@ -20,13 +20,13 @@
  * Exit code 0 = all checks passed, 1 = a check failed.
  */
 
-const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
+const { launchOpts, resolvePuppeteer } = require('./lib/chrome');
+const puppeteer = resolvePuppeteer();
 
 const APP_URL = process.env.APP_URL || 'https://alagoas.precospublicos.ia.br/';
 const API_URL = (process.env.API_URL || new URL(APP_URL).origin).replace(/\/$/, '');
-const { launchOpts } = require('./lib/chrome');
 const SHOTS = path.join(__dirname, 'screenshots');
 fs.mkdirSync(SHOTS, { recursive: true });
 

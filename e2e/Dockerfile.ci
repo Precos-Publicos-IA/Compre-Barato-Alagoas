@@ -1,0 +1,41 @@
+# Pre-baked CI toolchain for headless e2e + mock backend.
+# Built by .github/workflows/ci-image.yml → ghcr.io/<owner>/compre-barato-alagoas/ci-e2e:latest
+# Jobs only checkout the repo and run scripts (no apt/pip/npm/chrome download).
+FROM node:20-bookworm-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PUPPETEER_CACHE_DIR=/opt/puppeteer \
+    NODE_PATH=/opt/ci/e2e/node_modules
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      python3 python3-pip \
+      ca-certificates curl \
+      fonts-liberation \
+      libasound2 libatk-bridge2.0-0 libatk1.0-0 libcups2 \
+      libdbus-1-3 libdrm2 libgbm1 libgtk-3-0 \
+      libnspr4 libnss3 libx11-xcb1 libxcomposite1 libxdamage1 \
+      libxrandr2 libxshmfence1 xdg-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Runtime deps for run_local.py (mock SEFAZ/LLM + fakeredis + uvicorn/fastapi)
+# Install explicit packages — avoids needing a full backend source tree at image build.
+RUN pip3 install --break-system-packages \
+      "fastapi>=0.115" "uvicorn[standard]>=0.30" "pydantic>=2.7" "pydantic-settings>=2.3" \
+      "httpx>=0.27" "redis>=5.0" "cryptography>=42.0" \
+      "pytest>=8.0" "pytest-asyncio>=0.23" "fakeredis>=2.21"
+
+# Puppeteer + Chrome once at image build
+WORKDIR /opt/ci/e2e
+COPY e2e/package.json ./package.json
+RUN npm install --omit=dev \
+    && npx puppeteer browsers install chrome \
+    && npm cache clean --force
+
+# Symlink so checkout's e2e/node_modules is optional — scripts use NODE_PATH / require from /opt/ci
+ENV PATH="/opt/ci/e2e/node_modules/.bin:${PATH}"
+
+WORKDIR /github/workspace
+CMD ["bash", "-lc", "cd e2e && node full.js"]

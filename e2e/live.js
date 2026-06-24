@@ -17,10 +17,10 @@ process.env.DOCS_URL = (process.env.DOCS_URL || 'https://docs.alagoas.precospubl
 process.env.ADMIN_URL = (process.env.LIVE_ADMIN_URL || process.env.ADMIN_URL || 'https://admin.alagoas.precospublicos.ia.br').replace(/\/$/, '');
 process.env.LIVE_SKIP_DEVICE_DELETE = process.env.LIVE_SKIP_DEVICE_DELETE || '0';
 
-const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
-const { launchOpts } = require('./lib/chrome');
+const { launchOpts, resolvePuppeteer } = require('./lib/chrome');
+const puppeteer = resolvePuppeteer();
 
 const APP_URL = process.env.APP_URL;
 const API_URL = process.env.API_URL;

@@ -3,10 +3,10 @@
  * See AGENTS.md. Prefer `npm run full:local` to boot mock backend + static hosts.
  */
 
-const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
-const { launchOpts } = require('./lib/chrome');
+const { launchOpts, resolvePuppeteer } = require('./lib/chrome');
+const puppeteer = resolvePuppeteer();
 
 const API_URL = (process.env.API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 const ADMIN_URL = (process.env.ADMIN_URL || 'http://127.0.0.1:8081').replace(/\/$/, '');
