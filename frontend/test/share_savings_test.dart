@@ -1,6 +1,7 @@
 import 'package:compre_barato_alagoas/data/models.dart';
 import 'package:compre_barato_alagoas/features/results/savings.dart';
 import 'package:compre_barato_alagoas/features/share/share_service.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 StoreResult _store(String name, double total, int found) => StoreResult(
@@ -38,6 +39,33 @@ void main() {
       final msg = buildShareMessage('abc123', 0);
       expect(msg, isNot(contains('desconto de R\$')));
       expect(msg, contains('/abrir/abc123'));
+    });
+  });
+
+  group('shareOriginFromContext', () {
+    testWidgets('returns a non-zero Rect from a laid-out widget', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 120,
+                height: 48,
+                child: Placeholder(),
+              ),
+            ),
+          ),
+        ),
+      );
+      final element = tester.element(find.byType(Placeholder));
+      final origin = shareOriginFromContext(element);
+      expect(origin, isNotNull);
+      expect(origin!.width, greaterThan(0));
+      expect(origin.height, greaterThan(0));
+    });
+
+    test('shareSavings no-ops on empty listId without throwing', () async {
+      await shareSavings('', 10.0);
     });
   });
 
