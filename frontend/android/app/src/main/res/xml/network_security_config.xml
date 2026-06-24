@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release/default: no cleartext. Debug builds add a permissive overlay via
+     src/debug/res/xml/network_security_config.xml (LAN / flutter run http). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>
