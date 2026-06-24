@@ -46,17 +46,28 @@ class Settings(BaseSettings):
     use_mock_llm: bool = True
 
     # --- SEFAZ Economiza Alagoas API (only used when use_mock_sefaz is False) ---
+    # Default to https so the AppToken and queries aren't sent in cleartext; the SEFAZ
+    # token rides in this request. Override with the http:// URL only if the upstream
+    # genuinely doesn't serve TLS (issue #241).
     sefaz_base_url: str = (
-        "http://api.sefaz.al.gov.br/sfz-economiza-alagoas-api/api/public/"
+        "https://api.sefaz.al.gov.br/sfz-economiza-alagoas-api/api/public/"
     )
     # Legacy/bootstrap fallback only. Prefer setting the token via the admin panel
     # (encrypted in Redis, never on disk). Leave empty in production.
     sefaz_app_token: str = ""  # secret; server-side only, never sent to clients
     sefaz_timeout_seconds: float = 15.0
+    # Hard per-item deadline for the whole SEFAZ fetch (all pages). Caps how long a
+    # single slow/hung item can hold a worker before it degrades to "not found",
+    # independent of the per-request httpx timeout above (issue #219).
+    sefaz_item_deadline_seconds: float = 20.0
 
     # --- LLM (Claude Haiku) — only used when use_mock_llm is False ---
     anthropic_api_key: str = ""
     llm_model: str = "claude-haiku-4-5-20251001"
+    # Deadline for a single Claude call. Without it a hung LLM request could block a
+    # search worker far longer than the SEFAZ timeout; on timeout we fall back to the
+    # deterministic mock parser so search still completes (issue #402).
+    llm_timeout_seconds: float = 20.0
 
     # --- Search defaults / SEFAZ-imposed limits ---
     default_radius_km: int = 8       # SEFAZ allows 1..15

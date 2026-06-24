@@ -151,9 +151,15 @@ async def run_search(
         else:
             try:
                 async with sem:
-                    resp = await _fetch_all_pages(item, out)
+                    # Bound the whole per-item fetch (all pages): a hung item degrades
+                    # to "not found" instead of holding a worker to the gunicorn
+                    # timeout. TimeoutError is caught below as a partial result (#219).
+                    resp = await asyncio.wait_for(
+                        _fetch_all_pages(item, out),
+                        timeout=settings.sefaz_item_deadline_seconds,
+                    )
             except Exception:
-                # Resilience: one failing item must not 502 the whole basket.
+                # Resilience: one failing/slow item must not 502 the whole basket.
                 logger.warning("SEFAZ fetch failed for %r; partial results", item.label)
                 return out
             t0 = time.perf_counter()

@@ -40,8 +40,11 @@ class HttpSefazClient:
         self._token_provider = token_provider
         # The token is attached per request (never stored on the long-lived client),
         # so rotation takes effect immediately and it's not held in client state.
+        # Explicit connect/read/write/pool timeouts and a bounded connection pool keep
+        # a slow SEFAZ from exhausting sockets or stalling on connect (issue #225).
         self._client = httpx.AsyncClient(
-            timeout=timeout,
+            timeout=httpx.Timeout(timeout, connect=5.0, pool=5.0),
+            limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
             headers={"Content-Type": "application/json"},
         )
 

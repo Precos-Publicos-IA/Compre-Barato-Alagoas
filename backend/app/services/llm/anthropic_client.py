@@ -41,10 +41,12 @@ _SYSTEM = (
 class AnthropicLLMClient(LLMClient):
     source_name = "claude"
 
-    def __init__(self, api_key: str, model: str) -> None:
+    def __init__(self, api_key: str, model: str, timeout: float = 20.0) -> None:
         import anthropic  # lazy import so the dep is optional
 
-        self._client = anthropic.AsyncAnthropic(api_key=api_key)
+        # Bound every request: a hung Claude call must not pin a search worker. On
+        # timeout the SDK raises and parse_list falls back to the mock parser (#402).
+        self._client = anthropic.AsyncAnthropic(api_key=api_key, timeout=timeout)
         self._model = model
         self._fallback = MockLLMClient()
 
