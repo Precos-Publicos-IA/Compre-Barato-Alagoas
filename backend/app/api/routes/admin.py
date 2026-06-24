@@ -10,14 +10,18 @@ from __future__ import annotations
 import hmac
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from ...analytics import Analytics
 from ...config import Settings
+from ...schemas.feedback import FEEDBACK_KINDS
 from ...services.secrets import MANAGED_SECRETS, SecretStore, SecretStoreUnavailable
 from ..deps import get_analytics, get_secrets, get_settings_dep
 
 router = APIRouter(prefix="/admin/api", tags=["admin"])
+
+# Operator-managed secrets (API keys, tokens) — well below multi-MiB abuse (#394).
+_SECRET_VALUE_MAX_LEN = 8192
 
 
 def require_admin(
@@ -98,9 +102,18 @@ async def items(
 @router.get("/feedback", dependencies=[Depends(require_admin)])
 async def feedback(
     limit: int = Query(50, ge=1, le=200),
-    kind: str | None = Query(None),
+    kind: str | None = Query(
+        None,
+        description="Filter: helpful | wrong_item | other (omit for all).",
+    ),
     analytics: Analytics = Depends(get_analytics),
 ) -> dict:
+    # Align read filter with FeedbackRequest.kind / admin UI select (#393).
+    if kind is not None and kind not in FEEDBACK_KINDS:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="kind deve ser helpful, wrong_item ou other.",
+        )
     return await analytics.feedback(limit, kind)
 
 
@@ -114,7 +127,7 @@ async def timings(
 
 
 class SecretIn(BaseModel):
-    value: str
+    value: str = Field(..., max_length=_SECRET_VALUE_MAX_LEN)
 
     @field_validator("value")
     @classmethod
@@ -122,6 +135,8 @@ class SecretIn(BaseModel):
         v = v.strip()
         if not v:
             raise ValueError("valor vazio")
+        if len(v) > _SECRET_VALUE_MAX_LEN:
+            raise ValueError(f"valor excede {_SECRET_VALUE_MAX_LEN} caracteres")
         return v
 
 

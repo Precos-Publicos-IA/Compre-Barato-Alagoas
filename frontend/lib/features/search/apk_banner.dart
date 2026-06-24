@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config.dart';
+import '../../core/web_display_mode_stub.dart'
+    if (dart.library.html) '../../core/web_display_mode_web.dart' as display_mode;
 
 /// Detects iPhone/iPad/iPod in the browser user-agent (web only).
 ///
@@ -20,13 +22,21 @@ bool isIosWebUserAgent(String userAgent) {
 /// - **Android / non-iOS browsers**: offer the APK download.
 /// - **iPhone/iPad Safari**: explain how to add the web app to the Home Screen
 ///   (native iOS app is tracked separately; no misleading APK button).
+/// - Hidden when already in `display-mode: standalone` / iOS A2HS (#391).
 ///
 /// Renders nothing outside the web build.
 class ApkBanner extends StatefulWidget {
-  const ApkBanner({super.key, this.userAgentOverride});
+  const ApkBanner({
+    super.key,
+    this.userAgentOverride,
+    this.standaloneOverride,
+  });
 
   /// Injected in tests; production reads [AppConfig.webUserAgent] / platform.
   final String? userAgentOverride;
+
+  /// Injected in tests; production uses [display_mode.isStandaloneDisplayMode].
+  final bool? standaloneOverride;
 
   @override
   State<ApkBanner> createState() => _ApkBannerState();
@@ -38,9 +48,12 @@ class _ApkBannerState extends State<ApkBanner> {
   String get _ua =>
       widget.userAgentOverride ?? AppConfig.webUserAgent ?? '';
 
+  bool get _standalone =>
+      widget.standaloneOverride ?? display_mode.isStandaloneDisplayMode();
+
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb || _dismissed) return const SizedBox.shrink();
+    if (!kIsWeb || _dismissed || _standalone) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
     final ios = isIosWebUserAgent(_ua);
     return Container(

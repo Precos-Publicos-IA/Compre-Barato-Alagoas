@@ -12,7 +12,13 @@ class ApiException implements Exception {
   /// Server `X-Request-ID` when present — helps support correlate logs/Sentry (#136).
   final String? requestId;
 
-  ApiException(this.message, {this.requestId});
+  /// HTTP status when the failure came from a response (e.g. 400 malformed list).
+  final int? statusCode;
+
+  ApiException(this.message, {this.requestId, this.statusCode});
+
+  /// Malformed share id (server rejects non-hex list_id) (#390 / #381).
+  bool get isInvalidListId => statusCode == 400;
 
   @override
   String toString() {
@@ -20,6 +26,29 @@ class ApiException implements Exception {
     if (id == null || id.isEmpty) return message;
     return '$message (ref: $id)';
   }
+}
+
+/// Outcome of [ApiClient.submitFeedback] — success or failure with optional ref (#396).
+class FeedbackSubmitResult {
+  const FeedbackSubmitResult._({
+    required this.ok,
+    this.requestId,
+    this.statusCode,
+  });
+
+  final bool ok;
+  final String? requestId;
+  final int? statusCode;
+
+  factory FeedbackSubmitResult.success({String? requestId}) =>
+      FeedbackSubmitResult._(ok: true, requestId: requestId);
+
+  factory FeedbackSubmitResult.failure({String? requestId, int? statusCode}) =>
+      FeedbackSubmitResult._(
+        ok: false,
+        requestId: requestId,
+        statusCode: statusCode,
+      );
 }
 
 /// Thin HTTP client for the Compre Barato Alagoas backend.
@@ -66,7 +95,11 @@ class ApiClient {
   }
 
   Never _throwHttp(String message, http.Response resp) =>
-      throw ApiException(message, requestId: requestIdOf(resp));
+      throw ApiException(
+        message,
+        requestId: requestIdOf(resp),
+        statusCode: resp.statusCode,
+      );
 
   Future<List<Suggestion>> fetchSuggestions() async {
     final uri = Uri.parse('$_baseUrl/api/v1/suggestions');
@@ -81,11 +114,15 @@ class ApiClient {
   }
 
   /// Resolves a shared list UUID into its items. Returns null if the link has
-  /// expired or doesn't exist (HTTP 404).
+  /// expired or doesn't exist (HTTP 404). Throws [ApiException] with
+  /// [ApiException.isInvalidListId] on HTTP 400 (malformed id, #390).
   Future<List<String>?> fetchList(String listId) async {
     final uri = Uri.parse('$_baseUrl/api/v1/lists/$listId');
     final resp = await _get(uri);
     if (resp.statusCode == 404) return null;
+    if (resp.statusCode == 400) {
+      _throwHttp('Este link não é válido.', resp);
+    }
     if (resp.statusCode != 200) {
       _throwHttp('Não foi possível abrir a lista compartilhada.', resp);
     }
@@ -141,23 +178,25 @@ class ApiClient {
   }
 
   /// Sends user feedback on results (👍/👎 or "item errado"). Best-effort and
-  /// anonymous by default; a device token is sent only if the caller passes one
-  /// (consented devices). Never throws on the UI path — returns false on failure.
-  Future<bool> submitFeedback({
+  /// anonymous by default; optional device/analytics headers when caller passes
+  /// them (#354 / #396). Never throws — returns [FeedbackSubmitResult].
+  Future<FeedbackSubmitResult> submitFeedback({
     required String kind,
     bool? helpful,
     String? item,
     String? note,
     String? listId,
     String? deviceToken,
+    String? analyticsId,
   }) async {
     try {
       final uri = Uri.parse('$_baseUrl/api/v1/feedback');
-      final resp = await _client.post(
+      final resp = await _post(
         uri,
         headers: {
           'Content-Type': 'application/json',
           deviceTokenHeader: ?deviceToken,
+          analyticsIdHeader: ?analyticsId,
         },
         body: jsonEncode({
           'kind': kind,
@@ -167,9 +206,20 @@ class ApiClient {
           'list_id': ?listId,
         }),
       );
-      return resp.statusCode == 200;
+      final rid = requestIdOf(resp);
+      if (resp.statusCode == 200) {
+        return FeedbackSubmitResult.success(requestId: rid);
+      }
+      return FeedbackSubmitResult.failure(
+        requestId: rid,
+        statusCode: resp.statusCode,
+      );
+    } on TimeoutException {
+      return const FeedbackSubmitResult._(ok: false);
+    } on http.ClientException {
+      return const FeedbackSubmitResult._(ok: false);
     } catch (_) {
-      return false;
+      return const FeedbackSubmitResult._(ok: false);
     }
   }
 

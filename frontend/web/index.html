@@ -168,18 +168,19 @@
   </script>
 </head>
 <body>
-  <!-- First-paint splash shown until Flutter renders (or load fails / times out). -->
-  <div id="boot-splash" role="status" aria-live="polite" aria-busy="true">
+  <!-- First-paint splash until Flutter renders (#395 a11y: status + busy for SR/VoiceOver). -->
+  <div id="boot-splash" role="status" aria-live="polite" aria-busy="true"
+       aria-atomic="true" aria-label="Carregando Compre Barato Alagoas">
     <div class="brand-mark" aria-hidden="true">
       <img src="icons/Icon-192.png" alt="" width="48" height="48"
            onerror="this.style.display='none'">
     </div>
-    <h1>Compre Barato Alagoas</h1>
-    <p class="tagline">Comparando preços perto de você…</p>
+    <h1 aria-hidden="true">Compre Barato Alagoas</h1>
+    <p class="tagline" aria-hidden="true">Comparando preços perto de você…</p>
     <div class="spinner" aria-hidden="true"></div>
-    <p class="status status-loading">Carregando…</p>
-    <div class="error-box">
-      <p>Falha ao carregar. Puxe para atualizar ou toque no botão abaixo.</p>
+    <p class="status status-loading" id="boot-splash-status">Carregando…</p>
+    <div class="error-box" role="alert" hidden>
+      <p id="boot-splash-error">Falha ao carregar. Puxe para atualizar ou toque no botão abaixo.</p>
       <button type="button" class="reload-btn" id="boot-reload">Tentar de novo</button>
     </div>
   </div>
@@ -210,6 +211,8 @@
         if (dismissed || !splash) return;
         dismissed = true;
         splash.setAttribute('aria-busy', 'false');
+        splash.removeAttribute('aria-label');
+        document.documentElement.removeAttribute('aria-busy');
         splash.classList.add('hidden');
         // Remove from DOM after fade so it doesn't intercept taps.
         setTimeout(function () {
@@ -221,8 +224,14 @@
         if (dismissed || !splash) return;
         splash.classList.add('error');
         splash.setAttribute('aria-busy', 'false');
+        splash.setAttribute('aria-label', 'Falha ao carregar o aplicativo');
+        document.documentElement.removeAttribute('aria-busy');
+        var errBox = splash.querySelector('.error-box');
+        if (errBox) errBox.removeAttribute('hidden');
         splash.removeAttribute('role');
       }
+
+      document.documentElement.setAttribute('aria-busy', 'true');
 
       if (reloadBtn) {
         reloadBtn.addEventListener('click', function () {

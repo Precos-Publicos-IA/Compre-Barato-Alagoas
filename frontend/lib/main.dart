@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme.dart';
+import 'data/api_client.dart';
 import 'data/providers.dart';
 import 'data/recent_lists.dart';
 import 'features/results/results_screen.dart';
@@ -55,39 +56,70 @@ class _CompreBaratoAppState extends ConsumerState<CompreBaratoApp> {
     if (kIsWeb && !_handledInitial) _handleUri(Uri.base);
 
     // Links that arrive while the app is already running.
-    _linkSub = _appLinks.uriLinkStream.listen(_handleUri, onError: (_) {});
+    _linkSub = _appLinks.uriLinkStream.listen(
+      _handleUri,
+      onError: (_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final ctx = _navKey.currentContext;
+          if (ctx == null) return;
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Não foi possível abrir o link compartilhado. Tente de novo.',
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  void _snackOnHome(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navKey.currentState?.popUntil((r) => r.isFirst);
+      final ctx = _navKey.currentContext;
+      if (ctx != null) {
+        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(message)));
+      }
+    });
   }
 
   Future<void> _handleUri(Uri uri) async {
     final listId = parseSharedListId(uri);
     if (listId == null) return;
     _handledInitial = true;
-    // Resolve the UUID into its shopping list on the backend. A null result
-    // means the link expired (30 idle days) or never existed.
+    // null = expired/missing; ApiException/transport = temporary or invalid (#390/#371).
     List<String>? items;
+    Object? fetchError;
     try {
       items = await ref.read(apiClientProvider).fetchList(listId);
-    } catch (_) {
+    } catch (e) {
+      fetchError = e;
       items = null;
     }
+    if (fetchError != null) {
+      if (fetchError is ApiException && fetchError.isInvalidListId) {
+        _snackOnHome(
+          'Este link não é válido. Confira se copiou o endereço completo.',
+        );
+      } else if (fetchError is ApiException) {
+        _snackOnHome(fetchError.message);
+      } else {
+        _snackOnHome(
+          'Sem conexão para abrir o link. Verifique a rede e tente de novo.',
+        );
+      }
+      return;
+    }
     if (items == null || items.isEmpty) {
-      // Invalid/expired link → send the user to the home screen.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _navKey.currentState?.popUntil((r) => r.isFirst);
-        final ctx = _navKey.currentContext;
-        if (ctx != null) {
-          ScaffoldMessenger.of(ctx).showSnackBar(
-            const SnackBar(
-              content: Text('Esse link expirou ou não está mais disponível.'),
-            ),
-          );
-        }
-      });
+      _snackOnHome('Esse link expirou ou não está mais disponível.');
       return;
     }
     final resolved = items;
     // Defer until the navigator + providers are ready.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Reset stack so a second /abrir does not stack ResultsScreens (#373).
+      _navKey.currentState?.popUntil((r) => r.isFirst);
       ref.read(basketProvider.notifier)
         ..clear()
         ..addMany(resolved);

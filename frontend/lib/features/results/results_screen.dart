@@ -150,12 +150,15 @@ class _FeedbackCardState extends ConsumerState<_FeedbackCard> {
   bool _done = false;
   bool _busy = false;
 
-  void _showSendFailed() {
+  void _showSendFailed({String? requestId}) {
     if (!mounted) return;
+    final refPart = (requestId != null && requestId.isNotEmpty)
+        ? ' (ref: $requestId)'
+        : '';
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(
-          'Não foi possível enviar o feedback. Verifique a conexão e tente de novo.',
+          'Não foi possível enviar o feedback. Verifique a conexão e tente de novo.$refPart',
         ),
       ),
     );
@@ -164,17 +167,17 @@ class _FeedbackCardState extends ConsumerState<_FeedbackCard> {
   Future<void> _send({required bool helpful}) async {
     if (_busy) return;
     setState(() => _busy = true);
-    final ok = await ref.read(apiClientProvider).submitFeedback(
+    final result = await ref.read(apiClientProvider).submitFeedback(
           kind: 'helpful',
           helpful: helpful,
           listId: widget.listId,
         );
     if (!mounted) return;
     setState(() => _busy = false);
-    if (ok) {
+    if (result.ok) {
       setState(() => _done = true);
     } else {
-      _showSendFailed();
+      _showSendFailed(requestId: result.requestId);
     }
   }
 
@@ -263,22 +266,25 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
   Future<void> _submit() async {
     if (_sending) return;
     setState(() => _sending = true);
-    final ok = await ref.read(apiClientProvider).submitFeedback(
+    final result = await ref.read(apiClientProvider).submitFeedback(
           kind: 'wrong_item',
           item: _item,
           note: _note.text.trim().isEmpty ? null : _note.text.trim(),
           listId: widget.listId,
         );
     if (!mounted) return;
-    if (ok) {
+    if (result.ok) {
       Navigator.of(context).pop(true);
       return;
     }
     setState(() => _sending = false);
+    final refPart = (result.requestId != null && result.requestId!.isNotEmpty)
+        ? ' (ref: ${result.requestId})'
+        : '';
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(
-          'Não foi possível enviar o reporte. Verifique a conexão e tente de novo.',
+          'Não foi possível enviar o reporte. Verifique a conexão e tente de novo.$refPart',
         ),
       ),
     );
