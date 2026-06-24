@@ -105,7 +105,9 @@ const shot = async (page, name) => {
       const r = await fetch(api + '/api/v1/device/consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Device-Token': token },
-        body: JSON.stringify({ accepted: true, policy_version: 'live-e2e' }),
+        // Must match the live server's POLICY_VERSION (and AppConfig.policyVersion);
+        // the consent endpoint rejects a mismatched version (#344).
+        body: JSON.stringify({ accepted: true, policy_version: '2026-06-06' }),
       });
       return { status: r.status, body: await r.json().catch(() => null) };
     }, API_URL, deviceToken);
