@@ -2,24 +2,69 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#1B7F3B">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Compre Barato Alagoas">
+  <meta name="description" content="Política de Privacidade e Termos de Uso — Compre Barato Alagoas.">
   <title>Privacidade e Termos — Compre Barato Alagoas</title>
   <style>
     :root { color-scheme: light; }
+    * { box-sizing: border-box; }
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      max-width: 720px; margin: 0 auto; padding: 24px;
-      line-height: 1.5; color: #1a1a1a;
+      max-width: 720px;
+      margin: 0 auto;
+      /* Respect notched iPhones / home indicator; keep readable minimum padding. */
+      padding-top: max(24px, env(safe-area-inset-top, 0px));
+      padding-right: max(24px, env(safe-area-inset-right, 0px));
+      padding-bottom: max(32px, env(safe-area-inset-bottom, 0px));
+      padding-left: max(24px, env(safe-area-inset-left, 0px));
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: #F6F7F5;
+      -webkit-text-size-adjust: 100%;
     }
-    h1 { font-size: 1.5rem; }
+    .back-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      margin: 0 0 20px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1B7F3B;
+      text-decoration: none;
+      background: #fff;
+      border: 1px solid #c8e0d0;
+      border-radius: 12px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .back-link:active {
+      background: #eef6f0;
+    }
+    h1 { font-size: 1.5rem; margin-top: 0; }
     h2 { font-size: 1.1rem; margin-top: 1.5rem; }
     .ver { color: #666; font-size: .9rem; }
     a { color: #1B7F3B; }
+    .footer-back {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #ddd;
+    }
   </style>
 </head>
 <body>
+  <a class="back-link" href="./" aria-label="Voltar ao Compre Barato Alagoas">
+    ← Voltar ao Compre Barato Alagoas
+  </a>
+
   <h1>Política de Privacidade e Termos de Uso</h1>
+  <!-- Keep in sync with AppConfig.policyVersion / backend POLICY_VERSION -->
   <p class="ver">Versão 2026-06-06</p>
 
   <h2>Quem somos</h2>
@@ -78,5 +123,11 @@
   <h2>Contato</h2>
   <p>Dúvidas sobre privacidade podem ser enviadas pelo repositório público do
   projeto (Preços Públicos IA).</p>
+
+  <div class="footer-back">
+    <a class="back-link" href="./" aria-label="Voltar ao Compre Barato Alagoas">
+      ← Voltar ao Compre Barato Alagoas
+    </a>
+  </div>
 </body>
 </html>
