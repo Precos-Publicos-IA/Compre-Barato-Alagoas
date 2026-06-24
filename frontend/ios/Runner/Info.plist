@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  iOS Runner Info.plist — privacy usage strings (#5) + LSApplicationQueriesSchemes (#10).
+
+  This is a seed/scaffold until the full Flutter ios/ target is generated via
+  `flutter create --platforms=ios .` on a Mac (#4). When merging a full Xcode
+  project, keep these keys (and the pt-BR strings) in the generated Info.plist.
+
+  Do not remove the privacy keys: iOS terminates the app if mic/speech/location
+  are requested without the matching NS*UsageDescription.
+-->
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Compre Barato Alagoas</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>compre_barato_alagoas</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<!-- Privacy usage descriptions (pt-BR) — issues #5 -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>O microfone é usado para adicionar itens à lista de compras por voz.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>O reconhecimento de fala converte sua voz em itens da lista de compras.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Sua localização é usada para ordenar mercados próximos em Alagoas. Sem permissão, usamos Maceió como referência.</string>
+	<!-- Ride / maps URL scheme queries — issue #10 (iOS 9+ canLaunchUrl / external apps) -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>uber</string>
+		<string>taxis99</string>
+		<string>99app</string>
+		<string>comgooglemaps</string>
+		<string>maps</string>
+		<string>http</string>
+		<string>https</string>
+	</array>
+	<!-- Flutter secure storage / Keychain (#9) — no extra plist key; options are in Dart -->
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+</dict>
+</plist>
