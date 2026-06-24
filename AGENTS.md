@@ -113,6 +113,10 @@ cd frontend && flutter test integration_test/app_test.dart \
 
 Exit code must be **0** for that phase. Screenshots under `e2e/screenshots/` are gitignored.
 
+### CI image (do not rebuild on every PR)
+
+Toolchain image is published **infrequently** by `.github/workflows/ci-image.yml` (Dockerfile/package change, weekly schedule, or manual dispatch) to GHCR. PR/deploy jobs use GitHub Actions **`jobs.<id>.container.image`** and only **pull** that image — never `docker build` the CI toolchain inside `deploy.yml`. See `e2e/README.md`.
+
 ### When implementing or reviewing
 
 - Prefer extending `e2e/full.js` / `e2e/live.js` over ad-hoc scripts.

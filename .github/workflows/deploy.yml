@@ -1,11 +1,11 @@
 name: CI/CD — test, build & deploy to VPS
 
-# Path-filtered deploy to VPS on main. Headless gate uses a **pre-baked image**
-# (e2e/Dockerfile.ci): Python/FastAPI/fakeredis + Node + Puppeteer/Chrome are NOT
-# installed on the runner each time. We pull GHCR :latest when present, else build
-# with Buildx GHA cache (recipe changes only re-run heavy layers).
+# Path-filtered deploy on main. Headless / pytest use a PRE-PUBLISHED GHCR image
+# (built only by ci-image.yml when e2e/Dockerfile.ci changes). Jobs set
+# `container:` so Actions pulls the image — never docker build / save / load per PR.
+# See: https://docs.github.com/actions/using-jobs/running-jobs-in-a-container
 #
-# Optional publish of :latest: workflow "Build CI e2e image" (ci-image.yml).
+# Bootstrap once: Actions → "Build CI e2e image" → Run workflow (on main).
 on:
   push:
     branches: [main]
@@ -23,9 +23,9 @@ on:
       - 'shared-assets/**'
   workflow_dispatch:
 
+# Lowercase org for GHCR (must match ci-image.yml). Update if the GitHub org renames.
 env:
-  # owner forced lowercase for GHCR (see ci-image job step if pull fails)
-  CI_E2E_LOCAL: ci-e2e:local
+  CI_E2E_IMAGE: ghcr.io/precos-publicos-ia/compre-barato-alagoas/ci-e2e:latest
 
 concurrency:
   group: deploy-vps-${{ github.event_name }}-${{ github.ref }}
@@ -60,98 +60,56 @@ jobs:
             e2e:
               - 'e2e/**'
               - 'AGENTS.md'
-              - '.github/workflows/ci-image.yml'
             deploycfg:
               - 'deploy/**'
               - '.env.example'
               - '.github/workflows/deploy.yml'
 
-  # ---- Shared: resolve ci-e2e image (pull GHCR or build once with layer cache). ----
-  ci-image:
-    needs: changes
-    if: needs.changes.outputs.needs_e2e == 'true' || needs.changes.outputs.backend == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    permissions:
-      contents: read
-      packages: read
-    outputs:
-      tag: ${{ steps.tag.outputs.tag }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - name: Try GHCR latest, else build with cache
-        id: tag
-        env:
-          GHCR: ${{ env.CI_E2E_IMAGE }}
-          LOCAL: ${{ env.CI_E2E_LOCAL }}
-        run: |
-          set -euo pipefail
-          if docker pull "$GHCR" 2>/dev/null; then
-            docker tag "$GHCR" "$LOCAL"
-            echo "Using pre-published $GHCR"
-          else
-            echo "GHCR miss — building $LOCAL (Buildx cache; not a host apt/npm install)"
-            docker buildx build \
-              --file e2e/Dockerfile.ci \
-              --tag "$LOCAL" \
-              --cache-from type=gha,scope=ci-e2e \
-              --cache-to type=gha,mode=max,scope=ci-e2e \
-              --load \
-              .
-          fi
-          echo "tag=$LOCAL" >> "$GITHUB_OUTPUT"
-      - name: Export image for sibling jobs
-        run: docker save "${{ env.CI_E2E_LOCAL }}" | gzip > /tmp/ci-e2e.tar.gz
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ci-e2e-image
-          path: /tmp/ci-e2e.tar.gz
-          retention-days: 1
-
+  # ---- Backend unit tests inside published CI image (pull only). ----
   test:
-    needs: [changes, ci-image]
+    needs: changes
     if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+    container:
+      image: ${{ env.CI_E2E_IMAGE }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: ci-e2e-image
-          path: /tmp
-      - name: Load ci-e2e image & pytest inside it
-        run: |
-          set -euo pipefail
-          gunzip -c /tmp/ci-e2e.tar.gz | docker load
-          docker run --rm \
-            -v "$PWD:/work" -w /work/backend \
-            "${{ env.CI_E2E_LOCAL }}" \
-            bash -lc 'pip3 install --break-system-packages -q -e ".[dev]" && pytest'
+      # App source from checkout; runtime/test libs already in the image.
+      - name: pytest
+        run: PYTHONPATH=. pytest
 
+  # ---- Headless full suite: pull published image, checkout, run (no build). ----
   e2e-local:
-    needs: [changes, ci-image]
+    needs: changes
     if: needs.changes.outputs.needs_e2e == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+    container:
+      image: ${{ env.CI_E2E_IMAGE }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      options: --user root
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: ci-e2e-image
-          path: /tmp
-      - name: Load image & run full headless suite (no host installs)
+      - name: Full headless suite
         env:
           ADMIN_TOKEN: test-admin-token-0123456789
-        run: |
-          set -euo pipefail
-          gunzip -c /tmp/ci-e2e.tar.gz | docker load
-          docker run --rm --user root \
-            -e ADMIN_TOKEN \
-            -e NODE_PATH=/opt/ci/e2e/node_modules \
-            -v "$PWD:/work" -w /work \
-            "${{ env.CI_E2E_LOCAL }}" \
-            bash e2e/run_local.sh
+          NODE_PATH: /opt/ci/e2e/node_modules
+        run: bash e2e/run_local.sh
       - name: Upload e2e screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -160,6 +118,7 @@ jobs:
           path: e2e/screenshots/
           if-no-files-found: ignore
 
+  # ---- Deploy VPS (main only; unchanged path-filtered ship). ----
   deploy:
     needs: [changes, test, e2e-local]
     if: >-
@@ -278,50 +237,36 @@ jobs:
             echo "==> Static-only change → no stack restart needed."
           fi
 
+  # ---- Live suite: same published image (main, after successful deploy). ----
   live-verify:
-    needs: [changes, deploy, ci-image]
+    needs: [changes, deploy]
     if: >-
       always() &&
       github.event_name != 'pull_request' &&
       github.ref == 'refs/heads/main' &&
-      needs.deploy.result == 'success' &&
-      (needs.ci-image.result == 'success' || needs.ci-image.result == 'skipped')
+      needs.deploy.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+    container:
+      image: ${{ env.CI_E2E_IMAGE }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      options: --user root
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        if: needs.ci-image.result == 'success'
-        with:
-          name: ci-e2e-image
-          path: /tmp
-      - name: Ensure image (reuse artifact or pull/build)
-        if: needs.ci-image.result != 'success'
-        run: |
-          set -euo pipefail
-          if ! docker pull "${{ env.CI_E2E_IMAGE }}" 2>/dev/null; then
-            docker buildx build -f e2e/Dockerfile.ci -t "${{ env.CI_E2E_LOCAL }}" \
-              --cache-from type=gha,scope=ci-e2e --load .
-          else
-            docker tag "${{ env.CI_E2E_IMAGE }}" "${{ env.CI_E2E_LOCAL }}"
-          fi
-      - name: Load artifact image
-        if: needs.ci-image.result == 'success'
-        run: gunzip -c /tmp/ci-e2e.tar.gz | docker load
-      - name: Live headless suite inside ci-e2e image
+      - name: Live headless suite
         env:
+          NODE_PATH: /opt/ci/e2e/node_modules
           APP_URL: https://${{ secrets.DEPLOY_DOMAIN }}
           API_URL: https://${{ secrets.DEPLOY_DOMAIN }}
           DOCS_URL: https://docs.${{ secrets.DEPLOY_DOMAIN }}
           LIVE_ADMIN_URL: https://admin.${{ secrets.DEPLOY_DOMAIN }}
           LIVE_ADMIN_TOKEN: ${{ secrets.LIVE_ADMIN_TOKEN }}
-        run: |
-          docker run --rm --user root \
-            -e NODE_PATH=/opt/ci/e2e/node_modules \
-            -e APP_URL -e API_URL -e DOCS_URL -e LIVE_ADMIN_URL -e LIVE_ADMIN_TOKEN \
-            -v "$PWD:/work" -w /work \
-            "${{ env.CI_E2E_LOCAL }}" \
-            node e2e/live.js
+        run: node e2e/live.js
       - name: Upload live screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -329,6 +274,6 @@ jobs:
           name: e2e-screenshots-live
           path: e2e/screenshots/
           if-no-files-found: ignore
-      - name: Phone / integration_test reminder
+      - name: Phone integration_test note
         run: |
-          echo "::notice::On-device Flutter integration_test against live API is required (AGENTS.md §6)."
+          echo "::notice::Phone/integration_test vs live API is still required on a device (AGENTS.md §6); not available in GHA."
