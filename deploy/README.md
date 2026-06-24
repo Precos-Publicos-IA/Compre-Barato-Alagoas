@@ -50,16 +50,32 @@ cd deploy && docker compose --env-file ../.env up -d
 curl -s http://127.0.0.1:8000/health    # espera status ok
 
 # 3) Configure o vhost do nginx + TLS (um vhost novo; os demais sites ficam intactos).
+#    http-context (rate-limit zones + log_format) — once per host (#360, #363):
+sudo cp deploy/nginx/snippets/http-zones.conf \
+        /etc/nginx/conf.d/compre-barato-zones.conf
 sudo cp deploy/nginx/alagoas.precospublicos.ia.br.conf /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/alagoas.precospublicos.ia.br.conf \
            /etc/nginx/sites-enabled/
-#   Ajuste o `root` do vhost para <DEPLOY_DIR>/web.
+#   Ajuste o `root` / include paths do vhost para <DEPLOY_DIR> se diferente do padrão.
+#   Snippets (proxy-api, security-headers) são incluídos via caminho absoluto em DEPLOY_DIR.
 sudo nginx -t && sudo systemctl reload nginx
 sudo certbot --nginx -d SEU_DOMINIO      # emite e instala o certificado
 
 # 4) Teste final.
 curl -s https://SEU_DOMINIO/health
+# Em ENVIRONMENT=production o corpo público é só {"status":"ok"} (#364).
+# Logs de acesso com rid=… em /var/log/nginx/alagoas.access.log (#363).
 ```
+
+### Nginx snippets (`deploy/nginx/snippets/`)
+
+| File | Purpose |
+|------|---------|
+| `http-zones.conf` | `limit_req_zone` / `limit_conn_zone` + `log_format compre_barato_ext` (install under `conf.d/`) |
+| `proxy-api.conf` | Timeouts, `client_max_body_size`, `X-Request-ID` propagation (#168, #361) |
+| `security-headers.conf` | nosniff, XFO, Referrer-Policy, Permissions-Policy (#352) |
+
+App vhost also sets immutable cache on hashed assets and `no-cache` on `index.html` / manifest (#350, #106, #335).
 
 ## CI/CD (deploy automático a cada push na `main`)
 

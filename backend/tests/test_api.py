@@ -14,8 +14,34 @@ def test_health():
         assert r.status_code == 200
         body = r.json()
         assert body["status"] == "ok"
+        # Non-production keeps diagnostics; production returns minimal body (#364).
         assert body["data_source"] == "mock"
         assert body["use_mock_sefaz"] is True
+
+
+def test_health_production_is_minimal(monkeypatch):
+    """Public production health must not leak mock/env recon (#144, #364)."""
+    import os
+
+    from app.config import get_settings
+
+    get_settings.cache_clear()
+    old = os.environ.get("ENVIRONMENT")
+    os.environ["ENVIRONMENT"] = "production"
+    try:
+        get_settings.cache_clear()
+        with _client() as c:
+            r = c.get("/health")
+            assert r.status_code == 200
+            body = r.json()
+            assert body == {"status": "ok"}
+    finally:
+        get_settings.cache_clear()
+        if old is None:
+            os.environ.pop("ENVIRONMENT", None)
+        else:
+            os.environ["ENVIRONMENT"] = old
+        get_settings.cache_clear()
 
 
 def test_suggestions():

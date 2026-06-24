@@ -57,6 +57,9 @@ class ApiClient {
           {Map<String, String>? headers, Object? body}) =>
       _retry(() => _client.post(uri, headers: headers, body: body));
 
+  Future<http.Response> _delete(Uri uri, {Map<String, String>? headers}) =>
+      _retry(() => _client.delete(uri, headers: headers));
+
   /// Reads `X-Request-ID` from a response (header names are case-insensitive in http).
   static String? requestIdOf(http.Response resp) {
     final raw = resp.headers['x-request-id'] ?? resp.headers['X-Request-ID'];
@@ -177,28 +180,30 @@ class ApiClient {
 
   /// Records this device's consent so the server may store its data (the basis
   /// for cloud-saved lists and, later, discount alerts).
+  /// Uses the same timeout+retry transport as search (#115, #362).
   Future<void> registerConsent(String deviceToken, String policyVersion) async {
     final uri = Uri.parse('$_baseUrl/api/v1/device/consent');
-    final resp = await _client.post(
+    final resp = await _post(
       uri,
       headers: {
         'Content-Type': 'application/json',
         deviceTokenHeader: deviceToken,
       },
       body: jsonEncode({'accepted': true, 'policy_version': policyVersion}),
-    ).timeout(_timeout);
+    );
     if (resp.statusCode != 200) {
       _throwHttp('Não foi possível salvar sua preferência.', resp);
     }
   }
 
   /// LGPD erasure: deletes everything the server holds for this device.
+  /// Idempotent DELETE with transport retry (#115, #362).
   Future<void> deleteDevice(String deviceToken) async {
     final uri = Uri.parse('$_baseUrl/api/v1/device/me');
-    final resp = await _client.delete(
+    final resp = await _delete(
       uri,
       headers: {deviceTokenHeader: deviceToken},
-    ).timeout(_timeout);
+    );
     if (resp.statusCode != 200) {
       _throwHttp('Não foi possível apagar seus dados.', resp);
     }
