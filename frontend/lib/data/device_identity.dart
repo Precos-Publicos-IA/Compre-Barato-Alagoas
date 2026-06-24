@@ -2,17 +2,33 @@ import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+/// Default secure-storage options used when the caller does not inject storage.
+///
+/// - **Android**: encrypted preferences / Keystore-backed (plugin default).
+/// - **iOS**: Keychain with [KeychainAccessibility.first_unlock_this_device] so
+///   the pseudo-anonymous bearer token is available after first unlock on this
+///   device only (not backed up / not portable across restores — matches the
+///   "lose device → lose identity" product trade-off).
+///
+/// Exposed so tests can assert the shipped configuration without going through
+/// platform channels.
+FlutterSecureStorage createDefaultSecureStorage() => const FlutterSecureStorage(
+      iOptions: IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock_this_device,
+      ),
+    );
+
 /// Pseudo-anonymous device identity — the login-free way the app gets a stable
 /// server-side identity.
 ///
 /// On first use the device mints a 256-bit random token and keeps it in secure
-/// storage (Android Keystore-backed). It's a bearer credential, so it must never
-/// live in plain `shared_preferences`. By design there is **no portability**:
-/// lose/reset the device → lose the token → lose the server-side data. That's the
-/// accepted trade-off for not having accounts.
+/// storage (Android Keystore / iOS Keychain). It's a bearer credential, so it
+/// must never live in plain `shared_preferences`. By design there is **no
+/// portability**: lose/reset the device → lose the token → lose the server-side
+/// data. That's the accepted trade-off for not having accounts.
 class DeviceIdentity {
   DeviceIdentity({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+      : _storage = storage ?? createDefaultSecureStorage();
 
   static const _key = 'device_token_v1';
   final FlutterSecureStorage _storage;
