@@ -37,3 +37,5 @@ serves it. Replace `TEAMID` before production.
 ## `robots.txt` — crawler policy (#130)
 
 Shipped at the Flutter/web root (`frontend/web/robots.txt`) and synced with the web build.
+
+| `security.txt` | All platforms (disclosure) | RFC 9116 contact for researchers. Served as `text/plain` via dedicated nginx `location =` (see app vhost). Update `Expires` annually and replace contact if the project uses a different security mailbox. |

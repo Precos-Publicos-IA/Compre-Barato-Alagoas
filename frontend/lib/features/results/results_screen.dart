@@ -17,58 +17,63 @@ class ResultsScreen extends ConsumerWidget {
     final result = ref.watch(searchControllerProvider);
     final basket = ref.watch(basketProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0,
-        title: const _AppBarTitle(),
-        actions: [
-          result.maybeWhen(
-            data: (r) => (r != null && r.stores.isNotEmpty)
-                ? IconButton(
-                    icon: const Icon(Icons.map),
-                    tooltip: 'Ver mapa',
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => MapScreen(response: r)),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-            orElse: () => const SizedBox.shrink(),
-          ),
-        ],
-      ),
-      body: result.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => _Message(
-          icon: Icons.error_outline,
-          text: e.toString(),
-          actionLabel: 'Tentar de novo',
-          onAction: () =>
-              ref.read(searchControllerProvider.notifier).run(basket),
+    // SelectionArea lets users copy individual prices/totals on web/desktop and
+    // long-press select on mobile (#166); does not block button taps inside.
+    return SelectionArea(
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          titleSpacing: 0,
+          title: const _AppBarTitle(),
+          actions: [
+            result.maybeWhen(
+              data: (r) => (r != null && r.stores.isNotEmpty)
+                  ? IconButton(
+                      icon: const Icon(Icons.map),
+                      tooltip: 'Ver mapa',
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => MapScreen(response: r)),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+              orElse: () => const SizedBox.shrink(),
+            ),
+          ],
         ),
-        data: (r) {
-          if (r == null) {
-            return const _Message(icon: Icons.search, text: 'Faça uma busca.');
-          }
-          if (r.stores.isEmpty) {
-            return const _Message(
-              icon: Icons.sentiment_dissatisfied,
-              text: 'Nenhuma loja encontrada por perto.\n'
-                  'Experimente termos comuns que as pessoas usam: '
-                  '"pão francês", "arroz 5kg", "leite 1L", "feijão", "manteiga". '
-                  'Evite marcas muito específicas no começo.',
-            );
-          }
-          return _Results(response: r, items: basket);
-        },
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: FilledButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.edit),
-            label: const Text('EDITAR LISTA'),
+        body: result.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => _Message(
+            icon: Icons.error_outline,
+            text: e.toString(),
+            actionLabel: 'Tentar de novo',
+            onAction: () =>
+                ref.read(searchControllerProvider.notifier).run(basket),
+          ),
+          data: (r) {
+            if (r == null) {
+              return const _Message(icon: Icons.search, text: 'Faça uma busca.');
+            }
+            if (r.stores.isEmpty) {
+              return const _Message(
+                icon: Icons.sentiment_dissatisfied,
+                text: 'Nenhuma loja encontrada por perto.\n'
+                    'Experimente termos comuns que as pessoas usam: '
+                    '"pão francês", "arroz 5kg", "leite 1L", "feijão", "manteiga". '
+                    'Evite marcas muito específicas no começo.',
+              );
+            }
+            return _Results(response: r, items: basket);
+          },
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: FilledButton.icon(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.edit),
+              label: const Text('EDITAR LISTA'),
+            ),
           ),
         ),
       ),

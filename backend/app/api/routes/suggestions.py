@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+
+from ..deps import enforce_rate_limit
 
 router = APIRouter(prefix="/api/v1", tags=["suggestions"])
 
@@ -23,6 +26,13 @@ _COMMON_ITEMS = [
 ]
 
 
-@router.get("/suggestions")
-async def suggestions() -> dict:
-    return {"items": _COMMON_ITEMS}
+@router.get(
+    "/suggestions",
+    dependencies=[Depends(enforce_rate_limit)],
+)
+async def suggestions() -> JSONResponse:
+    # Static payload: allow short public caching at the edge/browser (#162).
+    return JSONResponse(
+        content={"items": _COMMON_ITEMS},
+        headers={"Cache-Control": "public, max-age=300"},
+    )

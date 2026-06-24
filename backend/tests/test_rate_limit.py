@@ -46,6 +46,35 @@ def test_lists_endpoint_is_rate_limited_like_search():
             r2 = c.get("/api/v1/lists/does-not-matter-2")
             assert r2.status_code == 429
             assert "limite diário" in r2.text.lower() or "limite" in r2.text.lower()
+            # Machine-readable throttle headers for clients (#161).
+            assert r2.headers.get("retry-after") is not None
+            assert int(r2.headers["retry-after"]) >= 1
+            assert r2.headers.get("x-ratelimit-remaining") == "0"
+    finally:
+        get_settings.cache_clear()
+        if old is None:
+            os.environ.pop("DAILY_SEARCH_LIMIT", None)
+        else:
+            os.environ["DAILY_SEARCH_LIMIT"] = old
+
+
+def test_suggestions_is_rate_limited():
+    """GET /suggestions shares the daily quota so it cannot be used as a free DoS vector (#162)."""
+    import os
+
+    from app.config import get_settings
+
+    get_settings.cache_clear()
+    old = os.environ.get("DAILY_SEARCH_LIMIT")
+    os.environ["DAILY_SEARCH_LIMIT"] = "1"
+    try:
+        with TestClient(create_app()) as c:
+            r1 = c.get("/api/v1/suggestions")
+            assert r1.status_code == 200
+            assert r1.headers.get("cache-control", "").startswith("public")
+            r2 = c.get("/api/v1/suggestions")
+            assert r2.status_code == 429
+            assert r2.headers.get("retry-after") is not None
     finally:
         get_settings.cache_clear()
         if old is None:

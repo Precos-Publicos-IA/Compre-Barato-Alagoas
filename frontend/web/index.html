@@ -22,9 +22,24 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="description" content="Compare preços de supermercados, farmácias e lojas em Alagoas com dados públicos da SEFAZ-AL.">
   <meta name="theme-color" content="#1B7F3B">
+  <!-- Light-only UI until dark mode ships; avoids wrong form/scrollbar chrome on mobile browsers (#172, #37). -->
+  <meta name="color-scheme" content="light">
   <!-- iPhone Safari / A2HS: correct CSS pixels + safe-area env vars for notch/home indicator.
        viewport-fit=cover lets Flutter SafeArea / MediaQuery.padding work on notched iPhones. -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- Open Graph / Twitter — homepage shares (distinct from /abrir/ list previews, #103/#177). -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Compre Barato Alagoas">
+  <meta property="og:title" content="Compre Barato Alagoas">
+  <meta property="og:description" content="Compare preços de supermercados, farmácias e lojas em Alagoas com dados públicos da SEFAZ-AL.">
+  <meta property="og:url" content="https://alagoas.precospublicos.ia.br/">
+  <meta property="og:image" content="https://alagoas.precospublicos.ia.br/icons/Icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Compre Barato Alagoas">
+  <meta name="twitter:description" content="Compare preços de supermercados, farmácias e lojas em Alagoas com dados públicos da SEFAZ-AL.">
+  <meta name="twitter:image" content="https://alagoas.precospublicos.ia.br/icons/Icon-512.png">
 
   <!-- iOS / Safari "Add to Home Screen" (PWA-lite) -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -34,6 +49,10 @@
   <meta name="apple-mobile-web-app-title" content="Compre Barato Alagoas">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/Icon-192.png">
+
+  <!-- Warm DNS/TLS for OSM tiles used by MapScreen (#172, #45). API is same-origin in prod. -->
+  <link rel="dns-prefetch" href="https://tile.openstreetmap.org">
+  <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>

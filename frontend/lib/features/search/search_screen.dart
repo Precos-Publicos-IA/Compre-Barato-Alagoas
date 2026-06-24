@@ -192,13 +192,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   runSpacing: 8,
                   children: [
                     for (final s in items)
-                      ActionChip(
-                        label: Text('${s.emoji} ${s.label}',
-                            style: const TextStyle(fontSize: 16)),
-                        onPressed: () {
-                          ref.read(basketProvider.notifier).add(s.label);
-                          _dismissKeyboard();
-                        },
+                      Semantics(
+                        button: true,
+                        label: 'Adicionar ${s.label}',
+                        excludeSemantics: true,
+                        child: ActionChip(
+                          tooltip: s.label,
+                          label: Text('${s.emoji} ${s.label}',
+                              style: const TextStyle(fontSize: 16)),
+                          onPressed: () {
+                            ref.read(basketProvider.notifier).add(s.label);
+                            _dismissKeyboard();
+                          },
+                        ),
                       ),
                   ],
                 ),

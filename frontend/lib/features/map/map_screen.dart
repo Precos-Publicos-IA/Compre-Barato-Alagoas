@@ -25,31 +25,57 @@ class MapScreen extends StatelessWidget {
       // iPhone home indicator (and reduces edge-gesture conflict with map pan).
       body: SafeArea(
         top: false,
-        child: FlutterMap(
-          options: MapOptions(initialCenter: origin, initialZoom: 12.5),
+        child: Stack(
           children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName:
-                  'br.ia.precospublicos.compre_barato_alagoas',
-            ),
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: origin,
-                  width: 40,
-                  height: 40,
-                  child: Icon(Icons.my_location,
-                      color: scheme.tertiary, size: 32),
+            FlutterMap(
+              options: MapOptions(initialCenter: origin, initialZoom: 12.5),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName:
+                      'br.ia.precospublicos.compre_barato_alagoas',
                 ),
-                for (var i = 0; i < stores.length; i++)
-                  Marker(
-                    point: LatLng(stores[i].latitude!, stores[i].longitude!),
-                    width: 160,
-                    height: 64,
-                    child: _StorePin(store: stores[i], best: i == 0),
-                  ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: origin,
+                      width: 40,
+                      height: 40,
+                      child: Icon(Icons.my_location,
+                          color: scheme.tertiary, size: 32),
+                    ),
+                    for (var i = 0; i < stores.length; i++)
+                      Marker(
+                        point: LatLng(stores[i].latitude!, stores[i].longitude!),
+                        width: 160,
+                        height: 64,
+                        child: _StorePin(store: stores[i], best: i == 0),
+                      ),
+                  ],
+                ),
               ],
+            ),
+            // OSM tile policy requires visible attribution (#164).
+            Positioned(
+              left: 8,
+              bottom: 8,
+              right: 8,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.88),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Text(
+                      '© OpenStreetMap contributors',
+                      style: TextStyle(fontSize: 11, color: Colors.black87),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

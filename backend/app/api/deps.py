@@ -100,6 +100,16 @@ def _client_id(request: Request) -> str:
     return hashlib.sha256((_RATELIMIT_SALT + ip).encode()).hexdigest()[:32]
 
 
+def _seconds_until_utc_midnight() -> int:
+    """Rough Retry-After: seconds remaining in the UTC day bucket used by the key."""
+    from datetime import timedelta
+
+    now = datetime.now(timezone.utc)
+    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    nxt = midnight + timedelta(days=1)
+    return max(1, int((nxt - now).total_seconds()))
+
+
 async def enforce_rate_limit(
     request: Request,
     settings: Settings = Depends(get_settings_dep),
@@ -111,7 +121,16 @@ async def enforce_rate_limit(
     key = f"ratelimit:{today}:{_client_id(request)}"
     count = await cache.incr_with_ttl(key, ttl=24 * 60 * 60)
     if count > settings.daily_search_limit:
+        # Use JSONResponse (not bare HTTPException) so clients get machine-readable
+        # Retry-After / X-RateLimit-* headers (#161) in addition to the pt-BR detail.
+        retry_after = _seconds_until_utc_midnight()
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Limite diário de buscas atingido. Tente novamente amanhã.",
+            headers={
+                "Retry-After": str(retry_after),
+                "X-RateLimit-Limit": str(settings.daily_search_limit),
+                "X-RateLimit-Remaining": "0",
+                "X-RateLimit-Reset": str(retry_after),
+            },
         )

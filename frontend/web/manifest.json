@@ -1,12 +1,17 @@
 {
+    "id": "/",
     "name": "Compre Barato Alagoas",
     "short_name": "Compre Barato",
+    "lang": "pt-BR",
+    "dir": "ltr",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#1B7F3B",
     "description": "Compare preços de supermercados, farmácias e lojas em Alagoas com dados públicos da SEFAZ-AL.",
     "orientation": "portrait-primary",
+    "categories": ["shopping", "utilities", "lifestyle"],
     "prefer_related_applications": false,
     "icons": [
         {

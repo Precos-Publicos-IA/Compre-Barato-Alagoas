@@ -52,7 +52,20 @@ services:
   redis:
     image: redis:7-alpine
     # AOF persistence so shared-list UUIDs survive restarts (30-day TTLs).
-    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    # maxmemory + allkeys-lru: prefer evicting cache/analytics keys over OOM-killing
+    # the host under growth (#167). Tune via REDIS_MAXMEMORY on larger boxes.
+    # Auth: set REDIS_PASSWORD in .env and mirror in REDIS_URL for the api service
+    # (optional; see deploy/README). Compose keeps Redis off public ports.
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory
+      - ${REDIS_MAXMEMORY:-256mb}
+      - --maxmemory-policy
+      - allkeys-lru
     volumes:
       - redisdata:/data
     restart: unless-stopped

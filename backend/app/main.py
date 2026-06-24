@@ -9,11 +9,14 @@ Redis is the one hard dependency: startup fails fast if it's unreachable.
 from __future__ import annotations
 
 import logging
+import time
 import uuid
 from contextlib import asynccontextmanager
+from contextvars import ContextVar
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from .analytics import Analytics
@@ -22,6 +25,15 @@ from .config import get_settings
 from .services.llm.factory import build_llm_client
 from .services.secrets import SecretStore
 from .services.sefaz.factory import build_sefaz_client
+
+# Propagated into log records so operators can grep one id across workers (#174).
+_request_id_ctx: ContextVar[str] = ContextVar("request_id", default="-")
+
+
+class _RequestIdLogFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.request_id = _request_id_ctx.get()  # type: ignore[attr-defined]
+        return True
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
@@ -32,8 +44,29 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         rid = request.headers.get("x-request-id") or uuid.uuid4().hex[:12]
         request.state.request_id = rid
-        response = await call_next(request)
+        token = _request_id_ctx.set(rid)
+        started = time.perf_counter()
+        try:
+            response = await call_next(request)
+        finally:
+            _request_id_ctx.reset(token)
         response.headers["x-request-id"] = rid
+        # Light access line with id + duration (no PII/body) for support correlation.
+        elapsed_ms = int((time.perf_counter() - started) * 1000)
+        logging.getLogger("app.access").info(
+            "%s %s -> %s (%sms) request_id=%s",
+            request.method,
+            request.url.path,
+            response.status_code,
+            elapsed_ms,
+            rid,
+        )
+        try:
+            import sentry_sdk
+
+            sentry_sdk.set_tag("request_id", rid)
+        except Exception:
+            pass
         return response
 
 
@@ -48,10 +81,33 @@ def _init_sentry(settings) -> None:
         logging.getLogger(__name__).exception("Sentry init failed")
 
 
+def _configure_logging(level: str) -> None:
+    root = logging.getLogger()
+    if not root.handlers:
+        logging.basicConfig(
+            level=level,
+            format="%(levelname)s %(name)s [request_id=%(request_id)s] %(message)s",
+        )
+    else:
+        root.setLevel(level)
+    filt = _RequestIdLogFilter()
+    for handler in root.handlers:
+        handler.addFilter(filt)
+        # Ensure format has request_id even if basicConfig ran earlier in tests.
+        if handler.formatter is None or "%(request_id)" not in (
+            handler.formatter._fmt or ""
+        ):
+            handler.setFormatter(
+                logging.Formatter(
+                    "%(levelname)s %(name)s [request_id=%(request_id)s] %(message)s"
+                )
+            )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    logging.basicConfig(level=settings.log_level)
+    _configure_logging(settings.log_level)
     _init_sentry(settings)
 
     app.state.settings = settings
@@ -88,6 +144,10 @@ def create_app() -> FastAPI:
         redoc_url=redoc_url,
         openapi_url=openapi_url,
     )
+    # Compress JSON/search payloads for mobile/cellular clients (#173).
+    # Added first so it is outermost after Starlette reverses add order… actually
+    # last-added runs first on the way in; GZip should wrap the response path.
+    app.add_middleware(GZipMiddleware, minimum_size=500)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
@@ -95,7 +155,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
         # So cross-origin clients (admin SPA, local dev) can read the request id
         # for support/correlation; same-origin prod calls are unaffected.
-        expose_headers=["X-Request-ID"],
+        expose_headers=["X-Request-ID", "Retry-After", "X-RateLimit-Limit",
+                        "X-RateLimit-Remaining", "X-RateLimit-Reset"],
     )
     app.add_middleware(RequestIdMiddleware)
 
