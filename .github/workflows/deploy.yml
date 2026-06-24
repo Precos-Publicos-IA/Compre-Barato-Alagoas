@@ -1,10 +1,11 @@
 name: CI/CD — test, build & deploy to VPS
 
-# Auto-deploys pushes to main, but only does the work that the change actually
-# needs: backend code → rebuild image + restart; frontend → rebuild Flutter;
-# admin/docs → just sync the static files. Pure README/LICENSE changes don't
-# even start the pipeline. Forks/PRs never get the deploy secrets (GitHub only
-# exposes them to workflows running from the base repo on push).
+# Path-filtered deploy to VPS on main. Headless gate uses a **pre-baked image**
+# (e2e/Dockerfile.ci): Python/FastAPI/fakeredis + Node + Puppeteer/Chrome are NOT
+# installed on the runner each time. We pull GHCR :latest when present, else build
+# with Buildx GHA cache (recipe changes only re-run heavy layers).
+#
+# Optional publish of :latest: workflow "Build CI e2e image" (ci-image.yml).
 on:
   push:
     branches: [main]
@@ -13,15 +14,24 @@ on:
       - 'LICENSE'
       - '.gitignore'
       - 'shared-assets/**'
-  workflow_dispatch: # manual run forces a full deploy (handy for rollback/redeploy)
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'shared-assets/**'
+  workflow_dispatch:
 
-# Never let two deploys race on the single shared host.
+env:
+  # owner forced lowercase for GHCR (see ci-image job step if pull fails)
+  CI_E2E_LOCAL: ci-e2e:local
+
 concurrency:
-  group: deploy-vps
-  cancel-in-progress: false
+  group: deploy-vps-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # ---- Work out what actually changed. workflow_dispatch forces everything. ----
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -30,7 +40,9 @@ jobs:
       admin: ${{ steps.f.outputs.admin == 'true' || github.event_name == 'workflow_dispatch' }}
       docs: ${{ steps.f.outputs.docs == 'true' || github.event_name == 'workflow_dispatch' }}
       deploycfg: ${{ steps.f.outputs.deploycfg == 'true' || github.event_name == 'workflow_dispatch' }}
+      e2e: ${{ steps.f.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch' }}
       deployable: ${{ steps.f.outputs.backend == 'true' || steps.f.outputs.frontend == 'true' || steps.f.outputs.admin == 'true' || steps.f.outputs.docs == 'true' || steps.f.outputs.deploycfg == 'true' || github.event_name == 'workflow_dispatch' }}
+      needs_e2e: ${{ steps.f.outputs.backend == 'true' || steps.f.outputs.frontend == 'true' || steps.f.outputs.admin == 'true' || steps.f.outputs.docs == 'true' || steps.f.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -45,39 +57,118 @@ jobs:
               - 'admin-frontend/**'
             docs:
               - 'docs/**'
+            e2e:
+              - 'e2e/**'
+              - 'AGENTS.md'
+              - '.github/workflows/ci-image.yml'
             deploycfg:
               - 'deploy/**'
               - '.env.example'
               - '.github/workflows/deploy.yml'
 
-  # ---- Gate: backend tests, only when backend code changed. ----
-  test:
+  # ---- Shared: resolve ci-e2e image (pull GHCR or build once with layer cache). ----
+  ci-image:
     needs: changes
-    if: needs.changes.outputs.backend == 'true'
+    if: needs.changes.outputs.needs_e2e == 'true' || needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install backend (test deps; mock mode needs no prod integrations)
-        working-directory: backend
+      - uses: docker/setup-buildx-action@v3
+      - name: Try GHCR latest, else build with cache
+        id: tag
+        env:
+          GHCR: ${{ env.CI_E2E_IMAGE }}
+          LOCAL: ${{ env.CI_E2E_LOCAL }}
         run: |
-          python -m pip install --upgrade pip
-          pip install ".[dev]"
-      - name: Run backend tests
-        working-directory: backend
-        run: pytest
+          set -euo pipefail
+          if docker pull "$GHCR" 2>/dev/null; then
+            docker tag "$GHCR" "$LOCAL"
+            echo "Using pre-published $GHCR"
+          else
+            echo "GHCR miss — building $LOCAL (Buildx cache; not a host apt/npm install)"
+            docker buildx build \
+              --file e2e/Dockerfile.ci \
+              --tag "$LOCAL" \
+              --cache-from type=gha,scope=ci-e2e \
+              --cache-to type=gha,mode=max,scope=ci-e2e \
+              --load \
+              .
+          fi
+          echo "tag=$LOCAL" >> "$GITHUB_OUTPUT"
+      - name: Export image for sibling jobs
+        run: docker save "${{ env.CI_E2E_LOCAL }}" | gzip > /tmp/ci-e2e.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ci-e2e-image
+          path: /tmp/ci-e2e.tar.gz
+          retention-days: 1
 
-  # ---- Build only what changed, then ship over SSH. ----
+  test:
+    needs: [changes, ci-image]
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ci-e2e-image
+          path: /tmp
+      - name: Load ci-e2e image & pytest inside it
+        run: |
+          set -euo pipefail
+          gunzip -c /tmp/ci-e2e.tar.gz | docker load
+          docker run --rm \
+            -v "$PWD:/work" -w /work/backend \
+            "${{ env.CI_E2E_LOCAL }}" \
+            bash -lc 'pip3 install --break-system-packages -q -e ".[dev]" && pytest'
+
+  e2e-local:
+    needs: [changes, ci-image]
+    if: needs.changes.outputs.needs_e2e == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ci-e2e-image
+          path: /tmp
+      - name: Load image & run full headless suite (no host installs)
+        env:
+          ADMIN_TOKEN: test-admin-token-0123456789
+        run: |
+          set -euo pipefail
+          gunzip -c /tmp/ci-e2e.tar.gz | docker load
+          docker run --rm --user root \
+            -e ADMIN_TOKEN \
+            -e NODE_PATH=/opt/ci/e2e/node_modules \
+            -v "$PWD:/work" -w /work \
+            "${{ env.CI_E2E_LOCAL }}" \
+            bash e2e/run_local.sh
+      - name: Upload e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-local
+          path: e2e/screenshots/
+          if-no-files-found: ignore
+
   deploy:
-    needs: [changes, test]
-    # Run when there's something deployable AND (tests passed OR weren't needed).
+    needs: [changes, test, e2e-local]
     if: >-
       always() &&
+      github.event_name != 'pull_request' &&
       github.ref == 'refs/heads/main' &&
       needs.changes.outputs.deployable == 'true' &&
-      (needs.test.result == 'success' || needs.test.result == 'skipped')
+      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
+      (needs.e2e-local.result == 'success' || needs.e2e-local.result == 'skipped')
     runs-on: ubuntu-latest
     env:
       API_IMAGE: compre-barato-alagoas-api:${{ github.sha }}
@@ -86,7 +177,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- Backend image: only when backend changed (build off the host). ---
       - if: needs.changes.outputs.backend == 'true'
         uses: docker/setup-buildx-action@v3
       - name: Build API image
@@ -101,7 +191,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # --- Flutter web + APK: only when the frontend changed. ---
       - if: needs.changes.outputs.frontend == 'true'
         uses: subosito/flutter-action@v2
         with:
@@ -114,7 +203,6 @@ jobs:
           flutter build web --release --dart-define=API_BASE_URL="https://${DOMAIN}"
           flutter build apk --release --dart-define=API_BASE_URL="https://${DOMAIN}"
 
-      # --- SSH setup (host details come only from secrets). ---
       - name: Configure SSH
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -139,7 +227,6 @@ jobs:
           H="$DEPLOY_HOST"
           $SSH "$H" "mkdir -p '$DEPLOY_DIR/web/app' '$DEPLOY_DIR/admin' '$DEPLOY_DIR/docs'"
 
-          # Disk pre-check before touching anything (protects the shared host).
           avail_mb=$(( $($SSH "$H" "df -Pk '$DEPLOY_DIR' | awk 'NR==2{print \$4}'") / 1024 ))
           echo "==> Free disk on VPS: ${avail_mb}MB"
           if [ "$avail_mb" -lt 2048 ]; then
@@ -190,3 +277,58 @@ jobs:
           else
             echo "==> Static-only change → no stack restart needed."
           fi
+
+  live-verify:
+    needs: [changes, deploy, ci-image]
+    if: >-
+      always() &&
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main' &&
+      needs.deploy.result == 'success' &&
+      (needs.ci-image.result == 'success' || needs.ci-image.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        if: needs.ci-image.result == 'success'
+        with:
+          name: ci-e2e-image
+          path: /tmp
+      - name: Ensure image (reuse artifact or pull/build)
+        if: needs.ci-image.result != 'success'
+        run: |
+          set -euo pipefail
+          if ! docker pull "${{ env.CI_E2E_IMAGE }}" 2>/dev/null; then
+            docker buildx build -f e2e/Dockerfile.ci -t "${{ env.CI_E2E_LOCAL }}" \
+              --cache-from type=gha,scope=ci-e2e --load .
+          else
+            docker tag "${{ env.CI_E2E_IMAGE }}" "${{ env.CI_E2E_LOCAL }}"
+          fi
+      - name: Load artifact image
+        if: needs.ci-image.result == 'success'
+        run: gunzip -c /tmp/ci-e2e.tar.gz | docker load
+      - name: Live headless suite inside ci-e2e image
+        env:
+          APP_URL: https://${{ secrets.DEPLOY_DOMAIN }}
+          API_URL: https://${{ secrets.DEPLOY_DOMAIN }}
+          DOCS_URL: https://docs.${{ secrets.DEPLOY_DOMAIN }}
+          LIVE_ADMIN_URL: https://admin.${{ secrets.DEPLOY_DOMAIN }}
+          LIVE_ADMIN_TOKEN: ${{ secrets.LIVE_ADMIN_TOKEN }}
+        run: |
+          docker run --rm --user root \
+            -e NODE_PATH=/opt/ci/e2e/node_modules \
+            -e APP_URL -e API_URL -e DOCS_URL -e LIVE_ADMIN_URL -e LIVE_ADMIN_TOKEN \
+            -v "$PWD:/work" -w /work \
+            "${{ env.CI_E2E_LOCAL }}" \
+            node e2e/live.js
+      - name: Upload live screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-live
+          path: e2e/screenshots/
+          if-no-files-found: ignore
+      - name: Phone / integration_test reminder
+        run: |
+          echo "::notice::On-device Flutter integration_test against live API is required (AGENTS.md §6)."

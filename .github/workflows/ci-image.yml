@@ -1,0 +1,82 @@
+name: Build CI e2e image
+
+# Publishes a pre-baked toolchain (Python/FastAPI/fakeredis, Node, Puppeteer/Chrome)
+# so deploy.yml e2e jobs only checkout + run — never reinstall on every PR.
+#
+# Run once via Actions → "Build CI e2e image" → Run workflow (or merge to main when
+# Dockerfile/package.json change). Image must exist before e2e-local can pull it.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'e2e/Dockerfile.ci'
+      - 'e2e/package.json'
+      - '.github/workflows/ci-image.yml'
+  # Also allow building from PR branches so the first PR can bootstrap GHCR.
+  pull_request:
+    paths:
+      - 'e2e/Dockerfile.ci'
+      - 'e2e/package.json'
+      - '.github/workflows/ci-image.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ci-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # GHCR requires fully lowercase image names (org may be mixed-case on GitHub).
+      - name: Docker meta
+        id: meta
+        run: |
+          set -euo pipefail
+          owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner}/compre-barato-alagoas/ci-e2e"
+          tags="${image}:${GITHUB_SHA}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            tags="${tags}"$'\n'"${image}:pr-${{ github.event.pull_request.number }}"
+          else
+            tags="${tags}"$'\n'"${image}:latest"
+          fi
+          {
+            echo "image=${image}"
+            echo "tags<<EOF"
+            echo "$tags"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Image: $image"
+          echo "Tags:" && echo "$tags"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: e2e/Dockerfile.ci
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Hint for deploy.yml on first PR
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "::notice::Pushed ${{ steps.meta.outputs.image }}:pr-${{ github.event.pull_request.number }}"
