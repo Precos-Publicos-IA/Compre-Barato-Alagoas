@@ -61,7 +61,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (!ok) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microfone indisponível.')),
+          const SnackBar(
+            content: Text(
+              'Voz indisponível neste aparelho (microfone ou reconhecimento '
+              'de fala). Digite o item ou tente outro idioma nas ajustes do sistema.',
+            ),
+          ),
         );
       }
       return;
