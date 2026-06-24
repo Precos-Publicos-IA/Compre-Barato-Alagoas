@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -40,10 +41,29 @@ String? resolveSpeechLocaleId(
 }
 
 /// Wraps speech_to_text + microphone permission with a tiny, testable surface.
+///
+/// On **web / iPhone Safari**, `permission_handler` is unreliable or a no-op;
+/// the browser grants mic access when the Web Speech / getUserMedia path runs
+/// inside `speech_to_text.initialize()` / `listen()`. We skip the pre-check
+/// there and let the speech engine surface the real prompt (or failure).
+///
+/// On **native** Android/iOS builds we still request via `permission_handler`
+/// before initializing, so the OS permission dialog appears first.
 class VoiceInput {
-  VoiceInput({SpeechToText? speech}) : _speech = speech ?? SpeechToText();
+  VoiceInput({
+    SpeechToText? speech,
+    /// Injected for tests; defaults to real `Permission.microphone.request`.
+    Future<PermissionStatus> Function()? requestMicrophone,
+    /// Override web detection in tests (defaults to [kIsWeb]).
+    bool? isWeb,
+  })  : _speech = speech ?? SpeechToText(),
+        _requestMicrophone =
+            requestMicrophone ?? (() => Permission.microphone.request()),
+        _isWeb = isWeb ?? kIsWeb;
 
   final SpeechToText _speech;
+  final Future<PermissionStatus> Function() _requestMicrophone;
+  final bool _isWeb;
   bool _available = false;
   String? _localeId;
 
@@ -52,9 +72,14 @@ class VoiceInput {
   /// Last resolved locale (after [ensureReady]); useful for diagnostics/tests.
   String? get localeId => _localeId;
 
+  /// Whether the microphone permission pre-check runs (false on web).
+  bool get usesPermissionHandlerPrecheck => !_isWeb;
+
   Future<bool> ensureReady() async {
-    final status = await Permission.microphone.request();
-    if (!status.isGranted) return false;
+    if (!_isWeb) {
+      final status = await _requestMicrophone();
+      if (!status.isGranted) return false;
+    }
     if (!_available) {
       _available = await _speech.initialize();
       if (_available) {
