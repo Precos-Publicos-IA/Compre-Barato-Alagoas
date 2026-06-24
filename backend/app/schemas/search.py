@@ -4,6 +4,17 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field, field_validator
 
+# Loose Brazil bounding box. The app is Alagoas-focused, but legitimate origins can
+# sit just outside the state line, so we sanity-check against the whole country
+# rather than a tight AL box. Anything outside this is spoofed/garbage and must not
+# reach SEFAZ/LLM (off-region cost + abuse). See issue #334.
+_BR_LAT_MIN, _BR_LAT_MAX = -34.0, 6.0
+_BR_LON_MIN, _BR_LON_MAX = -74.5, -33.0
+
+# Max characters per basket item. Grocery labels are short; anything longer is paste/
+# voice/share abuse pushing multi-KB strings into SEFAZ/LLM/analytics (issue #369).
+_MAX_ITEM_LEN = 120
+
 
 class SearchRequest(BaseModel):
     items: list[str] = Field(..., min_length=1, max_length=30)
@@ -19,10 +30,26 @@ class SearchRequest(BaseModel):
     @field_validator("items")
     @classmethod
     def _clean_items(cls, v: list[str]) -> list[str]:
-        cleaned = [s.strip() for s in v if s and s.strip()]
+        # Trim, drop empties, and cap each label so a single oversized line can't
+        # balloon downstream SEFAZ/LLM/analytics payloads (#369).
+        cleaned = [s.strip()[:_MAX_ITEM_LEN] for s in v if s and s.strip()]
         if not cleaned:
             raise ValueError("at least one non-empty item is required")
         return cleaned
+
+    @field_validator("latitude")
+    @classmethod
+    def _check_lat(cls, v: float | None) -> float | None:
+        if v is not None and not (_BR_LAT_MIN <= v <= _BR_LAT_MAX):
+            raise ValueError("latitude fora dos limites do Brasil")
+        return v
+
+    @field_validator("longitude")
+    @classmethod
+    def _check_lon(cls, v: float | None) -> float | None:
+        if v is not None and not (_BR_LON_MIN <= v <= _BR_LON_MAX):
+            raise ValueError("longitude fora dos limites do Brasil")
+        return v
 
 
 class ItemOffer(BaseModel):

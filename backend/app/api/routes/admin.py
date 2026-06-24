@@ -10,7 +10,7 @@ from __future__ import annotations
 import hmac
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from ...analytics import Analytics
 from ...config import Settings
@@ -32,7 +32,14 @@ def require_admin(
         presented = auth[7:].strip()
     else:
         presented = request.headers.get("x-admin-token", "")
-    if not configured or not presented or not hmac.compare_digest(presented, configured):
+    # hmac.compare_digest raises TypeError on non-ASCII str input; a token with
+    # accented/emoji bytes must read as a clean 401, never a 500 (issue #329).
+    if (
+        not configured
+        or not presented
+        or not presented.isascii()
+        or not hmac.compare_digest(presented, configured)
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Acesso negado.",
@@ -114,7 +121,9 @@ async def timings(
 
 
 class SecretIn(BaseModel):
-    value: str
+    # Managed secrets are short (API tokens, a Fernet key). Bound the body so an
+    # oversized PUT can't be used to bloat Redis/memory (issue #394).
+    value: str = Field(..., max_length=4096)
 
     @field_validator("value")
     @classmethod
