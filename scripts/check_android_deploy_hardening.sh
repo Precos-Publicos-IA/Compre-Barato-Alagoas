@@ -24,6 +24,17 @@ check_grep "$root/frontend/android/app/src/main/AndroidManifest.xml" \
   'android:scheme="uber"' "queries must include uber scheme (#126)"
 check_grep "$root/frontend/android/app/src/main/AndroidManifest.xml" \
   'taxis99' "queries must include taxis99 (#126)"
+check_grep "$root/frontend/android/app/src/main/AndroidManifest.xml" \
+  'android.hardware.microphone' "uses-feature microphone optional (#281)"
+check_grep "$root/frontend/android/app/src/main/AndroidManifest.xml" \
+  'android.hardware.location' "uses-feature location optional (#281)"
+check_grep "$root/frontend/web/manifest.json" \
+  '"lang"' "PWA manifest should declare lang (#272)"
+check_grep "$root/frontend/web/manifest.json" \
+  '"categories"' "PWA manifest should declare categories (#272)"
+[[ -f "$root/SECURITY.md" ]] || { echo "FAIL: missing SECURITY.md (#277)" >&2; fail=1; }
+[[ -f "$root/deploy/well-known/security.txt" ]] || {
+  echo "FAIL: missing deploy/well-known/security.txt (#171/#277)" >&2; fail=1; }
 
 [[ -f "$root/frontend/android/app/src/main/res/xml/network_security_config.xml" ]] || {
   echo "FAIL: missing main network_security_config.xml" >&2; fail=1; }

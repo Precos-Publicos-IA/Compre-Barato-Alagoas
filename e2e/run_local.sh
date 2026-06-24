@@ -64,11 +64,22 @@ for i in $(seq 1 60); do
   fi
 done
 
-export API_URL ADMIN_URL DOCS_URL ADMIN_TOKEN NODE_PATH
+export API_URL ADMIN_URL DOCS_URL ADMIN_TOKEN NODE_PATH APP_URL="$API_URL"
+# Local mock backend: expect mocks on; client-config may 404 until that route is on main/deployed.
+export OPS_EXPECT_MOCKS=true
+export OPS_REQUIRE_CLIENT_CONFIG="${OPS_REQUIRE_CLIENT_CONFIG:-false}"
+export OPS_REQUIRE_SECURITY_TXT="${OPS_REQUIRE_SECURITY_TXT:-false}"
 cd "$E2E"
 # Prefer image node_modules via NODE_PATH; fall back to local node_modules
 NODE_BIN=node
 if [[ -x /opt/ci/e2e/node_modules/.bin/node ]]; then :; fi
+
+echo "[run_local] running ops probes (#278)…"
+if ! node ops_probes.js; then
+  echo "[run_local] ops_probes failed"
+  exit 1
+fi
+
 echo "[run_local] running full suite…"
 if [[ -f /opt/ci/e2e/node_modules/puppeteer/package.json ]]; then
   NODE_PATH=/opt/ci/e2e/node_modules node -e "require('puppeteer')" >/dev/null 2>&1 \

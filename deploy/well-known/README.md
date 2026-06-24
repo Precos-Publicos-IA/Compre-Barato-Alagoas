@@ -34,6 +34,17 @@ adb shell pm get-app-links br.ia.precospublicos.compre_barato_alagoas
 If present in this directory (or added in a sibling PR), same nginx `/.well-known/` location
 serves it. Replace `TEAMID` before production.
 
+## `security.txt` — vulnerability contact (#171 / SECURITY.md)
+
+RFC 9116 file at `deploy/well-known/security.txt`. Must be served from the **app**
+host (same nginx `/.well-known/` location as assetlinks). Update `Contact` /
+`Expires` when operators change; keep aligned with repo-root `SECURITY.md`.
+
+```bash
+curl -s https://alagoas.precospublicos.ia.br/.well-known/security.txt
+# Expect Contact: lines; e2e/ops_probes.js can assert this with OPS_REQUIRE_SECURITY_TXT=true
+```
+
 ## `robots.txt` — crawler policy (#130)
 
 Shipped at the Flutter/web root (`frontend/web/robots.txt`) and synced with the web build.

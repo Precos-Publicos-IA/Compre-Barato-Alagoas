@@ -65,3 +65,22 @@ Bootstrap once (needs `packages: write` on the publish workflow, package visibil
 If a job fails with “pull access denied” / missing image, **do not** add a build step to `deploy.yml`; re-run the publish workflow.
 
 Screenshots land in `screenshots/` (gitignored). Exit non-zero on any failed check.
+
+## Ops / contract probes (#278)
+
+Lightweight checks without a browser (Node 18+ `fetch`):
+
+```bash
+# Against local mock API (from e2e/ or any cwd)
+API_URL=http://127.0.0.1:8000 OPS_EXPECT_MOCKS=true OPS_REQUIRE_CLIENT_CONFIG=false \
+  node ops_probes.js
+
+# Against production app host (strict mocks off + security.txt + client-config once deployed)
+API_URL=https://alagoas.precospublicos.ia.br APP_URL=https://alagoas.precospublicos.ia.br \
+  OPS_FORBID_MOCKS=true OPS_REQUIRE_CLIENT_CONFIG=true OPS_REQUIRE_SECURITY_TXT=true \
+  node ops_probes.js
+```
+
+`run_local.sh` runs `ops_probes.js` first with `OPS_EXPECT_MOCKS=true` and
+`OPS_REQUIRE_CLIENT_CONFIG=false` so main without `GET /api/v1/client-config` still works;
+flip `OPS_REQUIRE_CLIENT_CONFIG=true` after that route is live (PR #271 area).

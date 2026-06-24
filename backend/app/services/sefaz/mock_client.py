@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import unicodedata
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
@@ -24,13 +23,9 @@ from .models import (
     Registro,
     Venda,
 )
+from .textnorm import normalize_sefaz_text as _strip_accents
 
 _DATA_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "mock_sefaz.json"
-
-
-def _strip_accents(text: str) -> str:
-    nfkd = unicodedata.normalize("NFKD", text)
-    return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
 
 
 @lru_cache

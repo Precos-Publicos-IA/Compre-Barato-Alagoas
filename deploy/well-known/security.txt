@@ -1,0 +1,10 @@
+# RFC 9116 security.txt — served at https://alagoas.precospublicos.ia.br/.well-known/security.txt
+# Operators: update Contact/Expires when contacts or policy change; keep in sync with SECURITY.md.
+# Expires is a reminder to refresh this file (not a hard service SLA).
+
+Contact: https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/security/policy
+Contact: https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/issues/new?labels=security&title=security%20contact%20request
+Preferred-Languages: pt, en
+Canonical: https://alagoas.precospublicos.ia.br/.well-known/security.txt
+Policy: https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/blob/main/SECURITY.md
+Expires: 2027-06-24T00:00:00.000Z

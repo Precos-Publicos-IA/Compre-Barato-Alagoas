@@ -13,6 +13,7 @@ from typing import Awaitable, Callable
 import httpx
 
 from .models import PesquisaResponse
+from .textnorm import normalize_sefaz_text
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,12 @@ class HttpSefazClient:
                 "Token da SEFAZ não configurado. Defina-o no painel admin."
             )
 
-        produto: dict = {"gtin": gtin} if gtin else {"descricao": descricao}
+        # Align with mock accent/case pass so live SEFAZ keyword search behaves
+        # like local QA for common pt-BR mobile input without diacritics (#279).
+        if gtin:
+            produto: dict = {"gtin": gtin}
+        else:
+            produto = {"descricao": normalize_sefaz_text(descricao or "") or (descricao or "")}
         body = {
             "produto": produto,
             "estabelecimento": {
