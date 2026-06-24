@@ -19,16 +19,21 @@ npm run full:local
 npm run live                            # after deploy
 ```
 
-## CI — pre-baked image (no reinstall per job)
+## CI — published image only (standard GHCR + job `container:`)
 
-Toolchain lives in **`ghcr.io/<owner>/compre-barato-alagoas/ci-e2e:latest`**
-(`e2e/Dockerfile.ci`, built by `.github/workflows/ci-image.yml` only when the recipe changes).
+Best practice (GitHub docs: *Running jobs in a container* + GHCR publish):
 
-Deploy workflow jobs `e2e-local` / `live-verify` / backend `test` **pull that image** and only
-`actions/checkout` + run scripts. They must not run `npm install` / Chrome download on every PR
-(that hung the first pipeline on Puppeteer install).
+| Workflow | When it runs | What it does |
+|----------|--------------|--------------|
+| **`ci-image.yml`** | `main` push **only if** `e2e/Dockerfile.ci` / `e2e/package.json` change, weekly schedule, or **workflow_dispatch** | **Build + push** `ghcr.io/precos-publicos-ia/compre-barato-alagoas/ci-e2e:latest` (+ sha tag) |
+| **`deploy.yml`** (`test`, `e2e-local`, `live-verify`) | Every relevant PR/main run | **`container: image: …ci-e2e:latest`** — Actions **pulls** the image; steps are only checkout + run. **No `docker build` / no save-load artifact** |
 
-Bootstrap once (Actions → **Build CI e2e image** → Run workflow on `main`, or let the path-filtered
-push on `main` run it). PR builds may push `:pr-N` tags; `:latest` is updated from `main`.
+Bootstrap once (needs `packages: write` on the publish workflow, package visibility allowing the repo to read):
+
+1. Actions → **Build CI e2e image** → **Run workflow** on `main`  
+2. In GHCR package settings, allow the repo to pull (inherit access / public as you prefer)  
+3. Later PRs only pull — fast and stable
+
+If a job fails with “pull access denied” / missing image, **do not** add a build step to `deploy.yml`; re-run the publish workflow.
 
 Screenshots land in `screenshots/` (gitignored). Exit non-zero on any failed check.

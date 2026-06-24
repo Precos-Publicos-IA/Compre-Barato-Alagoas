@@ -1,10 +1,8 @@
+# Publish the CI toolchain image to GHCR — ONLY when the recipe changes.
+# Normal PR/deploy workflows must only PULL this image (see deploy.yml job.container).
+# Pattern: docs.github.com/actions/using-jobs/running-jobs-in-a-container + GHCR publish.
 name: Build CI e2e image
 
-# Publishes a pre-baked toolchain (Python/FastAPI/fakeredis, Node, Puppeteer/Chrome)
-# so deploy.yml e2e jobs only checkout + run — never reinstall on every PR.
-#
-# Run once via Actions → "Build CI e2e image" → Run workflow (or merge to main when
-# Dockerfile/package.json change). Image must exist before e2e-local can pull it.
 on:
   push:
     branches: [main]
@@ -12,21 +10,18 @@ on:
       - 'e2e/Dockerfile.ci'
       - 'e2e/package.json'
       - '.github/workflows/ci-image.yml'
-  # Also allow building from PR branches so the first PR can bootstrap GHCR.
-  pull_request:
-    paths:
-      - 'e2e/Dockerfile.ci'
-      - 'e2e/package.json'
-      - '.github/workflows/ci-image.yml'
   workflow_dispatch:
+  # Security/base OS updates without waiting for a Dockerfile edit.
+  schedule:
+    - cron: '17 4 * * 1'  # weekly Monday
 
 permissions:
   contents: read
   packages: write
 
 concurrency:
-  group: ci-image-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-image-publish
+  cancel-in-progress: false
 
 jobs:
   build-push:
@@ -44,39 +39,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # GHCR requires fully lowercase image names (org may be mixed-case on GitHub).
-      - name: Docker meta
-        id: meta
+      # GHCR requires lowercase image names (org on GitHub may be mixed-case).
+      - name: Image name (lowercase)
+        id: img
         run: |
-          set -euo pipefail
           owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
-          image="ghcr.io/${owner}/compre-barato-alagoas/ci-e2e"
-          tags="${image}:${GITHUB_SHA}"
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            tags="${tags}"$'\n'"${image}:pr-${{ github.event.pull_request.number }}"
-          else
-            tags="${tags}"$'\n'"${image}:latest"
-          fi
-          {
-            echo "image=${image}"
-            echo "tags<<EOF"
-            echo "$tags"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-          echo "Image: $image"
-          echo "Tags:" && echo "$tags"
+          echo "name=ghcr.io/${owner}/compre-barato-alagoas/ci-e2e" >> "$GITHUB_OUTPUT"
 
-      - name: Build and push
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ steps.img.outputs.name }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+
+      - name: Build and push (infrequent — recipe/schedule only)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: e2e/Dockerfile.ci
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Hint for deploy.yml on first PR
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "::notice::Pushed ${{ steps.meta.outputs.image }}:pr-${{ github.event.pull_request.number }}"
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=ci-e2e-publish
+          cache-to: type=gha,mode=max,scope=ci-e2e-publish
