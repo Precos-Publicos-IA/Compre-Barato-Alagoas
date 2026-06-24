@@ -1,20 +1,39 @@
-# Well-known files (Android App Links + iOS Universal Links)
+# `/.well-known/` files (app host)
 
-Serve these at the **app origin** `https://alagoas.precospublicos.ia.br/.well-known/…`
-(same host as share links `/abrir/<uuid>`).
+Serve these from `alagoas.precospublicos.ia.br` (see `deploy/nginx/alagoas.precospublicos.ia.br.conf`).
 
-| File | Platform | Notes |
-|------|----------|--------|
-| `apple-app-site-association` | iOS Universal Links | **No** `.json` suffix. Must be served as `application/json` (or `application/pkcs7-mime` if signed). Replace `TEAMID` with the Apple Developer Team ID once the iOS app exists in App Store Connect / developer portal. Paths scoped to `/abrir/*` only (mirrors Android `pathPrefix`). |
-| `assetlinks.json` | Android App Links | Add when you have the release signing cert SHA-256 fingerprint(s). Not committed here yet (production fingerprints are deploy-specific). |
+## `assetlinks.json` — Android App Links (#125)
 
-## nginx
+Verifies that `https://alagoas.precospublicos.ia.br/abrir/*` may open the APK
+(`br.ia.precospublicos.compre_barato_alagoas`) without a disambiguation dialog.
 
-`deploy/nginx/alagoas.precospublicos.ia.br.conf` includes a `location ^~ /.well-known/` block that serves this directory. Copy/symlink `deploy/well-known/` onto the host (e.g. `/srv/apps/compre-barato-alagoas/well-known/`) and point the nginx `alias` there if your deploy layout differs.
+1. Build/sign the release APK (do **not** ship debug-signed builds to end users long-term — #124).
+2. Extract the signing cert SHA-256:
 
-## iOS project checklist (see issues #4, #5, #6, #10)
+```bash
+# Debug keystore (local only)
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey \
+  -storepass android -keypass android | grep SHA256
 
-1. Generate `frontend/ios/` (`flutter create --platforms=ios`).
-2. Enable Associated Domains entitlement: `applinks:alagoas.precospublicos.ia.br`.
-3. Set real `appID` (`TEAMID.bundleid`) in `apple-app-site-association`.
-4. Add `Info.plist` privacy strings + `LSApplicationQueriesSchemes` for Uber/99/maps.
+# Release keystore (operator-managed)
+keytool -list -v -keystore /path/to/release.keystore -alias YOUR_ALIAS
+```
+
+3. Replace `REPLACE_WITH_*_SHA256_CERT_FINGERPRINT` in `assetlinks.json` with colon-less
+   or colon-separated form as required by Google (Play Console also shows App signing key cert).
+4. Deploy file + nginx; verify:
+
+```bash
+curl -sI https://alagoas.precospublicos.ia.br/.well-known/assetlinks.json
+# Expect 200, application/json
+adb shell pm get-app-links br.ia.precospublicos.compre_barato_alagoas
+```
+
+## `apple-app-site-association` — iOS Universal Links (#6)
+
+If present in this directory (or added in a sibling PR), same nginx `/.well-known/` location
+serves it. Replace `TEAMID` before production.
+
+## `robots.txt` — crawler policy (#130)
+
+Shipped at the Flutter/web root (`frontend/web/robots.txt`) and synced with the web build.

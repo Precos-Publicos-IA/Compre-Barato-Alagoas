@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "br.ia.precospublicos.compre_barato_alagoas",
+      "sha256_cert_fingerprints": [
+        "REPLACE_WITH_RELEASE_SHA256_CERT_FINGERPRINT",
+        "REPLACE_WITH_DEBUG_SHA256_CERT_FINGERPRINT_OPTIONAL"
+      ]
+    }
+  }
+]
