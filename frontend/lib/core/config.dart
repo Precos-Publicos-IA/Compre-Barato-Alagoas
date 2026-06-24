@@ -30,6 +30,25 @@ class AppConfig {
   /// lockstep with the backend `POLICY_VERSION` when the policy text changes.
   static const String policyVersion = '2026-06-06';
 
+  /// App semver from pubspec `version:` (before `+build`) — support screenshots (#404).
+  /// Override at build: `--dart-define=APP_VERSION=0.1.0`
+  static const String appVersion = String.fromEnvironment(
+    'APP_VERSION',
+    defaultValue: '0.1.0',
+  );
+
+  /// Build/versionCode from pubspec `+N` — support screenshots (#404).
+  static const String appBuild = String.fromEnvironment(
+    'APP_BUILD',
+    defaultValue: '1',
+  );
+
+  /// Short support line (no secrets): version + build + API host.
+  static String get supportVersionLine {
+    final host = Uri.tryParse(apiBaseUrl)?.host ?? apiBaseUrl;
+    return 'App $appVersion ($appBuild) · API $host · política $policyVersion';
+  }
+
   /// Browser user-agent on web builds (`null` on VM/native). Used to tailor the
   /// install banner (APK vs iOS "Add to Home Screen"). Overridable in tests via
   /// [setWebUserAgentForTest].

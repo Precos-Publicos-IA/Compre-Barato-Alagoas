@@ -7,6 +7,7 @@ breaks search.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 
@@ -41,21 +42,30 @@ _SYSTEM = (
 class AnthropicLLMClient(LLMClient):
     source_name = "claude"
 
-    def __init__(self, api_key: str, model: str) -> None:
+    def __init__(
+        self, api_key: str, model: str, timeout_seconds: float = 20.0
+    ) -> None:
         import anthropic  # lazy import so the dep is optional
 
-        self._client = anthropic.AsyncAnthropic(api_key=api_key)
+        # Timeout on the HTTP layer plus asyncio.wait_for as a hard ceiling (#402).
+        self._client = anthropic.AsyncAnthropic(
+            api_key=api_key, timeout=timeout_seconds
+        )
         self._model = model
+        self._timeout_seconds = max(1.0, float(timeout_seconds))
         self._fallback = MockLLMClient()
 
     async def parse_list(self, raw_items: list[str]) -> ParseResult:
         prompt = "Itens:\n" + "\n".join(f"- {i}" for i in raw_items)
         try:
-            msg = await self._client.messages.create(
-                model=self._model,
-                max_tokens=1024,
-                system=_SYSTEM,
-                messages=[{"role": "user", "content": prompt}],
+            msg = await asyncio.wait_for(
+                self._client.messages.create(
+                    model=self._model,
+                    max_tokens=1024,
+                    system=_SYSTEM,
+                    messages=[{"role": "user", "content": prompt}],
+                ),
+                timeout=self._timeout_seconds,
             )
             text = "".join(
                 block.text for block in msg.content if block.type == "text"
@@ -82,6 +92,11 @@ class AnthropicLLMClient(LLMClient):
                     ),
                 )
                 return ParseResult(items=items, usage=usage)
+        except asyncio.TimeoutError:  # pragma: no cover - resilience path
+            logger.warning(
+                "Claude parse_list timed out after %.1fs; falling back to mock",
+                self._timeout_seconds,
+            )
         except Exception:  # pragma: no cover - network/parse resilience
             logger.exception("Claude parse_list failed; falling back to mock parser")
         # Fallback: mock parser (usage=None → caller estimates cost).

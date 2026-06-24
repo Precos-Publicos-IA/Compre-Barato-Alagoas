@@ -141,6 +141,7 @@ async def run_search(
             "cache_ms": 0.0,
             "normalize_ms": 0.0,
             "provider_calls": [],
+            "degraded": False,
         }
         key = _cache_key(item.search_term, lat, lon, radius, days)
         t0 = time.perf_counter()
@@ -155,6 +156,7 @@ async def run_search(
             except Exception:
                 # Resilience: one failing item must not 502 the whole basket.
                 logger.warning("SEFAZ fetch failed for %r; partial results", item.label)
+                out["degraded"] = True
                 return out
             t0 = time.perf_counter()
             await cache.set_json(
@@ -208,6 +210,7 @@ async def run_search(
     results = await asyncio.gather(*(_fetch_one(it) for it in unique_items))
 
     offers_by_item: dict[str, list[NormalizedOffer]] = {}
+    degraded_items: list[str] = []
     total_offers = 0
     parsed_offers = 0
     items_with_match = 0
@@ -218,6 +221,8 @@ async def run_search(
         normalize_ms += r["normalize_ms"]
         if batch is not None and r["provider_calls"]:
             batch.provider_calls.extend(r["provider_calls"])
+        if r.get("degraded"):
+            degraded_items.append(r["label"])
         offers = r["offers"]
         offers_by_item[r["label"]] = offers
         if offers:
@@ -311,4 +316,5 @@ async def run_search(
         list_id=list_id,
         stores=stores,
         metrics=metrics,
+        degraded_items=degraded_items,
     )

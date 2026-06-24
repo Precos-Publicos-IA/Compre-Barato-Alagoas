@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/config.dart';
 import '../../data/providers.dart';
 import '../privacy/cloud_sync_sheet.dart';
 import '../privacy/policy_screen.dart';

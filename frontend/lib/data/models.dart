@@ -145,6 +145,9 @@ class SearchResponse {
   final List<StoreResult> stores;
   final SearchMetrics metrics;
 
+  /// Item labels whose SEFAZ/provider fetch failed (not merely zero offers) (#403).
+  final List<String> degradedItems;
+
   const SearchResponse({
     required this.originLat,
     required this.originLon,
@@ -155,6 +158,7 @@ class SearchResponse {
     this.listId,
     required this.stores,
     required this.metrics,
+    this.degradedItems = const [],
   });
 
   factory SearchResponse.fromJson(Map<String, dynamic> j) => SearchResponse(
@@ -169,5 +173,9 @@ class SearchResponse {
             .map((e) => StoreResult.fromJson(e as Map<String, dynamic>))
             .toList(),
         metrics: SearchMetrics.fromJson(j['metrics'] as Map<String, dynamic>),
+        degradedItems: (j['degraded_items'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
       );
 }

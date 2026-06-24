@@ -53,6 +53,8 @@ class Settings(BaseSettings):
     # --- LLM (Claude Haiku) — only used when use_mock_llm is False ---
     anthropic_api_key: str = ""
     llm_model: str = "claude-haiku-4-5-20251001"
+    # Hard deadline for Claude calls; on timeout we fall back to mock parser (#402).
+    llm_timeout_seconds: float = 20.0
 
     # --- Search defaults / SEFAZ-imposed limits ---
     default_radius_km: int = 8       # SEFAZ allows 1..15

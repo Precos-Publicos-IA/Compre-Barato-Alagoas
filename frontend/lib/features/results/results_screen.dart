@@ -118,6 +118,8 @@ class _Results extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 16),
         children: [
+          if (response.degradedItems.isNotEmpty)
+            _DegradedItemsBanner(labels: response.degradedItems),
           if (savings != null && savings.amount > 0)
             _SavingsBanner(savings: savings, listId: response.listId),
           const _FreshnessLine(),

@@ -15,6 +15,15 @@ import 'features/share/share_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Light theme: dark icons on light status/nav bars (Android system chrome, #401).
+  // Edge-to-edge is OS-default on newer Android; SafeArea in screens owns insets.
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness: Brightness.light, // iOS
+    systemNavigationBarColor: Color(0xFFF6F7F5),
+    systemNavigationBarIconBrightness: Brightness.dark,
+  ));
   // Portrait-only: this app never rotates. Locks the app itself (does NOT touch
   // the phone's system auto-rotate setting).
   SystemChrome.setPreferredOrientations(const [

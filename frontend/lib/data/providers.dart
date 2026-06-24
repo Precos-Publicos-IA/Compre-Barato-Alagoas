@@ -136,13 +136,20 @@ class CloudSyncNotifier extends AsyncNotifier<bool> {
     }
   }
 
+  /// Persists the local consent mirror. Throws [CloudSyncLocalMirrorException]
+  /// if prefs cannot be written so callers do not claim success (#399).
   Future<void> _setLocal(bool value) async {
     state = AsyncValue.data(value);
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_kKey, value);
+      final ok = await prefs.setBool(_kKey, value);
+      if (!ok) {
+        throw const CloudSyncLocalMirrorException();
+      }
+    } on CloudSyncLocalMirrorException {
+      rethrow;
     } catch (_) {
-      // Best-effort mirror; the server record is the source of truth.
+      throw const CloudSyncLocalMirrorException();
     }
   }
 
@@ -159,6 +166,14 @@ class CloudSyncNotifier extends AsyncNotifier<bool> {
     await ref.read(apiClientProvider).deleteDevice(token);
     await _setLocal(false);
   }
+}
+
+/// Local prefs write failed after a successful server consent/erase step (#399).
+class CloudSyncLocalMirrorException implements Exception {
+  const CloudSyncLocalMirrorException();
+
+  @override
+  String toString() => 'CloudSyncLocalMirrorException';
 }
 
 final cloudSyncProvider =

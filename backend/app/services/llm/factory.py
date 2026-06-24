@@ -21,5 +21,7 @@ def build_llm_client(settings: Settings) -> LLMClient:
     from .anthropic_client import AnthropicLLMClient
 
     return AnthropicLLMClient(
-        api_key=settings.anthropic_api_key, model=settings.llm_model
+        api_key=settings.anthropic_api_key,
+        model=settings.llm_model,
+        timeout_seconds=settings.llm_timeout_seconds,
     )

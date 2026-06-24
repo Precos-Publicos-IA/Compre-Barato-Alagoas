@@ -82,6 +82,8 @@ class SearchResponse(BaseModel):
     list_id: str | None = None            # shareable UUID for this shopping list
     stores: list[StoreResult]
     metrics: SearchMetrics
+    # Labels where SEFAZ/provider fetch failed (not merely zero offers) (#403 / #380).
+    degraded_items: list[str] = Field(default_factory=list)
 
 
 class SavedList(BaseModel):
