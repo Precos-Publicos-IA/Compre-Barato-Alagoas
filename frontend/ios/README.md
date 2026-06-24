@@ -1,25 +1,28 @@
-# iOS target (scaffold)
+# iOS target (scaffold, in-scope)
 
-This directory holds **privacy and URL-scheme configuration** required before a full
-Xcode/Flutter iOS project can ship on iPhone. It is **not** yet a complete
-`flutter create --platforms=ios` tree (see issue #4 — needs a Mac + Xcode to
-finish Runner.xcodeproj, Podfile, assets, etc.).
+Native iPhone support is **in-scope**, but this directory is **not** yet a complete
+`flutter create --platforms=ios` tree (issue **#4** — needs a Mac + Xcode for
+Runner.xcodeproj, Podfile, assets, IPA/TestFlight).
 
 ## What is here today
 
-| File | Purpose | Issues |
-|------|---------|--------|
+| File / work | Purpose | Issues |
+|-------------|---------|--------|
 | `Runner/Info.plist` | `NSMicrophoneUsageDescription`, `NSSpeechRecognitionUsageDescription`, `NSLocationWhenInUseUsageDescription` | #5 |
 | `Runner/Info.plist` | `LSApplicationQueriesSchemes` (`uber`, `taxis99`, `99app`, `comgooglemaps`, `maps`, `http`, `https`) | #10 |
 | `Runner/InfoPlist.strings` | pt-BR copies of the privacy strings | #5 |
+| Full `flutter create --platforms=ios` / pods / IPA | Complete target | #4 |
+| iOS Keychain options (Dart) | Device token storage | #9 |
+| Apple Maps preference (Dart) | Store actions | #8 |
+| Universal Links / AASA (deploy) | Share links | #6 |
 
 ## Completing the iOS project (Mac)
 
 ```bash
 cd frontend
 flutter create --platforms=ios .
-# If flutter create overwrites Info.plist, re-merge the keys from git history
-# or from this README's table. Then:
+# If flutter create overwrites Info.plist, re-merge privacy + LSApplicationQueriesSchemes
+# keys from this repo (or re-run scripts/verify_ios_info_plist.py and fix).
 flutter pub get
 cd ios && pod install && cd ..
 flutter run -d <iphone-or-simulator>
@@ -29,13 +32,19 @@ flutter build ipa --dart-define=API_BASE_URL=https://alagoas.precospublicos.ia.b
 
 Bundle id (match Android): `br.ia.precospublicos.compre_barato_alagoas`.
 
-## Verify without Xcode
-
-From the repo root (Linux-friendly structural check):
+## Verify without Xcode (Linux-friendly)
 
 ```bash
-python3 scripts/verify_ios_info_plist.py
+# From repo root
+python3 scripts/verify_ios_info_plist.py   # Info.plist keys (#5/#10)
+python3 scripts/verify_ios_webkit_e2e.py   # docs + checklist + scaffold (#16)
 ```
+
+## Web / Safari note
+
+Until a full `ios/` Runner ships, the primary iPhone path is **Safari / PWA** on
+`alagoas.precospublicos.ia.br`. Headless CI e2e uses **Chromium** (mobile viewport),
+not Safari/WebKit — see `e2e/README.md` and `.github/ISSUE_TEMPLATE/iphone-safari-checklist.md`.
 
 ## Related app code
 

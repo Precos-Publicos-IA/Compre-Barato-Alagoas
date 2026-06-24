@@ -97,6 +97,19 @@ Apply this **twice in the delivery path:** (A) locally/mock **before PR**, (B) *
 | **Public API** | `fetch` inside the browser page |
 | **User app** (`frontend/`) | Web smoke in browser; full UI via `frontend/integration_test/` on device/emulator |
 
+### iPhone / Safari / WebKit limitation (issue #16)
+
+Headless e2e is **Chromium-only** (Puppeteer), even with the mobile viewport
+(`390×820`, `isMobile`, `hasTouch`). It is **not Safari** and **not WebKit**, so
+green CI does **not** prove iPhone-only behavior (safe-area, `-webkit-` scroll,
+Safari PWA install, iOS permission prompts, input zoom). For iPhone-risk changes
+(or after deploy), run the
+[iPhone Safari / WebKit checklist](.github/ISSUE_TEMPLATE/iphone-safari-checklist.md)
+on a real device. Structural checks (no Mac required):
+`python3 scripts/verify_ios_webkit_e2e.py` and, when present,
+`python3 scripts/verify_ios_info_plist.py`. iOS is **in-scope** (`frontend/ios/`
+scaffold; full Xcode target is issue #4).
+
 ### How to run
 
 ```bash
@@ -109,6 +122,9 @@ cd e2e && npm run live
 # Phone / integration against live API
 cd frontend && flutter test integration_test/app_test.dart \
   --dart-define=API_BASE_URL=https://alagoas.precospublicos.ia.br -d <device-id>
+
+# iOS/WebKit readiness (docs + checklist template + ios/ scaffold; issue #16)
+python3 scripts/verify_ios_webkit_e2e.py
 ```
 
 Exit code must be **0** for that phase. Screenshots under `e2e/screenshots/` are gitignored.
