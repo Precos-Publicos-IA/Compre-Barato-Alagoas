@@ -21,31 +21,38 @@ class MapScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mapa das lojas')),
-      body: FlutterMap(
-        options: MapOptions(initialCenter: origin, initialZoom: 12.5),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'br.ia.precospublicos.compre_barato_alagoas',
-          ),
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: origin,
-                width: 40,
-                height: 40,
-                child: Icon(Icons.my_location, color: scheme.tertiary, size: 32),
-              ),
-              for (var i = 0; i < stores.length; i++)
+      // AppBar owns the top inset; bottom SafeArea keeps pins/labels above the
+      // iPhone home indicator (and reduces edge-gesture conflict with map pan).
+      body: SafeArea(
+        top: false,
+        child: FlutterMap(
+          options: MapOptions(initialCenter: origin, initialZoom: 12.5),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName:
+                  'br.ia.precospublicos.compre_barato_alagoas',
+            ),
+            MarkerLayer(
+              markers: [
                 Marker(
-                  point: LatLng(stores[i].latitude!, stores[i].longitude!),
-                  width: 160,
-                  height: 64,
-                  child: _StorePin(store: stores[i], best: i == 0),
+                  point: origin,
+                  width: 40,
+                  height: 40,
+                  child: Icon(Icons.my_location,
+                      color: scheme.tertiary, size: 32),
                 ),
-            ],
-          ),
-        ],
+                for (var i = 0; i < stores.length; i++)
+                  Marker(
+                    point: LatLng(stores[i].latitude!, stores[i].longitude!),
+                    width: 160,
+                    height: 64,
+                    child: _StorePin(store: stores[i], best: i == 0),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
