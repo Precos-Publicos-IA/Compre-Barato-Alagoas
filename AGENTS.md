@@ -17,56 +17,43 @@ Rules of thumb:
 3. **Headless suite still applies** when a batch *ships*—run `e2e` once over the combined diff, not per micro-change while drafting.
 4. If unsure whether something is “minor” vs “substantial,” **ask once** instead of over-building.
 
-## Delivery path: branch → PR → review → merge → deploy → live tests
+## Delivery path: commit to `main` → deploy → live tests
 
-Verified work does **not** land straight on `main` by default. Use this path unless the user explicitly overrides it (e.g. emergency hotfix on main).
+This is a solo-maintainer repo. **Commit verified work directly to `main`.** Do **not**
+create feature branches or open pull requests, and **never** run an autonomous /
+continuous agent that opens or auto-merges PRs on its own authority. (An earlier
+`pr_agent_loop.sh` did exactly that and flooded the repo — it has been removed and
+must not be reintroduced.)
 
 ```
-feature branch ──commit(s)──► open PR ──thorough review──► merge to main
-                                                              │
-                                                              ▼
-                                              deploy to VPS (auto on main via CI)
-                                                              │
-                                                              ▼
-                                              live test routine (prod URLs + app/phone)
+verified change ──commit──► push to main ──► deploy to VPS (auto via CI) ──► live test routine
 ```
 
-### 1. Commits on a branch (not main)
+### 1. Commit on `main`
 
-Once a change set **passes its local verification** (headless suite when user-facing; backend/Flutter tests when only those layers moved), **commit it** on a **topic branch** — do not leave a verified batch sitting uncommitted unless the user asked to wait.
+Once a change set **passes its local verification** (headless suite when user-facing;
+backend/Flutter tests when only those layers moved), **commit it directly to `main`** —
+do not leave a verified batch sitting uncommitted unless the user asked to wait.
 
 - **Okay to combine** multiple features/fixes/docs tweaks in the **same commit** when they landed together in one batch; prefer simplicity over one-commit-per-feature micro-history.
 - Write a clear commit message that names the main themes (what + why), not a novel.
-- Still follow normal git safety (no force-push to `main`, no secrets, no amend of pushed commits unless requested).
+- Follow normal git safety (no force-push, no secrets, no amend of pushed commits unless requested).
 - If only part of the work is verified, commit the verified subset; leave incomplete/failing work out of the commit.
 
-### 2. Pull request
+### 2. Review before committing
 
-- Push the branch and **open a PR into `main`** for every non-trivial delivery (including batched small fixes).
-- PR body should say what changed, how it was tested locally, and any deploy/risk notes.
-- Do **not** merge on the agent’s own authority without review completing (below).
-
-### 3. Thorough review
-
-Before merge, run a **real review pass** (prefer the `/review` skill or equivalent reviewer persona on the PR/branch):
+Before pushing, run a **real review pass** (prefer the `/code-review` skill or equivalent) over the diff:
 
 - Correctness, regressions, security (secrets, authz on admin routes, LGPD paths).
 - Coverage: new UI/API paths must extend headless steps when applicable.
-- No drive-by scope; no incomplete half-features in the merge commit.
+- No drive-by scope; no incomplete half-features in the commit.
 
-Address review findings (or document explicit waive with user consent) **before** merge.
+### 3. Deploy (VPS)
 
-### 4. Merge to `main`
+- Pushes to `main` **auto-deploy** via `.github/workflows/deploy.yml` (path-filtered; only rebuilds what changed).
+- Pure docs-only changes may still deploy if `AGENTS.md` / `e2e/**` are in the workflow’s path filters for tests—see the workflow.
 
-- Merge only after review is clean (or user approves known gaps).
-- Prefer GitHub/PR merge (squash or merge commit — follow remote defaults); avoid silent fast-forward pushes that skip the PR unless the user asked.
-
-### 5. Deploy (VPS)
-
-- Merges to `main` **auto-deploy** via `.github/workflows/deploy.yml` (path-filtered; only rebuilds what changed).
-- Pure docs-only agent rules may still deploy if `AGENTS.md` / `e2e/**` are in the workflow’s path filters for tests—see the workflow.
-
-### 6. Live / production test routine (mandatory after deploy)
+### 4. Live / production test routine (mandatory after deploy)
 
 After the deploy pipeline **finishes successfully**, run the **same test philosophy against live**:
 
