@@ -14,8 +14,10 @@ class _FakeLocation extends LocationService {
 }
 
 class _FakeApi extends ApiClient {
-  _FakeApi() : super(baseUrl: 'http://test.local');
+  _FakeApi({this.feedbackSucceeds = true}) : super(baseUrl: 'http://test.local');
 
+  /// When false, simulates network/API failure from shipped [ApiClient.submitFeedback].
+  final bool feedbackSucceeds;
   final List<Map<String, dynamic>> feedback = [];
 
   @override
@@ -88,8 +90,30 @@ class _FakeApi extends ApiClient {
     String? deviceToken,
   }) async {
     feedback.add({'kind': kind, 'helpful': helpful, 'list_id': listId});
-    return true;
+    return feedbackSucceeds;
   }
+}
+
+Future<void> _openResultsWithFeedback(WidgetTester tester, _FakeApi api) async {
+  await tester.pumpWidget(ProviderScope(
+    overrides: [
+      apiClientProvider.overrideWithValue(api),
+      locationServiceProvider.overrideWithValue(_FakeLocation()),
+    ],
+    child: const MaterialApp(home: SearchScreen()),
+  ));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.textContaining('Arroz').first);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('VER PREÇOS'));
+  await tester.pumpAndSettle();
+
+  await tester.scrollUntilVisible(
+    find.text('Este resultado foi útil?'),
+    300,
+    scrollable: find.byType(Scrollable).first,
+  );
 }
 
 void main() {

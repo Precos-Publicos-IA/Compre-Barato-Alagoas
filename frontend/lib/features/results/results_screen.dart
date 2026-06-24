@@ -144,14 +144,34 @@ class _FeedbackCard extends ConsumerStatefulWidget {
 
 class _FeedbackCardState extends ConsumerState<_FeedbackCard> {
   bool _done = false;
+  bool _busy = false;
+
+  void _showSendFailed() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Não foi possível enviar o feedback. Verifique a conexão e tente de novo.',
+        ),
+      ),
+    );
+  }
 
   Future<void> _send({required bool helpful}) async {
-    await ref.read(apiClientProvider).submitFeedback(
+    if (_busy) return;
+    setState(() => _busy = true);
+    final ok = await ref.read(apiClientProvider).submitFeedback(
           kind: 'helpful',
           helpful: helpful,
           listId: widget.listId,
         );
-    if (mounted) setState(() => _done = true);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (ok) {
+      setState(() => _done = true);
+    } else {
+      _showSendFailed();
+    }
   }
 
   Future<void> _report() async {
@@ -237,14 +257,27 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
   }
 
   Future<void> _submit() async {
+    if (_sending) return;
     setState(() => _sending = true);
-    await ref.read(apiClientProvider).submitFeedback(
+    final ok = await ref.read(apiClientProvider).submitFeedback(
           kind: 'wrong_item',
           item: _item,
           note: _note.text.trim().isEmpty ? null : _note.text.trim(),
           listId: widget.listId,
         );
-    if (mounted) Navigator.of(context).pop(true);
+    if (!mounted) return;
+    if (ok) {
+      Navigator.of(context).pop(true);
+      return;
+    }
+    setState(() => _sending = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Não foi possível enviar o reporte. Verifique a conexão e tente de novo.',
+        ),
+      ),
+    );
   }
 
   @override
