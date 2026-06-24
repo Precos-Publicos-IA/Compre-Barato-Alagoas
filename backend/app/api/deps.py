@@ -84,20 +84,19 @@ def get_analytics_id(request: Request) -> str | None:
     return value if value and _valid_token(value) else None
 
 
-# Salt for the rate-limit client key. The IP is personal data (LGPD), so we never
-# store it raw: the key holds only a salted hash. It still uniquely buckets a client
-# for the 24h window, but a Redis dump reveals no addresses.
-_RATELIMIT_SALT = "compre-barato-alagoas/ratelimit/v1"
+# The IP is personal data (LGPD), so we never store it raw: the rate-limit key holds
+# only a salted hash. The salt comes from settings (RATELIMIT_SALT) so production can
+# set a private value — a known/static salt would let a Redis dump be re-identified.
 
 
-def _client_id(request: Request) -> str:
+def _client_id(request: Request, salt: str) -> str:
     # Honour a proxy header (Caddy sets X-Forwarded-For), else peer address.
     fwd = request.headers.get("x-forwarded-for")
     if fwd:
         ip = fwd.split(",")[0].strip()
     else:
         ip = request.client.host if request.client else "unknown"
-    return hashlib.sha256((_RATELIMIT_SALT + ip).encode()).hexdigest()[:32]
+    return hashlib.sha256((salt + ip).encode()).hexdigest()[:32]
 
 
 async def enforce_rate_limit(
@@ -108,7 +107,7 @@ async def enforce_rate_limit(
     if settings.daily_search_limit <= 0:
         return
     today = datetime.now(timezone.utc).strftime("%Y%m%d")
-    key = f"ratelimit:{today}:{_client_id(request)}"
+    key = f"ratelimit:{today}:{_client_id(request, settings.ratelimit_salt)}"
     count = await cache.incr_with_ttl(key, ttl=24 * 60 * 60)
     if count > settings.daily_search_limit:
         raise HTTPException(

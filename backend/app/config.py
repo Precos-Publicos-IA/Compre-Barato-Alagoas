@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     # Comma-separated list of allowed CORS origins; "*" allows all (dev only).
     cors_origins: str = "*"
+    # Comma-separated Host headers the app will answer to (TrustedHostMiddleware).
+    # "*" disables host checking (dev). In production set the real app/api hosts so
+    # a misconfigured proxy can't make the app serve under an attacker-chosen Host.
+    allowed_hosts: str = "*"
     # Interactive API docs (Swagger / ReDoc / openapi.json). Empty = auto:
     # off in production, on otherwise. Set true/false to override explicitly.
     expose_api_docs: str = ""
@@ -78,6 +82,10 @@ class Settings(BaseSettings):
 
     # --- Rate limiting ---
     daily_search_limit: int = 300    # per client per day; 0 disables
+    # Salt mixed into the IP hash used as the rate-limit bucket key. The IP is never
+    # stored raw (LGPD); a known/static salt would let someone who dumps Redis and
+    # guesses the salt re-identify buckets, so set a private value in production.
+    ratelimit_salt: str = "compre-barato-alagoas/ratelimit/v1"
 
     # --- Admin dashboard ---
     # Bearer token guarding /admin/api/*. Empty => admin API is disabled (401).
@@ -102,6 +110,14 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def cors_is_wildcard(self) -> bool:
+        return "*" in self.cors_origin_list
+
+    @property
+    def allowed_host_list(self) -> list[str]:
+        return [h.strip() for h in self.allowed_hosts.split(",") if h.strip()]
 
     @property
     def is_production(self) -> bool:

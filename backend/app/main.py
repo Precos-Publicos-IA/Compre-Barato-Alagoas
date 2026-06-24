@@ -15,6 +15,20 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+
+# Methods/headers the API actually uses. Sent explicitly when CORS_ORIGINS is
+# restricted (production) instead of a blanket "*", which over-advertises the
+# preflight surface. With a wildcard origin (dev) we keep "*" for convenience.
+_ALLOWED_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+_ALLOWED_HEADERS = [
+    "Authorization",
+    "Content-Type",
+    "X-Admin-Token",
+    "X-Device-Token",
+    "X-Analytics-Id",
+    "X-Request-ID",
+]
 
 from .analytics import Analytics
 from .cache import Cache
@@ -88,16 +102,24 @@ def create_app() -> FastAPI:
         redoc_url=redoc_url,
         openapi_url=openapi_url,
     )
+    wildcard = settings.cors_is_wildcard
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["*"] if wildcard else _ALLOWED_METHODS,
+        allow_headers=["*"] if wildcard else _ALLOWED_HEADERS,
         # So cross-origin clients (admin SPA, local dev) can read the request id
         # for support/correlation; same-origin prod calls are unaffected.
         expose_headers=["X-Request-ID"],
     )
     app.add_middleware(RequestIdMiddleware)
+    # Reject requests with an unexpected Host header when the operator pins the
+    # app/api hostnames (production). "*" (default/dev) disables the check. Added
+    # last so it runs first — bad-Host requests are dropped before any work.
+    if "*" not in settings.allowed_host_list:
+        app.add_middleware(
+            TrustedHostMiddleware, allowed_hosts=settings.allowed_host_list
+        )
 
     from .api.routes import admin, device, feedback, health, search, suggestions
 
