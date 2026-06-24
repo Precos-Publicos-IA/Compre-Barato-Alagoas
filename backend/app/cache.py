@@ -95,6 +95,12 @@ class Cache:
             logger.exception("rate-limit incr failed; allowing request")
             return 1
 
+    async def delete(self, key: str) -> None:
+        try:
+            await self._redis.delete(key)
+        except Exception:  # pragma: no cover
+            logger.exception("redis delete failed for %s", key)
+
     async def _expire(self, key: str, ttl: int) -> None:
         try:
             await self._redis.expire(key, ttl)

@@ -8,43 +8,66 @@ comes from the Redis-native Analytics store. The token is the single gate: if
 from __future__ import annotations
 
 import hmac
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field, field_validator
 
 from ...analytics import Analytics
+from ...cache import Cache
 from ...config import Settings
 from ...services.secrets import MANAGED_SECRETS, SecretStore, SecretStoreUnavailable
-from ..deps import get_analytics, get_secrets, get_settings_dep
+from ..deps import _client_id, get_analytics, get_cache, get_secrets, get_settings_dep
 
 router = APIRouter(prefix="/admin/api", tags=["admin"])
 
+# Failed admin auths per client IP per hour before further bad attempts are locked
+# out (429). A valid token always succeeds and clears the counter, so a legitimate
+# operator is never blocked — only brute-forcing of the static bearer token (#163).
+_ADMIN_MAX_FAILS = 10
+_ADMIN_FAIL_TTL = 3600
 
-def require_admin(
+
+async def require_admin(
     request: Request,
     settings: Settings = Depends(get_settings_dep),
+    cache: Cache = Depends(get_cache),
 ) -> None:
-    """Constant-time bearer-token check. Fails closed when no token is configured."""
+    """Constant-time bearer-token check with per-IP brute-force throttling.
+    Fails closed when no token is configured."""
     configured = settings.admin_token
     auth = request.headers.get("authorization", "")
-    presented = ""
     if auth.lower().startswith("bearer "):
         presented = auth[7:].strip()
     else:
         presented = request.headers.get("x-admin-token", "")
+
+    today = datetime.now(timezone.utc).strftime("%Y%m%d%H")
+    fail_key = f"adminfail:{today}:{_client_id(request, settings.ratelimit_salt)}"
+
     # hmac.compare_digest raises TypeError on non-ASCII str input; a token with
     # accented/emoji bytes must read as a clean 401, never a 500 (issue #329).
-    if (
-        not configured
-        or not presented
-        or not presented.isascii()
-        or not hmac.compare_digest(presented, configured)
-    ):
+    valid = bool(
+        configured
+        and presented
+        and presented.isascii()
+        and hmac.compare_digest(presented, configured)
+    )
+    if valid:
+        await cache.delete(fail_key)  # legit operator: reset the brute-force counter
+        return
+
+    fails = await cache.incr_with_ttl(fail_key, ttl=_ADMIN_FAIL_TTL)
+    if fails > _ADMIN_MAX_FAILS:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Acesso negado.",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Muitas tentativas. Tente novamente mais tarde.",
         )
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Acesso negado.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 
 @router.get("/overview", dependencies=[Depends(require_admin)])

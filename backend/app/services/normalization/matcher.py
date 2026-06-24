@@ -22,6 +22,10 @@ from .units import dimension, normalize_unit_token, to_base
 
 _MASS_VOLUME = {"mass", "volume"}
 
+# Upper sanity bound for a single NFC-e line price (R$). Real grocery items sit far
+# below this; anything above is bad SEFAZ data and is dropped (#254).
+_MAX_PLAUSIBLE_PRICE = 100_000.0
+
 
 @dataclass(frozen=True)
 class NormalizedOffer:
@@ -68,6 +72,10 @@ def normalize_offer(reg: Registro) -> NormalizedOffer | None:
     if venda is None or venda.valor_venda is None:
         return None
     price = float(venda.valor_venda)
+    # Reject implausible prices: a zero/negative row would sort to the top as the
+    # "cheapest", and an absurdly large one is clearly bad SEFAZ data (#254).
+    if not (0 < price <= _MAX_PLAUSIBLE_PRICE):
+        return None
     desc = reg.produto.descricao
     um = reg.produto.unidade_medida
 

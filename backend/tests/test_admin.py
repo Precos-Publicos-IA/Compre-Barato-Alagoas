@@ -32,6 +32,26 @@ def test_admin_rejects_wrong_token(admin_env):
         assert r.status_code == 401
 
 
+def test_admin_brute_force_is_throttled(admin_env):
+    # Repeated wrong tokens from one client lock out with 429 after the threshold (#163).
+    with TestClient(create_app()) as c:
+        codes = [
+            c.get(
+                "/admin/api/overview", headers={"Authorization": "Bearer nope"}
+            ).status_code
+            for _ in range(12)
+        ]
+        assert codes[0] == 401
+        assert 429 in codes
+        # A valid token still works (and clears the counter), so the operator isn't locked out.
+        assert (
+            c.get(
+                "/admin/api/overview", headers={"Authorization": f"Bearer {TOKEN}"}
+            ).status_code
+            == 200
+        )
+
+
 def test_admin_overview_with_token(admin_env):
     with TestClient(create_app()) as c:
         # Generate some data first.

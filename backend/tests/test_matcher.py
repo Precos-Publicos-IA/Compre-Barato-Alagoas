@@ -51,3 +51,13 @@ def test_no_sale_returns_none(registro_factory):
     reg = registro_factory(descricao="LEITE 1L", valor_venda=5.0)
     reg.produto.venda = None
     assert normalize_offer(reg) is None
+
+
+def test_rejects_zero_or_negative_price(registro_factory):
+    # Garbage rows with a non-positive price must be dropped, not ranked cheapest (#254).
+    assert normalize_offer(registro_factory(descricao="ARROZ 5KG", valor_venda=0.0)) is None
+    assert normalize_offer(registro_factory(descricao="ARROZ 5KG", valor_venda=-3.0)) is None
+
+
+def test_rejects_absurd_price(registro_factory):
+    assert normalize_offer(registro_factory(descricao="ARROZ 5KG", valor_venda=999_999.0)) is None
