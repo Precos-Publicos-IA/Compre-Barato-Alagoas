@@ -1,0 +1,50 @@
+# Backend unit tests on PRs/pushes without waiting for deploy.yml / GHCR image (#311).
+# deploy.yml still runs pytest inside ci-e2e on main path changes; this is the fast PR gate.
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend (+ test deps)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run pytest
+        env:
+          # In-memory / mock defaults; tests spin their own app fixtures.
+          USE_MOCK_SEFAZ: 'true'
+          USE_MOCK_LLM: 'true'
+        run: PYTHONPATH=. pytest -q

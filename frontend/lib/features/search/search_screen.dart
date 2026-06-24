@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
 import '../../data/recent_lists.dart';
+import '../location/approximate_origin_banner.dart';
 import '../privacy/cloud_sync_sheet.dart';
 import '../results/results_screen.dart';
 import '../settings/settings_sheet.dart';
@@ -154,6 +155,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const ApkBanner(),
+              // Shown after a search that fell back to Maceió (#304).
+              const ApproximateOriginBanner(),
               Text(
                 'O que você precisa comprar?',
                 style: Theme.of(context).textTheme.titleLarge,

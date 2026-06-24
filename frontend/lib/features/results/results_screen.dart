@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/format.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../location/approximate_origin_banner.dart';
 import '../map/map_screen.dart';
 import '../share/share_service.dart';
 import 'savings.dart';
@@ -120,6 +121,7 @@ class _Results extends ConsumerWidget {
         children: [
           if (savings != null && savings.amount > 0)
             _SavingsBanner(savings: savings, listId: response.listId),
+          const ApproximateOriginBanner(compact: true),
           const _FreshnessLine(),
           for (final store in ordered)
             StoreCard(

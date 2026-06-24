@@ -72,5 +72,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- App Store export compliance (#313): standard HTTPS/TLS + OS Keychain only;
+	     revisit if custom crypto or non-exempt encryption is added later. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

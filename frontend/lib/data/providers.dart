@@ -168,6 +168,19 @@ final cloudSyncProvider =
 final locationServiceProvider =
     Provider<LocationService>((ref) => LocationService());
 
+/// Last resolved search origin (#304). Set on each search so UI can disclose
+/// Maceió/default fallback without re-probing GPS on every frame.
+class LastSearchOriginNotifier extends Notifier<SearchOrigin?> {
+  @override
+  SearchOrigin? build() => null;
+
+  void setOrigin(SearchOrigin origin) => state = origin;
+}
+
+final lastSearchOriginProvider =
+    NotifierProvider<LastSearchOriginNotifier, SearchOrigin?>(
+        LastSearchOriginNotifier.new);
+
 /// Common-item suggestion chips.
 final suggestionsProvider = FutureProvider<List<Suggestion>>((ref) {
   return ref.watch(apiClientProvider).fetchSuggestions();
@@ -212,6 +225,7 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
     state = const AsyncValue.loading();
     final result = await AsyncValue.guard(() async {
       final origin = await ref.read(locationServiceProvider).resolveOrigin();
+      ref.read(lastSearchOriginProvider.notifier).setOrigin(origin);
       // User-tuned search params (Configurações); fall back to backend defaults.
       final prefs = ref.read(searchPrefsProvider).asData?.value;
       final effRadius = radiusKm ?? prefs?.radiusKm;
@@ -232,6 +246,7 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
             items,
             latitude: origin.latitude,
             longitude: origin.longitude,
+            originApproximate: origin.approximate,
             radiusKm: effRadius,
             days: effDays,
             deviceToken: deviceToken,

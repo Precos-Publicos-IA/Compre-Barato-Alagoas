@@ -1,28 +1,20 @@
-"""Quick-suggestion buttons for common grocery items (UX: low-friction entry)."""
+"""Quick-suggestion buttons for common grocery items (UX: low-friction entry).
+
+Default list lives in ``config.DEFAULT_SUGGESTION_ITEMS``; operators can override
+via ``SUGGESTIONS_JSON`` env without code changes (#309). Admin/runtime editor
+can build on this later (Redis-backed config).
+"""
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from ...config import Settings
+from ..deps import get_settings_dep
 
 router = APIRouter(prefix="/api/v1", tags=["suggestions"])
 
-# Curated common basket items for the home-screen chips. Emoji aids low-literacy users.
-_COMMON_ITEMS = [
-    {"label": "Arroz", "emoji": "🍚"},
-    {"label": "Feijão", "emoji": "🫘"},
-    {"label": "Leite", "emoji": "🥛"},
-    {"label": "Ovo", "emoji": "🥚"},
-    {"label": "Açúcar", "emoji": "🧂"},
-    {"label": "Café", "emoji": "☕"},
-    {"label": "Óleo", "emoji": "🛢️"},
-    {"label": "Macarrão", "emoji": "🍝"},
-    {"label": "Banana", "emoji": "🍌"},
-    {"label": "Tomate", "emoji": "🍅"},
-    {"label": "Frango", "emoji": "🍗"},
-    {"label": "Refrigerante", "emoji": "🥤"},
-]
-
 
 @router.get("/suggestions")
-async def suggestions() -> dict:
-    return {"items": _COMMON_ITEMS}
+async def suggestions(settings: Settings = Depends(get_settings_dep)) -> dict:
+    return {"items": settings.suggestion_items}

@@ -103,6 +103,7 @@ class ApiClient {
     List<String> items, {
     double? latitude,
     double? longitude,
+    bool? originApproximate,
     int? radiusKm,
     int? days,
     String? deviceToken,
@@ -114,6 +115,7 @@ class ApiClient {
       'items': items,
       'latitude': ?latitude,
       'longitude': ?longitude,
+      'origin_approximate': ?originApproximate,
       'radius_km': ?radiusKm,
       'days': ?days,
       if (excludedCnpjs.isNotEmpty) 'excluded_cnpjs': excludedCnpjs,

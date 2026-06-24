@@ -7,10 +7,14 @@ few flags. See ``.env.example`` at the repo root for the full list.
 
 from __future__ import annotations
 
+import json
+import logging
 from functools import lru_cache
+from typing import Any
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+logger = logging.getLogger(__name__)
 
 # Default search origin (busy Pajuçara / orla neighborhood). Must stay in sync
 # with frontend/lib/core/location.dart:kMaceioDefault so that location-denied
@@ -18,6 +22,23 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 MACEIO_LAT = -9.6633
 MACEIO_LON = -35.7089
 MACEIO_IBGE = "2704302"
+
+# Home-screen suggestion chips (#309). Override at deploy time via SUGGESTIONS_JSON
+# env (JSON array of {"label": "...", "emoji": "..."} objects) without code change.
+DEFAULT_SUGGESTION_ITEMS: list[dict[str, str]] = [
+    {"label": "Arroz", "emoji": "🍚"},
+    {"label": "Feijão", "emoji": "🫘"},
+    {"label": "Leite", "emoji": "🥛"},
+    {"label": "Ovo", "emoji": "🥚"},
+    {"label": "Açúcar", "emoji": "🧂"},
+    {"label": "Café", "emoji": "☕"},
+    {"label": "Óleo", "emoji": "🛢️"},
+    {"label": "Macarrão", "emoji": "🍝"},
+    {"label": "Banana", "emoji": "🍌"},
+    {"label": "Tomate", "emoji": "🍅"},
+    {"label": "Frango", "emoji": "🍗"},
+    {"label": "Refrigerante", "emoji": "🥤"},
+]
 
 
 class Settings(BaseSettings):
@@ -99,9 +120,39 @@ class Settings(BaseSettings):
     langfuse_secret_key: str = ""
     langfuse_host: str = "https://cloud.langfuse.com"
 
+    # --- Product: home suggestion chips (#309) ---
+    # Empty => DEFAULT_SUGGESTION_ITEMS. Set SUGGESTIONS_JSON to a JSON array to
+    # retune chips without redeploying application code (restart API still needed).
+    suggestions_json: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def suggestion_items(self) -> list[dict[str, Any]]:
+        """Curated grocery chips for GET /api/v1/suggestions."""
+        raw = (self.suggestions_json or "").strip()
+        if not raw:
+            return list(DEFAULT_SUGGESTION_ITEMS)
+        try:
+            parsed = json.loads(raw)
+            if not isinstance(parsed, list) or not parsed:
+                raise ValueError("suggestions_json must be a non-empty JSON array")
+            out: list[dict[str, Any]] = []
+            for row in parsed:
+                if not isinstance(row, dict):
+                    continue
+                label = str(row.get("label", "")).strip()
+                if not label:
+                    continue
+                emoji = str(row.get("emoji", "")).strip() or "🛒"
+                out.append({"label": label, "emoji": emoji})
+            if out:
+                return out
+        except Exception:
+            logger.warning("SUGGESTIONS_JSON invalid; using built-in defaults", exc_info=True)
+        return list(DEFAULT_SUGGESTION_ITEMS)
 
     @property
     def is_production(self) -> bool:

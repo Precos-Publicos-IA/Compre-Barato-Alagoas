@@ -11,6 +11,9 @@ class SearchRequest(BaseModel):
     longitude: float | None = None
     radius_km: int | None = Field(default=None, ge=1, le=15)  # SEFAZ limit
     days: int | None = Field(default=None, ge=1, le=10)        # SEFAZ limit
+    # Client signals Maceió/default fallback vs real GPS (#304). Not used for
+    # ranking today; accepted for analytics/transparency and future quality metrics.
+    origin_approximate: bool | None = None
     # CNPJs the user chose to hide ("lojas ocultas"). Filtered server-side *before*
     # top-N truncation so a hidden store never silently eats a result slot. Ephemeral:
     # used only to filter this request, never logged or persisted.
