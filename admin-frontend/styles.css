@@ -18,17 +18,24 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   background: var(--bg);
   color: var(--ink);
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
-/* Login */
+/* Login — safe-area so iPhone notch/home bar don't clip the form (issue #17). */
 .login {
   position: fixed; inset: 0;
   display: flex; align-items: center; justify-content: center;
   background: var(--bg);
+  padding: max(16px, env(safe-area-inset-top, 0px))
+    max(16px, env(safe-area-inset-right, 0px))
+    max(16px, env(safe-area-inset-bottom, 0px))
+    max(16px, env(safe-area-inset-left, 0px));
 }
 .login-card {
   background: var(--card); padding: 32px; border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,.45); width: 320px; text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45); width: 320px; max-width: 100%;
+  text-align: center;
   border: 1px solid var(--line);
 }
 .login-card h1 { margin: 0 0 4px; font-size: 22px; }
@@ -49,7 +56,12 @@ body {
 /* Topbar */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 20px; background: var(--bg-soft); border-bottom: 1px solid var(--line);
+  padding: 12px 20px;
+  padding-top: max(12px, env(safe-area-inset-top, 0px));
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  background: var(--bg-soft); border-bottom: 1px solid var(--line);
+  flex-wrap: wrap; gap: 8px;
 }
 .brand { font-weight: 700; }
 .brand span { color: var(--muted); font-weight: 400; }
@@ -70,6 +82,10 @@ select, .ghost {
   display: flex; gap: 20px; padding: 8px 20px 0; flex-wrap: wrap;
   align-items: flex-end; background: var(--bg-soft);
   border-bottom: 1px solid var(--line);
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .tab-group {
   position: relative; padding-top: 16px; display: flex; flex-wrap: wrap;
@@ -82,13 +98,20 @@ select, .ghost {
   color: var(--muted); opacity: .8;
 }
 .tab {
-  border: 0; background: transparent; padding: 10px 12px; cursor: pointer;
+  border: 0; background: transparent; padding: 12px 14px; cursor: pointer;
   font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent;
+  min-height: 44px;
 }
 .tab:hover { color: var(--ink); }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 
-main { padding: 20px; max-width: 1100px; margin: 0 auto; }
+main {
+  padding: 20px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  max-width: 1100px; margin: 0 auto;
+}
 .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
 
 /* Cards */

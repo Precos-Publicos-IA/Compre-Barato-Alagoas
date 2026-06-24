@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.br.ia.precospublicos.compre_barato_alagoas",
+        "paths": [ "/abrir/*" ]
+      }
+    ]
+  }
+}
