@@ -2,7 +2,25 @@
 
 // API base: same-origin in production (nginx proxies /admin/api on the admin host).
 // Override for local dev with ?api=http://localhost:8000/admin/api
-const API = new URLSearchParams(location.search).get("api") || "/admin/api";
+//
+// Guard: a crafted ?api=https://evil/... would make the page send the admin Bearer
+// token off-origin (exfiltration). So only honor a relative path, or an absolute
+// URL when BOTH the page and the target are loopback (genuine local dev) (#333).
+function resolveApiBase() {
+  const override = new URLSearchParams(location.search).get("api");
+  if (!override) return "/admin/api";
+  if (override.startsWith("/")) return override; // relative = same origin, safe
+  const loopback = (h) =>
+    h === "localhost" || h === "127.0.0.1" || h === "::1" || h === "[::1]";
+  try {
+    const u = new URL(override);
+    if (loopback(location.hostname) && loopback(u.hostname)) return override;
+  } catch (_) {
+    /* malformed override → ignore */
+  }
+  return "/admin/api";
+}
+const API = resolveApiBase();
 
 const $ = (sel) => document.querySelector(sel);
 const charts = {};
@@ -435,9 +453,29 @@ $("#refresh").addEventListener("click", refresh);
 $("#range").addEventListener("change", refresh);
 $("#fb-kind").addEventListener("change", loadFeedback);
 $("#logout").addEventListener("click", () => {
+  // Full reload after dropping the token: the surest way to leave no charts,
+  // tables or secret values behind in the DOM on a shared console (#379).
   sessionStorage.removeItem("admin_token");
-  showLogin(false);
+  location.reload();
 });
+
+// Auto-logout after inactivity so a bearer token doesn't linger on an unattended
+// shared console until the tab is closed (#420).
+const IDLE_MS = 15 * 60 * 1000;
+let idleTimer;
+function resetIdle() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    if (token()) {
+      sessionStorage.removeItem("admin_token");
+      location.reload();
+    }
+  }, IDLE_MS);
+}
+["click", "keydown", "mousemove", "scroll", "touchstart"].forEach((ev) =>
+  document.addEventListener(ev, resetIdle, { passive: true })
+);
+resetIdle();
 $("#login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   sessionStorage.setItem("admin_token", $("#token").value.trim());

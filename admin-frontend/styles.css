@@ -162,3 +162,9 @@ td.bad { color: var(--bad); font-weight: 600; }
 .secret-form .secret-clear { background: transparent; color: var(--bad); border: 1px solid var(--line); }
 .secret-form button:disabled { opacity: .5; cursor: not-allowed; }
 .secret-msg { margin: 8px 0 0; }
+
+/* Visually hidden but available to screen readers (form label association). */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}

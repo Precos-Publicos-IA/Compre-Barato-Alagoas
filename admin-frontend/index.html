@@ -14,9 +14,11 @@
     <form id="login-form" class="login-card">
       <h1>Painel Admin</h1>
       <p>Compre Barato Alagoas</p>
-      <input id="token" type="password" placeholder="Token de acesso" autocomplete="off" />
+      <label for="token" class="sr-only">Token de acesso</label>
+      <input id="token" name="admin-token" type="password" placeholder="Token de acesso"
+             autocomplete="current-password" aria-label="Token de acesso" />
       <button type="submit">Entrar</button>
-      <p id="login-error" class="error" hidden>Token inválido.</p>
+      <p id="login-error" class="error" role="alert" hidden>Token inválido.</p>
     </form>
   </div>
 
