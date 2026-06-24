@@ -9,26 +9,42 @@ import '../../data/models.dart';
 /// Builds ordered external map/directions URL candidates for a store.
 ///
 /// iPhone/iPad users get Apple Maps first (default map app); other platforms
-/// prefer Google Maps. Both keep HTTPS fallbacks so web/desktop still works.
+/// prefer Google Maps. Android also gets `geo:` early so the system chooser can
+/// open any maps app. Waze app + HTTPS are included for BR driving (#338).
 /// Exposed for unit tests without invoking [url_launcher].
 List<String> buildMapUrls(StoreResult s, {TargetPlatform? platform, bool? isWeb}) {
   final web = isWeb ?? kIsWeb;
   final plat = platform ?? defaultTargetPlatform;
   final preferApple = !web && plat == TargetPlatform.iOS;
+  final preferAndroid = !web && plat == TargetPlatform.android;
   final urls = <String>[];
 
   if (s.latitude != null && s.longitude != null) {
     final lat = s.latitude!;
     final lon = s.longitude!;
     final q = Uri.encodeComponent(s.name);
+    final geo = 'geo:$lat,$lon?q=$lat,$lon($q)';
+    final wazeApp = 'waze://?ll=$lat,$lon&navigate=yes';
+    final wazeWeb =
+        'https://waze.com/ul?ll=${Uri.encodeComponent('$lat,$lon')}&navigate=yes';
     final apple = 'https://maps.apple.com/?ll=$lat,$lon&q=$q';
     final google =
         'https://www.google.com/maps/search/?api=1&query=$lat,$lon';
-    if (preferApple) {
-      urls.add(apple);
+    if (preferAndroid) {
+      // geo: first — lets Android offer installed map apps (incl. Waze/Google).
+      urls.add(geo);
+      urls.add(wazeApp);
       urls.add(google);
+      urls.add(wazeWeb);
+      urls.add(apple);
+    } else if (preferApple) {
+      urls.add(apple);
+      urls.add(wazeApp);
+      urls.add(google);
+      urls.add(wazeWeb);
     } else {
       urls.add(google);
+      urls.add(wazeWeb);
       urls.add(apple);
     }
   }
@@ -55,12 +71,23 @@ List<String> buildDirectionsUrls(StoreResult s,
   final web = isWeb ?? kIsWeb;
   final plat = platform ?? defaultTargetPlatform;
   final preferApple = !web && plat == TargetPlatform.iOS;
+  final preferAndroid = !web && plat == TargetPlatform.android;
   final lat = s.latitude!;
   final lon = s.longitude!;
+  final geo = 'geo:$lat,$lon?q=$lat,$lon';
+  final wazeApp = 'waze://?ll=$lat,$lon&navigate=yes';
+  final wazeWeb =
+      'https://waze.com/ul?ll=${Uri.encodeComponent('$lat,$lon')}&navigate=yes';
   final apple = 'https://maps.apple.com/?daddr=$lat,$lon';
   final google =
       'https://www.google.com/maps/dir/?api=1&destination=$lat,$lon';
-  return preferApple ? [apple, google] : [google, apple];
+  if (preferAndroid) {
+    return [geo, wazeApp, google, wazeWeb, apple];
+  }
+  if (preferApple) {
+    return [apple, wazeApp, google, wazeWeb];
+  }
+  return [google, wazeWeb, apple];
 }
 
 /// Launches store-related external actions (maps, ride apps, clipboard).

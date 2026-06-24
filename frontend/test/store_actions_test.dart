@@ -37,14 +37,27 @@ void main() {
               urls.firstWhere((u) => u.contains('google.com/maps')))));
     });
 
-    test('Android prioritizes Google Maps over Apple', () {
+    test('Android leads with geo: then Waze then Google', () {
       final urls = buildMapUrls(
         _store(),
         platform: TargetPlatform.android,
         isWeb: false,
       );
-      expect(urls.first, contains('google.com/maps'));
+      expect(urls.first, startsWith('geo:'));
+      expect(urls.any((u) => u.startsWith('waze://')), isTrue);
+      expect(urls.any((u) => u.contains('waze.com/ul')), isTrue);
+      expect(urls.any((u) => u.contains('google.com/maps')), isTrue);
       expect(urls.any((u) => u.contains('maps.apple.com')), isTrue);
+    });
+
+    test('iOS includes Waze candidates after Apple', () {
+      final urls = buildMapUrls(
+        _store(),
+        platform: TargetPlatform.iOS,
+        isWeb: false,
+      );
+      expect(urls.first, startsWith('https://maps.apple.com/'));
+      expect(urls.any((u) => u.startsWith('waze://')), isTrue);
     });
 
     test('web prioritizes Google even on iOS UA simulation', () {
@@ -54,6 +67,8 @@ void main() {
         isWeb: true,
       );
       expect(urls.first, contains('google.com/maps'));
+      expect(urls.any((u) => u.contains('waze.com/ul')), isTrue);
+      expect(urls.any((u) => u.startsWith('geo:')), isFalse);
     });
 
     test('includes encoded address candidates when address present', () {
@@ -69,15 +84,25 @@ void main() {
   });
 
   group('buildDirectionsUrls', () {
-    test('iOS lists Apple directions before Google', () {
+    test('iOS lists Apple directions before Google and includes Waze', () {
       final urls = buildDirectionsUrls(
         _store(),
         platform: TargetPlatform.iOS,
         isWeb: false,
       );
-      expect(urls.length, 2);
-      expect(urls[0], startsWith('https://maps.apple.com/?daddr='));
-      expect(urls[1], contains('google.com/maps/dir'));
+      expect(urls.first, startsWith('https://maps.apple.com/?daddr='));
+      expect(urls.any((u) => u.contains('google.com/maps/dir')), isTrue);
+      expect(urls.any((u) => u.startsWith('waze://')), isTrue);
+    });
+
+    test('Android directions include geo and Waze', () {
+      final urls = buildDirectionsUrls(
+        _store(),
+        platform: TargetPlatform.android,
+        isWeb: false,
+      );
+      expect(urls.first, startsWith('geo:'));
+      expect(urls.any((u) => u.startsWith('waze://')), isTrue);
     });
 
     test('returns empty without coordinates', () {

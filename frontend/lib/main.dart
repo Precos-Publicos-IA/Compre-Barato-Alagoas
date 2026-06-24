@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,20 @@ import 'data/recent_lists.dart';
 import 'features/results/results_screen.dart';
 import 'features/search/search_screen.dart';
 import 'features/share/share_service.dart';
+
+/// Enables mouse/trackpad drag-to-scroll on Flutter web/desktop (#339).
+class _AppScrollBehavior extends MaterialScrollBehavior {
+  const _AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => const {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.unknown,
+      };
+}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -111,7 +126,10 @@ class _CompreBaratoAppState extends ConsumerState<CompreBaratoApp> {
     return MaterialApp(
       title: 'Compre Barato Alagoas',
       debugShowCheckedModeBanner: false,
+      // Light-only product UI (#37 dark mode separate); avoids OS dark partials.
       theme: buildAppTheme(),
+      themeMode: ThemeMode.light,
+      scrollBehavior: const _AppScrollBehavior(),
       navigatorKey: _navKey,
       home: const SearchScreen(),
     );

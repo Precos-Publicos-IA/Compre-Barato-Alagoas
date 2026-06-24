@@ -173,22 +173,35 @@ final suggestionsProvider = FutureProvider<List<Suggestion>>((ref) {
   return ref.watch(apiClientProvider).fetchSuggestions();
 });
 
+/// Max basket size — lockstep with backend `SearchRequest.items` max_length=30 (#104, #340).
+const int kMaxBasketItems = 30;
+
 /// The user's shopping list (the basket).
 class BasketNotifier extends Notifier<List<String>> {
   @override
   List<String> build() => <String>[];
 
-  void add(String item) {
+  /// Whether the basket is at [kMaxBasketItems] (further [add] calls no-op).
+  bool get isFull => state.length >= kMaxBasketItems;
+
+  /// Adds one item. Returns `true` if accepted, `false` if empty/duplicate/full (#340).
+  bool add(String item) {
     final value = item.trim();
-    if (value.isEmpty) return;
-    if (state.any((e) => e.toLowerCase() == value.toLowerCase())) return;
+    if (value.isEmpty) return false;
+    if (state.any((e) => e.toLowerCase() == value.toLowerCase())) return false;
+    if (state.length >= kMaxBasketItems) return false;
     state = [...state, value];
+    return true;
   }
 
-  void addMany(Iterable<String> items) {
+  /// Adds items until [kMaxBasketItems]. Returns how many were actually appended (#340).
+  int addMany(Iterable<String> items) {
+    var added = 0;
     for (final i in items) {
-      add(i);
+      if (state.length >= kMaxBasketItems) break;
+      if (add(i)) added++;
     }
+    return added;
   }
 
   void removeAt(int index) {
@@ -204,11 +217,19 @@ final basketProvider =
 
 /// Search controller: holds the latest results as an AsyncValue.
 class SearchController extends AsyncNotifier<SearchResponse?> {
+  /// Monotonic id so only the latest [run] may commit results (#337).
+  int _runGeneration = 0;
+
   @override
   Future<SearchResponse?> build() async => null;
 
   Future<void> run(List<String> items, {int? radiusKm, int? days}) async {
     if (items.isEmpty) return;
+    // Cap to API max so share/recent paths cannot POST oversized baskets (#340).
+    final capped = items.length > kMaxBasketItems
+        ? items.sublist(0, kMaxBasketItems)
+        : items;
+    final generation = ++_runGeneration;
     state = const AsyncValue.loading();
     final result = await AsyncValue.guard(() async {
       final origin = await ref.read(locationServiceProvider).resolveOrigin();
@@ -229,7 +250,7 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
       }
       final avoided = ref.read(avoidedStoresProvider).asData?.value ?? const {};
       return ref.read(apiClientProvider).search(
-            items,
+            capped,
             latitude: origin.latitude,
             longitude: origin.longitude,
             radiusKm: effRadius,
@@ -239,11 +260,9 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
             excludedCnpjs: avoided.keys.toList(),
           );
     });
-    // The search can outlive the provider (user navigated away, or the test
-    // ended). Don't write state into a disposed notifier.
-    if (ref.mounted) {
-      state = result;
-    }
+    // Ignore stale completions when a newer run started (double-tap / hide+refresh).
+    if (!ref.mounted || generation != _runGeneration) return;
+    state = result;
   }
 }
 
