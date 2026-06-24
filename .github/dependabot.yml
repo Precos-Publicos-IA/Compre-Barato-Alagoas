@@ -1,0 +1,20 @@
+# Keep Actions and backend Python deps on a weekly triage cadence (#197).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /e2e
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3

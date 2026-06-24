@@ -402,15 +402,87 @@ const LOADERS = {
   settings: loadSettings,
 };
 let activeTab = "overview";
+/** Last successful payload per tab (for JSON export, #192). */
+const lastPayload = {};
+let autoRefreshTimer = null;
+let autoRefreshBackoffUntil = 0;
+
+/** Admin API path(s) for the active tab (used by export). */
+function tabApiPaths(tab) {
+  const d = days();
+  const fbKind = $("#fb-kind") ? $("#fb-kind").value : "";
+  const map = {
+    overview: [`/overview?days=${d}`],
+    quality: [`/quality?days=${d}`],
+    costs: [`/costs?days=${d}`],
+    feedback: [`/feedback?days=${d}&kind=${encodeURIComponent(fbKind)}`],
+    searches: [`/searches?days=${d}`],
+    items: [`/items?days=${d}`],
+    growth: [`/growth?days=${d}`],
+    performance: [`/timings?days=${d}`],
+    providers: [`/providers?days=${d}`],
+    settings: [`/overview?days=${d}`, "/secrets"],
+  };
+  return map[tab] || [`/overview?days=${d}`];
+}
 
 async function refresh() {
   try {
     setStatus("Carregando…");
     await LOADERS[activeTab]();
-    setStatus("Atualizado " + new Date().toLocaleTimeString("pt-BR"));
+    setStatus("Atualizado às " + new Date().toLocaleTimeString("pt-BR"));
+    autoRefreshBackoffUntil = 0;
   } catch (e) {
-    if (e.message !== "unauthorized") setStatus("Erro ao carregar dados.");
+    if (e.message !== "unauthorized") {
+      setStatus("Erro ao carregar dados.");
+      // Pause auto-refresh briefly on errors / rate limits (#194).
+      autoRefreshBackoffUntil = Date.now() + 120000;
+    }
   }
+}
+
+async function exportActiveTabJson() {
+  try {
+    setStatus("Exportando…");
+    const paths = tabApiPaths(activeTab);
+    const bundle = {
+      exported_at: new Date().toISOString(),
+      tab: activeTab,
+      paths: {},
+    };
+    for (const p of paths) {
+      bundle.paths[p] = await api(p);
+    }
+    lastPayload[activeTab] = bundle;
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], {
+      type: "application/json",
+    });
+    const a = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+    a.href = URL.createObjectURL(blob);
+    a.download = `compre-barato-admin-${activeTab}-${stamp}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    setStatus("JSON exportado · " + new Date().toLocaleTimeString("pt-BR"));
+  } catch (e) {
+    if (e.message !== "unauthorized") setStatus("Falha ao exportar JSON.");
+  }
+}
+
+function scheduleAutoRefresh() {
+  if (autoRefreshTimer) {
+    clearInterval(autoRefreshTimer);
+    autoRefreshTimer = null;
+  }
+  const sel = $("#auto-refresh");
+  const sec = sel ? parseInt(sel.value, 10) || 0 : 0;
+  if (sec <= 0) return;
+  autoRefreshTimer = setInterval(() => {
+    if (document.visibilityState === "hidden") return;
+    if (Date.now() < autoRefreshBackoffUntil) return;
+    if ($("#app") && $("#app").hidden) return;
+    refresh();
+  }, sec * 1000);
 }
 
 // --- utils -----------------------------------------------------------------
@@ -434,8 +506,11 @@ document.querySelectorAll(".tab").forEach((btn) => {
 $("#refresh").addEventListener("click", refresh);
 $("#range").addEventListener("change", refresh);
 $("#fb-kind").addEventListener("change", loadFeedback);
+if ($("#export-json")) $("#export-json").addEventListener("click", exportActiveTabJson);
+if ($("#auto-refresh")) $("#auto-refresh").addEventListener("change", scheduleAutoRefresh);
 $("#logout").addEventListener("click", () => {
   sessionStorage.removeItem("admin_token");
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
   showLogin(false);
 });
 $("#login-form").addEventListener("submit", async (e) => {
@@ -445,6 +520,7 @@ $("#login-form").addEventListener("submit", async (e) => {
     await api("/overview");
     showApp();
     refresh();
+    scheduleAutoRefresh();
   } catch (err) {
     sessionStorage.removeItem("admin_token");
     showLogin(true);
@@ -458,6 +534,7 @@ $("#login-form").addEventListener("submit", async (e) => {
     await api("/overview");
     showApp();
     refresh();
+    scheduleAutoRefresh();
   } catch (e) {
     showLogin(false);
   }

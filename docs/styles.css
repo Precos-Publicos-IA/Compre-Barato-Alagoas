@@ -20,6 +20,38 @@
 
 html { scroll-behavior: smooth; }
 
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Keyboard users: jump past the long sidebar (#195). */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1000;
+  padding: 0.65rem 1rem;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius) 0;
+}
+.skip-link:focus {
+  left: 0;
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+main.content:focus {
+  outline: none;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

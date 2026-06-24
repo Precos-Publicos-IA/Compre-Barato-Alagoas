@@ -32,12 +32,67 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
+  Future<void> _editBasketItem(int index, String current) async {
+    final controller = TextEditingController(text: current);
+    final next = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Editar item'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: BasketNotifier.maxItemLength,
+          textCapitalization: TextCapitalization.sentences,
+          onSubmitted: (v) => Navigator.of(ctx).pop(v),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(controller.text),
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (!mounted || next == null) return;
+    final result =
+        ref.read(basketProvider.notifier).tryReplaceAt(index, next);
+    if (result == 'added') return;
+    final msg = switch (result) {
+      'duplicate' => 'Esse item já está na lista.',
+      'empty' => 'Item vazio — remova com o botão X se quiser apagar.',
+      _ => null,
+    };
+    if (msg != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
   void _addCurrent() {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
-    ref.read(basketProvider.notifier).add(text);
-    _controller.clear();
-    _dismissKeyboard();
+    final text = _controller.text;
+    final result = ref.read(basketProvider.notifier).tryAdd(text);
+    if (result == 'added') {
+      _controller.clear();
+      _dismissKeyboard();
+      return;
+    }
+    final msg = switch (result) {
+      'duplicate' => 'Esse item já está na lista.',
+      'full' => 'Lista cheia (máx. ${BasketNotifier.maxItems} itens).',
+      'empty' => 'Digite um item para adicionar.',
+      _ => null,
+    };
+    if (msg != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+    if (result != 'empty') {
+      _controller.clear();
+      _dismissKeyboard();
+    }
   }
 
   Future<void> _toggleVoice() async {
@@ -217,6 +272,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   child: ListTile(
                     title: Text(basket[i],
                         style: const TextStyle(fontSize: 18)),
+                    onTap: () => _editBasketItem(i, basket[i]),
                     trailing: IconButton(
                       icon: const Icon(Icons.close),
                       tooltip: 'Remover',

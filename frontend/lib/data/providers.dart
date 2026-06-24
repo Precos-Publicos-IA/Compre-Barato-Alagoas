@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -130,7 +132,10 @@ class CloudSyncNotifier extends AsyncNotifier<bool> {
   Future<bool> build() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getBool(_kKey) ?? false;
+      final local = prefs.getBool(_kKey) ?? false;
+      // Reconcile with GET /device/me when possible (#188, #89, #63).
+      unawaited(_reconcileWithServer(localOn: local));
+      return local;
     } catch (_) {
       return false;
     }
@@ -143,6 +148,38 @@ class CloudSyncNotifier extends AsyncNotifier<bool> {
       await prefs.setBool(_kKey, value);
     } catch (_) {
       // Best-effort mirror; the server record is the source of truth.
+    }
+  }
+
+  /// Align local mirror with server consent; clear stale ON when server unknown.
+  Future<void> _reconcileWithServer({required bool localOn}) async {
+    try {
+      final token = await ref.read(deviceIdentityProvider).getOrCreateToken();
+      final me = await ref.read(apiClientProvider).fetchDeviceMe(token);
+      if (me == null) return;
+      if (localOn && (!me.known || !me.consented)) {
+        // ITP/local flag lied — server has no consent record (#89).
+        await _setLocal(false);
+        return;
+      }
+      if (me.consented && me.policyDrift(AppConfig.policyVersion)) {
+        // Policy version drifted — require fresh consent (#63). Best-effort:
+        // turn local off so the sheet is offered again; do not erase server data
+        // until the user explicitly opts out.
+        await _setLocal(false);
+      }
+    } catch (_) {
+      // Offline / flaky — keep local mirror until next settings open.
+    }
+  }
+
+  /// Latest server device state (for settings UI: saved lists, policy).
+  Future<DeviceMe?> refreshServerState() async {
+    try {
+      final token = await ref.read(deviceIdentityProvider).getOrCreateToken();
+      return await ref.read(apiClientProvider).fetchDeviceMe(token);
+    } catch (_) {
+      return null;
     }
   }
 
@@ -175,14 +212,38 @@ final suggestionsProvider = FutureProvider<List<Suggestion>>((ref) {
 
 /// The user's shopping list (the basket).
 class BasketNotifier extends Notifier<List<String>> {
+  /// Per-item character budget (backend list is max 30 entries; item text is
+  /// effectively unbounded there — keep payloads reasonable, #189).
+  static const int maxItemLength = 120;
+  static const int maxItems = 30;
+
   @override
   List<String> build() => <String>[];
 
-  void add(String item) {
-    final value = item.trim();
-    if (value.isEmpty) return;
-    if (state.any((e) => e.toLowerCase() == value.toLowerCase())) return;
+  /// Normalise whitespace; returns null if empty after trim.
+  static String? normalizeItem(String item) {
+    var value = item.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (value.isEmpty) return null;
+    if (value.length > maxItemLength) {
+      value = value.substring(0, maxItemLength).trim();
+    }
+    return value.isEmpty ? null : value;
+  }
+
+  /// `added` | `duplicate` | `empty` | `full` — lets UI show snackbars (#189).
+  String tryAdd(String item) {
+    final value = normalizeItem(item);
+    if (value == null) return 'empty';
+    if (state.any((e) => e.toLowerCase() == value.toLowerCase())) {
+      return 'duplicate';
+    }
+    if (state.length >= maxItems) return 'full';
     state = [...state, value];
+    return 'added';
+  }
+
+  void add(String item) {
+    tryAdd(item);
   }
 
   void addMany(Iterable<String> items) {
@@ -194,6 +255,23 @@ class BasketNotifier extends Notifier<List<String>> {
   void removeAt(int index) {
     final copy = [...state]..removeAt(index);
     state = copy;
+  }
+
+  /// Replace item at [index] (edit-in-place, #189). Returns same codes as [tryAdd]
+  /// plus `invalid_index`.
+  String tryReplaceAt(int index, String item) {
+    if (index < 0 || index >= state.length) return 'invalid_index';
+    final value = normalizeItem(item);
+    if (value == null) return 'empty';
+    for (var i = 0; i < state.length; i++) {
+      if (i != index && state[i].toLowerCase() == value.toLowerCase()) {
+        return 'duplicate';
+      }
+    }
+    final copy = [...state];
+    copy[index] = value;
+    state = copy;
+    return 'added';
   }
 
   void clear() => state = <String>[];

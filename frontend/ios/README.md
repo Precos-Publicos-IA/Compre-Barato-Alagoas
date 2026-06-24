@@ -32,6 +32,20 @@ flutter build ipa --dart-define=API_BASE_URL=https://alagoas.precospublicos.ia.b
 
 Bundle id (match Android): `br.ia.precospublicos.compre_barato_alagoas`.
 
+## App Store / export compliance (#187)
+
+The scaffold `Info.plist` sets `ITSAppUsesNonExemptEncryption` = **false** because the app
+only uses platform/OS TLS (HTTPS API, standard URL loading) and does not ship proprietary
+crypto. When you complete the Xcode project and submit to TestFlight:
+
+1. Keep or re-merge that key after `flutter create --platforms=ios`.
+2. In App Store Connect, answer the export-compliance questions consistently (uses encryption
+   only for HTTPS / standard OS facilities).
+3. Still add `PrivacyInfo.xcprivacy` / Required Reason APIs separately (#78) before production
+   App Store builds.
+4. Do **not** add `UIBackgroundModes` unless you implement background location/alerts — avoid
+   unused background modes in review.
+
 ## Verify without Xcode (Linux-friendly)
 
 ```bash

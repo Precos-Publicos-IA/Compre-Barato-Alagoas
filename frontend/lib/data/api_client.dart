@@ -175,6 +175,22 @@ class ApiClient {
 
   // --- Pseudo-anonymous device (LGPD consent, login-free) -----------------
 
+  /// Server view of this device (consent + saved list UUIDs). Null if unknown
+  /// or the request failed transiently (#188 / #108).
+  Future<DeviceMe?> fetchDeviceMe(String deviceToken) async {
+    final uri = Uri.parse('$_baseUrl/api/v1/device/me');
+    try {
+      final resp = await _retry(
+        () => _client.get(uri, headers: {deviceTokenHeader: deviceToken}),
+      );
+      if (resp.statusCode != 200) return null;
+      final j = jsonDecode(resp.body) as Map<String, dynamic>;
+      return DeviceMe.fromJson(j);
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Records this device's consent so the server may store its data (the basis
   /// for cloud-saved lists and, later, discount alerts).
   Future<void> registerConsent(String deviceToken, String policyVersion) async {
@@ -202,5 +218,40 @@ class ApiClient {
     if (resp.statusCode != 200) {
       _throwHttp('Não foi possível apagar seus dados.', resp);
     }
+  }
+}
+
+/// Subset of `GET /api/v1/device/me` used by the app (#188).
+class DeviceMe {
+  final bool known;
+  final bool consented;
+  final String? consentAt;
+  final String? policyVersion;
+  final List<String> savedLists;
+
+  const DeviceMe({
+    required this.known,
+    required this.consented,
+    this.consentAt,
+    this.policyVersion,
+    this.savedLists = const [],
+  });
+
+  factory DeviceMe.fromJson(Map<String, dynamic> j) => DeviceMe(
+        known: j['known'] as bool? ?? false,
+        consented: j['consented'] as bool? ?? false,
+        consentAt: j['consent_at'] as String?,
+        policyVersion: j['policy_version'] as String?,
+        savedLists: (j['saved_lists'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
+      );
+
+  /// True when server policy differs from the in-app policy string (#63).
+  bool policyDrift(String clientPolicyVersion) {
+    final srv = policyVersion?.trim();
+    if (srv == null || srv.isEmpty) return false;
+    return srv != clientPolicyVersion;
   }
 }

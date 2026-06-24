@@ -34,6 +34,15 @@
             <option value="30">30 dias</option>
           </select>
         </label>
+        <label class="range" title="Atualizar a aba ativa em segundo plano">
+          Auto
+          <select id="auto-refresh" aria-label="Atualização automática">
+            <option value="0" selected>Off</option>
+            <option value="60">60s</option>
+            <option value="120">120s</option>
+          </select>
+        </label>
+        <button id="export-json" class="ghost" type="button" title="Baixar JSON da aba atual">Exportar JSON</button>
         <button id="refresh" class="ghost">Atualizar</button>
         <button id="logout" class="ghost">Sair</button>
       </div>

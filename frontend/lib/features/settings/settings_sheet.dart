@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/config.dart';
+import '../../data/api_client.dart';
 import '../../data/providers.dart';
 import '../privacy/cloud_sync_sheet.dart';
 import '../privacy/policy_screen.dart';
@@ -9,7 +11,7 @@ import '../stores/store_prefs_sheet.dart';
 /// "Configurações": the single place for every user-adjustable setting —
 /// search parameters (radius / recency), store preferences, the cloud-sync
 /// (LGPD consent) toggle, the anonymous-usage opt-out and the policy link.
-class SettingsSheet extends ConsumerWidget {
+class SettingsSheet extends ConsumerStatefulWidget {
   const SettingsSheet({super.key});
 
   static Future<void> show(BuildContext context) {
@@ -22,13 +24,41 @@ class SettingsSheet extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsSheet> createState() => _SettingsSheetState();
+}
+
+class _SettingsSheetState extends ConsumerState<SettingsSheet> {
+  DeviceMe? _deviceMe;
+  bool _deviceMeLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDeviceMe();
+  }
+
+  Future<void> _loadDeviceMe() async {
+    setState(() => _deviceMeLoading = true);
+    final me =
+        await ref.read(cloudSyncProvider.notifier).refreshServerState();
+    if (!mounted) return;
+    setState(() {
+      _deviceMe = me;
+      _deviceMeLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final usageOn = ref.watch(usageStatsProvider).asData?.value ?? true;
     final cloudOn = ref.watch(cloudSyncProvider).asData?.value ?? false;
     final params = ref.watch(searchPrefsProvider).asData?.value;
     final radius = params?.radiusKm ?? 8;
     final days = params?.days ?? 7;
     final text = Theme.of(context).textTheme;
+    final policyDrift =
+        _deviceMe?.policyDrift(AppConfig.policyVersion) ?? false;
+    final savedCount = _deviceMe?.savedLists.length ?? 0;
     return SafeArea(
       child: SingleChildScrollView(
         child: Padding(
@@ -91,9 +121,17 @@ class SettingsSheet extends ConsumerWidget {
                 leading: Icon(cloudOn ? Icons.cloud_done : Icons.cloud_outlined),
                 title: const Text('Salvar listas na nuvem',
                     style: TextStyle(fontSize: 18)),
-                subtitle: Text(cloudOn
-                    ? 'Ativado — suas listas ficam guardadas neste aparelho e no servidor'
-                    : 'Desativado — suas listas ficam só neste aparelho'),
+                subtitle: Text(
+                  _deviceMeLoading
+                      ? 'Consultando servidor…'
+                      : cloudOn
+                          ? (policyDrift
+                              ? 'Política atualizada — abra para confirmar de novo'
+                              : savedCount > 0
+                                  ? 'Ativado — $savedCount lista(s) no servidor'
+                                  : 'Ativado — listas neste aparelho e no servidor')
+                          : 'Desativado — listas só neste aparelho',
+                ),
                 onTap: () {
                   Navigator.of(context).pop();
                   CloudSyncSheet.show(context);

@@ -72,5 +72,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- App Store export compliance: standard HTTPS only, no custom crypto (#187).
+	     Confirm in App Store Connect questionnaire when submitting TestFlight/IPA. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
