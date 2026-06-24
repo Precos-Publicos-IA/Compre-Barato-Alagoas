@@ -41,9 +41,11 @@ USER appuser
 
 EXPOSE 8000
 
-# gunicorn with uvicorn workers; tune workers via $WEB_CONCURRENCY.
+# gunicorn with uvicorn workers. Worker count comes from $WEB_CONCURRENCY (gunicorn
+# reads it only when --workers is NOT passed — #320), so the compose value is honored.
+# Timeout is 120s to match the nginx proxy_read_timeout, so a long cold SEFAZ/LLM
+# search isn't killed mid-flight by a shorter worker timeout (#196).
 CMD ["gunicorn", "app.main:app", \
      "--worker-class", "uvicorn.workers.UvicornWorker", \
      "--bind", "0.0.0.0:8000", \
-     "--workers", "2", \
-     "--timeout", "60"]
+     "--timeout", "120"]
