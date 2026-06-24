@@ -284,10 +284,10 @@ async function loadPerformance() {
   const stages = t.stages || [];
   const total = stages.find((s) => s.stage === "total") || {};
   $("#performance-cards").innerHTML = [
-    card("Tempo médio (resposta)", fmtMs(total.avg_ms)),
-    card("Mediana (p50)", fmtMs(total.p50_ms)),
-    card("p95", fmtMs(total.p95_ms)),
-    card("Buscas medidas", fmtNum(total.count)),
+    card("Tempo médio (resposta)", esc(fmtMs(total.avg_ms))),
+    card("Mediana (p50)", esc(fmtMs(total.p50_ms))),
+    card("p95", esc(fmtMs(total.p95_ms))),
+    card("Buscas medidas", esc(fmtNum(total.count))),
   ].join("");
 
   bar("chart-latency-dist", bucketLabels(t.buckets_ms || []),
