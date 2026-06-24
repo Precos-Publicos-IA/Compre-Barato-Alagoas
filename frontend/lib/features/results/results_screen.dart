@@ -345,11 +345,18 @@ class _SavingsBanner extends StatelessWidget {
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.tonalIcon(
-              onPressed:
-                  listId == null ? null : () => shareSavings(listId!, savings.amount),
-              icon: const Icon(Icons.share),
-              label: const Text('COMPARTILHAR ECONOMIA'),
+            child: Builder(
+              builder: (btnContext) => FilledButton.tonalIcon(
+                onPressed: listId == null
+                    ? null
+                    : () => shareSavings(
+                          listId!,
+                          savings.amount,
+                          context: btnContext,
+                        ),
+                icon: const Icon(Icons.share),
+                label: const Text('COMPARTILHAR ECONOMIA'),
+              ),
             ),
           ),
         ],
