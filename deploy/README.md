@@ -102,6 +102,27 @@ containers **construindo a imagem no próprio servidor**. É o caminho de emerg�
 o normal é deixar o CI/CD acima cuidar do deploy. Rode-o com as mesmas variáveis de
 ambiente do primeiro deploy.
 
+## O que o CI sincroniza vs. o que fica só no git (#289)
+
+| Mudança no repositório | Efeito em produção |
+|------------------------|--------------------|
+| `backend/**` | pytest, imagem API, restart compose |
+| `frontend/**` | build web+APK, rsync `web/` (+ APK) |
+| `admin-frontend/**` | rsync `admin/` |
+| `docs/**` | rsync `docs/` (site docs.*) |
+| `deploy/**` (compose, nginx **exemplos**, `well-known/`, scripts) | rsync `deploy/` + possível restart; **nginx do host não é recarregado pelo pipeline** — operador copia/ajusta vhosts e `nginx -s reload` |
+| `SECURITY.md`, `THIRD_PARTY.md`, `AGENTS.md`, `CHANGELOG.md` na raiz | **não** alteram sozinhos arquivos servidos; `security.txt` vivo vem de `deploy/well-known/security.txt` |
+| `README.md` / `LICENSE` | ignorados no trigger do workflow (`paths-ignore`) |
+
+Flags Flutter no build de CI (#292): web e APK usam `--tree-shake-icons`; web usa
+`--web-renderer canvaskit` (alinhar com #140 se quiser `html`/`auto` via variável
+de repositório no futuro).
+
+Pós-deploy (#293): job `live-verify` roda `e2e/live.js` quando o deploy em `main`
+sucede; passo adicional `ops_probes.js` valida `/health` (mocks off em live),
+`security.txt` e, se existir, `client-config` (tolerante a 404 até a rota estar
+no ar).
+
 ## Indo ao ar com dados reais
 
 Edite o `.env` no servidor:

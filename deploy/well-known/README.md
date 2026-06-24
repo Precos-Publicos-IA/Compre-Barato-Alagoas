@@ -2,6 +2,16 @@
 
 Serve these from `alagoas.precospublicos.ia.br` (see `deploy/nginx/alagoas.precospublicos.ia.br.conf`).
 
+**Content-Type (#288):** nginx uses **exact** `location =` blocks so
+`security.txt` is `text/plain`, while `assetlinks.json` and
+`apple-app-site-association` are `application/json`. After editing vhosts on the
+host, `sudo nginx -t && sudo systemctl reload nginx` (CI does not rewrite host
+nginx automatically).
+
+**Deploy awareness (#289):** files here ship only when `deploy/**` is rsynced
+(backend/deploycfg path in `deploy.yml`, or full `deploy/deploy.sh`). Merging
+root `SECURITY.md` alone does **not** update production `security.txt`.
+
 ## `assetlinks.json` — Android App Links (#125)
 
 Verifies that `https://alagoas.precospublicos.ia.br/abrir/*` may open the APK
@@ -31,8 +41,28 @@ adb shell pm get-app-links br.ia.precospublicos.compre_barato_alagoas
 
 ## `apple-app-site-association` — iOS Universal Links (#6)
 
-If present in this directory (or added in a sibling PR), same nginx `/.well-known/` location
-serves it. Replace `TEAMID` before production.
+Served with `Content-Type: application/json` (no file extension). Replace `TEAMID`
+before production. Operators must install/reload the app-host nginx snippet for
+per-file types (#288).
+
+## `security.txt` — vulnerability contact (RFC 9116)
+
+`deploy/well-known/security.txt` — keep `Contact` / `Expires` current; align with
+repo-root `SECURITY.md` (policy text) but remember **live** file = this path after
+`deploy/` rsync.
+
+```bash
+curl -sI https://alagoas.precospublicos.ia.br/.well-known/security.txt
+# Expect 200, content-type text/plain (after #288 nginx snippet is on the host)
+curl -s https://alagoas.precospublicos.ia.br/.well-known/security.txt | head
+```
+
+Optional live contract check (Node 18+):
+
+```bash
+APP_URL=https://alagoas.precospublicos.ia.br API_URL=https://alagoas.precospublicos.ia.br \
+  OPS_REQUIRE_SECURITY_TXT=true OPS_REQUIRE_CLIENT_CONFIG=false node e2e/ops_probes.js
+```
 
 ## `robots.txt` — crawler policy (#130)
 

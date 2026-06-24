@@ -38,7 +38,17 @@ check_grep "$root/deploy/well-known/assetlinks.json" \
 check_grep "$root/deploy/nginx/alagoas.precospublicos.ia.br.conf" \
   '\.well-known' "nginx must serve /.well-known/ (#125)"
 check_grep "$root/deploy/nginx/alagoas.precospublicos.ia.br.conf" \
+  'location = /.well-known/security.txt' "nginx exact security.txt location (#288)"
+check_grep "$root/deploy/nginx/alagoas.precospublicos.ia.br.conf" \
+  'location = /.well-known/assetlinks.json' "nginx exact assetlinks location (#288)"
+check_grep "$root/deploy/nginx/alagoas.precospublicos.ia.br.conf" \
   'X-Robots-Tag' "nginx API location should set X-Robots-Tag (#130)"
+[[ -f "$root/deploy/well-known/security.txt" ]] || {
+  echo "FAIL: missing deploy/well-known/security.txt (#289/#171)" >&2; fail=1; }
+check_grep "$root/deploy/well-known/security.txt" 'Contact:' "security.txt must list Contact (#171)"
+[[ -f "$root/SECURITY.md" ]] || { echo "FAIL: missing SECURITY.md (#277 area)" >&2; fail=1; }
+[[ -f "$root/THIRD_PARTY.md" ]] || { echo "FAIL: missing THIRD_PARTY.md (#291)" >&2; fail=1; }
+[[ -f "$root/docs/terceiros.html" ]] || { echo "FAIL: missing docs/terceiros.html (#291)" >&2; fail=1; }
 
 [[ -f "$root/frontend/web/robots.txt" ]] || {
   echo "FAIL: missing frontend/web/robots.txt (#130)" >&2; fail=1; }

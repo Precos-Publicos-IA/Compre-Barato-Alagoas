@@ -1,0 +1,44 @@
+# Security policy
+
+## Supported versions
+
+Only the **currently deployed** production stack at
+`https://alagoas.precospublicos.ia.br` (and its admin/docs vhosts) is actively
+maintained. Sideloaded or self-built APKs/web shells from arbitrary commits are
+best-effort.
+
+## Reporting a vulnerability
+
+Please **do not** open a public GitHub issue for security-sensitive reports.
+
+1. Prefer contact listed in production
+   [`/.well-known/security.txt`](https://alagoas.precospublicos.ia.br/.well-known/security.txt)
+   (source in git: **`deploy/well-known/security.txt`** — must be rsynced via `deploy/**`
+   changes or `workflow_dispatch`; editing this `SECURITY.md` alone does **not** update
+   the live file — see issue #289).
+2. If that file is missing or outdated, open a minimal public issue titled
+   “security contact request” without exploit detail.
+3. Include: affected host/version (`/health` `git_sha` if present), impact, and
+   steps to reproduce. Avoid sending device tokens, admin tokens, or real user
+   basket contents.
+
+We aim to acknowledge within a reasonable maintainer timeframe; there is no
+formal bug bounty.
+
+## Scope notes
+
+- The public **application API** is intentionally open for the Flutter/web client;
+  rate limits and LGPD minimization apply, but it is not a private BFF.
+- Admin (`admin.*`) is gated by a static `ADMIN_TOKEN` — treat it as a high-value
+  secret (rotation, no commit, lock unattended consoles).
+- `SECRET_ENCRYPTION_KEY` protects admin-stored secrets in Redis (rotation runbook
+  may land via ops docs PRs such as #286 area).
+- Do not commit `.env`, keystores, Play/App Store credentials, or real
+  `assetlinks.json` / AASA fingerprints/TEAMID in PRs from untrusted forks.
+
+## Hardening references in-repo
+
+- `docs/seguranca-postura.html` / `docs/seguranca-e-dados.html` — posture & LGPD inventory
+- `docs/terceiros.html` / `THIRD_PARTY.md` — third-party attributions (#291)
+- `scripts/check_android_deploy_hardening.sh` — structural Android/deploy checks
+- Issues/PRs tagged security, LGPD, or deploy/ops

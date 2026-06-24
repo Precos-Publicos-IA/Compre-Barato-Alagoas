@@ -159,10 +159,14 @@ jobs:
       - name: Build Flutter web + APK
         if: needs.changes.outputs.frontend == 'true'
         working-directory: frontend
+        # #292: tree-shake icons; explicit canvaskit renderer (html/auto = product follow-up #140).
+        # Obfuscate/split-debug-info omitted for web; enable for APK only if symbol artifacts are stored securely.
         run: |
           flutter pub get
-          flutter build web --release --dart-define=API_BASE_URL="https://${DOMAIN}"
-          flutter build apk --release --dart-define=API_BASE_URL="https://${DOMAIN}"
+          flutter build web --release --tree-shake-icons --web-renderer canvaskit \
+            --dart-define=API_BASE_URL="https://${DOMAIN}"
+          flutter build apk --release --tree-shake-icons \
+            --dart-define=API_BASE_URL="https://${DOMAIN}"
 
       - name: Configure SSH
         env:
@@ -261,6 +265,16 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v4
+      # Fast contract checks before heavy Puppeteer (#293 / #278).
+      - name: Live ops probes (health / security.txt / client-config)
+        env:
+          APP_URL: https://${{ secrets.DEPLOY_DOMAIN }}
+          API_URL: https://${{ secrets.DEPLOY_DOMAIN }}
+          OPS_FORBID_MOCKS: "true"
+          OPS_REQUIRE_SECURITY_TXT: "true"
+          # Tolerate 404 until client-config is on the deployed API (PR #271 area).
+          OPS_REQUIRE_CLIENT_CONFIG: "false"
+        run: node e2e/ops_probes.js
       - name: Live headless suite
         env:
           NODE_PATH: /opt/ci/e2e/node_modules
@@ -280,3 +294,7 @@ jobs:
       - name: Phone integration_test note
         run: |
           echo "::notice::Phone/integration_test vs live API is still required on a device (AGENTS.md §6); not available in GHA."
+      - name: Nginx well-known reminder
+        if: always()
+        run: |
+          echo "::notice::If deploy/** nginx snippets changed, operators must install/reload host nginx (#288 per-file well-known types; not applied by rsync alone)."

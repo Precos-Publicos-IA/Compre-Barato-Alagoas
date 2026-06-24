@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Terceiros &amp; atribuições · Compre Barato Alagoas</title>
+  <meta name="description" content="Avisos de terceiros, fontes de dados (SEFAZ-AL), OpenStreetMap, Flutter, Chart.js e outras dependências do Compre Barato Alagoas." />
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="logo.png" alt="" />
+      <b>Compre Barato Alagoas</b>
+    </div>
+    <p class="brand-sub">Documentação · Terceiros</p>
+    <nav class="nav">
+      <h4>Nesta página</h4>
+      <a href="#escopo">Escopo</a>
+      <a href="#dados">Fontes de dados</a>
+      <a href="#mapas">Mapas</a>
+      <a href="#runtime">Runtime &amp; bibliotecas</a>
+      <a href="#manutencao">Manutenção</a>
+      <h4>Relacionados</h4>
+      <a href="index.html">Documentação</a>
+      <a href="seguranca-e-dados.html">Segurança &amp; dados</a>
+      <a href="seguranca-postura.html">Postura de segurança</a>
+      <a href="../THIRD_PARTY.md">THIRD_PARTY.md (inglês/técnico)</a>
+    </nav>
+  </aside>
+  <main class="content">
+    <span class="tag">Legal / atribuições · #291</span>
+    <h1>Terceiros &amp; atribuições</h1>
+    <p class="lead">O código deste repositório é <strong>MIT</strong> (Preços Públicos IA).
+      O produto depende de fontes de dados, bibliotecas e ativos de terceiros com
+      licenças e termos próprios. Esta página resume o essencial para usuários,
+      operadores e listagens em lojas; detalhes técnicos em
+      <code>THIRD_PARTY.md</code> na raiz do repositório.</p>
+
+    <h2 id="escopo">Escopo</h2>
+    <p>Não substitui o arquivo <code>LICENSE</code> de cada dependência. Em revisões
+      formais, gere a árvore atual com <code>flutter pub deps</code> e o manifesto
+      Python do backend.</p>
+
+    <h2 id="dados">Fontes de dados</h2>
+    <table>
+      <tr><th>Fonte</th><th>Papel</th><th>Observação</th></tr>
+      <tr>
+        <td><strong>SEFAZ-AL — Economiza Alagoas</strong></td>
+        <td>Preços/ofertas em produção (<code>USE_MOCK_SEFAZ=false</code>)</td>
+        <td>API pública governamental; token só no servidor. Termos de uso e
+          emissão do token são da SEFAZ-AL / Estado de Alagoas. Este app é
+          intermediário — não é dono dos dados fiscais.</td>
+      </tr>
+      <tr>
+        <td>Catálogo mock (<code>mock_sefaz.json</code>)</td>
+        <td>Desenvolvimento e testes</td>
+        <td>Dados sintéticos do projeto; não são NFC-e reais.</td>
+      </tr>
+    </table>
+
+    <h2 id="mapas">Mapas &amp; localização</h2>
+    <ul>
+      <li><strong>OpenStreetMap</strong> — tiles via <code>flutter_map</code>.
+        © colaboradores do OpenStreetMap; licença de dados
+        <a href="https://www.openstreetmap.org/copyright" rel="noopener">ODbL</a>.
+        A interface deve exibir atribuição OSM (issue #164).</li>
+      <li><strong>Localização do dispositivo</strong> — opcional (fallback Maceió);
+        políticas de permissão do SO/navegador se aplicam.</li>
+    </ul>
+
+    <h2 id="runtime">Runtime &amp; bibliotecas (visão geral)</h2>
+    <ul>
+      <li><strong>Flutter / Dart</strong> — motor e framework (licenças BSD-style do projeto Flutter).</li>
+      <li><strong>Plugins Flutter</strong> — ex.: <code>http</code>, armazenamento seguro,
+        geolocator, speech_to_text, share_plus, url_launcher, app_links, flutter_map,
+        riverpod — ver cada pacote em <a href="https://pub.dev" rel="noopener">pub.dev</a>.</li>
+      <li><strong>Backend</strong> — FastAPI, Redis client, httpx, cryptography (Fernet),
+        gunicorn/uvicorn, clientes SEFAZ/LLM, Sentry opcional — ver dependências Python do
+        diretório <code>backend/</code>.</li>
+      <li><strong>Painel admin</strong> — HTML/JS/CSS próprios; <strong>Chart.js</strong>
+        vendido em <code>admin-frontend/vendor/</code> (MIT típico; confirmar comentário
+        do arquivo; issue #193 sobre source map ausente).</li>
+      <li><strong>E2E</strong> — Puppeteer/Chromium em <code>e2e/</code>.</li>
+    </ul>
+
+    <h2 id="manutencao">Manutenção</h2>
+    <p>Atualize esta página e <code>THIRD_PARTY.md</code> ao adicionar código vendido,
+      mudar provedor de mapas ou integrar SDKs de loja/push/anúncios. Questionários de
+      privacidade (Play / App Store — issues #262, #270) devem apontar para aqui e para
+      as páginas de LGPD, evitando divergência entre “o app declara” e “o código faz”.</p>
+
+    <p class="muted">Não incluídos por padrão no código atual: FCM/Web-Push, SDKs de
+      anúncio ou analytics de terceiros; medição de uso é agregada no próprio backend
+      (ver <a href="lgpd-medicao-de-uso.html">LGPD · medição de uso</a>).</p>
+  </main>
+</div>
+</body>
+</html>
