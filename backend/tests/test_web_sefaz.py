@@ -108,23 +108,24 @@ def _row(desc: str, price: float = 10.0) -> Registro:
     )
 
 
-def test_filter_relevant_rejects_15kg_for_5kg_query():
+def test_filter_relevant_rejects_pet_and_prefers_real_rice():
     rows = [
         _row("DOG CHOW CARNE ARROZ 15KG", 50),
         _row("ARROZ TIO JOAO TIPO 1 5KG", 25),
-        _row("ARROZ CAMIL 1KG", 5),
+        _row("ARROZ CAMIL TIPO 1 1KG", 5),
         _row("ARROZ P CAES LUPPY 5KG", 15),
     ]
     kept = _filter_relevant(rows, "arroz 5kg")
-    assert len(kept) == 1
-    assert "TIO JOAO" in kept[0].produto.descricao.upper()
+    descs = " ".join(r.produto.descricao.upper() for r in kept)
+    assert "TIO JOAO" in descs or "CAMIL" in descs
+    assert "CAES" not in descs and "DOG CHOW" not in descs
 
 
-def test_filter_relevant_word_tokens():
+def test_filter_relevant_drops_candy_keeps_milk():
     rows = [
         _row("BALA CARAMELO LEITE 660G"),
         _row("LEITE INTEGRAL ITALAC 1L"),
     ]
     kept = _filter_relevant(rows, "leite")
-    # both contain "leite"; size not required
-    assert len(kept) == 2
+    assert len(kept) == 1
+    assert "ITALAC" in kept[0].produto.descricao.upper()

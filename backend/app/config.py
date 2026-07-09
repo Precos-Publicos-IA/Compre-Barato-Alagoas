@@ -72,8 +72,9 @@ class Settings(BaseSettings):
     sefaz_web_timeout_seconds: float = 45.0
     # Stop streaming category HTML after this many product cards / bytes — the
     # site can return 20MB for broad terms; we never need that many for ranking.
-    sefaz_web_max_cards: int = 200
-    sefaz_web_max_bytes: int = 1_500_000
+    # Pull more raw cards then re-rank by relevance (site is price-sorted junk-first).
+    sefaz_web_max_cards: int = 350
+    sefaz_web_max_bytes: int = 2_000_000
     # Global concurrent website searches (basket items share this budget).
     sefaz_web_concurrency: int = 2
 

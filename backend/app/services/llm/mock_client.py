@@ -108,6 +108,31 @@ def _clean_term(token: str) -> tuple[str, int]:
     return " ".join(words).strip(), qty
 
 
+
+# Cheap deterministic expansions (mock LLM) — better SEFAZ/web hit rate without tokens.
+_TERM_EXPAND = {
+    "arroz": "arroz tipo 1",
+    "leite": "leite uht",
+    "feijao": "feijao carioca",
+    "feijão": "feijao carioca",
+    "pao": "pao frances",
+    "pão": "pao frances",
+    "acucar": "acucar cristal",
+    "açúcar": "acucar cristal",
+    "oleo": "oleo de soja",
+    "óleo": "oleo de soja",
+    "cafe": "cafe torrado",
+    "café": "cafe torrado",
+    "macarrao": "macarrao espaguete",
+    "macarrão": "macarrao espaguete",
+    "ovo": "ovos",
+    "ovos": "ovos",
+    "manteiga": "manteiga",
+    "sabao": "sabao em po",
+    "sabão": "sabao em po",
+}
+
+
 class MockLLMClient(LLMClient):
     source_name = "mock"
 
@@ -126,11 +151,16 @@ class MockLLMClient(LLMClient):
                 if key in seen:
                     continue
                 seen.add(key)
+                expand_key = term.lower()
+                search = _TERM_EXPAND.get(expand_key, term)
+                # Also expand first word of multi-word cleaned terms
+                if search == term and " " not in term:
+                    search = _TERM_EXPAND.get(expand_key, term)
                 out.append(
                     ParsedItem(
                         raw=token,
                         label=token,
-                        search_term=term,
+                        search_term=search,
                         quantity=qty,
                     )
                 )

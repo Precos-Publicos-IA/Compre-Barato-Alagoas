@@ -169,6 +169,9 @@ def parse_categories(html: str) -> list[tuple[int, int]]:
     return out
 
 
+_SIZE_TOKEN = re.compile(r"^(\d+(?:[.,]\d+)?)(kg|g|l|ml|un|und)$", re.I)
+
+
 def _simplify_term(term: str) -> str:
     """First significant word of a multi-token query (for website retry)."""
     for t in re.split(r"[^a-zA-ZÀ-ú0-9]+", term.strip()):
@@ -176,6 +179,47 @@ def _simplify_term(term: str) -> str:
             if t.lower() not in {"tipo", "para", "com"}:
                 return t.lower()
     return term.strip().lower()[:30]
+
+
+# Specific phrases that surface real staples on the Economiza site (30-char max).
+_WEB_VARIANTS: dict[str, tuple[str, ...]] = {
+    "leite": ("leite uht", "leite integral", "leite desnatado"),
+    "arroz": ("arroz tipo 1", "arroz branco", "arroz 5kg"),
+    "feijao": ("feijao carioca", "feijao preto", "feijao 1kg"),
+    "pao": ("pao frances", "pao de forma"),
+    "acucar": ("acucar cristal", "acucar refinado"),
+    "oleo": ("oleo de soja", "oleo soja 900"),
+    "cafe": ("cafe torrado", "cafe moido"),
+    "macarrao": ("macarrao espaguete", "macarrao 500g"),
+    "ovos": ("ovos brancos", "ovo branco"),
+    "ovo": ("ovos brancos", "ovo branco"),
+}
+
+
+def _web_query_variants(term: str) -> list[str]:
+    """Build 1–4 website queries: original + staple-specific phrases."""
+    t = term.strip().lower()[:30]
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def add(q: str) -> None:
+        q = q.strip().lower()[:30]
+        if len(q) >= 3 and q not in seen:
+            seen.add(q)
+            out.append(q)
+
+    add(t)
+    head = _simplify_term(t)
+    # If already specific ("leite uht"), skip redundant head-only query.
+    if head != t:
+        add(head)
+    for key, variants in _WEB_VARIANTS.items():
+        if key == head or key in t.split() or t.startswith(key):
+            for v in variants:
+                add(v)
+            break
+    # Cap at 3 website hits per item — site is slow.
+    return out[:3]
 
 
 def pick_category(categories: Iterable[tuple[int, int]]) -> int | None:
@@ -290,70 +334,37 @@ def parse_cards(html: str, *, max_cards: int | None = None) -> list[Registro]:
     return rows
 
 
-_SIZE_TOKEN = re.compile(r"^(\d+(?:[.,]\d+)?)(kg|g|l|ml|un|und)$", re.I)
-# Grocery app: drop pet/animal feed unless the user asked for it.
-_PET_NOISE = re.compile(
-    r"\b(c[aã]es?|c[aã]o|gatos?|dog|cat|ra[cç][aã]o|pet|filhote|"
-    r"canina|felina|animal(?:is)?|cachorro|arrozcao|amigaco|amigao|luppy|"
-    r"biluzao|cravil|au\s*au)\b"
-    r"|p\s*c[aã]o|para\s+c[aã]o|p\s*anim|agrovan",
-    re.I,
-)
-_PET_QUERY = re.compile(
-    r"\b(c[aã]es?|c[aã]o|gato|dog|cat|ra[cç][aã]o|pet|cachorro)\b",
-    re.I,
-)
-
 
 def _filter_relevant(rows: list[Registro], term: str) -> list[Registro]:
-    """Drop obvious off-topic cards when the site is loose (e.g. 'arroz' → pet food).
+    """Score NFC-e descriptions and keep grocery-plausible rows for ``term``.
 
-    * Word tokens (e.g. ``arroz``, ``leite``) must all appear in the description.
-    * Size tokens (``5kg``) use a boundary-aware match so ``5kg`` does not hit ``15kg``.
-    * Pet-food noise is stripped unless the query itself is about pets.
-    If filtering would wipe everything, keep the original list (better noisy than empty).
+    Website results are price-sorted ascending, so the head is often candy/pet food.
+    We re-rank by deterministic relevance and drop low scores before returning.
     """
-    raw = [t for t in re.split(r"[^a-z0-9.,]+", term.lower()) if t]
-    words: list[str] = []
-    sizes: list[re.Pattern[str]] = []
-    for t in raw:
-        if t in {"tipo", "para", "com", "de", "do", "da"}:
-            continue
-        sm = _SIZE_TOKEN.match(t.replace(",", "."))
-        if sm:
-            num, unit = sm.group(1).replace(",", "."), sm.group(2).lower()
-            # allow "5kg", "5 kg", "5,0kg"
-            sizes.append(
-                re.compile(
-                    rf"(?<![\d.]){re.escape(num)}\s*{re.escape(unit)}\b",
-                    re.I,
-                )
-            )
-        elif len(t) >= 3:
-            words.append(t)
-    if not words and not sizes:
+    from ..rag.relevance import score_description
+
+    if not rows:
         return rows
 
-    want_pet = bool(_PET_QUERY.search(term))
+    scored: list[tuple[float, Registro]] = []
+    for r in rows:
+        desc = r.produto.descricao or ""
+        s = score_description(term, term, desc)
+        scored.append((s, r))
+    scored.sort(key=lambda x: -x[0])
 
-    def ok(desc: str, *, require_size: bool) -> bool:
-        d = desc.lower()
-        if not want_pet and _PET_NOISE.search(d):
-            return False
-        if words and not all(w in d for w in words):
-            return False
-        if require_size and sizes and not any(p.search(d) for p in sizes):
-            return False
-        return True
-
-    kept = [r for r in rows if ok(r.produto.descricao or "", require_size=bool(sizes))]
-    if kept:
-        return kept
-    # Soften: word tokens only (drop size requirement) before giving up.
-    soft = [r for r in rows if ok(r.produto.descricao or "", require_size=False)]
+    # Prefer solid matches; if none, keep best mid-score rows (not pure zeros).
+    hard = [r for s, r in scored if s >= 0.35]
+    if hard:
+        return hard
+    soft = [r for s, r in scored if s >= 0.18]
     if soft:
         return soft
-    return rows
+    # Last resort: top 15 by score if anything non-zero
+    nonzero = [r for s, r in scored if s > 0.05]
+    return nonzero[:15] if nonzero else []
+
+
 class WebSefazClient:
     """Scrape economizaalagoas.sefaz.al.gov.br into ``PesquisaResponse``."""
 
@@ -398,34 +409,30 @@ class WebSefazClient:
             raise SefazApiError("search term too short for Economiza website (min 3 chars)")
 
         async with _web_semaphore(self._concurrency):
-            rows = await self._search_term(term)
+            # Site sorts by price ascending. Broad terms ("leite") return tens of
+            # thousands of candy hits first — we never see real UHT milk in the
+            # first N cards. Always fan out to specific grocery phrases too.
+            queries = _web_query_variants(term)
+            rows: list[Registro] = []
+            seen: set[tuple] = set()
+            for q in queries:
+                try:
+                    batch = await self._search_term(q)
+                except SefazApiError:
+                    logger.warning("web sefaz variant failed term=%r", q)
+                    continue
+                batch = _filter_relevant(batch, term)
+                for r in batch:
+                    key = (
+                        r.produto.descricao,
+                        r.estabelecimento.cnpj,
+                        r.produto.venda.valor_venda if r.produto.venda else 0,
+                    )
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    rows.append(r)
             rows = _filter_relevant(rows, term)
-            # Specific terms like "arroz 5kg" often return mostly pet food on the
-            # website. If too few grocery hits remain, retry the headword alone
-            # (unit-price ranking still compares 1kg vs 5kg fairly later).
-            if len(rows) < 12:
-                simplified = _simplify_term(term)
-                if simplified and simplified != term.lower():
-                    extra = await self._search_term(simplified)
-                    extra = _filter_relevant(extra, simplified)
-                    # Prefer original term's word tokens when merging.
-                    seen = {
-                        (
-                            r.produto.descricao,
-                            r.estabelecimento.cnpj,
-                            r.produto.venda.valor_venda if r.produto.venda else 0,
-                        )
-                        for r in rows
-                    }
-                    for r in extra:
-                        key = (
-                            r.produto.descricao,
-                            r.estabelecimento.cnpj,
-                            r.produto.venda.valor_venda if r.produto.venda else 0,
-                        )
-                        if key not in seen:
-                            rows.append(r)
-                            seen.add(key)
 
         # Approximate "days" window from relative sale text when present.
         if days and days < 10:

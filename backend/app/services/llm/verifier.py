@@ -45,7 +45,10 @@ class Verifier(Protocol):
 class BasicVerifier:
     """Rules + RAG critic; no LLM on the hot path."""
 
-    min_score: float = 0.15
+    # Stricter default: candy/pet noise must not pass as "success" for RAG learning.
+    min_score: float = 0.35
+    # Only learn mappings when the best offer is clearly on-intent.
+    min_score_to_learn: float = 0.45
 
     async def verify_and_organize(
         self,
@@ -58,9 +61,6 @@ class BasicVerifier:
     ) -> VerifyOutcome | tuple:
         if rag is None and cache is not None:
             rag = RAGStore(redis=cache.redis)
-
-        # Legacy call sites expected a tuple; orchestrator uses VerifyOutcome.
-        # We always return VerifyOutcome from new code; see adapter below.
 
         suggestions: list[str] = []
         retry_terms: dict[str, str] = {}
@@ -77,14 +77,14 @@ class BasicVerifier:
             good_count = len(rel.kept)
 
             if rag is not None:
-                if good_count > 0:
+                if good_count > 0 and rel.score >= self.min_score_to_learn:
                     await rag.record_success(
                         user_term=item.label or item.raw,
                         effective_search_term=item.search_term,
                         offers_found=good_count,
                     )
                     successes += 1
-                else:
+                elif good_count == 0:
                     await rag.record_miss(
                         user_term=item.label or item.raw,
                         attempted_search_term=item.search_term,

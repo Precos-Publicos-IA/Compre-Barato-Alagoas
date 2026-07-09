@@ -75,16 +75,23 @@ class SearchOrchestrator:
             for label, alt_term in list(outcome.retry_terms.items())[
                 :20
             ]:  # safety bound
-                item = next((p for p in parsed if p.label == label), None)
-                if item is None:
+                idx = next((i for i, p in enumerate(parsed) if p.label == label), None)
+                if idx is None:
                     continue
+                item = parsed[idx]
                 logger.info(
                     "orchestrator: retry label=%r term %r -> %r",
                     label,
                     item.search_term,
                     alt_term,
                 )
-                item.search_term = alt_term
+                # ParsedItem is frozen — replace with updated search_term.
+                parsed[idx] = ParsedItem(
+                    raw=item.raw,
+                    label=item.label,
+                    search_term=alt_term,
+                    quantity=item.quantity,
+                )
                 new_offers = await fetch_offers(alt_term, label)
                 offers_by_item[label] = new_offers
                 retries += 1
