@@ -33,6 +33,8 @@ class ApiClient {
 
   /// Per-request ceiling so a stalled network surfaces instead of hanging the UI.
   static const Duration _timeout = Duration(seconds: 12);
+  /// Web SEFAZ multi-item baskets can take a minute+ cold.
+  static const Duration _searchTimeout = Duration(seconds: 120);
 
   /// Runs [send] with a timeout and a single retry on transient transport
   /// failures (timeout / connection drop). HTTP error *statuses* return a
@@ -108,15 +110,17 @@ class ApiClient {
     String? deviceToken,
     String? analyticsId,
     List<String> excludedCnpjs = const [],
+    List<String> favoriteCnpjs = const [],
   }) async {
     final uri = Uri.parse('$_baseUrl/api/v1/search');
     final payload = <String, dynamic>{
       'items': items,
-      'latitude': ?latitude,
-      'longitude': ?longitude,
-      'radius_km': ?radiusKm,
-      'days': ?days,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (radiusKm != null) 'radius_km': radiusKm,
+      if (days != null) 'days': days,
       if (excludedCnpjs.isNotEmpty) 'excluded_cnpjs': excludedCnpjs,
+      if (favoriteCnpjs.isNotEmpty) 'favorite_cnpjs': favoriteCnpjs,
     };
     final resp = await _post(
       uri,
@@ -138,6 +142,99 @@ class ApiClient {
     }
     final body = jsonDecode(utf8.decode(resp.bodyBytes)) as Map<String, dynamic>;
     return SearchResponse.fromJson(body);
+  }
+
+  /// Progressive NDJSON search. Calls [onStatus] and [onPartial] as events arrive.
+  /// Returns the final [SearchResponse] from the `done` event (or last partial).
+  Future<SearchResponse> searchStream(
+    List<String> items, {
+    double? latitude,
+    double? longitude,
+    int? radiusKm,
+    int? days,
+    String? deviceToken,
+    String? analyticsId,
+    List<String> excludedCnpjs = const [],
+    List<String> favoriteCnpjs = const [],
+    void Function(String message)? onStatus,
+    void Function(SearchResponse partial)? onPartial,
+  }) async {
+    final uri = Uri.parse('$_baseUrl/api/v1/search/stream');
+    final payload = <String, dynamic>{
+      'items': items,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (radiusKm != null) 'radius_km': radiusKm,
+      if (days != null) 'days': days,
+      if (excludedCnpjs.isNotEmpty) 'excluded_cnpjs': excludedCnpjs,
+      if (favoriteCnpjs.isNotEmpty) 'favorite_cnpjs': favoriteCnpjs,
+    };
+    final request = http.Request('POST', uri)
+      ..headers.addAll({
+        'Content-Type': 'application/json',
+        'Accept': 'application/x-ndjson',
+        if (deviceToken != null) deviceTokenHeader: deviceToken,
+        if (analyticsId != null) analyticsIdHeader: analyticsId,
+      })
+      ..body = jsonEncode(payload);
+
+    final streamed = await _client.send(request).timeout(_searchTimeout);
+    if (streamed.statusCode == 429) {
+      throw ApiException('Você atingiu o limite de buscas de hoje.');
+    }
+    if (streamed.statusCode != 200) {
+      final body = await streamed.stream.bytesToString();
+      throw ApiException(
+        'Não foi possível buscar os preços agora. (${streamed.statusCode}) $body',
+      );
+    }
+
+    SearchResponse? last;
+    final buffer = StringBuffer();
+    await for (final chunk in streamed.stream.transform(utf8.decoder)) {
+      buffer.write(chunk);
+      var data = buffer.toString();
+      while (true) {
+        final nl = data.indexOf('\n');
+        if (nl < 0) break;
+        final line = data.substring(0, nl).trim();
+        data = data.substring(nl + 1);
+        if (line.isEmpty) continue;
+        late final Map<String, dynamic> ev;
+        try {
+          ev = jsonDecode(line) as Map<String, dynamic>;
+        } catch (_) {
+          continue;
+        }
+        final type = ev['type'] as String? ?? '';
+        if (type == 'status') {
+          final msg = ev['message'] as String?;
+          if (msg != null && msg.isNotEmpty) onStatus?.call(msg);
+        } else if (type == 'partial' || type == 'done') {
+          final resp = ev['response'];
+          if (resp is Map<String, dynamic>) {
+            last = SearchResponse.fromJson(resp);
+            if (type == 'partial') {
+              onPartial?.call(last!);
+              final sm = last!.metrics.statusMessage;
+              if (sm != null && sm.isNotEmpty) onStatus?.call(sm);
+            }
+          }
+        } else if (type == 'error') {
+          throw ApiException(
+            (ev['detail'] as String?) ??
+                'Não foi possível buscar os preços agora.',
+          );
+        }
+      }
+      buffer
+        ..clear()
+        ..write(data);
+    }
+    if (last == null) {
+      throw ApiException('Não foi possível buscar os preços agora.');
+    }
+    return last;
   }
 
   /// Sends user feedback on results (👍/👎 or "item errado"). Best-effort and

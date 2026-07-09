@@ -16,6 +16,8 @@ class ResultsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(searchControllerProvider);
     final basket = ref.watch(basketProvider);
+    final status = ref.watch(searchStatusProvider);
+    final busy = ref.watch(searchBusyProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -24,7 +26,7 @@ class ResultsScreen extends ConsumerWidget {
         title: const _AppBarTitle(),
         actions: [
           result.maybeWhen(
-            data: (r) => (r != null && r.stores.isNotEmpty)
+            data: (r) => (r != null && r.stores.isNotEmpty && !r.partial)
                 ? IconButton(
                     icon: const Icon(Icons.map),
                     tooltip: 'Ver mapa',
@@ -38,7 +40,7 @@ class ResultsScreen extends ConsumerWidget {
         ],
       ),
       body: result.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => _LoadingProgress(status: status),
         error: (e, _) => _Message(
           icon: Icons.error_outline,
           text: e.toString(),
@@ -48,9 +50,11 @@ class ResultsScreen extends ConsumerWidget {
         ),
         data: (r) {
           if (r == null) {
+            if (busy) return _LoadingProgress(status: status);
             return const _Message(icon: Icons.search, text: 'Faça uma busca.');
           }
           if (r.stores.isEmpty) {
+            if (busy) return _LoadingProgress(status: status);
             return const _Message(
               icon: Icons.sentiment_dissatisfied,
               text: 'Nenhuma loja encontrada por perto.\n'
@@ -59,7 +63,11 @@ class ResultsScreen extends ConsumerWidget {
                   'Evite marcas muito específicas no começo.',
             );
           }
-          return _Results(response: r, items: basket);
+          return _Results(
+            response: r,
+            items: basket,
+            status: busy ? status : null,
+          );
         },
       ),
       bottomNavigationBar: SafeArea(
@@ -77,9 +85,14 @@ class ResultsScreen extends ConsumerWidget {
 }
 
 class _Results extends ConsumerWidget {
-  const _Results({required this.response, required this.items});
+  const _Results({
+    required this.response,
+    required this.items,
+    this.status,
+  });
   final SearchResponse response;
   final List<String> items;
+  final String? status;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -102,8 +115,8 @@ class _Results extends ConsumerWidget {
     final cheapest = savings?.cheapest ?? visible.first;
     final bestTotal = cheapest.total;
 
-    // Cheapest stays on top (the headline value), then favourites, then the rest —
-    // each card still shows its own +R$ delta so the price story is never hidden.
+    // Server rank already prefers coverage + favorites; keep cheapest headline
+    // first, then favorites, then the rest.
     final ordered = <StoreResult>[
       cheapest,
       ...visible.where(
@@ -112,23 +125,189 @@ class _Results extends ConsumerWidget {
           (s) => !identical(s, cheapest) && !favorites.containsKey(s.cnpj)),
     ];
 
+    final rewrites = response.metrics.searchRewrites;
+    final suggestions = response.metrics.suggestedRefinements;
+
     return RefreshIndicator(
       onRefresh: () => ref.read(searchControllerProvider.notifier).run(items),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 16),
         children: [
+          if (status != null) _ProgressBanner(message: status!),
           if (savings != null && savings.amount > 0)
             _SavingsBanner(savings: savings, listId: response.listId),
-          const _FreshnessLine(),
+          _DisclaimerLine(text: response.dataDisclaimer),
+          if (rewrites.isNotEmpty) _RewriteBanner(rewrites: rewrites),
+          if (suggestions.isNotEmpty) _SuggestionsBanner(suggestions: suggestions),
           for (final store in ordered)
             StoreCard(
               store: store,
               isBest: identical(store, cheapest),
               deltaFromBest: store.total - bestTotal,
             ),
-          _FeedbackCard(listId: response.listId, items: items),
+          if (!response.partial)
+            _FeedbackCard(listId: response.listId, items: items),
         ],
+      ),
+    );
+  }
+}
+
+class _LoadingProgress extends StatelessWidget {
+  const _LoadingProgress({this.status});
+  final String? status;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 20),
+            Text(
+              status ?? 'Buscando preços…',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Os primeiros resultados aparecem assim que cada item for encontrado.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgressBanner extends StatelessWidget {
+  const _ProgressBanner({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.2,
+              color: scheme.onSecondaryContainer,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: scheme.onSecondaryContainer,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DisclaimerLine extends StatelessWidget {
+  const _DisclaimerLine({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline, size: 16, color: Colors.black54),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RewriteBanner extends StatelessWidget {
+  const _RewriteBanner({required this.rewrites});
+  final List<SearchRewrite> rewrites;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Como buscamos',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
+            const SizedBox(height: 6),
+            for (final r in rewrites.take(6))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  '“${r.original}” → “${r.searchTerm}”',
+                  style: const TextStyle(fontSize: 13, color: Colors.black87),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SuggestionsBanner extends StatelessWidget {
+  const _SuggestionsBanner({required this.suggestions});
+  final List<String> suggestions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Dicas para melhorar a busca',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
+            const SizedBox(height: 6),
+            for (final s in suggestions.take(4))
+              Text('• $s', style: const TextStyle(fontSize: 13)),
+          ],
+        ),
       ),
     );
   }
@@ -426,28 +605,6 @@ class _AppBarTitle extends StatelessWidget {
   }
 }
 
-class _FreshnessLine extends StatelessWidget {
-  const _FreshnessLine();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-      child: Row(
-        children: [
-          Icon(Icons.schedule, size: 16, color: Colors.black54),
-          SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              'Cada preço mostra a data em que foi registrado.',
-              style: TextStyle(fontSize: 13, color: Colors.black54),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _Message extends StatelessWidget {
   const _Message({

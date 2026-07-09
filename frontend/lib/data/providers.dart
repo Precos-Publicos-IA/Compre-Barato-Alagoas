@@ -211,6 +211,28 @@ class BasketNotifier extends Notifier<List<String>> {
 final basketProvider =
     NotifierProvider<BasketNotifier, List<String>>(BasketNotifier.new);
 
+/// Live status line while a progressive search is running (PT, user-facing).
+class SearchStatusNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? value) => state = value;
+}
+
+final searchStatusProvider =
+    NotifierProvider<SearchStatusNotifier, String?>(SearchStatusNotifier.new);
+
+/// True while a search stream is still open (partial results may already show).
+class SearchBusyNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) => state = value;
+}
+
+final searchBusyProvider =
+    NotifierProvider<SearchBusyNotifier, bool>(SearchBusyNotifier.new);
+
 /// Search controller: holds the latest results as an AsyncValue.
 class SearchController extends AsyncNotifier<SearchResponse?> {
   // Monotonic id for the latest run. A slower earlier search must not overwrite the
@@ -224,25 +246,27 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
     if (items.isEmpty) return;
     final generation = ++_runGeneration;
     state = const AsyncValue.loading();
-    final result = await AsyncValue.guard(() async {
+    ref.read(searchBusyProvider.notifier).set(true);
+    ref.read(searchStatusProvider.notifier).set('Iniciando busca…');
+
+    try {
       final origin = await ref.read(locationServiceProvider).resolveOrigin();
-      // User-tuned search params (Configurações); fall back to backend defaults.
       final prefs = ref.read(searchPrefsProvider).asData?.value;
       final effRadius = radiusKm ?? prefs?.radiusKm;
       final effDays = days ?? prefs?.days;
-      // Only consented (cloud-sync on) devices identify themselves, so the
-      // backend saves this list to their server-side history.
       String? deviceToken;
       if (ref.read(cloudSyncProvider).asData?.value == true) {
         deviceToken = await ref.read(deviceIdentityProvider).getOrCreateToken();
       }
-      // Anonymous usage measurement (opt-out): sent on every search unless off.
       String? analyticsId;
       if (ref.read(usageStatsProvider).asData?.value ?? true) {
         analyticsId = await ref.read(analyticsIdProvider).getOrCreate();
       }
       final avoided = ref.read(avoidedStoresProvider).asData?.value ?? const {};
-      return ref.read(apiClientProvider).search(
+      final favorites =
+          ref.read(favoriteStoresProvider).asData?.value ?? const {};
+
+      final finalResult = await ref.read(apiClientProvider).searchStream(
             items,
             latitude: origin.latitude,
             longitude: origin.longitude,
@@ -251,13 +275,36 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
             deviceToken: deviceToken,
             analyticsId: analyticsId,
             excludedCnpjs: avoided.keys.toList(),
+            favoriteCnpjs: favorites.keys.toList(),
+            onStatus: (msg) {
+              if (ref.mounted && generation == _runGeneration) {
+                ref.read(searchStatusProvider.notifier).set(msg);
+              }
+            },
+            onPartial: (partial) {
+              if (ref.mounted && generation == _runGeneration) {
+                state = AsyncValue.data(partial);
+              }
+            },
           );
-    });
-    // The search can outlive the provider (user navigated away, or the test
-    // ended). Don't write state into a disposed notifier, and don't let a stale
-    // run clobber a newer one's result/loading state (#337).
-    if (ref.mounted && generation == _runGeneration) {
-      state = result;
+
+      if (ref.mounted && generation == _runGeneration) {
+        state = AsyncValue.data(finalResult);
+        ref.read(searchStatusProvider.notifier).set(null);
+      }
+    } catch (e, st) {
+      if (ref.mounted && generation == _runGeneration) {
+        // Keep partials if we already showed some stores.
+        final had = state.asData?.value;
+        if (had == null || had.stores.isEmpty) {
+          state = AsyncValue.error(e, st);
+        }
+        ref.read(searchStatusProvider.notifier).set(null);
+      }
+    } finally {
+      if (ref.mounted && generation == _runGeneration) {
+        ref.read(searchBusyProvider.notifier).set(false);
+      }
     }
   }
 }

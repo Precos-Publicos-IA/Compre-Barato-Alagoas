@@ -67,13 +67,20 @@ class _StoreCardState extends ConsumerState<StoreCard> {
   }
 
   String _priceDetail(ItemOffer it) {
-    if (!it.quantityParsed || it.unitPrice == null || it.baseUnit == null) {
-      return '';
+    final bits = <String>[];
+    if (it.packageLabel != null && it.packageLabel!.isNotEmpty) {
+      bits.add(it.packageLabel!);
     }
-    if (it.baseUnit == 'un') {
-      return (it.quantity ?? 1) > 1 ? '${formatBRL(it.unitPrice!)} cada' : '';
+    if (it.quantityParsed && it.unitPrice != null && it.baseUnit != null) {
+      if (it.baseUnit == 'un') {
+        if ((it.quantity ?? 1) > 1) {
+          bits.add('${formatBRL(it.unitPrice!)} cada');
+        }
+      } else {
+        bits.add(formatUnitPrice(it.unitPrice!, it.baseUnit!));
+      }
     }
-    return formatUnitPrice(it.unitPrice!, it.baseUnit!);
+    return bits.join(' · ');
   }
 
   @override
@@ -137,6 +144,33 @@ class _StoreCardState extends ConsumerState<StoreCard> {
                           style: const TextStyle(
                               fontSize: 13, color: Colors.black54),
                         ),
+                        if (store.rankReason != null &&
+                            store.rankReason!.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            store.rankReason!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: widget.isBest
+                                  ? scheme.primary
+                                  : Colors.black87,
+                            ),
+                          ),
+                        ],
+                        if (store.missing.isNotEmpty && !_expanded) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            store.missing.length == 1
+                                ? 'Falta: ${store.missing.first}'
+                                : 'Faltam: ${store.missing.join(", ")}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: scheme.error,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -275,6 +309,12 @@ class _StoreCardState extends ConsumerState<StoreCard> {
               children: [
                 Text(it.description ?? it.query,
                     style: const TextStyle(fontSize: 16)),
+                if (it.isBestMatch)
+                  const Text('Melhor opção nesta loja',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black45)),
                 if (detail.isNotEmpty)
                   Text(detail,
                       style: const TextStyle(

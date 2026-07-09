@@ -32,6 +32,11 @@ class ItemOffer {
   /// price * requestedQuantity (what the line actually costs).
   final double? lineTotal;
 
+  /// Human package size, e.g. "5 kg" / "1 L".
+  final String? packageLabel;
+
+  final bool isBestMatch;
+
   const ItemOffer({
     required this.query,
     required this.found,
@@ -45,6 +50,8 @@ class ItemOffer {
     this.quantityParsed = false,
     this.requestedQuantity = 1,
     this.lineTotal,
+    this.packageLabel,
+    this.isBestMatch = true,
   });
 
   factory ItemOffer.fromJson(Map<String, dynamic> j) => ItemOffer(
@@ -60,6 +67,8 @@ class ItemOffer {
         quantityParsed: j['quantity_parsed'] as bool? ?? false,
         requestedQuantity: (j['requested_quantity'] as num?)?.toInt() ?? 1,
         lineTotal: (j['line_total'] as num?)?.toDouble(),
+        packageLabel: j['package_label'] as String?,
+        isBestMatch: j['is_best_match'] as bool? ?? true,
       );
 }
 
@@ -76,6 +85,8 @@ class StoreResult {
   final double total;
   final List<ItemOffer> items;
   final List<String> missing;
+  final String? rankReason;
+  final bool isFavorite;
 
   const StoreResult({
     required this.cnpj,
@@ -90,6 +101,8 @@ class StoreResult {
     required this.total,
     required this.items,
     required this.missing,
+    this.rankReason,
+    this.isFavorite = false,
   });
 
   factory StoreResult.fromJson(Map<String, dynamic> j) => StoreResult(
@@ -108,6 +121,26 @@ class StoreResult {
             .toList(),
         missing:
             (j['missing'] as List<dynamic>? ?? []).map((e) => e as String).toList(),
+        rankReason: j['rank_reason'] as String?,
+        isFavorite: j['is_favorite'] as bool? ?? false,
+      );
+}
+
+class SearchRewrite {
+  final String label;
+  final String original;
+  final String searchTerm;
+
+  const SearchRewrite({
+    required this.label,
+    required this.original,
+    required this.searchTerm,
+  });
+
+  factory SearchRewrite.fromJson(Map<String, dynamic> j) => SearchRewrite(
+        label: j['label'] as String? ?? '',
+        original: j['original'] as String? ?? '',
+        searchTerm: j['search_term'] as String? ?? '',
       );
 }
 
@@ -116,12 +149,20 @@ class SearchMetrics {
   final int storesFound;
   final double matchRate;
   final double quantityParseRate;
+  final List<String> suggestedRefinements;
+  final List<SearchRewrite> searchRewrites;
+  final int? itemsCompleted;
+  final String? statusMessage;
 
   const SearchMetrics({
     required this.itemsRequested,
     required this.storesFound,
     required this.matchRate,
     required this.quantityParseRate,
+    this.suggestedRefinements = const [],
+    this.searchRewrites = const [],
+    this.itemsCompleted,
+    this.statusMessage,
   });
 
   factory SearchMetrics.fromJson(Map<String, dynamic> j) => SearchMetrics(
@@ -129,6 +170,14 @@ class SearchMetrics {
         storesFound: j['stores_found'] as int,
         matchRate: (j['match_rate'] as num).toDouble(),
         quantityParseRate: (j['quantity_parse_rate'] as num).toDouble(),
+        suggestedRefinements: (j['suggested_refinements'] as List<dynamic>? ?? [])
+            .map((e) => e as String)
+            .toList(),
+        searchRewrites: (j['search_rewrites'] as List<dynamic>? ?? [])
+            .map((e) => SearchRewrite.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        itemsCompleted: (j['items_completed'] as num?)?.toInt(),
+        statusMessage: j['status_message'] as String?,
       );
 }
 
@@ -144,6 +193,8 @@ class SearchResponse {
   final String? listId;
   final List<StoreResult> stores;
   final SearchMetrics metrics;
+  final String dataDisclaimer;
+  final bool partial;
 
   const SearchResponse({
     required this.originLat,
@@ -155,6 +206,9 @@ class SearchResponse {
     this.listId,
     required this.stores,
     required this.metrics,
+    this.dataDisclaimer =
+        'Preços de vendas recentes (NFC-e). Podem diferir na loja.',
+    this.partial = false,
   });
 
   factory SearchResponse.fromJson(Map<String, dynamic> j) => SearchResponse(
@@ -169,5 +223,8 @@ class SearchResponse {
             .map((e) => StoreResult.fromJson(e as Map<String, dynamic>))
             .toList(),
         metrics: SearchMetrics.fromJson(j['metrics'] as Map<String, dynamic>),
+        dataDisclaimer: (j['data_disclaimer'] as String?) ??
+            'Preços de vendas recentes (NFC-e). Podem diferir na loja.',
+        partial: j['partial'] as bool? ?? false,
       );
 }

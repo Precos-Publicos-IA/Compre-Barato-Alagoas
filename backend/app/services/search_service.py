@@ -21,6 +21,7 @@ from ..schemas.search import (
     SearchMetrics,
     SearchRequest,
     SearchResponse,
+    SearchRewrite,
 )
 from .llm.base import LLMClient, LLMUsage
 from .llm.orchestrator import SearchOrchestrator
@@ -60,6 +61,8 @@ async def run_search(
     device_token: str | None = None,
     analytics_id: str | None = None,
     background: BackgroundTasks | None = None,
+    on_progress=None,
+    favorite_cnpjs: set[str] | None = None,
 ) -> SearchResponse:
     lat = req.latitude if req.latitude is not None else MACEIO_LAT
     lon = req.longitude if req.longitude is not None else MACEIO_LON
@@ -176,8 +179,71 @@ async def run_search(
             parse_methods[o.parse_method] = parse_methods.get(o.parse_method, 0) + 1
         return offers
 
+    # Progressive partials: when a fetch finishes, re-rank whatever we have so far.
+    async def _progress_bridge(ev: dict):
+        if on_progress is None:
+            return
+        if ev.get("phase") == "fetch" and "offers_by_item" in ev:
+            partial_parsed = ev.get("parsed") or []
+            labels = [p.label for p in partial_parsed]
+            qtys = {
+                p.label: max(1, int(p.quantity or 1)) for p in partial_parsed
+            }
+            partial_offers = ev["offers_by_item"]
+            # Only rank labels that already have a finished fetch key present.
+            done_labels = [
+                lbl
+                for lbl in labels
+                if lbl in partial_offers
+            ]
+            stores = build_store_results(
+                item_queries=labels,
+                offers_by_item={
+                    k: partial_offers.get(k, []) for k in labels
+                },
+                origin=(lat, lon),
+                top_n=settings.top_stores,
+                excluded_cnpjs=set(req.excluded_cnpjs),
+                quantities=qtys,
+                favorite_cnpjs=favorite_cnpjs,
+            )
+            n = len(labels) or 1
+            matched = sum(1 for lbl in labels if partial_offers.get(lbl))
+            rewrites = [
+                SearchRewrite(**r) if isinstance(r, dict) else r
+                for r in (ev.get("rewrites") or [])
+            ]
+            await on_progress(
+                {
+                    **ev,
+                    "partial_response": SearchResponse(
+                        origin=Origin(latitude=lat, longitude=lon),
+                        radius_km=radius,
+                        days=days,
+                        items_requested=len(labels),
+                        data_source=sefaz.source_name,
+                        list_id=None,
+                        stores=stores,
+                        metrics=SearchMetrics(
+                            items_requested=len(labels),
+                            stores_found=len(stores),
+                            match_rate=round(matched / n, 3),
+                            quantity_parse_rate=0.0,
+                            search_rewrites=rewrites,
+                            items_completed=ev.get("items_completed"),
+                            status_message=ev.get("message"),
+                        ),
+                        partial=True,
+                    ),
+                }
+            )
+        else:
+            await on_progress(ev)
+
     t0 = time.perf_counter()
-    orch = await orchestrator.run(req.items, fetch_offers=fetch_offers)
+    orch = await orchestrator.run(
+        req.items, fetch_offers=fetch_offers, on_progress=_progress_bridge
+    )
     llm_ms = (time.perf_counter() - t0) * 1000
     # llm_ms above includes SEFAZ on purpose for total wait; split: re-measure parse
     # is already inside orchestrator. For admin, attribute full orchestrator block to
@@ -242,10 +308,20 @@ async def run_search(
         top_n=settings.top_stores,
         excluded_cnpjs=set(req.excluded_cnpjs),
         quantities=desired_qtys,
+        favorite_cnpjs=favorite_cnpjs,
     )
     rank_ms = (time.perf_counter() - t0) * 1000
 
     n = len(item_queries) or 1
+    rewrites = [
+        SearchRewrite(
+            label=r["label"],
+            original=r["original"],
+            search_term=r["search_term"],
+        )
+        for r in (orch.rewrites or [])
+        if r.get("search_term") and r.get("original")
+    ]
     metrics = SearchMetrics(
         items_requested=len(item_queries),
         stores_found=len(stores),
@@ -253,6 +329,9 @@ async def run_search(
         quantity_parse_rate=(
             round(parsed_offers / total_offers, 3) if total_offers else 0.0
         ),
+        search_rewrites=rewrites,
+        items_completed=len(item_queries),
+        status_message="Pronto",
     )
 
     if batch is not None:
@@ -311,4 +390,5 @@ async def run_search(
         list_id=list_id,
         stores=stores,
         metrics=metrics,
+        partial=False,
     )

@@ -26,6 +26,8 @@ class SearchRequest(BaseModel):
     # top-N truncation so a hidden store never silently eats a result slot. Ephemeral:
     # used only to filter this request, never logged or persisted.
     excluded_cnpjs: list[str] = Field(default_factory=list, max_length=200)
+    # Optional client favorites — soft ranking boost when coverage ties.
+    favorite_cnpjs: list[str] = Field(default_factory=list, max_length=200)
 
     @field_validator("items")
     @classmethod
@@ -67,6 +69,11 @@ class ItemOffer(BaseModel):
     quantity_parsed: bool = False
     requested_quantity: int = 1           # how many of this item the user asked for
     line_total: float | None = None       # price * requested_quantity (cost of the line)
+    # Human package hint, e.g. "5 kg" or "1 L" (for UI without client-side math).
+    package_label: str | None = None
+    # True when this is the store's best match for the query (always true today;
+    # reserved if we later return runners-up).
+    is_best_match: bool = True
 
 
 class StoreResult(BaseModel):
@@ -82,6 +89,18 @@ class StoreResult(BaseModel):
     total: float                          # sum of (price * requested_quantity) for found items
     items: list[ItemOffer]
     missing: list[str] = Field(default_factory=list)
+    # Short PT reason for ranking position, e.g. "Mais barato com 3/3 itens".
+    rank_reason: str | None = None
+    # Soft boost flag when store is in the user's favorites (client-ordered too).
+    is_favorite: bool = False
+
+
+class SearchRewrite(BaseModel):
+    """How we turned a vague user term into the SEFAZ/web search_term."""
+
+    label: str
+    original: str
+    search_term: str
 
 
 class SearchMetrics(BaseModel):
@@ -93,6 +112,11 @@ class SearchMetrics(BaseModel):
     # Audience-friendly: shows things like "pão" -> "pão francês" so poor users
     # who don't know exact names still get results next time or see tips.
     suggested_refinements: list[str] = Field(default_factory=list)
+    # What we actually searched (when different from the typed label).
+    search_rewrites: list[SearchRewrite] = Field(default_factory=list)
+    # Progress helpers for progressive UX (optional on final response).
+    items_completed: int | None = None
+    status_message: str | None = None
 
 
 class Origin(BaseModel):
@@ -105,10 +129,16 @@ class SearchResponse(BaseModel):
     radius_km: int
     days: int
     items_requested: int
-    data_source: str                      # "mock" | "sefaz"
+    data_source: str                      # "mock" | "sefaz" | "web"
     list_id: str | None = None            # shareable UUID for this shopping list
     stores: list[StoreResult]
     metrics: SearchMetrics
+    # Always-on honesty: NFC-e prices may differ from the shelf.
+    data_disclaimer: str = (
+        "Preços de vendas recentes (NFC-e). Podem diferir na loja."
+    )
+    # True while a progressive stream is still fetching more items.
+    partial: bool = False
 
 
 class SavedList(BaseModel):
