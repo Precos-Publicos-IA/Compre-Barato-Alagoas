@@ -29,7 +29,7 @@ _NOISE = re.compile(
     r"cigarro|cerveja|whisky|vodka|vinho|fermentado|ferm|iogurte|chamyto|"
     r"bebida|refresco|achocolatado|toddynho|pingo|"
     r"creme|cr\.?\s*leite|doce\s*de\s*leite|ferment|fermentado|chamyto|yakult|"
-    r"coalhada|coal\b|bebida\s*lactea|l[aá]ctea"
+    r"coalhada|coalh|coal\b|bebida\s*lactea|l[aá]ctea"
     r")\b",
     re.I,
 )
