@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Security & personal data (LGPD) · Compre Barato Alagoas</title>
+  <meta name="description" content="Inventory of personal data processed by Compre Barato Alagoas, LGPD legal bases, and how each item is protected (encryption, hashing, minimization)." />
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+  <main class="content">
+    <span class="tag">Security &amp; LGPD · Data inventory</span>
+    <h1>Security and personal data</h1>
+    <p class="lead">What the app processes, the legal basis under the LGPD, and how each
+      item is protected. Core principle: <strong>minimization</strong> — we only keep what a
+      feature truly needs, for the shortest time possible, and never in cleartext when we
+      can avoid it.</p>
+
+    <p><a href="index.html">← Back to documentation</a></p>
+
+    <div class="note">Keep this document accurate as the code evolves. It is the
+      project's data-processing inventory.</div>
+
+    <h2 id="inventory">Data inventory</h2>
+    <table>
+      <thead><tr><th>Data</th><th>Where / why</th><th>Legal basis</th><th>Protection</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Device token</strong> (pseudonymous credential, no login)</td>
+          <td>Identifies the device to save lists in the cloud and record consent.</td>
+          <td>Consent (toggle "Save lists to the cloud").</td>
+          <td>In the app: <em>secure storage</em>/Keystore. On the server: <strong>never
+            stored in cleartext</strong> — Redis keys use a <strong>salted SHA-256
+            hash</strong> of the token (like a password hash). A Redis dump reveals neither a
+            usable token nor links a known token to its data.
+            Never logged.</td>
+        </tr>
+        <tr>
+          <td><strong>Anonymous measurement id</strong></td>
+          <td>Estimate unique users (audience).</td>
+          <td>Legitimate interest, with opt-out.</td>
+          <td>Only enters <strong>salted into a HyperLogLog</strong> (aggregated
+            cardinality, irreversible). No per-device record. Details in the
+            <a href="lgpd-usage-measurement.html">LIA</a>.</td>
+        </tr>
+        <tr>
+          <td><strong>Location</strong> (lat/lon)</td>
+          <td>Find prices near the user (radius).</td>
+          <td>Performance of the service requested by the user.</td>
+          <td><strong>Not stored.</strong> Used transiently in the SEFAZ call and
+            rounded (~11&nbsp;m) only in the cache key. Not written to logs (search is
+            <code>POST</code>). No analytics event stores coordinates.</td>
+        </tr>
+        <tr>
+          <td><strong>Shopping lists</strong></td>
+          <td>Shareable links and cloud history (when consented).</td>
+          <td>Consent (cloud) / performance of the service (link).</td>
+          <td>Stored under UUID, linked to the device only via the hash above. Deletable
+            (right to erasure). Idle TTL of 30/90 days.</td>
+        </tr>
+        <tr>
+          <td><strong>IP address</strong></td>
+          <td>Daily search rate limit (anti-abuse).</td>
+          <td>Legitimate interest (security/abuse).</td>
+          <td>Never in cleartext: the limit key stores only a <strong>salted hash</strong>
+            of the IP, with a <strong>24&nbsp;h TTL</strong>. Buckets the client without
+            keeping addresses on disk.</td>
+        </tr>
+        <tr>
+          <td><strong>Feedback text</strong> (👍/👎, "wrong item", free-form note)</td>
+          <td>Detect AI normalization mistakes.</td>
+          <td>Legitimate interest.</td>
+          <td>Anonymous (device token is <strong>not</strong> stored with it). Lives in a
+            capped stream (1000 items) visible only in the admin panel.</td>
+        </tr>
+        <tr>
+          <td><strong>Search terms</strong></td>
+          <td>Ranking of most searched / not found items.</td>
+          <td>Legitimate interest.</td>
+          <td>Aggregated by count (sorted set), not linked to a user. The event feed
+            stores only item count, match rate, and source — <strong>not</strong> per-user
+            terms, no token, no IP.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="secrets">Third-party secrets (SEFAZ token, keys)</h2>
+    <p>Credentials the backend uses to talk to third parties (SEFAZ
+      <code>AppToken</code> is the current case) <strong>are not kept in the repository, in
+      <code>.env</code>, in logs, or in any API response</strong>. They are entered once in the
+      <strong>admin panel</strong> (Settings), encrypted with <strong>Fernet
+      (AES-128-CBC + HMAC)</strong>, and stored in Redis. The panel only shows a short
+      <em>fingerprint</em> so the operator can confirm which value is active — the value
+      itself is never returned. Rotation takes effect immediately, without a restart.</p>
+
+    <h3 id="threat">Honest threat model</h3>
+    <p>The backend must send the token to SEFAZ in cleartext, so the process
+      <strong>must</strong> hold the value in memory. <strong>No scheme hides a secret
+      from someone with <code>root</code> on the same machine</strong> (they can read process
+      memory or the decryption key). <em>Hashing</em> also does not work: it is one-way, and
+      we need the value back. What this architecture actually guarantees:</p>
+    <ul>
+      <li>the secret is <strong>never written to disk in cleartext</strong> (AOF/RDB dumps
+        and Redis backups hold only ciphertext);</li>
+      <li>it <strong>never appears</strong> in git, <code>.env</code>, logs, or API
+        responses (write-only field);</li>
+      <li>an operator/agent doing normal work <strong>never stumbles</strong> on the value —
+        decrypting it is a deliberate, visible act.</li>
+    </ul>
+    <p>The only residual key is <code>SECRET_ENCRYPTION_KEY</code> (Fernet key), in the
+      server <code>.env</code>. Ciphertext (Redis) and key (env) live in
+      <strong>separate places</strong> — neither alone leaks the secret. Truly hiding from
+      <code>root</code> would require an external KMS/HSM, which this single VPS does not have.</p>
+
+    <h2 id="rights">Data subject rights</h2>
+    <ul>
+      <li><strong>Erasure:</strong> <code>DELETE /api/v1/device/me</code> deletes all
+        server-side device state (consent + associated lists).</li>
+      <li><strong>Access:</strong> <code>GET /api/v1/device/me</code> shows what the server
+        stores for that device.</li>
+      <li><strong>Objection (measurement):</strong> opt-out in Settings → "Anonymous
+        usage statistics".</li>
+    </ul>
+
+    <h2 id="references">References</h2>
+    <ul>
+      <li>LGPD — Art. 6 (minimization, security), Art. 7/Art. 11 (legal bases),
+        Art. 18 (data subject rights), Art. 46 (information security).</li>
+      <li>See also the <a href="lgpd-usage-measurement.html">usage measurement LIA</a> and the
+        <a href="https://alagoas.precospublicos.ia.br/privacy.html">Privacy Policy</a>.</li>
+    </ul>
+  </main>
+</div>
+</body>
+</html>

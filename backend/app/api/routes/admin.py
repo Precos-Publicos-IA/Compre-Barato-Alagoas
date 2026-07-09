@@ -61,11 +61,11 @@ async def require_admin(
     if fails > _ADMIN_MAX_FAILS:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Muitas tentativas. Tente novamente mais tarde.",
+            detail="Too many attempts. Try again later.",
         )
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Acesso negado.",
+        detail="Access denied.",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -76,7 +76,7 @@ async def overview(
     settings: Settings = Depends(get_settings_dep),
 ) -> dict:
     data = await analytics.overview()
-    # Surface mode so the UI can badge "custo estimado" while in mock mode.
+    # Surface mode so the UI can badge "estimated cost" while in mock mode.
     data["use_mock_sefaz"] = settings.use_mock_sefaz
     data["use_mock_llm"] = settings.use_mock_llm
     data["llm_model"] = settings.llm_model
@@ -153,7 +153,7 @@ class SecretIn(BaseModel):
     def _non_empty(cls, v: str) -> str:
         v = v.strip()
         if not v:
-            raise ValueError("valor vazio")
+            raise ValueError("empty value")
         return v
 
 
@@ -178,13 +178,13 @@ async def set_secret(
 ) -> dict:
     """Store/rotate a managed secret. Encrypted at rest; the value is never echoed back."""
     if name not in MANAGED_SECRETS:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Segredo desconhecido.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown secret.")
     try:
         await secrets.set_secret(name, body.value)
     except SecretStoreUnavailable:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Criptografia de segredos desativada (defina SECRET_ENCRYPTION_KEY).",
+            detail="Secret encryption disabled (set SECRET_ENCRYPTION_KEY).",
         )
     return await _secrets_payload(secrets)
 
@@ -195,7 +195,7 @@ async def delete_secret(
     secrets: SecretStore = Depends(get_secrets),
 ) -> dict:
     if name not in MANAGED_SECRETS:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Segredo desconhecido.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown secret.")
     await secrets.delete_secret(name)
     return await _secrets_payload(secrets)
 

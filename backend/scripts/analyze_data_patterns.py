@@ -215,91 +215,91 @@ async def run_analysis() -> dict[str, Any]:
 
 def render_html_report(p: dict[str, Any]) -> str:
     return f"""<section id="data-patterns">
-<h2>Análise de Padrões de Dados (SEFAZ + normalização)</h2>
-<p><em>Gerado em {p['generated_at']} via simulações realistas com o catálogo mock (proxy para dados reais até token SEFAZ). {p['queries_run']} queries de usuários 'burros' (curtas, vagas, sem marca, tamanhos misturados, 'e', etc).</em></p>
+<h2>Data Pattern Analysis (SEFAZ + normalization)</h2>
+<p><em>Generated at {p['generated_at']} via realistic simulations against the mock catalog (proxy for real data until a SEFAZ token is available). {p['queries_run']} "dumb user" queries (short, vague, no brand, mixed sizes, 'e'/and, etc.).</em></p>
 
-<h3>Resumo executivo (pronto para escala)</h3>
+<h3>Executive summary (scale-ready)</h3>
 <ul>
-  <li>Match rate geral: <strong>{p['overall_match_rate']*100:.1f}%</strong> — bom para termos comuns de mercearia; cai forte em itens não modelados no catálogo.</li>
-  <li>Ofertas médias por item: <strong>{p['avg_offers_per_query']}</strong> — SEFAZ devolve volume útil (lojas dentro raio). Cache por (termo+lat+lon+raio+dias) é crítico.</li>
-  <li>Taxa de parse de quantidade: <strong>{p['avg_quantity_parse_rate']*100:.1f}%</strong> — o coração do "preço justo". Fallback para preço por pacote ainda útil mas menos honesto.</li>
-  <li>Not-found em termos vagos: <strong>{p['not_found_rate_on_vague']*100:.1f}%</strong> — normal; o Verifier agent deve sugerir similar (ex: 'manteiga' -> 'margarina' ou 'creme vegetal' se soubermos do histórico).</li>
+  <li>Overall match rate: <strong>{p['overall_match_rate']*100:.1f}%</strong> — good for common grocery terms; drops hard on items not modeled in the catalog.</li>
+  <li>Average offers per item: <strong>{p['avg_offers_per_query']}</strong> — SEFAZ returns useful volume (stores within radius). Cache by (term+lat+lon+radius+days) is critical.</li>
+  <li>Quantity parse rate: <strong>{p['avg_quantity_parse_rate']*100:.1f}%</strong> — the heart of "fair price". Package-price fallback is still useful but less honest.</li>
+  <li>Not-found on vague terms: <strong>{p['not_found_rate_on_vague']*100:.1f}%</strong> — expected; the Verifier agent should suggest similar (e.g. 'manteiga' -> 'margarina' or 'creme vegetal' when history knows them).</li>
 </ul>
 
-<h3>Timings (mock, lower bound; real SEFAZ + LLM adicionam latência de rede)</h3>
+<h3>Timings (mock lower bound; real SEFAZ + LLM add network latency)</h3>
 <ul>
   <li>Parse (mock LLM): p50 ~{p['timing_ms']['parse_p50']}ms</li>
-  <li>SEFAZ (mock): p50 ~{p['timing_ms']['sefaz_p50']}ms por item</li>
-  <li>Normalização: p50 ~{p['timing_ms']['normalize_p50']}ms</li>
-  <li>E2E p95 (uma busca de 1-3 itens): ~{p['timing_ms']['end_to_end_p95']}ms</li>
+  <li>SEFAZ (mock): p50 ~{p['timing_ms']['sefaz_p50']}ms per item</li>
+  <li>Normalization: p50 ~{p['timing_ms']['normalize_p50']}ms</li>
+  <li>E2E p95 (one 1–3 item search): ~{p['timing_ms']['end_to_end_p95']}ms</li>
 </ul>
-<p><strong>Implicação de escala:</strong> Cada item = 1 chamada SEFAZ (sem token ainda não medimos, mas espere 200-800ms + variação). Cache hit = ~0 custo SEFAZ. Ver "Plano de Escadas" abaixo.</p>
+<p><strong>Scale implication:</strong> Each item = 1 SEFAZ call (without a token we have not measured yet, but expect 200–800ms + variance). Cache hit = ~0 SEFAZ cost. See "Stair-step Plan" below.</p>
 
-<h3>Padrões observados nas descrições (o que o normalizador enfrenta)</h3>
+<h3>Patterns in descriptions (what the normalizer faces)</h3>
 <ul>
-  <li>Descrições reais (amostra): {', '.join(repr(d) for d in p['description_patterns']['sample_realistic_descs'])}</li>
-  <li>Tokens de unidade comuns: {', '.join(p['description_patterns']['common_unidade_medida_tokens'])}</li>
-  <li>GTIN presente em ~{p['description_patterns']['gtin_presence_rate_estimate']*100:.0f}% das ofertas úteis (fresco/hortifruti quase nunca tem; confiar em descrição + keywords do mock/LLM).</li>
-  <li>Tamanho da embalagem <strong>sempre</strong> no texto livre da descricao (ex: "ARROZ BRANCO TIPO 1 PCT 5KG", "LEITE NA CAIXA INTEGRAL 1L"). O campo unidadeMedida é a unidade de venda, não o tamanho.</li>
+  <li>Realistic descriptions (sample): {', '.join(repr(d) for d in p['description_patterns']['sample_realistic_descs'])}</li>
+  <li>Common unit tokens: {', '.join(p['description_patterns']['common_unidade_medida_tokens'])}</li>
+  <li>GTIN present in ~{p['description_patterns']['gtin_presence_rate_estimate']*100:.0f}% of useful offers (fresh produce almost never has it; trust description + mock/LLM keywords).</li>
+  <li>Package size is <strong>always</strong> in free-text descricao (e.g. "ARROZ BRANCO TIPO 1 PCT 5KG", "LEITE NA CAIXA INTEGRAL 1L"). The unidadeMedida field is the sale unit, not the package size.</li>
 </ul>
 
-<h3>Sinais de "dados ruins" ou armadilhas</h3>
+<h3>"Bad data" signals and traps</h3>
 <ul>
   {"".join(f"<li>{s}</li>" for s in p['bad_data_signals'])}
-  <li>Preços variam por loja (price_factor + jitter) + dataVenda recente (últimos N dias). Nunca prometa "hoje"; mostre a data da venda.</li>
-  <li>Lojas de categorias diferentes (farmácia não vende arroz) — o mock já filtra por categories; real SEFAZ pode devolver lixo que o ranking deve ignorar ou o normalizador descartar.</li>
+  <li>Prices vary by store (price_factor + jitter) + recent dataVenda (last N days). Never promise "today"; show the sale date.</li>
+  <li>Stores have different categories (a pharmacy does not sell rice) — the mock already filters by categories; real SEFAZ may return noise that ranking should ignore or the normalizer should drop.</li>
 </ul>
 
-<h3 id="stairs-plan">Plano de Escadas — Otimizações de Custo/Escala (logarítmico, não linear)</h3>
-<p>Objetivo: custo de LLM+SEFAZ ~ log(N usuários) graças a camadas de cache + dedup semântico. Não implemente tudo agora (complexidade mata velocidade para 100 usuários iniciais).</p>
+<h3 id="stairs-plan">Stair-step Plan — Cost/Scale Optimizations (logarithmic, not linear)</h3>
+<p>Goal: LLM+SEFAZ cost ~ log(N users) thanks to cache layers + semantic dedup. Do not implement everything now (complexity kills speed for the first 100 users).</p>
 
 <ol>
-  <li><strong>Agora (0-1k usuários, mock ou primeiros reais)</strong><br>
-    - Cache Redis exato por (search_term, lat~0.0001, lon, raio, dias) — já existe.<br>
-    - Dedup de listas idênticas por hash (save_search_list) — já existe.<br>
-    - LLM só no parse de lista (mock ou Haiku barato). Fallback mock sempre.<br>
-    - Admin timings + providers para medir degradação real de SEFAZ/LLM.<br>
-    - Limite diário 300/buscas por device (rate limit por IP hash + device).<br>
-    <em>Custo: ~linear com buscas novas; hit rate alto em Maceió itens populares.</em></li>
+  <li><strong>Now (0–1k users, mock or first real traffic)</strong><br>
+    - Exact Redis cache by (search_term, lat~0.0001, lon, radius, days) — already exists.<br>
+    - Dedup of identical lists by hash (save_search_list) — already exists.<br>
+    - LLM only for list parse (mock or cheap Haiku). Mock fallback always.<br>
+    - Admin timings + providers to measure real SEFAZ/LLM degradation.<br>
+    - Daily limit 300 searches per device (rate limit by IP hash + device).<br>
+    <em>Cost: ~linear with new searches; high hit rate on popular Maceió items.</em></li>
 
-  <li><strong>5k usuários (pico de adoção local)</strong><br>
-    - Semantic query cache: embed normalized search_term (ou full basket hash) + cosine >0.93 -> hit cached response (ou re-rank local). Redis + pgvector ou Redis vector.<br>
-    - Response-side cache: armazene normalized offers + ranking por fingerprint do resultado SEFAZ (hash dos registros + data max).<br>
-    - Popular items pre-warm (top 50 de stats:items:searched) em background job (1x/h).<br>
-    - Model router: use Haiku para 95% dos parses; só Opus/Sonnet em listas >8 itens ambíguas (detect por #tokens ou entropy).<br>
-    - Early cutoff: se 0 offers após 1a página e termo vago, pare e marque "poucos resultados" (não puxe 500 sempre).<br>
-    <em>Redução esperada: 40-70% chamadas SEFAZ/LLM via semântica + pre-warm.</em></li>
+  <li><strong>5k users (local adoption peak)</strong><br>
+    - Semantic query cache: embed normalized search_term (or full basket hash) + cosine &gt;0.93 -&gt; hit cached response (or re-rank locally). Redis + pgvector or Redis vector.<br>
+    - Response-side cache: store normalized offers + ranking by SEFAZ result fingerprint (hash of records + max date).<br>
+    - Popular items pre-warm (top 50 of stats:items:searched) in a background job (1x/h).<br>
+    - Model router: Haiku for 95% of parses; Opus/Sonnet only on ambiguous lists &gt;8 items (detect by #tokens or entropy).<br>
+    - Early cutoff: if 0 offers after page 1 and the term is vague, stop and mark "few results" (do not always pull 500).<br>
+    <em>Expected reduction: 40–70% SEFAZ/LLM calls via semantic cache + pre-warm.</em></li>
 
-  <li><strong>20k usuários (crescimento + outras cidades AL)</strong><br>
-    - RAG leve sobre histórico de buscas bem-sucedidas: "arroz 5kg" -> equivalentes que já deram match alto ("ARROZ TIPO1 5KG", "ARROZ BRANCO PCT 5KG"). Index em pgvector (config já tem DATABASE_URL opcional).<br>
-    - Verifier agent (ver abaixo) filtra/ruído e faz 1 re-query só quando necessário (ex: usuário pediu "arroz integral" e só veio branco -> oferecer similar ou pedir clarificação).<br>
-    - Sharded cache por região (lat/lon grid grosseiro) + TTL mais curto para produtos voláteis (hortifruti 2h, mercearia 6-12h).<br>
-    - Analytics-driven invalidation: quando parse_method distribution piora ou notfound sobe, force refresh de top itens.<br>
-    <em>Meta: custo por usuário novo cai; MAU alto com baixo custo marginal.</em></li>
+  <li><strong>20k users (growth + other AL cities)</strong><br>
+    - Light RAG over successful search history: "arroz 5kg" -&gt; equivalents that already matched well ("ARROZ TIPO1 5KG", "ARROZ BRANCO PCT 5KG"). Index in pgvector (config already has optional DATABASE_URL).<br>
+    - Verifier agent filters noise and re-queries only when needed (e.g. user asked "arroz integral" and only white rice came back -&gt; offer similar or ask for clarification).<br>
+    - Sharded cache by region (coarse lat/lon grid) + shorter TTL for volatile products (produce 2h, grocery 6–12h).<br>
+    - Analytics-driven invalidation: when parse_method distribution worsens or notfound rises, force refresh of top items.<br>
+    <em>Goal: cost per new user falls; high MAU with low marginal cost.</em></li>
 
-  <li><strong>100k usuários (estado + viralidade)</strong><br>
-    - Full agentic: requester (parse + rewrite + RAG past successful mappings) + verifier (relevance + similarity + user prefs filter) orquestrados (LangGraph-like, ou simples state machine em Python).<br>
-    - Multi-model: SLM local/small (Phi-3 / Gemma / Haiku) para router, query rewrite, verifier scoring; Haiku só para parse difícil + final synthesis.<br>
-    - Persistent product catalog index (GTIN + normalized descs que sabemos que existem) em pgvector para "produtos que existem" / "não existem" — evita SEFAZ em itens sabidamente ruins.<br>
-    - Edge cache (CDN para web) + app on-device recent results + suggestions offline.<br>
-    - Budget guard: circuit breaker por provedor (se SEFAZ p95 >1.5s ou error >5%, force mock + warn no admin).<br>
-    <em>Logarítmico: 80%+ hits em camadas sem tocar LLM/SEFAZ.</em></li>
+  <li><strong>100k users (state-wide + virality)</strong><br>
+    - Full agentic: requester (parse + rewrite + RAG past successful mappings) + verifier (relevance + similarity + user prefs filter) orchestrated (LangGraph-like, or a simple Python state machine).<br>
+    - Multi-model: local/small SLM (Phi-3 / Gemma / Haiku) for router, query rewrite, verifier scoring; Haiku only for hard parse + final synthesis.<br>
+    - Persistent product catalog index (GTIN + normalized descs we know exist) in pgvector for "products that exist" / "don't exist" — skip SEFAZ on known-bad items.<br>
+    - Edge cache (CDN for web) + app on-device recent results + offline suggestions.<br>
+    - Budget guard: circuit breaker per provider (if SEFAZ p95 &gt;1.5s or error &gt;5%, force mock + warn in admin).<br>
+    <em>Logarithmic: 80%+ hits in layers without touching LLM/SEFAZ.</em></li>
 
-  <li><strong>1M+ usuários (nacional? ou outros estados copiam)</strong><br>
-    - Distributed: múltiplas regiões com cache local + async replication de popular fingerprints.<br>
-    - Heavy pre-compute: nightly "cestas básicas" + promoções detectadas; push only para consented devices (sem polling).<br>
-    - Graph RAG ou item-item co-occurrence (de buscas reais) para "pessoas que buscam arroz também compram..." sem LLM por request.<br>
-    - Custo por busca deve estar < R$0.0005 (com cache + routing) mesmo em pico; monetize via parcerias SEFAZ-like ou "apoiadores locais" em vez de ads invasivos.<br>
-    - Hardcore: learned embeddings de produtos SEFAZ + approximate NN para "melhor match" sem chamada por item (futuro, quando tivermos 10M+ registros reais).<br>
-    <em>Não linear nunca: o sistema inteiro vira um filtro inteligente + cache gigante + ocasional verificação barata.</em></li>
+  <li><strong>1M+ users (national? or other states copy)</strong><br>
+    - Distributed: multiple regions with local cache + async replication of popular fingerprints.<br>
+    - Heavy pre-compute: nightly "basic baskets" + detected promotions; push only to consented devices (no polling).<br>
+    - Graph RAG or item-item co-occurrence (from real searches) for "people who search rice also buy..." without LLM per request.<br>
+    - Cost per search should be &lt; R$0.0005 (with cache + routing) even at peak; monetize via SEFAZ-like partnerships or "local supporters" instead of invasive ads.<br>
+    - Hardcore: learned embeddings of SEFAZ products + approximate NN for "best match" without a call per item (future, once we have 10M+ real records).<br>
+    <em>Never linear: the whole system becomes a smart filter + giant cache + occasional cheap verification.</em></li>
 </ol>
 
-<p><strong>Hard rules para o plano:</strong> Nunca pague linear em tokens SEFAZ/LLM. Sempre meça (admin já tem). Prefira complexidade controlada (mais camadas de cache + roteamento) a "simples e rápido de shipar" quando o simples explode a conta em 10k usuários.</p>
+<p><strong>Hard rules for the plan:</strong> Never pay linear in SEFAZ/LLM tokens. Always measure (admin already has this). Prefer controlled complexity (more cache layers + routing) over "simple and fast to ship" when simple blows the bill at 10k users.</p>
 
-<h3>Como usar este relatório</h3>
-<p>1. Rode o script periodicamente (ou adicione job) para atualizar os números com dados reais (flip USE_MOCK_*=false + token).<br>
-2. O admin panel (timings, items, quality) é o "live" equivalente — use-o como fonte de verdade para quando o cache está frio.<br>
-3. Quando adicionar o requester/verifier agents (próxima fase), alimente-os com os "bad_data_signals" e "description_patterns" daqui como few-shot + RAG corpus.</p>
+<h3>How to use this report</h3>
+<p>1. Run the script periodically (or add a job) to refresh numbers with real data (flip USE_MOCK_*=false + token).<br>
+2. The admin panel (timings, items, quality) is the live equivalent — use it as the source of truth when the cache is cold.<br>
+3. When adding requester/verifier agents (next phase), feed them the "bad_data_signals" and "description_patterns" from here as few-shot + RAG corpus.</p>
 </section>
 """
 
@@ -313,6 +313,6 @@ if __name__ == "__main__":
     out_dir.mkdir(exist_ok=True)
     (out_dir / "data-patterns-report.json").write_text(json.dumps(p, indent=2, ensure_ascii=False), encoding="utf-8")
     html = render_html_report(p)
-    (out_dir / "data-patterns.html").write_text("<!DOCTYPE html>\n<html lang=\"pt-BR\"><head><meta charset=\"utf-8\"><title>Padrões de Dados · Compre Barato Alagoas</title><link rel=\"stylesheet\" href=\"styles.css\"></head><body><div class=\"layout\"><main class=\"content\">" + html + "<p><a href=\"index.html\">← Voltar</a></p></main></div></body></html>", encoding="utf-8")
+    (out_dir / "data-patterns.html").write_text("<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Data Patterns · Compre Barato Alagoas</title><link rel=\"stylesheet\" href=\"styles.css\"></head><body><div class=\"layout\"><main class=\"content\">" + html + "<p><a href=\"index.html\">← Back</a></p></main></div></body></html>", encoding="utf-8")
     print("\nWrote docs/data-patterns.html and data-patterns-report.json")
     print("To view in docs site: add link in index.html nav + content.")

@@ -70,7 +70,7 @@ else:
 
 # --- localization companion + scaffold docs ---
 if not STRINGS.is_file():
-    errors.append(f"missing {STRINGS.relative_to(ROOT)} (pt-BR localization companion)")
+    errors.append(f"missing {STRINGS.relative_to(ROOT)} (localization companion)")
 else:
     stext = STRINGS.read_text(encoding="utf-8")
     for key in privacy_keys:

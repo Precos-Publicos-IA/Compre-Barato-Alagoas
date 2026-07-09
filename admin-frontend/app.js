@@ -25,7 +25,7 @@ const API = resolveApiBase();
 const $ = (sel) => document.querySelector(sel);
 const charts = {};
 const fmtUSD = (n) => "$" + Number(n || 0).toFixed(4);
-const fmtNum = (n) => Number(n || 0).toLocaleString("pt-BR");
+const fmtNum = (n) => Number(n || 0).toLocaleString("en-US");
 const pct = (n) => (Number(n || 0) * 100).toFixed(1) + "%";
 const fmtMs = (n) => {
   const v = Number(n || 0);
@@ -166,38 +166,38 @@ async function loadOverview() {
   if (o.use_mock_sefaz || o.use_mock_llm) {
     badge.hidden = false;
     badge.className = "badge warn";
-    badge.textContent = "modo mock · custo estimado";
+    badge.textContent = "mock mode · estimated cost";
   } else {
     badge.hidden = false;
     badge.className = "badge";
-    badge.textContent = "produção · " + (o.llm_model || "");
+    badge.textContent = "production · " + (o.llm_model || "");
   }
   $("#overview-cards").innerHTML = [
-    card("Buscas (total)", esc(fmtNum(o.total_searches))),
-    card("Buscas (hoje)", esc(fmtNum(o.today_searches))),
-    card("Usuários únicos (est.)", esc(fmtNum(o.estimated_unique_users))),
-    card("Custo de IA (total)", esc(fmtUSD(o.total_llm_cost_usd))),
-    card("Custo médio / busca", esc(fmtUSD(o.avg_cost_per_search_usd))),
-    card("Taxa de acerto", esc(pct(o.overall_match_rate))),
-    card("Qualidade tamanho/qtd", esc(pct(o.overall_quantity_parse_rate))),
+    card("Searches (total)", esc(fmtNum(o.total_searches))),
+    card("Searches (today)", esc(fmtNum(o.today_searches))),
+    card("Unique users (est.)", esc(fmtNum(o.estimated_unique_users))),
+    card("AI cost (total)", esc(fmtUSD(o.total_llm_cost_usd))),
+    card("Avg cost / search", esc(fmtUSD(o.avg_cost_per_search_usd))),
+    card("Match rate", esc(pct(o.overall_match_rate))),
+    card("Size/qty quality", esc(pct(o.overall_quantity_parse_rate))),
   ].join("");
   const hours = o.hours_today || [];
   bar("chart-hours", hours.map((_, h) => String(h).padStart(2, "0") + "h"),
-    [{ label: "Buscas", data: hours, backgroundColor: "#1f7a4d" }]);
+    [{ label: "Searches", data: hours, backgroundColor: "#1f7a4d" }]);
 }
 
 async function loadQuality() {
   const q = await api("/quality?days=" + days());
   const labels = q.days.map(dayLabel);
   line("chart-match", labels, [
-    { label: "Taxa de acerto", data: q.match_rate, borderColor: "#1f7a4d", tension: 0.3 },
+    { label: "Match rate", data: q.match_rate, borderColor: "#1f7a4d", tension: 0.3 },
   ]);
   line("chart-parse", labels, [
-    { label: "Qualidade tamanho/qtd", data: q.quantity_parse_rate, borderColor: "#5b9bd5", tension: 0.3 },
+    { label: "Size/qty quality", data: q.quantity_parse_rate, borderColor: "#5b9bd5", tension: 0.3 },
   ]);
   const m = q.parse_method_distribution || {};
   doughnut("chart-method",
-    ["unidadeMedida", "descrição", "fallback"],
+    ["unidadeMedida", "description", "fallback"],
     [m.unidade_medida || 0, m.description || 0, m.fallback || 0]);
 }
 
@@ -205,16 +205,16 @@ async function loadCosts() {
   const c = await api("/costs?days=" + days());
   const labels = c.days.map(dayLabel);
   bar("chart-cost", labels, [
-    { label: "Custo (USD)", data: c.cost_usd, backgroundColor: "#1f7a4d" },
+    { label: "Cost (USD)", data: c.cost_usd, backgroundColor: "#1f7a4d" },
   ]);
   bar("chart-tokens", labels, [
-    { label: "Entrada", data: c.input_tokens, backgroundColor: "#5b9bd5" },
-    { label: "Saída", data: c.output_tokens, backgroundColor: "#e0a458" },
+    { label: "Input", data: c.input_tokens, backgroundColor: "#5b9bd5" },
+    { label: "Output", data: c.output_tokens, backgroundColor: "#e0a458" },
   ], true);
   $("#model-table tbody").innerHTML = (c.per_model || []).map((m) =>
     `<tr><td>${esc(m.model)}</td><td>${esc(fmtNum(m.calls))}</td><td>${esc(fmtNum(m.input_tokens))}</td>
      <td>${esc(fmtNum(m.output_tokens))}</td><td>${esc(fmtUSD(m.cost_usd))}</td></tr>`).join("")
-    || `<tr><td colspan="5" class="note">Sem dados ainda.</td></tr>`;
+    || `<tr><td colspan="5" class="note">No data yet.</td></tr>`;
 }
 
 async function loadFeedback() {
@@ -222,29 +222,29 @@ async function loadFeedback() {
   const f = await api("/feedback?limit=100" + (kind ? "&kind=" + kind : ""));
   const counts = f.counts || {};
   $("#feedback-counts").innerHTML = [
-    card("Útil (👍/👎)", esc(fmtNum(counts.helpful))),
-    card("Item errado", esc(fmtNum(counts.wrong_item))),
-    card("Outro", esc(fmtNum(counts.other))),
+    card("Helpful (👍/👎)", esc(fmtNum(counts.helpful))),
+    card("Wrong item", esc(fmtNum(counts.wrong_item))),
+    card("Other", esc(fmtNum(counts.other))),
   ].join("");
   $("#feedback-table tbody").innerHTML = (f.items || []).map((i) => {
     const help = i.helpful === "1" ? "👍" : i.helpful === "0" ? "👎" : "—";
     return `<tr><td>${esc(when(i.ts))}</td><td>${esc(i.kind)}</td><td>${help}</td>
       <td>${esc(i.item)}</td><td class="note">${esc(i.note)}</td></tr>`;
-  }).join("") || `<tr><td colspan="5" class="note">Sem feedback ainda.</td></tr>`;
+  }).join("") || `<tr><td colspan="5" class="note">No feedback yet.</td></tr>`;
 }
 
 async function loadSearches() {
   const s = await api("/searches?limit=100");
   $("#search-table tbody").innerHTML = (s.items || []).map((i) =>
     `<tr><td>${esc(when(i.ts))}</td><td>${esc(i.n_items)}</td><td>${esc(i.matched)}</td><td>${esc(i.source)}</td></tr>`
-  ).join("") || `<tr><td colspan="4" class="note">Sem buscas ainda.</td></tr>`;
+  ).join("") || `<tr><td colspan="4" class="note">No searches yet.</td></tr>`;
 }
 
 async function loadItems() {
   const it = await api("/items?days=" + days());
   const rows = (arr) => (arr || []).map((i) =>
     `<tr><td>${esc(i.label)}</td><td>${fmtNum(i.count)}</td></tr>`).join("")
-    || `<tr><td colspan="2" class="note">Sem dados ainda.</td></tr>`;
+    || `<tr><td colspan="2" class="note">No data yet.</td></tr>`;
   $("#top-table tbody").innerHTML = rows(it.top_searched);
   $("#notfound-table tbody").innerHTML = rows(it.top_not_found);
 }
@@ -260,39 +260,39 @@ function bucketLabels(bounds) {
 }
 
 const STAGE_LABELS = {
-  total: "Total (resposta)", llm: "IA (parse)", sefaz: "SEFAZ",
-  cache: "Cache (Redis)", normalize: "Normalização", rank: "Ranking",
-  analytics: "Analytics (2º plano)",
+  total: "Total (response)", llm: "AI (parse)", sefaz: "SEFAZ",
+  cache: "Cache (Redis)", normalize: "Normalization", rank: "Ranking",
+  analytics: "Analytics (background)",
 };
 
-const WEEKDAY_LABELS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 async function loadGrowth() {
   const g = await api("/growth?days=" + days());
   $("#growth-cards").innerHTML = [
-    card("Únicos hoje (DAU)", esc(fmtNum(g.dau_today))),
-    card("Únicos 7 dias (WAU)", esc(fmtNum(g.wau))),
-    card("Únicos 30 dias (MAU)", esc(fmtNum(g.mau))),
-    card("Recorrência (DAU/MAU)", esc(pct(g.stickiness))),
-    card("Total de usuários (est.)", esc(fmtNum(g.total_unique_users))),
+    card("Uniques today (DAU)", esc(fmtNum(g.dau_today))),
+    card("Uniques 7 days (WAU)", esc(fmtNum(g.wau))),
+    card("Uniques 30 days (MAU)", esc(fmtNum(g.mau))),
+    card("Stickiness (DAU/MAU)", esc(pct(g.stickiness))),
+    card("Total users (est.)", esc(fmtNum(g.total_unique_users))),
   ].join("");
 
   const labels = (g.days || []).map(dayLabel);
   // New vs returning stack to the day's unique-user total (DAU).
   bar("chart-dau", labels, [
-    { label: "Recorrentes", data: g.returning_users || [], backgroundColor: "#1f7a4d" },
-    { label: "Novos", data: g.new_users || [], backgroundColor: "#5b9bd5" },
+    { label: "Returning", data: g.returning_users || [], backgroundColor: "#1f7a4d" },
+    { label: "New", data: g.new_users || [], backgroundColor: "#5b9bd5" },
   ], true);
 
   const hours = g.hours || [];
   bar("chart-hourofday", hours.map((_, h) => String(h).padStart(2, "0") + "h"),
-    [{ label: "Buscas", data: hours, backgroundColor: "#36c98f" }]);
+    [{ label: "Searches", data: hours, backgroundColor: "#36c98f" }]);
 
   bar("chart-weekday", WEEKDAY_LABELS,
-    [{ label: "Buscas", data: g.weekday || [], backgroundColor: "#e0a458" }]);
+    [{ label: "Searches", data: g.weekday || [], backgroundColor: "#e0a458" }]);
 
   line("chart-engagement", labels, [
-    { label: "Buscas / usuário", data: g.searches_per_user || [],
+    { label: "Searches / user", data: g.searches_per_user || [],
       borderColor: "#36c98f", tension: 0.3 },
   ]);
 }
@@ -302,19 +302,19 @@ async function loadPerformance() {
   const stages = t.stages || [];
   const total = stages.find((s) => s.stage === "total") || {};
   $("#performance-cards").innerHTML = [
-    card("Tempo médio (resposta)", esc(fmtMs(total.avg_ms))),
-    card("Mediana (p50)", esc(fmtMs(total.p50_ms))),
+    card("Average time (response)", esc(fmtMs(total.avg_ms))),
+    card("Median (p50)", esc(fmtMs(total.p50_ms))),
     card("p95", esc(fmtMs(total.p95_ms))),
-    card("Buscas medidas", esc(fmtNum(total.count))),
+    card("Measured searches", esc(fmtNum(total.count))),
   ].join("");
 
   bar("chart-latency-dist", bucketLabels(t.buckets_ms || []),
-    [{ label: "Buscas", data: t.distribution || [], backgroundColor: "#36c98f" }]);
+    [{ label: "Searches", data: t.distribution || [], backgroundColor: "#36c98f" }]);
 
   const labels = (t.days || []).map(dayLabel);
   const series = t.total_series || {};
   line("chart-latency-trend", labels, [
-    { label: "Média (ms)", data: series.avg_ms || [], borderColor: "#36c98f", tension: 0.3 },
+    { label: "Average (ms)", data: series.avg_ms || [], borderColor: "#36c98f", tension: 0.3 },
     { label: "p95 (ms)", data: series.p95_ms || [], borderColor: "#e0a458", tension: 0.3 },
   ]);
 
@@ -325,7 +325,7 @@ async function loadPerformance() {
   $("#subsystem-table tbody").innerHTML = stages.map((s) =>
     `<tr><td>${esc(STAGE_LABELS[s.stage] || s.stage)}</td><td>${esc(fmtNum(s.count))}</td>
      <td>${esc(fmtMs(s.avg_ms))}</td><td>${esc(fmtMs(s.p50_ms))}</td><td>${esc(fmtMs(s.p95_ms))}</td></tr>`
-  ).join("") || `<tr><td colspan="5" class="note">Sem dados ainda.</td></tr>`;
+  ).join("") || `<tr><td colspan="5" class="note">No data yet.</td></tr>`;
 }
 
 async function loadProviders() {
@@ -334,20 +334,20 @@ async function loadProviders() {
   if (p.use_mock_sefaz || p.use_mock_llm) {
     badge.hidden = false;
     badge.className = "badge warn";
-    badge.textContent = "modo mock · sem chamadas reais";
+    badge.textContent = "mock mode · no real calls";
   }
   const provs = p.providers || [];
-  const NAMES = { sefaz: "SEFAZ (dados NFC-e)", llm: "IA (Claude)" };
+  const NAMES = { sefaz: "SEFAZ (NFC-e data)", llm: "AI (Claude)" };
   $("#provider-cards").innerHTML = provs.map((x) =>
     card(NAMES[x.name] || x.name,
-      `${esc(fmtMs(x.avg_ms))} <span class="sub">méd · ${esc(pct(x.error_rate))} erro</span>`)
-  ).join("") || card("Provedores", "—");
+      `${esc(fmtMs(x.avg_ms))} <span class="sub">avg · ${esc(pct(x.error_rate))} error</span>`)
+  ).join("") || card("Providers", "—");
   $("#provider-table tbody").innerHTML = provs.map((x) => {
     const errClass = x.error_rate > 0 ? ' class="bad"' : "";
     return `<tr><td>${esc(NAMES[x.name] || x.name)}</td><td>${esc(fmtNum(x.calls))}</td>
       <td${errClass}>${esc(pct(x.error_rate))}</td><td>${esc(fmtMs(x.avg_ms))}</td>
       <td>${esc(fmtMs(x.p95_ms))}</td><td>${esc(when(x.last_error_ts))}</td></tr>`;
-  }).join("") || `<tr><td colspan="6" class="note">Sem dados ainda.</td></tr>`;
+  }).join("") || `<tr><td colspan="6" class="note">No data yet.</td></tr>`;
 }
 
 async function loadSettings() {
@@ -356,28 +356,28 @@ async function loadSettings() {
   if (!s.encryption_enabled) {
     warn.hidden = false;
     warn.textContent =
-      "Criptografia desativada: defina SECRET_ENCRYPTION_KEY no servidor para gerenciar segredos aqui.";
+      "Encryption disabled: set SECRET_ENCRYPTION_KEY on the server to manage secrets here.";
   } else {
     warn.hidden = true;
   }
   $("#secrets-list").innerHTML = (s.secrets || []).map((sec) => {
     const status = sec.configured
-      ? `definido · impressão digital <code>${esc(sec.fingerprint)}</code>` +
+      ? `set · fingerprint <code>${esc(sec.fingerprint)}</code>` +
         (sec.updated_at ? ` · ${when(sec.updated_at)}` : "")
-      : "não definido";
+      : "not set";
     const disabled = s.encryption_enabled ? "" : "disabled";
     return `<div class="secret-card" data-name="${esc(sec.name)}">
       <div class="label">${esc(sec.label)}</div>
       <div class="note">${status}</div>
       <form class="secret-form">
-        <input type="password" autocomplete="off" placeholder="Novo valor"
+        <input type="password" autocomplete="off" placeholder="New value"
           class="secret-input" ${disabled} />
-        <button type="submit" ${disabled}>Salvar</button>
-        ${sec.configured ? `<button type="button" class="secret-clear" ${disabled}>Remover</button>` : ""}
+        <button type="submit" ${disabled}>Save</button>
+        ${sec.configured ? `<button type="button" class="secret-clear" ${disabled}>Remove</button>` : ""}
       </form>
       <p class="secret-msg note"></p>
     </div>`;
-  }).join("") || `<p class="note">Nenhum segredo gerenciável.</p>`;
+  }).join("") || `<p class="note">No manageable secrets.</p>`;
 
   document.querySelectorAll(".secret-card").forEach((cardEl) => {
     const name = cardEl.dataset.name;
@@ -387,25 +387,25 @@ async function loadSettings() {
       const input = cardEl.querySelector(".secret-input");
       const value = input.value.trim();
       if (!value) return;
-      msg.textContent = "Salvando…";
+      msg.textContent = "Saving…";
       try {
         await apiSend("/secrets/" + encodeURIComponent(name), "PUT", { value });
         input.value = "";
-        msg.textContent = "Salvo com segurança.";
+        msg.textContent = "Saved securely.";
         loadSettings();
       } catch (err) {
-        msg.textContent = "Erro: " + err.message;
+        msg.textContent = "Error: " + err.message;
       }
     });
     const clearBtn = cardEl.querySelector(".secret-clear");
     if (clearBtn) {
       clearBtn.addEventListener("click", async () => {
-        if (!confirm("Remover este segredo?")) return;
+        if (!confirm("Remove this secret?")) return;
         try {
           await apiSend("/secrets/" + encodeURIComponent(name), "DELETE");
           loadSettings();
         } catch (err) {
-          msg.textContent = "Erro: " + err.message;
+          msg.textContent = "Error: " + err.message;
         }
       });
     }
@@ -423,11 +423,11 @@ let activeTab = "overview";
 
 async function refresh() {
   try {
-    setStatus("Carregando…");
+    setStatus("Loading…");
     await LOADERS[activeTab]();
-    setStatus("Atualizado " + new Date().toLocaleTimeString("pt-BR"));
+    setStatus("Updated " + new Date().toLocaleTimeString("en-US"));
   } catch (e) {
-    if (e.message !== "unauthorized") setStatus("Erro ao carregar dados.");
+    if (e.message !== "unauthorized") setStatus("Error loading data.");
   }
 }
 
@@ -435,7 +435,7 @@ async function refresh() {
 function when(iso) {
   if (!iso) return "—";
   const d = new Date(iso);
-  return isNaN(d) ? String(iso) : d.toLocaleString("pt-BR");
+  return isNaN(d) ? String(iso) : d.toLocaleString("en-US");
 }
 
 // --- wiring ----------------------------------------------------------------

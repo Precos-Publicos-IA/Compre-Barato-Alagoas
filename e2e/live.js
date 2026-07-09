@@ -135,7 +135,7 @@ const shot = async (page, name) => {
     const docsResp = await page.goto(DOCS_URL + '/', { waitUntil: 'networkidle2', timeout: 30000 });
     ok('live docs 200', docsResp && docsResp.status() === 200);
     ok('live docs brand', await page.$eval('body', (b) => /Compre Barato/i.test(b.innerText)).catch(() => false));
-    const link = await page.$('a[href="#arquitetura"]');
+    const link = await page.$('a[href="#architecture"]');
     if (link) { await link.click(); await new Promise((r) => setTimeout(r, 200)); }
     await shot(page, '03-docs');
 

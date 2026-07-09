@@ -61,6 +61,6 @@ flutter build web --release \
 
 - Android permissions: `INTERNET`, `RECORD_AUDIO` (voice), location. `usesCleartextTraffic` is on
   to allow `http://` LAN backends during development; production uses HTTPS.
-- iOS privacy keys (pt-BR): mic, speech recognition, location-when-in-use — see `ios/Runner/Info.plist`.
+- iOS privacy keys (English): mic, speech recognition, location-when-in-use — see `ios/Runner/Info.plist`.
 - iOS URL schemes: `uber`, `taxis99`, `99app`, `comgooglemaps`, `maps` — required for `canLaunchUrl` / external apps.
 - App id: `br.ia.precospublicos.compre_barato_alagoas`.

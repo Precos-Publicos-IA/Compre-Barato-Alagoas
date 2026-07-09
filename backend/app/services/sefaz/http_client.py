@@ -66,7 +66,7 @@ class HttpSefazClient:
         token = await self._token_provider()
         if not token:
             raise SefazApiError(
-                "Token da SEFAZ não configurado. Defina-o no painel admin."
+                "SEFAZ token not configured. Set it in the admin panel."
             )
 
         produto: dict = {"gtin": gtin} if gtin else {"descricao": descricao}

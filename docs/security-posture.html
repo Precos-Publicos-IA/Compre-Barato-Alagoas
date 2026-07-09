@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Security posture · Compre Barato Alagoas</title>
+  <meta name="description" content="Threat model and control boundaries: public-by-design API, open source, OpenAPI disabled in production." />
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+  <main class="content" style="max-width:48rem;margin:0 auto;padding:2rem 1.25rem 4rem">
+    <p><a href="index.html">← Documentation</a>
+      · <a href="security-and-data.html">Security &amp; data</a>
+      · <a href="lgpd-usage-measurement.html">LGPD · Measurement</a></p>
+
+    <span class="tag">Security · posture</span>
+    <h1>Security posture</h1>
+    <p class="lead">Threat model and control boundaries for Compre Barato Alagoas — for reviews, scanners, and anyone assessing whether open source is compatible with production.</p>
+
+    <div class="note"><strong>Summary:</strong> the application API is <strong>public by design</strong>
+      (the Flutter/web app is an untrusted client). The code can remain <strong>open source</strong>.
+      Protection does not come from hiding routes on GitHub; it comes from secrets outside the
+      repository, admin closed by default, abuse limits, data minimization (LGPD), and
+      <strong>disabling the interactive OpenAPI UI in production</strong>.
+      Markdown version in the repository: <code>docs/security-posture.md</code>.</div>
+
+    <h2>1. What is public on purpose</h2>
+    <table>
+      <thead><tr><th>Surface</th><th>Why</th><th>Primary control</th></tr></thead>
+      <tbody>
+        <tr><td>Code on GitHub (MIT)</td><td>Transparency, LGPD, civic reuse</td><td>Secrets never in git (<code>.env.example</code> only)</td></tr>
+        <tr><td><code>POST /api/v1/search</code> and product routes</td><td>The app needs the backend</td><td>Rate limit, validation, cache, no extra PII</td></tr>
+        <tr><td><code>docs.*</code> site</td><td>Product and privacy</td><td>No credentials</td></tr>
+        <tr><td>Prices (SEFAZ-AL origin)</td><td>Public NFC-e data</td><td>SEFAZ token only on the server</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Typical scanner finding:</strong> “Documented API / visible endpoints.”<br />
+      <strong>Response:</strong> the client already reveals the contract. Open source and product
+      docs do not replace authentication or limits — and are not a vulnerability by themselves
+      if the controls below are active.</p>
+
+    <h2>2. What is <em>not</em> a security boundary</h2>
+    <ul>
+      <li><strong>Repository visibility</strong> — hiding the code does not remove the app's HTTPS API.</li>
+      <li><strong>Only hiding the admin URL</strong> — without <code>ADMIN_TOKEN</code> the admin API returns <strong>401</strong> (fail-closed).</li>
+      <li><strong>Swagger/ReDoc in production</strong> — makes scanning easier; that is why it stays off in production (section 4).</li>
+    </ul>
+
+    <h2>3. Surfaces and controls</h2>
+    <h3>Application API</h3>
+    <ul>
+      <li>No account login; optional device identity (consent / cloud lists).</li>
+      <li>Device token on the server only as a <strong>salted hash</strong>.</li>
+      <li>Daily search limit (<code>DAILY_SEARCH_LIMIT</code>).</li>
+      <li>Location used for search; no trajectory retained as a profile.</li>
+    </ul>
+    <h3>Admin API (<code>/admin/api/*</code>)</h3>
+    <ul>
+      <li>Empty <code>ADMIN_TOKEN</code> ⇒ <strong>401</strong> on every admin route.</li>
+      <li>Constant-time comparison (<code>hmac.compare_digest</code>).</li>
+      <li>Vhost <code>admin.&lt;domain&gt;</code>; Fernet vault in Redis (status returns fingerprint only).</li>
+    </ul>
+    <h3>Secrets</h3>
+    <p><code>ADMIN_TOKEN</code>, <code>SECRET_ENCRYPTION_KEY</code>, SEFAZ token, Anthropic key, and DB passwords
+      live in the <code>.env</code> <strong>only on the VPS</strong> (or encrypted panel) — never in git or the client app.
+      API published on the host only at <code>127.0.0.1:8000</code> behind nginx.</p>
+    <h3>LLM / SEFAZ</h3>
+    <ul>
+      <li>User input treated as inert data in the prompt; deterministic fallback if the model fails.</li>
+      <li>Limited SEFAZ fan-out; Redis cache reduces repetition.</li>
+    </ul>
+
+    <h2 id="openapi-prod">4. OpenAPI / Swagger in production</h2>
+    <table>
+      <thead><tr><th>Environment</th><th><code>/docs</code>, <code>/redoc</code>, <code>/openapi.json</code></th></tr></thead>
+      <tbody>
+        <tr><td><code>development</code> (local)</td><td><strong>On</strong></td></tr>
+        <tr><td><code>production</code> (deploy)</td><td><strong>Off</strong> (404)</td></tr>
+        <tr><td><code>EXPOSE_API_DOCS=true</code></td><td>On (escape hatch)</td></tr>
+        <tr><td><code>EXPOSE_API_DOCS=false</code></td><td>Off</td></tr>
+      </tbody>
+    </table>
+    <p>App nginx only proxies <code>/api</code> and <code>/health</code> — it does not publish an interactive explorer at the edge.
+      Product-language endpoints remain under <a href="index.html#api">Documentation → API</a>.</p>
+    <p><strong>Important:</strong> turning off OpenAPI does <em>not</em> hide the app contract; it reduces noise in automated
+      pentests and avoids an unnecessary exploration console on the same host as the API.</p>
+
+    <h2>5. Frequent findings</h2>
+    <table>
+      <thead><tr><th>Finding</th><th>Severity we adopt</th><th>Treatment</th></tr></thead>
+      <tbody>
+        <tr><td>Public / “documented” API</td><td>Informational if section 3 is OK</td><td>Keep open source; cite this doc; ensure section 4 in prod</td></tr>
+        <tr><td>OpenAPI in production</td><td>Low/medium hygiene</td><td>Off by default in <code>production</code></td></tr>
+        <tr><td>Admin without authentication</td><td>Critical if token empty and sensitive data</td><td>Fail-closed; strong token on the VPS</td></tr>
+        <tr><td>Secret in the repository</td><td>Critical</td><td>Rotate; never commit <code>.env</code></td></tr>
+        <tr><td>Abuse / LLM cost</td><td>Medium operational</td><td>Rate limit, cache, monitor admin</td></tr>
+        <tr><td>Prompt injection</td><td>Medium</td><td>Hardened prompt + fallback + tests</td></tr>
+      </tbody>
+    </table>
+
+    <h2>6. Quick checklist</h2>
+    <ol>
+      <li>With <code>ENVIRONMENT=production</code>: <code>GET /docs</code> and <code>/openapi.json</code> → <strong>404</strong>.</li>
+      <li><code>/admin/api/...</code> without token → <strong>401</strong>.</li>
+      <li>No real <code>.env</code> or SEFAZ token in the public repository.</li>
+      <li>Redis/Postgres only on the compose network; API only localhost on the host.</li>
+      <li><code>CORS_ORIGINS</code> restricted in production (not <code>*</code> for sensitive scenarios).</li>
+      <li>Privacy aligned with the code (hashes, consent for cloud lists).</li>
+    </ol>
+
+    <h2>7. Why open source</h2>
+    <ol>
+      <li>Prices are already public (SEFAZ-AL); the value is in the secure bridge and honest UX.</li>
+      <li>LGPD claims remain auditable.</li>
+      <li>Closing GitHub <strong>does not close</strong> the app's HTTPS API.</li>
+    </ol>
+    <p>Restricted to the team (private repo or VPS only): operational secrets and internal notes — not this design.</p>
+
+    <h2>8. Honest limitations</h2>
+    <ul>
+      <li>Root on the VPS can still read memory and the on-disk <code>.env</code> (HSM/KMS would be another tier).</li>
+      <li>Without Redis the API does not start (fail fast).</li>
+      <li>This text does not replace a formal pentest or external DPO opinion.</li>
+    </ul>
+
+    <p style="opacity:.75;font-size:.9rem;margin-top:2.5rem">Aligned with code: <code>backend/app/config.py</code> (<code>api_docs_enabled</code>),
+      <code>backend/app/main.py</code>, <code>deploy/nginx/alagoas.precospublicos.ia.br.conf</code>.</p>
+  </main>
+</div>
+</body>
+</html>

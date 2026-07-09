@@ -126,7 +126,7 @@ async function testDocs(browser) {
       await page.$eval('body', (b) => /Compre Barato/i.test(b.innerText)).catch(() => false));
     await shot(page, 'docs-01-home');
 
-    for (const href of ['#visao-geral', '#arquitetura', '#fluxo', '#api', '#admin']) {
+    for (const href of ['#overview', '#architecture', '#flow', '#api', '#admin']) {
       const link = await page.$(`a[href="${href}"]`);
       if (!link) { ok(`docs link present: ${href}`, false); continue; }
       await link.click();
@@ -136,7 +136,7 @@ async function testDocs(browser) {
       await shot(page, `docs-nav-${href.replace('#', '')}`);
     }
 
-    for (const p of ['seguranca-e-dados.html', 'lgpd-medicao-de-uso.html', 'seguranca-postura.html']) {
+    for (const p of ['security-and-data.html', 'lgpd-usage-measurement.html', 'security-posture.html']) {
       const r = await page.goto(`${DOCS_URL}/${p}`, { waitUntil: 'networkidle2', timeout: 20000 });
       ok(`docs page ${p} responds 200`, r && r.status() === 200, `status ${r && r.status()}`);
       await shot(page, `docs-page-${p.replace('.html', '')}`);

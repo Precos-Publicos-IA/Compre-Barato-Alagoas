@@ -220,7 +220,7 @@ class Analytics:
         """Record per-search stage latencies (ms) into per-day + all-time histograms.
 
         ``stages`` maps a stage name (``TIMING_STAGES``) to its duration in ms for
-        this one search. Feeds the "Desempenho" admin tab: ``total`` is the full
+        this one search. Feeds the "Performance" admin tab: ``total`` is the full
         response time the user waits for; the rest break it down per subsystem.
         """
         day = _today()
@@ -242,7 +242,7 @@ class Analytics:
     ) -> None:
         """Record one call to an external provider (``sefaz`` or ``llm``).
 
-        Tracks latency (histogram) and failures so the admin "Provedores" tab can
+        Tracks latency (histogram) and failures so the admin "Providers" tab can
         show error rate + p95 per third party — the signal for adjusting caching /
         query volume when a provider degrades.
         """
@@ -270,7 +270,7 @@ class Analytics:
 
         Dispatched as a FastAPI background task so the user's response is already sent.
         Self-times the Redis work and records it as the ``analytics`` timing stage, so
-        the Desempenho tab can show analytics contributes ~nothing to user wait time.
+        the Performance tab can show analytics contributes ~nothing to user wait time.
         Best-effort: never raises (each ``record_*`` already swallows its own errors).
         """
         t0 = time.perf_counter()

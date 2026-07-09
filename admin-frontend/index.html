@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -12,13 +12,13 @@
   <!-- Token gate -->
   <div id="login" class="login" hidden>
     <form id="login-form" class="login-card">
-      <h1>Painel Admin</h1>
+      <h1>Admin panel</h1>
       <p>Compre Barato Alagoas</p>
-      <label for="token" class="sr-only">Token de acesso</label>
-      <input id="token" name="admin-token" type="password" placeholder="Token de acesso"
-             autocomplete="current-password" aria-label="Token de acesso" />
-      <button type="submit">Entrar</button>
-      <p id="login-error" class="error" role="alert" hidden>Token inválido.</p>
+      <label for="token" class="sr-only">Access token</label>
+      <input id="token" name="admin-token" type="password" placeholder="Access token"
+             autocomplete="current-password" aria-label="Access token" />
+      <button type="submit">Sign in</button>
+      <p id="login-error" class="error" role="alert" hidden>Invalid token.</p>
     </form>
   </div>
 
@@ -29,37 +29,37 @@
       <div class="topbar-right">
         <span id="mode-badge" class="badge" hidden></span>
         <label class="range">
-          Período
+          Period
           <select id="range">
-            <option value="7">7 dias</option>
-            <option value="14" selected>14 dias</option>
-            <option value="30">30 dias</option>
+            <option value="7">7 days</option>
+            <option value="14" selected>14 days</option>
+            <option value="30">30 days</option>
           </select>
         </label>
-        <button id="refresh" class="ghost">Atualizar</button>
-        <button id="logout" class="ghost">Sair</button>
+        <button id="refresh" class="ghost">Refresh</button>
+        <button id="logout" class="ghost">Sign out</button>
       </div>
     </header>
 
     <nav class="tabs">
       <div class="tab-group">
-        <span class="tab-group-label">IA &amp; Produto</span>
-        <button class="tab active" data-tab="overview">Visão geral</button>
-        <button class="tab" data-tab="quality">Qualidade da IA</button>
-        <button class="tab" data-tab="costs">Custos</button>
+        <span class="tab-group-label">AI &amp; Product</span>
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="quality">AI quality</button>
+        <button class="tab" data-tab="costs">Costs</button>
         <button class="tab" data-tab="feedback">Feedback</button>
-        <button class="tab" data-tab="searches">Buscas recentes</button>
-        <button class="tab" data-tab="items">Itens</button>
+        <button class="tab" data-tab="searches">Recent searches</button>
+        <button class="tab" data-tab="items">Items</button>
       </div>
       <div class="tab-group">
-        <span class="tab-group-label">Crescimento</span>
-        <button class="tab" data-tab="growth">Usuários</button>
+        <span class="tab-group-label">Growth</span>
+        <button class="tab" data-tab="growth">Users</button>
       </div>
       <div class="tab-group">
-        <span class="tab-group-label">Técnico</span>
-        <button class="tab" data-tab="performance">Desempenho</button>
-        <button class="tab" data-tab="providers">Provedores</button>
-        <button class="tab" data-tab="settings">Configurações</button>
+        <span class="tab-group-label">Technical</span>
+        <button class="tab" data-tab="performance">Performance</button>
+        <button class="tab" data-tab="providers">Providers</button>
+        <button class="tab" data-tab="settings">Settings</button>
       </div>
     </nav>
 
@@ -68,7 +68,7 @@
       <section id="tab-overview" class="panel">
         <div class="cards" id="overview-cards"></div>
         <div class="chart-box">
-          <h3>Buscas por hora (hoje)</h3>
+          <h3>Searches per hour (today)</h3>
           <canvas id="chart-hours"></canvas>
         </div>
       </section>
@@ -76,16 +76,16 @@
       <!-- Quality -->
       <section id="tab-quality" class="panel" hidden>
         <div class="chart-box">
-          <h3>Taxa de acerto da normalização (por dia)</h3>
+          <h3>Normalization match rate (per day)</h3>
           <canvas id="chart-match"></canvas>
         </div>
         <div class="grid-2">
           <div class="chart-box">
-            <h3>Qualidade do tamanho/quantidade (por dia)</h3>
+            <h3>Size/quantity quality (per day)</h3>
             <canvas id="chart-parse"></canvas>
           </div>
           <div class="chart-box">
-            <h3>Como o preço/un foi derivado</h3>
+            <h3>How unit price was derived</h3>
             <canvas id="chart-method"></canvas>
           </div>
         </div>
@@ -95,19 +95,19 @@
       <section id="tab-costs" class="panel" hidden>
         <div class="grid-2">
           <div class="chart-box">
-            <h3>Custo de IA por dia (USD)</h3>
+            <h3>AI cost per day (USD)</h3>
             <canvas id="chart-cost"></canvas>
           </div>
           <div class="chart-box">
-            <h3>Tokens por dia</h3>
+            <h3>Tokens per day</h3>
             <canvas id="chart-tokens"></canvas>
           </div>
         </div>
         <div class="table-box">
-          <h3>Por modelo</h3>
+          <h3>By model</h3>
           <table id="model-table"><thead><tr>
-            <th>Modelo</th><th>Chamadas</th><th>Tokens entrada</th>
-            <th>Tokens saída</th><th>Custo (USD)</th>
+            <th>Model</th><th>Calls</th><th>Input tokens</th>
+            <th>Output tokens</th><th>Cost (USD)</th>
           </tr></thead><tbody></tbody></table>
         </div>
       </section>
@@ -116,17 +116,17 @@
       <section id="tab-feedback" class="panel" hidden>
         <div class="cards" id="feedback-counts"></div>
         <label class="range">
-          Filtrar
+          Filter
           <select id="fb-kind">
-            <option value="">Todos</option>
-            <option value="helpful">Útil (👍/👎)</option>
-            <option value="wrong_item">Item errado</option>
-            <option value="other">Outro</option>
+            <option value="">All</option>
+            <option value="helpful">Helpful (👍/👎)</option>
+            <option value="wrong_item">Wrong item</option>
+            <option value="other">Other</option>
           </select>
         </label>
         <div class="table-box">
           <table id="feedback-table"><thead><tr>
-            <th>Quando</th><th>Tipo</th><th>Útil?</th><th>Item</th><th>Nota</th>
+            <th>When</th><th>Type</th><th>Helpful?</th><th>Item</th><th>Note</th>
           </tr></thead><tbody></tbody></table>
         </div>
       </section>
@@ -135,7 +135,7 @@
       <section id="tab-searches" class="panel" hidden>
         <div class="table-box">
           <table id="search-table"><thead><tr>
-            <th>Quando</th><th>Itens</th><th>Encontrados</th><th>Fonte</th>
+            <th>When</th><th>Items</th><th>Found</th><th>Source</th>
           </tr></thead><tbody></tbody></table>
         </div>
       </section>
@@ -144,87 +144,87 @@
       <section id="tab-items" class="panel" hidden>
         <div class="grid-2">
           <div class="table-box">
-            <h3>Mais pesquisados</h3>
-            <table id="top-table"><thead><tr><th>Item</th><th>Buscas</th></tr></thead><tbody></tbody></table>
+            <h3>Most searched</h3>
+            <table id="top-table"><thead><tr><th>Item</th><th>Searches</th></tr></thead><tbody></tbody></table>
           </div>
           <div class="table-box">
-            <h3>Mais "não encontrados"</h3>
-            <table id="notfound-table"><thead><tr><th>Item</th><th>Vezes</th></tr></thead><tbody></tbody></table>
+            <h3>Most "not found"</h3>
+            <table id="notfound-table"><thead><tr><th>Item</th><th>Times</th></tr></thead><tbody></tbody></table>
           </div>
         </div>
       </section>
 
-      <!-- Crescimento (usuários: DAU/WAU/MAU, retenção, atividade) -->
+      <!-- Growth (users: DAU/WAU/MAU, retention, activity) -->
       <section id="tab-growth" class="panel" hidden>
-        <p class="section-note">Quantas pessoas usam o app, com que frequência e em que
-          horários — tudo por contagem anônima e agregada (sem saber quem é ninguém).</p>
+        <p class="section-note">How many people use the app, how often, and at which
+          hours — all via anonymous aggregated counts (without knowing who anyone is).</p>
         <div class="cards" id="growth-cards"></div>
         <div class="chart-box">
-          <h3>Usuários únicos por dia (novos vs. recorrentes)</h3>
+          <h3>Unique users per day (new vs. returning)</h3>
           <canvas id="chart-dau"></canvas>
         </div>
         <div class="grid-2">
           <div class="chart-box">
-            <h3>Atividade por hora do dia</h3>
+            <h3>Activity by hour of day</h3>
             <canvas id="chart-hourofday"></canvas>
           </div>
           <div class="chart-box">
-            <h3>Atividade por dia da semana</h3>
+            <h3>Activity by day of week</h3>
             <canvas id="chart-weekday"></canvas>
           </div>
         </div>
         <div class="chart-box">
-          <h3>Buscas por usuário ativo (por dia)</h3>
+          <h3>Searches per active user (per day)</h3>
           <canvas id="chart-engagement"></canvas>
         </div>
       </section>
 
-      <!-- Desempenho (tempo de resposta + subsistemas) -->
+      <!-- Performance (response time + subsystems) -->
       <section id="tab-performance" class="panel" hidden>
-        <p class="section-note">Quanto tempo o usuário espera pela resposta completa e onde esse tempo é gasto.</p>
+        <p class="section-note">How long the user waits for the full response and where that time is spent.</p>
         <div class="cards" id="performance-cards"></div>
         <div class="grid-2">
           <div class="chart-box">
-            <h3>Distribuição do tempo de resposta</h3>
+            <h3>Response time distribution</h3>
             <canvas id="chart-latency-dist"></canvas>
           </div>
           <div class="chart-box">
-            <h3>Latência ao longo do tempo</h3>
+            <h3>Latency over time</h3>
             <canvas id="chart-latency-trend"></canvas>
           </div>
         </div>
         <div class="grid-2">
           <div class="chart-box">
-            <h3>Latência média por subsistema (ms)</h3>
+            <h3>Average latency by subsystem (ms)</h3>
             <canvas id="chart-subsystems"></canvas>
           </div>
           <div class="table-box">
-            <h3>Por subsistema</h3>
+            <h3>By subsystem</h3>
             <table id="subsystem-table"><thead><tr>
-              <th>Subsistema</th><th>Amostras</th><th>Média</th><th>p50</th><th>p95</th>
+              <th>Subsystem</th><th>Samples</th><th>Average</th><th>p50</th><th>p95</th>
             </tr></thead><tbody></tbody></table>
           </div>
         </div>
       </section>
 
-      <!-- Provedores (saúde de terceiros: IA, SEFAZ) -->
+      <!-- Providers (third-party health: AI, SEFAZ) -->
       <section id="tab-providers" class="panel" hidden>
-        <p class="section-note">Saúde dos terceiros de quem dependemos. Latência alta ou erros indicam ajustar cache / reduzir consultas.</p>
+        <p class="section-note">Health of the third parties we depend on. High latency or errors mean adjust cache / reduce queries.</p>
         <div class="cards" id="provider-cards"></div>
         <div class="table-box">
           <table id="provider-table"><thead><tr>
-            <th>Provedor</th><th>Chamadas</th><th>Taxa de erro</th>
-            <th>Latência média</th><th>p95</th><th>Última falha</th>
+            <th>Provider</th><th>Calls</th><th>Error rate</th>
+            <th>Avg latency</th><th>p95</th><th>Last failure</th>
           </tr></thead><tbody></tbody></table>
         </div>
       </section>
 
-      <!-- Configurações: segredos de terceiros (token SEFAZ) -->
+      <!-- Settings: third-party secrets (SEFAZ token) -->
       <section id="tab-settings" class="panel" hidden>
-        <p class="section-note">Credenciais de terceiros são criptografadas no servidor
-          e nunca aparecem em arquivos, logs ou nesta tela. Informe o valor para defini-lo
-          ou trocá-lo; só mostramos uma “impressão digital” curta para você confirmar qual
-          valor está ativo.</p>
+        <p class="section-note">Third-party credentials are encrypted on the server
+          and never appear in files, logs, or on this screen. Enter a value to set or
+          rotate it; we only show a short “fingerprint” so you can confirm which
+          value is active.</p>
         <div id="secrets-warning" class="badge warn" hidden></div>
         <div id="secrets-list"></div>
       </section>

@@ -1,124 +1,123 @@
 # Deploy — Compre Barato Alagoas
 
-Sobe o projeto em um servidor Linux com Docker, atrás de um **nginx + certbot** que já
-faça o TLS. Nada específico de um servidor é versionado: host, usuário, chave SSH e
-diretório são passados por variáveis de ambiente; segredos ficam em um único `.env`.
+Deploys the project on a Linux server with Docker, behind **nginx + certbot** that
+already handles TLS. Nothing host-specific is committed: host, user, SSH key, and
+directory are passed via environment variables; secrets live in a single `.env`.
 
-## Topologia
+## Topology
 
 ```
-Internet → nginx do host (TLS, certbot)
-            ├── /                → web Flutter estática em <DEPLOY_DIR>/web
+Internet → host nginx (TLS, certbot)
+            ├── /                → static Flutter web at <DEPLOY_DIR>/web
             └── /api,/health,... → reverse proxy 127.0.0.1:8000 (Docker)
 Docker (compose, deploy/):
    api (FastAPI, 127.0.0.1:8000) · postgres (pgvector) · redis
 ```
 
-Só a porta da API é publicada, e apenas em `localhost`.
+Only the API port is published, and only on `localhost`.
 
-## Configuração
+## Configuration
 
-Toda a configuração vive em **um único `.env` na raiz do repositório** (copie de
-`.env.example`). Ele alimenta tanto o backend quanto o `docker-compose`. O `.env`
-**nunca** é versionado nem enviado pelo deploy — fica somente no servidor.
+All configuration lives in **a single `.env` at the repository root** (copy from
+`.env.example`). It feeds both the backend and `docker-compose`. The `.env` is
+**never** committed or shipped by deploy — it stays only on the server.
 
-O destino do deploy é informado por variáveis de ambiente ao rodar `deploy.sh`:
+The deploy target is set via environment variables when running `deploy.sh`:
 
-| Variável | Descrição | Padrão |
-|----------|-----------|--------|
-| `DEPLOY_HOST` | `usuario@host` do servidor | `deploy@your-server.example.com` |
-| `DEPLOY_SSH_KEY` | caminho da chave SSH privada | `~/.ssh/id_ed25519` |
-| `DEPLOY_DOMAIN` | domínio público servido pelo nginx | domínio de produção |
-| `DEPLOY_DIR` | diretório do app no servidor | `/srv/apps/compre-barato-alagoas` |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DEPLOY_HOST` | `user@host` of the server | `deploy@your-server.example.com` |
+| `DEPLOY_SSH_KEY` | path to the SSH private key | `~/.ssh/id_ed25519` |
+| `DEPLOY_DOMAIN` | public domain served by nginx | production domain |
+| `DEPLOY_DIR` | app directory on the server | `/srv/apps/compre-barato-alagoas` |
 
-## Primeiro deploy
+## First deploy
 
-A partir de uma máquina com o repositório e o Flutter instalados:
+From a machine with the repository and Flutter installed:
 
 ```bash
-# 1) Suba código + builds e crie os containers.
-DEPLOY_HOST=usuario@SEU_SERVIDOR \
-DEPLOY_SSH_KEY=~/.ssh/sua_chave \
+# 1) Ship code + builds and create the containers.
+DEPLOY_HOST=user@YOUR_SERVER \
+DEPLOY_SSH_KEY=~/.ssh/your_key \
 DEPLOY_DIR=/srv/apps/compre-barato-alagoas \
   deploy/deploy.sh
 
-# 2) No servidor, defina os segredos no .env (na raiz de DEPLOY_DIR).
-ssh -i ~/.ssh/sua_chave usuario@SEU_SERVIDOR
+# 2) On the server, set secrets in .env (at the root of DEPLOY_DIR).
+ssh -i ~/.ssh/your_key user@YOUR_SERVER
 cd /srv/apps/compre-barato-alagoas
-nano .env       # defina POSTGRES_PASSWORD; mantenha USE_MOCK_* = true por enquanto
+nano .env       # set POSTGRES_PASSWORD; keep USE_MOCK_* = true for now
 cd deploy && docker compose --env-file ../.env up -d
-curl -s http://127.0.0.1:8000/health    # espera status ok
+curl -s http://127.0.0.1:8000/health    # expect status ok
 
-# 3) Configure o vhost do nginx + TLS (um vhost novo; os demais sites ficam intactos).
+# 3) Configure the nginx vhost + TLS (a new vhost; other sites stay untouched).
 sudo cp deploy/nginx/alagoas.precospublicos.ia.br.conf /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/alagoas.precospublicos.ia.br.conf \
            /etc/nginx/sites-enabled/
-#   Ajuste o `root` do vhost para <DEPLOY_DIR>/web.
+#   Point the vhost `root` at <DEPLOY_DIR>/web.
 sudo nginx -t && sudo systemctl reload nginx
-sudo certbot --nginx -d SEU_DOMINIO      # emite e instala o certificado
+sudo certbot --nginx -d YOUR_DOMAIN      # issue and install the certificate
 
-# 4) Teste final.
-curl -s https://SEU_DOMINIO/health
+# 4) Final test.
+curl -s https://YOUR_DOMAIN/health
 ```
 
-## CI/CD (deploy automático a cada push na `main`)
+## CI/CD (auto-deploy on every push to `main`)
 
-O workflow `.github/workflows/deploy.yml` faz deploy automático a cada push na
-`main`, mas **só faz o que mudou de verdade** (job `changes` detecta os caminhos):
+The `.github/workflows/deploy.yml` workflow auto-deploys on every push to
+`main`, but **only what actually changed** (`changes` job detects paths):
 
-| Mudou… | O que o pipeline faz |
-|--------|----------------------|
-| `backend/**` | roda `pytest`, reconstrói a imagem e reinicia o stack |
-| `frontend/**` | reconstrói a web Flutter + APK e sincroniza (sem reiniciar a API) |
-| `deploy/**`, `.env.example`, o próprio workflow | sincroniza e reinicia o stack com a imagem atual |
-| `admin-frontend/**` | só sincroniza o dashboard (sem rebuild/restart) |
-| `docs/**` | só sincroniza o site de docs (sem rebuild/restart) |
-| só `README.md` / `LICENSE` / `.gitignore` / `shared-assets/**` | **nada** — o pipeline nem inicia |
+| What changed… | What the pipeline does |
+|---------------|------------------------|
+| `backend/**` | runs `pytest`, rebuilds the image, restarts the stack |
+| `frontend/**` | rebuilds Flutter web + APK and syncs (no API restart) |
+| `deploy/**`, `.env.example`, the workflow itself | syncs and restarts the stack with the current image |
+| `admin-frontend/**` | only syncs the dashboard (no rebuild/restart) |
+| `docs/**` | only syncs the docs site (no rebuild/restart) |
+| only `README.md` / `LICENSE` / `.gitignore` / `shared-assets/**` | **nothing** — pipeline does not start |
 
-Detalhes do deploy quando há código:
-- a imagem do backend (Dockerfile multi-stage, enxuta) é construída **no runner**,
-  nunca no servidor — nenhum cache de build se acumula no host compartilhado;
-- envio por SSH: imagem via `docker save | docker load` (sem registry), estáticos via `rsync`;
-- antes de tocar no host há uma **checagem de disco** (aborta se houver < ~2 GB livres);
-  `deploy/remote-update.sh` sobe o stack, remove imagens antigas **só deste app** e roda health check.
-- `workflow_dispatch` (Run workflow) força um deploy completo — útil para redeploy/rollback.
+Deploy details when there is code:
+- the backend image (lean multi-stage Dockerfile) is built **on the runner**,
+  never on the server — no build cache piles up on the shared host;
+- ship over SSH: image via `docker save | docker load` (no registry), statics via `rsync`;
+- before touching the host there is a **disk check** (aborts if < ~2 GB free);
+  `deploy/remote-update.sh` brings the stack up, removes old images **for this app only**, and runs a health check.
+- `workflow_dispatch` (Run workflow) forces a full deploy — useful for redeploy/rollback.
 
-Configure uma vez os *secrets* do repositório (nada específico do host fica versionado):
+Configure repository *secrets* once (nothing host-specific is committed):
 
-| Secret | Conteúdo |
+| Secret | Contents |
 |--------|----------|
-| `DEPLOY_HOST` | `usuario@host` do servidor |
-| `DEPLOY_SSH_KEY` | chave SSH **privada** do deploy (conteúdo do arquivo) |
-| `DEPLOY_DIR` | diretório do app no servidor |
-| `DEPLOY_DOMAIN` | domínio público (usado no build do Flutter) |
+| `DEPLOY_HOST` | `user@host` of the server |
+| `DEPLOY_SSH_KEY` | deploy **private** SSH key (file contents) |
+| `DEPLOY_DIR` | app directory on the server |
+| `DEPLOY_DOMAIN` | public domain (used in the Flutter build) |
 
-O nginx/TLS do host **não** é tocado pelo pipeline (segue gerido à mão no servidor).
-Para rodar manualmente sem push, use **Actions → este workflow → Run workflow**.
+Host nginx/TLS is **not** touched by the pipeline (still managed by hand on the server).
+To run manually without a push, use **Actions → this workflow → Run workflow**.
 
-## Atualizações manuais (fallback)
+## Manual updates (fallback)
 
-`deploy.sh` reconstrói a web + APK, sincroniza backend/deploy/web e recria os
-containers **construindo a imagem no próprio servidor**. É o caminho de emergência;
-o normal é deixar o CI/CD acima cuidar do deploy. Rode-o com as mesmas variáveis de
-ambiente do primeiro deploy.
+`deploy.sh` rebuilds web + APK, syncs backend/deploy/web, and recreates containers
+**building the image on the server itself**. That is the emergency path; normally the
+CI/CD above owns deploy. Run it with the same environment variables as the first deploy.
 
-## Indo ao ar com dados reais
+## Going live with real data
 
-Edite o `.env` no servidor:
+Edit `.env` on the server:
 
 ```
 USE_MOCK_SEFAZ=false
-SEFAZ_APP_TOKEN=<token da SEFAZ>
+SEFAZ_APP_TOKEN=<SEFAZ token>
 USE_MOCK_LLM=false
-ANTHROPIC_API_KEY=<chave>
+ANTHROPIC_API_KEY=<key>
 ```
 
-depois `cd deploy && docker compose --env-file ../.env up -d` para reiniciar a API.
-Nenhuma mudança de código é necessária.
+then `cd deploy && docker compose --env-file ../.env up -d` to restart the API.
+No code changes are required.
 
-## Notas
+## Notes
 
-- O usuário do deploy precisa estar no grupo `docker` para rodar `docker compose` sem
+- The deploy user must be in the `docker` group to run `docker compose` without
   `sudo`.
-- Em host compartilhado, **nunca** use `docker system prune`. Limpe só as próprias
-  imagens: `docker image prune -f` / `docker builder prune -f`.
+- On a shared host, **never** use `docker system prune`. Clean only your own
+  images: `docker image prune -f` / `docker builder prune -f`.

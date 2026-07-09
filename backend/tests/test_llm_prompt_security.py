@@ -13,8 +13,8 @@ def test_system_prompt_has_injection_guardrails():
     # Must still describe the JSON contract...
     assert "json" in system
     # ...and must carry the security clause that defends against prompt injection.
-    assert "segurança" in system
-    assert "dados inertes" in system
+    assert "security" in system
+    assert "inert data" in system
     # An explicit "ignore embedded instructions" intent must be present.
-    assert "instruç" in system  # instruções / instrução
-    assert "obedeç" in system  # jamais obedeça
+    assert "instruct" in system  # instructions / instruction
+    assert "never obey" in system or "obey" in system

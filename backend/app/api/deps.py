@@ -71,8 +71,8 @@ def require_device_token(request: Request) -> str:
     return token
 
 
-# Anonymous usage-measurement id (LGPD: legítimo interesse, opt-out). Sent on every
-# search unless the user turns off "Estatísticas anônimas de uso". Deliberately separate
+# Anonymous usage-measurement id (LGPD: legitimate interest, opt-out). Sent on every
+# search unless the user turns off "Estatísticas anônimas de uso" in the app. Deliberately separate
 # from the consent device token: it only ever feeds a salted-hash HyperLogLog (aggregate
 # unique count), is never linked to lists/identity, and is never logged or stored as-is.
 _ANALYTICS_ID_HEADER = "x-analytics-id"

@@ -7,9 +7,9 @@ files=(
   "$root/frontend/web/privacy.html"
   "$root/admin-frontend/index.html"
   "$root/docs/index.html"
-  "$root/docs/seguranca-postura.html"
-  "$root/docs/seguranca-e-dados.html"
-  "$root/docs/lgpd-medicao-de-uso.html"
+  "$root/docs/security-posture.html"
+  "$root/docs/security-and-data.html"
+  "$root/docs/lgpd-usage-measurement.html"
 )
 needle='name="format-detection"'
 needle2='content="telephone=no"'

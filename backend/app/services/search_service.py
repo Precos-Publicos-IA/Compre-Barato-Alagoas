@@ -67,7 +67,7 @@ async def run_search(
     # end): a single best-effort background flush, so they never add to user wait time.
     batch = SearchAnalyticsBatch() if analytics is not None else None
 
-    # Stage timers (ms) feed the admin "Desempenho"/"Provedores" tabs. Best-effort:
+    # Stage timers (ms) feed the admin "Performance"/"Providers" tabs. Best-effort:
     # perf_counter deltas only, recorded after the response is built.
     t_start = time.perf_counter()
     sefaz_ms = cache_ms = normalize_ms = 0.0
@@ -304,7 +304,7 @@ async def run_search(
             # No background context (e.g. direct service-level tests): write inline.
             await analytics.flush(batch)
 
-    # Include verifier suggestions so the app can show "Talvez você quis dizer..."
+    # Include verifier suggestions so the app can show "Did you mean..."
     # or pre-fill better terms for poor users who type vaguely.
     metrics.suggested_refinements = suggested_refinements
 

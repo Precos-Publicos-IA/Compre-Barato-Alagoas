@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>LGPD · Anonymous usage measurement · Compre Barato Alagoas</title>
+  <meta name="description" content="Legitimate interest assessment (LIA) for anonymous, aggregated usage measurement in Compre Barato Alagoas under Brazil's LGPD." />
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+  <main class="content">
+    <span class="tag">LGPD · Legitimate interest assessment</span>
+    <h1>Anonymous usage measurement</h1>
+    <p class="lead">How Compre Barato Alagoas estimates how many people use the app,
+      anonymously and in aggregate, and why that is lawful under the LGPD.</p>
+
+    <p><a href="index.html">← Back to documentation</a></p>
+
+    <div class="note">This document is the legitimate interest assessment (LIA) expected
+      by the ANPD for audience measurement. Keep it accurate as the code evolves.</div>
+
+    <h2 id="purpose">Purpose</h2>
+    <p>We want to know how many distinct people use the app per day, how often, and
+      at which times, so we can prioritize improvements and size infrastructure. This is
+      <strong>audience measurement</strong> — not advertising, not personalized
+      recommendations, not selling data.</p>
+
+    <h2 id="legal-basis">Legal basis</h2>
+    <p>Legitimate interest (LGPD, Art. 7, IX and Art. 10). Per the ANPD <em>Guidance Guide:
+      Cookies and Personal Data Protection</em>, audience measurement may rely on
+      legitimate interest when it runs in a <strong>restricted
+      configuration</strong>. We meet every condition of that configuration (below).</p>
+
+    <h2 id="data">Data processed and minimization</h2>
+    <ul>
+      <li>The app generates a <strong>measurement-only random identifier</strong>
+        (<code>frontend/lib/data/analytics_id.dart</code>, key <code>analytics_id_v1</code>
+        in <code>shared_preferences</code>). It is <strong>separate</strong> from the
+        device identity token (the one used for "save to the cloud") and is never linked to
+        the user's lists, location, or any identity.</li>
+      <li>It contains no name, email, phone number, or other direct identifier.</li>
+      <li>It is sent in the <code>X-Analytics-Id</code> header only on searches, and only when
+        measurement is enabled.</li>
+      <li>On the server, the id is <strong>salted and added to a HyperLogLog</strong>
+        (a probabilistic structure that stores only a <em>cardinality</em> — a number).
+        <strong>There is no per-device record</strong>, no row that can be recovered for an
+        individual.</li>
+      <li>IP address does <strong>not</strong> enter measurement data.</li>
+    </ul>
+
+    <h2 id="anonymization">Anonymized result (Art. 12)</h2>
+    <p>What is stored is only an aggregate total (estimated unique devices per
+      period). Aggregation is a recognized anonymization technique; the result is not
+      reversible by reasonable means and is therefore <strong>not personal data</strong> (Art.
+      12). The Art. 12, §2 exception (behavioral profiling) <strong>does not apply</strong>:
+      we do not build profiles.</p>
+
+    <h2 id="restricted-config">Restricted configuration (conditions met)</h2>
+    <ul>
+      <li><strong>Aggregated data only</strong> — HyperLogLog stores counts, not trails.</li>
+      <li><strong>No user profiling</strong>.</li>
+      <li><strong>No combination</strong> with other trackers or databases.</li>
+      <li><strong>No sharing</strong> with third parties — self-hosted Redis.</li>
+      <li><strong>No IP</strong> in measurement data.</li>
+    </ul>
+
+    <h2 id="necessity">Necessity and proportionality</h2>
+    <p>There is no less invasive way to deliver unique-device counts and retention: a
+      stable per-device id is the minimum needed to distinguish "same device returned"
+      from "new device". User expectation is compatible (basic usage measurement on a free
+      app), impact is minimal (anonymized data, no profile), and safeguards are clear
+      (id separation, opt-out, anonymization).</p>
+
+    <h2 id="rights">Data subject rights and opt-out (Art. 18, §2)</h2>
+    <p>Measurement can be <strong>turned off at any time</strong> in Settings →
+      "Anonymous usage statistics". When turned off, the app stops sending the id and
+      <strong>forgets the identifier locally</strong>. Because the stored result is already
+      anonymized, there is no individual record to delete on the server.</p>
+
+    <h2 id="transparency">Transparency</h2>
+    <p>This measurement is described in plain language in the
+      <a href="https://alagoas.precospublicos.ia.br/privacy.html">Privacy Policy</a>
+      (section "Anonymous usage measurement"), matching the in-app privacy screen.</p>
+
+    <h2 id="references">References</h2>
+    <ul>
+      <li>LGPD — Art. 7, IX and Art. 10 (legitimate interest); Art. 12 (anonymized data);
+        Art. 18, §2 (objection/opt-out).</li>
+      <li>ANPD — <em>Guidance Guide: Cookies and Personal Data Protection</em>
+        (audience measurement in restricted configuration).</li>
+    </ul>
+  </main>
+</div>
+</body>
+</html>

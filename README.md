@@ -1,83 +1,81 @@
 # Compre Barato Alagoas
 
-**Compare preços de supermercados, farmácias e lojas em Alagoas e monte a lista de
-compras mais barata — usando dados públicos e reais de notas fiscais (NFC-e).**
+**Compare supermarket, pharmacy, and store prices in Alagoas and build the cheapest
+shopping list — using public, real electronic invoice (NFC-e) data.**
 
-Aplicativo aberto (Android + web) que ajuda as pessoas de Alagoas, começando por
-Maceió, a encontrar onde comprar mais barato. Os preços vêm da **API pública
-Economiza Alagoas**, mantida pela Secretaria da Fazenda do Estado de Alagoas
-(SEFAZ-AL), e refletem vendas reais coletadas quase em tempo real.
+Open app (Android + web) that helps people in Alagoas, starting with Maceió, find
+where to buy for less. Prices come from the **public Economiza Alagoas API**, run by
+the Alagoas State Department of Finance (SEFAZ-AL), and reflect real sales collected
+near real time.
 
-> Projeto **Preços Públicos IA** · Licença MIT · App online em
-> https://alagoas.precospublicos.ia.br · Documentação em
+> **Preços Públicos IA** project · MIT License · Live app at
+> https://alagoas.precospublicos.ia.br · Documentation at
 > https://docs.alagoas.precospublicos.ia.br
 
-A SEFAZ-AL é, hoje, a única secretaria estadual do país a oferecer esse serviço de
-consulta de preços de forma pública e gratuita. Este projeto é uma forma de colocar
-esses dados na mão da população, com uma experiência simples e acessível.
+SEFAZ-AL is currently the only state revenue department in Brazil offering this
+price-lookup service publicly and for free. This project puts that data in people's
+hands with a simple, accessible experience.
 
-## O que o app faz
+## What the app does
 
-- Você digita (ou fala) sua lista de compras em linguagem natural — ex.: *"5kg de
+- You type (or speak) your shopping list in natural language — e.g. *"5kg de
   arroz, 1L de leite, sabão em pó"*.
-- O app consulta os preços praticados perto de você e calcula o **preço justo por
-  unidade** (por kg, por litro, por unidade) para comparar produtos de tamanhos
-  diferentes de forma honesta.
-- O resultado é uma lista de lojas ordenada da **mais barata** para a mais cara, com
-  o quanto você economiza e a data de cada venda.
-- A lista pode ser compartilhada por um link curto.
+- The app looks up prices near you and computes a **fair unit price**
+  (per kg, per liter, per unit) so products of different sizes can be compared honestly.
+- The result is a store list ordered from **cheapest** to most expensive, with
+  how much you save and the date of each sale.
+- The list can be shared via a short link.
 
-## Como funciona (a parte difícil)
+## How it works (the hard part)
 
-A base de dados da SEFAZ não tem um campo com o **tamanho da embalagem** ("5kg",
-"1L"): essa informação só existe no texto livre da descrição do produto. O coração do
-projeto é justamente extrair tamanho e unidade desse texto para calcular um
-**preço por unidade comparável**. Essa lógica vive em
-`backend/app/services/normalization/`.
+The SEFAZ database has no field for **package size** ("5kg", "1L"): that information
+exists only in free-text product descriptions. The heart of the project is extracting
+size and unit from that text to compute a **comparable unit price**. That logic lives
+in `backend/app/services/normalization/`.
 
 ```
-Usuário (Flutter, Android/web)
+User (Flutter, Android/web)
         │
         ▼
-Backend (FastAPI)  ──►  API pública Economiza Alagoas (SEFAZ-AL)
+Backend (FastAPI)  ──►  Public Economiza Alagoas API (SEFAZ-AL)
         │
-        ├── interpreta a lista (LLM)
-        ├── normaliza tamanho/unidade  →  preço justo por kg/L/un
-        └── ranqueia as lojas por cesta total
+        ├── interpret the list (LLM)
+        ├── normalize size/unit  →  fair price per kg/L/unit
+        └── rank stores by total basket
 ```
 
-O backend funciona como intermediário seguro: é ele quem guarda o token de acesso à
-SEFAZ — o token **nunca** vai para o aplicativo do usuário.
+The backend is a secure intermediary: it holds the SEFAZ access token — the token
+**never** goes to the user app.
 
-## Estrutura do repositório
+## Repository structure
 
-| Pasta | Descrição |
-|-------|-----------|
-| `backend/` | API em FastAPI: intermediário seguro, normalização e ranqueamento. |
-| `frontend/` | App em Flutter (Android + web): Riverpod, mapa OpenStreetMap, voz. |
-| `admin-frontend/` | Painel administrativo estático (métricas de IA/produto + técnico). |
-| `docs/` | Documentação estática (pt-BR), publicada em `docs.<domínio>`. |
-| `deploy/` | docker-compose + nginx para subir o projeto em um servidor. |
-| `e2e/` | Testes headless (Puppeteer): inputs simulados + screenshots (local e live). |
-| `shared-assets/` | Arte/logo de origem do app. |
+| Folder | Description |
+|--------|-------------|
+| `backend/` | FastAPI API: secure intermediary, normalization, and ranking. |
+| `frontend/` | Flutter app (Android + web): Riverpod, OpenStreetMap, voice. |
+| `admin-frontend/` | Static admin panel (AI/product + technical metrics). |
+| `docs/` | Static documentation (English), published at `docs.<domain>`. |
+| `deploy/` | docker-compose + nginx to run the project on a server. |
+| `e2e/` | Headless tests (Puppeteer): simulated input + screenshots (local and live). |
+| `shared-assets/` | Source art/logo for the app. |
 
-Cada pasta tem o seu próprio README com instruções detalhadas.
+Each folder has its own README with detailed instructions.
 
-**Entrega (agentes):** branch → PR → review → merge `main` → deploy VPS (CI) → testes live.
-Ver [`AGENTS.md`](AGENTS.md). Local: `cd e2e && npm run full:local`. Pós-deploy: `cd e2e && npm run live`.
+**Delivery (agents):** branch → PR → review → merge `main` → VPS deploy (CI) → live tests.
+See [`AGENTS.md`](AGENTS.md). Local: `cd e2e && npm run full:local`. Post-deploy: `cd e2e && npm run live`.
 
-## Documentação
+## Documentation
 
-A documentação funcional e técnica completa (em pt-BR) fica em
-[`docs/`](docs/index.html) e é publicada em
-**https://docs.alagoas.precospublicos.ia.br** — visão geral, arquitetura, fluxo de
-busca, normalização de preço justo, ranqueamento, privacidade/LGPD, API e uma seção
-honesta de limitações conhecidas. É um site estático (HTML/CSS, sem build).
+Full functional and technical documentation is in
+[`docs/`](docs/index.html) and is published at
+**https://docs.alagoas.precospublicos.ia.br** — overview, architecture, search flow,
+fair-price normalization, ranking, privacy/LGPD, API, and an honest known-limitations
+section. It is a static site (HTML/CSS, no build).
 
-## Rodando localmente
+## Running locally
 
-O projeto roda **sem nenhuma infraestrutura externa** em *modo mock* (catálogo
-sintético de Maceió, sem necessidade de token da SEFAZ nem de chave de LLM).
+The project runs **without any external infrastructure** in *mock mode* (synthetic
+Maceió catalog; no SEFAZ token or LLM key required).
 
 **Backend**
 ```bash
@@ -85,7 +83,7 @@ cd backend
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
 pytest
-uvicorn app.main:app --reload      # docs em http://127.0.0.1:8000/docs
+uvicorn app.main:app --reload      # docs at http://127.0.0.1:8000/docs
 ```
 
 **Frontend**
@@ -93,53 +91,52 @@ uvicorn app.main:app --reload      # docs em http://127.0.0.1:8000/docs
 cd frontend
 flutter pub get
 flutter test
-flutter run --dart-define=API_BASE_URL=http://<ip-da-sua-maquina>:8000
+flutter run --dart-define=API_BASE_URL=http://<your-machine-ip>:8000
 ```
 
-Toda a configuração é por variáveis de ambiente — copie `.env.example` para `.env` e
-ajuste o que precisar.
+All configuration is via environment variables — copy `.env.example` to `.env` and
+adjust as needed.
 
-## Fonte de dados: API Economiza Alagoas (SEFAZ-AL)
+## Data source: Economiza Alagoas API (SEFAZ-AL)
 
-Os dados vêm da API pública da SEFAZ-AL. O uso exige um **token de acesso gratuito**,
-solicitado diretamente à secretaria.
+Data comes from the public SEFAZ-AL API. Use requires a **free access token**,
+requested directly from the department.
 
-- **Manual de Orientação do Desenvolvedor:**
+- **Developer guidance manual:**
   https://gcs.sefaz.al.gov.br/documentos/visualizarDocumento.action?key=ltOvHx2smR4%3D
-- **Solicitação de token:** envie nome completo, CPF e nome do projeto para
+- **Token request:** send full name, CPF, and project name to
   `api@sefaz.al.gov.br`.
-- **Informações gerais:** `economizaalagoas@sefaz.al.gov.br`
+- **General information:** `economizaalagoas@sefaz.al.gov.br`
 
-Enquanto o token não está configurado, mantenha `USE_MOCK_SEFAZ=true`. Para ir ao ar
-com dados reais, basta preencher o token no `.env` e mudar as flags — **sem alterar
-código** (veja [`deploy/README.md`](deploy/README.md)).
+While the token is not configured, keep `USE_MOCK_SEFAZ=true`. To go live with real
+data, fill in the token in `.env` and flip the flags — **no code changes**
+(see [`deploy/README.md`](deploy/README.md)).
 
 ## Deploy
 
-O `deploy/` traz um `docker-compose` (API + Postgres + Redis) pensado para rodar atrás
-de um nginx com TLS. Toda configuração sensível (token, senhas, domínio) fica em um
-único arquivo `.env`, que **nunca** é versionado. Passo a passo em
+`deploy/` provides a `docker-compose` stack (API + Postgres + Redis) meant to run
+behind nginx with TLS. All sensitive configuration (token, passwords, domain) lives in
+a single `.env` file that is **never** committed. Step-by-step guide in
 [`deploy/README.md`](deploy/README.md).
 
-## Licença
+## License
 
-[MIT](LICENSE) — © 2026 Preços Públicos IA. Sinta-se livre para usar, estudar e
-contribuir.
+[MIT](LICENSE) — © 2026 Preços Públicos IA. Feel free to use, study, and contribute.
 
 
-## Postura de segurança
+## Security posture
 
-A API de aplicação é pública por desenho (cliente Flutter/web). Em **produção** a UI
-interativa do OpenAPI (`/docs`, `/redoc`, `/openapi.json`) fica **desligada**; o nginx
-do app só faz proxy de `/api` e `/health`. Modelo de ameaça e resposta a scanners:
+The application API is public by design (Flutter/web client). In **production** the
+interactive OpenAPI UI (`/docs`, `/redoc`, `/openapi.json`) is **off**; app nginx only
+proxies `/api` and `/health`. Threat model and scanner response:
 
-- [docs/seguranca-postura.md](docs/seguranca-postura.md) (Markdown no repo)
-- Site: [Postura de segurança](https://docs.alagoas.precospublicos.ia.br/seguranca-postura.html) (após deploy dos docs)
+- [docs/security-posture.md](docs/security-posture.md) (Markdown in the repo)
+- Site: [Security posture](https://docs.alagoas.precospublicos.ia.br/security-posture.html) (after docs deploy)
 
-## Manutenção interna
+## Internal maintenance
 
-Notas de sessão, guias on-device, arte-fonte (`.xcf`), relatórios informais de segurança
-e outputs de pesquisa de agente ficam no repositório privado
+Session notes, on-device guides, source art (`.xcf`), informal security reports, and
+agent research outputs live in the private repository
 [Compre-Barato-Alagoas-Privado](https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas-Privado)
-(acesso restrito ao time).
+(team-only access).
 
