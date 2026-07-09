@@ -2,9 +2,97 @@
 
 from __future__ import annotations
 
+from typing import Awaitable, Callable
+
 from ...config import Settings
 from ..secrets import SecretStore
 from .base import SefazClient
+from .models import PesquisaResponse
+
+
+TokenProvider = Callable[[], Awaitable[str | None]]
+
+
+class RoutingSefazClient:
+    """Use the official API when an AppToken is available; otherwise the website.
+
+    Token is resolved **per request** so an admin-panel rotation takes effect without
+    restart, and so we can live without a token (web scrape) until SEFAZ issues one.
+    """
+
+    # Stable cache namespace (must not flip between "web"/"sefaz" mid-basket).
+    cache_namespace = "auto"
+
+    def __init__(
+        self,
+        *,
+        http: SefazClient,
+        web: SefazClient,
+        token_provider: TokenProvider,
+    ) -> None:
+        self._http = http
+        self._web = web
+        self._token_provider = token_provider
+        self._last_source = "auto"
+
+    @property
+    def source_name(self) -> str:
+        # Surface the source of the most recent call (health/admin friendliness).
+        return self._last_source
+
+    async def search_product(
+        self,
+        *,
+        descricao: str | None = None,
+        gtin: str | None = None,
+        latitude: float,
+        longitude: float,
+        radius_km: int,
+        days: int,
+        pagina: int = 1,
+        registros_por_pagina: int = 500,
+    ) -> PesquisaResponse:
+        token = await self._token_provider()
+        if token:
+            self._last_source = self._http.source_name
+            return await self._http.search_product(
+                descricao=descricao,
+                gtin=gtin,
+                latitude=latitude,
+                longitude=longitude,
+                radius_km=radius_km,
+                days=days,
+                pagina=pagina,
+                registros_por_pagina=registros_por_pagina,
+            )
+        self._last_source = self._web.source_name
+        return await self._web.search_product(
+            descricao=descricao,
+            gtin=gtin,
+            latitude=latitude,
+            longitude=longitude,
+            radius_km=radius_km,
+            days=days,
+            pagina=pagina,
+            registros_por_pagina=registros_por_pagina,
+        )
+
+    async def aclose(self) -> None:
+        await self._http.aclose()
+        await self._web.aclose()
+
+
+def _token_provider(
+    settings: Settings, secrets: SecretStore | None
+) -> TokenProvider:
+    async def provider() -> str | None:
+        if secrets is not None:
+            stored = await secrets.get_secret("sefaz_token")
+            if stored:
+                return stored
+        return settings.sefaz_app_token or None
+
+    return provider
 
 
 def build_sefaz_client(
@@ -16,19 +104,25 @@ def build_sefaz_client(
         return MockSefazClient()
 
     from .http_client import HttpSefazClient
+    from .web_client import WebSefazClient
 
-    async def token_provider() -> str | None:
-        # Prefer the encrypted, admin-managed token; fall back to the env var
-        # (bootstrap/legacy). The token is never captured at startup so it can be
-        # set or rotated from the admin panel without a restart.
-        if secrets is not None:
-            stored = await secrets.get_secret("sefaz_token")
-            if stored:
-                return stored
-        return settings.sefaz_app_token or None
+    token_provider = _token_provider(settings, secrets)
+    web = WebSefazClient(
+        base_url=settings.sefaz_web_base_url,
+        timeout=settings.sefaz_web_timeout_seconds,
+        max_cards=settings.sefaz_web_max_cards,
+        max_bytes=settings.sefaz_web_max_bytes,
+        concurrency=settings.sefaz_web_concurrency,
+    )
 
-    return HttpSefazClient(
+    # Force website even if a token exists (debug / token broken).
+    if settings.use_web_sefaz:
+        return web
+
+    http = HttpSefazClient(
         base_url=settings.sefaz_base_url,
         token_provider=token_provider,
         timeout=settings.sefaz_timeout_seconds,
     )
+    # Auto: API when token is present, website otherwise (no token from SEFAZ yet).
+    return RoutingSefazClient(http=http, web=web, token_provider=token_provider)

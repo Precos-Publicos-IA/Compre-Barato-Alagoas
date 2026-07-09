@@ -144,7 +144,7 @@ async def test_sefaz_token_prefers_store_over_env(monkeypatch):
     settings = Settings(use_mock_sefaz=False, sefaz_app_token="env-fallback-token")
 
     client = build_sefaz_client(settings, store)
-    # No stored secret yet → falls back to the env token.
+    # Routing client: env token present → would use the HTTP API path.
     assert await client._token_provider() == "env-fallback-token"
     # Once set via the panel, the encrypted store wins (rotation without restart).
     await store.set_secret("sefaz_token", SEFAZ_TOKEN)

@@ -34,8 +34,11 @@ from .sefaz.models import PesquisaResponse
 logger = logging.getLogger(__name__)
 
 
-def _cache_key(term: str, lat: float, lon: float, radius: int, days: int) -> str:
-    raw = f"{term.lower()}|{lat:.4f}|{lon:.4f}|{radius}|{days}"
+def _cache_key(
+    term: str, lat: float, lon: float, radius: int, days: int, source: str = ""
+) -> str:
+    # Include data source so mock / API / web results never share a cache slot.
+    raw = f"{term.lower()}|{lat:.4f}|{lon:.4f}|{radius}|{days}|{source}"
     digest = hashlib.sha256(raw.encode()).hexdigest()[:16]
     return f"sefaz:search:{digest}"
 
@@ -142,7 +145,14 @@ async def run_search(
             "normalize_ms": 0.0,
             "provider_calls": [],
         }
-        key = _cache_key(item.search_term, lat, lon, radius, days)
+        key = _cache_key(
+            item.search_term,
+            lat,
+            lon,
+            radius,
+            days,
+            source=getattr(sefaz, "cache_namespace", sefaz.source_name),
+        )
         t0 = time.perf_counter()
         cached = await cache.get_json(key)
         out["cache_ms"] += (time.perf_counter() - t0) * 1000

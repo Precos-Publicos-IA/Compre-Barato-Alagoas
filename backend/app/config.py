@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     # --- Mock flags (the heart of the "build first, get token later" strategy) ---
     use_mock_sefaz: bool = True
     use_mock_llm: bool = True
+    # When True (and mock is False), always scrape the public Economiza *website*
+    # even if an AppToken is configured. Useful for debugging the web path.
+    use_web_sefaz: bool = False
 
     # --- SEFAZ Economiza Alagoas API (only used when use_mock_sefaz is False) ---
     # Default to https so the AppToken and queries aren't sent in cleartext; the SEFAZ
@@ -54,12 +57,25 @@ class Settings(BaseSettings):
     )
     # Legacy/bootstrap fallback only. Prefer setting the token via the admin panel
     # (encrypted in Redis, never on disk). Leave empty in production.
+    # When empty (and use_web_sefaz is False), the factory auto-falls back to the
+    # public website scraper until SEFAZ issues a token.
     sefaz_app_token: str = ""  # secret; server-side only, never sent to clients
     sefaz_timeout_seconds: float = 15.0
     # Hard per-item deadline for the whole SEFAZ fetch (all pages). Caps how long a
     # single slow/hung item can hold a worker before it degrades to "not found",
     # independent of the per-request httpx timeout above (issue #219).
-    sefaz_item_deadline_seconds: float = 20.0
+    # Web scrape needs more headroom than the JSON API (site is slow).
+    sefaz_item_deadline_seconds: float = 45.0
+
+    # --- Public website scraper (tokenless fallback) ---
+    sefaz_web_base_url: str = "https://economizaalagoas.sefaz.al.gov.br"
+    sefaz_web_timeout_seconds: float = 45.0
+    # Stop streaming category HTML after this many product cards / bytes — the
+    # site can return 20MB for broad terms; we never need that many for ranking.
+    sefaz_web_max_cards: int = 200
+    sefaz_web_max_bytes: int = 1_500_000
+    # Global concurrent website searches (basket items share this budget).
+    sefaz_web_concurrency: int = 2
 
     # --- LLM (Claude Haiku) — only used when use_mock_llm is False ---
     anthropic_api_key: str = ""
@@ -75,8 +91,9 @@ class Settings(BaseSettings):
     records_per_page: int = 500      # SEFAZ allows 50..5000
     top_stores: int = 5             # how many ranked stores we return by default
     # Per-item items are fetched concurrently to cut wall time for cold baskets;
-    # bound the fan-out so we stay polite to SEFAZ.
-    sefaz_concurrency: int = 6
+    # bound the fan-out so we stay polite to SEFAZ. Keep this low when using the
+    # website scraper (web concurrency is a separate, tighter global semaphore).
+    sefaz_concurrency: int = 3
     # How many SEFAZ result pages to pull per item (>1 follows totalPaginas).
     # 1 keeps today's single-page behaviour; the mock always returns one page.
     max_sefaz_pages: int = 1

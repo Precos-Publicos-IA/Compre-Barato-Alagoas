@@ -18,7 +18,7 @@ Configuration is via environment variables — see [`../.env.example`](../.env.e
 | Path | Responsibility |
 |------|----------------|
 | `app/config.py` | settings + mock flags |
-| `app/services/sefaz/` | SEFAZ client (Protocol + mock + real HTTP + factory) |
+| `app/services/sefaz/` | SEFAZ client (Protocol + mock + HTTP API + website scrape + factory) |
 | `app/services/llm/` | list parser (Protocol + mock + Claude + factory) |
 | `app/services/normalization/` | quantity extraction, unit conversion, fair pricing |
 | `app/services/ranking.py` | aggregate offers into ranked store baskets |

@@ -47,6 +47,7 @@ def _jitter(cnpj: str, gtin: str) -> float:
 
 class MockSefazClient:
     source_name = "mock"
+    cache_namespace = "mock"
 
     def __init__(self) -> None:
         self._catalog = _load_catalog()

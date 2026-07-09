@@ -28,6 +28,7 @@ class SefazApiError(RuntimeError):
 
 class HttpSefazClient:
     source_name = "sefaz"
+    cache_namespace = "sefaz"
 
     def __init__(
         self,

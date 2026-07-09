@@ -107,13 +107,19 @@ Edit `.env` on the server:
 
 ```
 USE_MOCK_SEFAZ=false
-SEFAZ_APP_TOKEN=<SEFAZ token>
+# Leave empty to scrape the public Economiza website (tokenless fallback).
+# When SEFAZ issues an AppToken, set it here or via the admin Settings panel.
+SEFAZ_APP_TOKEN=
 USE_MOCK_LLM=false
 ANTHROPIC_API_KEY=<key>
+# Website scrape is slow — keep concurrency low (defaults are already conservative).
+SEFAZ_WEB_CONCURRENCY=2
+SEFAZ_CONCURRENCY=3
 ```
 
 then `cd deploy && docker compose --env-file ../.env up -d` to restart the API.
-No code changes are required.
+No code changes are required. Health (`/health`) reports `data_source` as `web`
+or `sefaz` depending on whether a token is active.
 
 ## Notes
 

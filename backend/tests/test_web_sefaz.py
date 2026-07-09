@@ -1,0 +1,130 @@
+"""Unit tests for the tokenless Economiza website client."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from app.services.sefaz.factory import RoutingSefazClient, build_sefaz_client
+from app.services.sefaz.web_client import (
+    WebSefazClient,
+    _filter_relevant,
+    parse_cards,
+    parse_categories,
+    pick_category,
+)
+from app.services.sefaz.models import (
+    Endereco,
+    Estabelecimento,
+    Produto,
+    Registro,
+    Venda,
+)
+from app.config import Settings
+
+FIX = Path(__file__).parent / "fixtures"
+
+
+def test_parse_cards_fixture():
+    html = (FIX / "economiza_web_cards.html").read_text(encoding="utf-8")
+    rows = parse_cards(html)
+    assert len(rows) == 2
+    rice = rows[0]
+    assert "ARROZ" in rice.produto.descricao.upper()
+    assert rice.produto.venda.valor_venda == pytest.approx(24.90)
+    assert rice.produto.gtin == "7893500018469"
+    assert rice.estabelecimento.nome_fantasia == "MIX MATEUS"
+    assert rice.estabelecimento.cnpj.startswith("web:")
+    assert rice.estabelecimento.endereco is not None
+    assert rice.estabelecimento.endereco.bairro
+
+    milk = rows[1]
+    assert milk.produto.venda.valor_venda == pytest.approx(4.59)
+    assert "LEITE" in milk.produto.descricao.upper()
+
+
+def test_parse_categories_and_pick():
+    html = (FIX / "economiza_web_categories.html").read_text(encoding="utf-8")
+    cats = parse_categories(html)
+    assert cats == [(50_000_000, 165), (53_000_000, 3)]
+    assert pick_category(cats) == 50_000_000
+    assert pick_category([(1, 10), (2, 99)]) == 2
+    assert pick_category([]) is None
+
+
+def test_parse_cards_respects_max():
+    html = (FIX / "economiza_web_cards.html").read_text(encoding="utf-8")
+    assert len(parse_cards(html, max_cards=1)) == 1
+
+
+def test_factory_forces_web():
+    settings = Settings(use_mock_sefaz=False, use_web_sefaz=True, sefaz_app_token="")
+    client = build_sefaz_client(settings, None)
+    assert isinstance(client, WebSefazClient)
+    assert client.source_name == "web"
+
+
+def test_factory_routes_without_token():
+    settings = Settings(use_mock_sefaz=False, use_web_sefaz=False, sefaz_app_token="")
+    client = build_sefaz_client(settings, None)
+    assert isinstance(client, RoutingSefazClient)
+    assert client.cache_namespace == "auto"
+
+
+def test_factory_mock_unchanged():
+    settings = Settings(use_mock_sefaz=True)
+    client = build_sefaz_client(settings, None)
+    assert client.source_name == "mock"
+
+
+@pytest.mark.asyncio
+async def test_web_client_page_two_empty():
+    client = WebSefazClient()
+    resp = await client.search_product(
+        descricao="arroz",
+        latitude=-9.66,
+        longitude=-35.7,
+        radius_km=8,
+        days=7,
+        pagina=2,
+    )
+    assert resp.conteudo == []
+    assert resp.pagina == 2
+
+
+def _row(desc: str, price: float = 10.0) -> Registro:
+    return Registro(
+        produto=Produto(
+            descricao=desc,
+            unidade_medida="UN",
+            venda=Venda(valor_venda=price, valor_declarado=price),
+        ),
+        estabelecimento=Estabelecimento(
+            cnpj="web:1",
+            nome_fantasia="Loja",
+            endereco=Endereco(bairro="Centro"),
+        ),
+    )
+
+
+def test_filter_relevant_rejects_15kg_for_5kg_query():
+    rows = [
+        _row("DOG CHOW CARNE ARROZ 15KG", 50),
+        _row("ARROZ TIO JOAO TIPO 1 5KG", 25),
+        _row("ARROZ CAMIL 1KG", 5),
+        _row("ARROZ P CAES LUPPY 5KG", 15),
+    ]
+    kept = _filter_relevant(rows, "arroz 5kg")
+    assert len(kept) == 1
+    assert "TIO JOAO" in kept[0].produto.descricao.upper()
+
+
+def test_filter_relevant_word_tokens():
+    rows = [
+        _row("BALA CARAMELO LEITE 660G"),
+        _row("LEITE INTEGRAL ITALAC 1L"),
+    ]
+    kept = _filter_relevant(rows, "leite")
+    # both contain "leite"; size not required
+    assert len(kept) == 2
