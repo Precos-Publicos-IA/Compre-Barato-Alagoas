@@ -115,6 +115,13 @@ is slow). When SEFAZ issues a token, set it via the admin panel or `.env` — tr
 switches to the JSON API with **no code changes** (see
 [`deploy/README.md`](deploy/README.md)). For offline dev, keep `USE_MOCK_SEFAZ=true`.
 
+## AI agents (Requester + Verifier)
+
+Cost-first **plan-then-execute** design (cache → Requester RAG rewrite → SEFAZ →
+Verifier critic with at most one re-query). See
+[`docs/ai-architecture.md`](docs/ai-architecture.md). Not free multi-agent chat;
+LLM only for list parse when mock is off.
+
 ## Deploy
 
 `deploy/` provides a `docker-compose` stack (API + Postgres + Redis) meant to run

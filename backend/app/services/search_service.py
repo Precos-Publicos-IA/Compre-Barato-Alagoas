@@ -23,10 +23,10 @@ from ..schemas.search import (
     SearchResponse,
 )
 from .llm.base import LLMClient, LLMUsage
+from .llm.orchestrator import SearchOrchestrator
 from .llm.pricing import cost_usd
-from .llm.requester import BasicRequester
-from .llm.verifier import BasicVerifier
 from .normalization.matcher import NormalizedOffer, normalize_offer
+from .rag.store import RAGStore
 from .ranking import build_store_results
 from .sefaz.base import SefazClient
 from .sefaz.models import PesquisaResponse
@@ -75,119 +75,21 @@ async def run_search(
     t_start = time.perf_counter()
     sefaz_ms = cache_ms = normalize_ms = 0.0
 
-    t0 = time.perf_counter()
-    # Use Requester agent (wraps LLM + RAG refinement from past successful mappings)
-    requester = BasicRequester(inner=llm)
-    result = await requester.refine_and_parse(req.items, cache=cache)
-    llm_ms = (time.perf_counter() - t0) * 1000
-    parsed = result.items
+    # --- Plan-then-execute: Requester → SEFAZ → Verifier (+ optional 1 retry) ---
+    rag = RAGStore(redis=cache.redis)
+    orchestrator = SearchOrchestrator(llm=llm, rag=rag)
 
-    # Token usage for cost tracking. Real client returns it; the mock/fallback
-    # path returns None, so we estimate from the text size and flag it as mock.
-    usage = result.usage
-
-    # Provider (AI) health: in production a None usage means the real Claude call
-    # failed and fell back to the mock parser — a meaningful degradation signal.
-    if batch is not None:
-        llm_ok = settings.use_mock_llm or usage is not None
-        batch.provider_calls.append(
-            {"provider": "llm", "duration_ms": llm_ms, "ok": llm_ok}
-        )
-    if usage is None:
-        usage = LLMUsage(
-            input_tokens=_estimate_tokens("\n".join(req.items)),
-            output_tokens=_estimate_tokens(
-                " ".join(f"{p.label}{p.search_term}" for p in parsed)
-            ),
-        )
-    if batch is not None:
-        batch.llm_call = {
-            "model": settings.llm_model,
-            "input_tokens": usage.input_tokens,
-            "output_tokens": usage.output_tokens,
-            "cache_read_tokens": usage.cache_read_tokens,
-            "cache_creation_tokens": usage.cache_creation_tokens,
-            "cost_usd": cost_usd(
-                settings.llm_model,
-                input_tokens=usage.input_tokens,
-                output_tokens=usage.output_tokens,
-                cache_read_tokens=usage.cache_read_tokens,
-                cache_creation_tokens=usage.cache_creation_tokens,
-            ),
-        }
-
-    # Unique items in first-seen order. We carry the user's desired quantity per item
-    # (parsed by the LLM/mock, e.g. "3 arroz", "meia dúzia ovos") into ranking so basket
-    # totals reflect how much they actually want to buy.
-    seen_labels: set[str] = set()
-    unique_items = []
-    for item in parsed:
-        if item.label in seen_labels:
-            continue
-        seen_labels.add(item.label)
-        unique_items.append(item)
-    item_queries: list[str] = [it.label for it in unique_items]
-    desired_qtys: dict[str, int] = {
-        it.label: max(1, int(it.quantity or 1)) for it in unique_items
-    }
-
-    # Per-item fetch, run concurrently (bounded) to cut wall time for cold multi-item
-    # baskets. Each item is independent (one SEFAZ criterion per call). A per-item
-    # failure yields *partial* results instead of failing the whole search.
+    # Shared timers/provider stats mutated by fetch callback (orchestrator may call
+    # fetch twice for the same label when the Verifier requests a better term).
+    sefaz_ms = cache_ms = normalize_ms = 0.0
+    provider_calls_acc: list[dict] = []
+    parse_methods: dict[str, int] = {}
+    total_offers = 0
+    parsed_offers = 0
     sem = asyncio.Semaphore(max(1, settings.sefaz_concurrency))
+    src_ns = getattr(sefaz, "cache_namespace", sefaz.source_name)
 
-    async def _fetch_one(item) -> dict:
-        out = {
-            "label": item.label,
-            "offers": [],
-            "sefaz_ms": 0.0,
-            "cache_ms": 0.0,
-            "normalize_ms": 0.0,
-            "provider_calls": [],
-        }
-        key = _cache_key(
-            item.search_term,
-            lat,
-            lon,
-            radius,
-            days,
-            source=getattr(sefaz, "cache_namespace", sefaz.source_name),
-        )
-        t0 = time.perf_counter()
-        cached = await cache.get_json(key)
-        out["cache_ms"] += (time.perf_counter() - t0) * 1000
-        if cached is not None:
-            resp = PesquisaResponse.model_validate(cached)
-        else:
-            try:
-                async with sem:
-                    # Bound the whole per-item fetch (all pages): a hung item degrades
-                    # to "not found" instead of holding a worker to the gunicorn
-                    # timeout. TimeoutError is caught below as a partial result (#219).
-                    resp = await asyncio.wait_for(
-                        _fetch_all_pages(item, out),
-                        timeout=settings.sefaz_item_deadline_seconds,
-                    )
-            except Exception:
-                # Resilience: one failing/slow item must not 502 the whole basket.
-                logger.warning("SEFAZ fetch failed for %r; partial results", item.label)
-                return out
-            t0 = time.perf_counter()
-            await cache.set_json(
-                key, resp.model_dump(by_alias=True), ttl=settings.cache_ttl_seconds
-            )
-            out["cache_ms"] += (time.perf_counter() - t0) * 1000
-
-        t0 = time.perf_counter()
-        out["offers"] = [
-            o for r in resp.conteudo if (o := normalize_offer(r)) is not None
-        ]
-        out["normalize_ms"] += (time.perf_counter() - t0) * 1000
-        return out
-
-    async def _fetch_all_pages(item, out: dict) -> PesquisaResponse:
-        """Fetch up to ``max_sefaz_pages`` pages and merge them. Records per-call
-        timing/health on ``out`` so provider stats stay accurate."""
+    async def _fetch_all_pages(search_term: str, out: dict) -> PesquisaResponse:
         merged: PesquisaResponse | None = None
         page = 1
         while page <= max(1, settings.max_sefaz_pages):
@@ -195,7 +97,7 @@ async def run_search(
             ok = True
             try:
                 resp = await sefaz.search_product(
-                    descricao=item.search_term,
+                    descricao=search_term,
                     latitude=lat,
                     longitude=lon,
                     radius_km=radius,
@@ -221,34 +123,116 @@ async def run_search(
             page += 1
         return merged  # type: ignore[return-value]
 
-    results = await asyncio.gather(*(_fetch_one(it) for it in unique_items))
+    async def fetch_offers(search_term: str, label: str) -> list[NormalizedOffer]:
+        nonlocal sefaz_ms, cache_ms, normalize_ms, total_offers, parsed_offers
+        out = {
+            "sefaz_ms": 0.0,
+            "cache_ms": 0.0,
+            "normalize_ms": 0.0,
+            "provider_calls": [],
+        }
+        key = _cache_key(search_term, lat, lon, radius, days, source=src_ns)
+        t0 = time.perf_counter()
+        cached = await cache.get_json(key)
+        out["cache_ms"] += (time.perf_counter() - t0) * 1000
+        if cached is not None:
+            resp = PesquisaResponse.model_validate(cached)
+        else:
+            try:
+                async with sem:
+                    resp = await asyncio.wait_for(
+                        _fetch_all_pages(search_term, out),
+                        timeout=settings.sefaz_item_deadline_seconds,
+                    )
+            except Exception:
+                logger.warning(
+                    "SEFAZ fetch failed for %r (%r); partial results",
+                    label,
+                    search_term,
+                )
+                sefaz_ms += out["sefaz_ms"]
+                cache_ms += out["cache_ms"]
+                provider_calls_acc.extend(out["provider_calls"])
+                return []
+            t0 = time.perf_counter()
+            await cache.set_json(
+                key, resp.model_dump(by_alias=True), ttl=settings.cache_ttl_seconds
+            )
+            out["cache_ms"] += (time.perf_counter() - t0) * 1000
 
-    offers_by_item: dict[str, list[NormalizedOffer]] = {}
-    total_offers = 0
-    parsed_offers = 0
-    items_with_match = 0
-    parse_methods: dict[str, int] = {}
-    for r in results:
-        sefaz_ms += r["sefaz_ms"]
-        cache_ms += r["cache_ms"]
-        normalize_ms += r["normalize_ms"]
-        if batch is not None and r["provider_calls"]:
-            batch.provider_calls.extend(r["provider_calls"])
-        offers = r["offers"]
-        offers_by_item[r["label"]] = offers
-        if offers:
-            items_with_match += 1
+        t0 = time.perf_counter()
+        offers = [
+            o for r in resp.conteudo if (o := normalize_offer(r)) is not None
+        ]
+        out["normalize_ms"] += (time.perf_counter() - t0) * 1000
+
+        sefaz_ms += out["sefaz_ms"]
+        cache_ms += out["cache_ms"]
+        normalize_ms += out["normalize_ms"]
+        provider_calls_acc.extend(out["provider_calls"])
         total_offers += len(offers)
         parsed_offers += sum(1 for o in offers if o.quantity_parsed)
         for o in offers:
             parse_methods[o.parse_method] = parse_methods.get(o.parse_method, 0) + 1
+        return offers
 
-    # Verifier agent (before ranking): records successful mappings into RAG for the
-    # Requester to learn from, and produces audience-friendly refinements for vague terms.
-    verifier = BasicVerifier()
-    offers_by_item, suggested_refinements = await verifier.verify_and_organize(
-        parsed_items=parsed, offers_by_item=offers_by_item, cache=cache
-    )
+    t0 = time.perf_counter()
+    orch = await orchestrator.run(req.items, fetch_offers=fetch_offers)
+    llm_ms = (time.perf_counter() - t0) * 1000
+    # llm_ms above includes SEFAZ on purpose for total wait; split: re-measure parse
+    # is already inside orchestrator. For admin, attribute full orchestrator block to
+    # "llm" only for the parse portion is hard without nested timers — keep sefaz_ms
+    # accurate from fetch_offers and put residual orchestrator overhead on llm.
+    # Correct: llm_ms should not include sefaz. Approximate by subtraction:
+    llm_ms = max(0.0, llm_ms - sefaz_ms - cache_ms - normalize_ms)
+
+    parsed = orch.parsed
+    offers_by_item = orch.offers_by_item
+    suggested_refinements = orch.suggestions
+    usage = orch.usage
+
+    if batch is not None:
+        llm_ok = settings.use_mock_llm or usage is not None
+        batch.provider_calls.append(
+            {"provider": "llm", "duration_ms": llm_ms, "ok": llm_ok}
+        )
+        batch.provider_calls.extend(provider_calls_acc)
+    if usage is None:
+        usage = LLMUsage(
+            input_tokens=_estimate_tokens("\n".join(req.items)),
+            output_tokens=_estimate_tokens(
+                " ".join(f"{p.label}{p.search_term}" for p in parsed)
+            ),
+        )
+    if batch is not None:
+        batch.llm_call = {
+            "model": settings.llm_model,
+            "input_tokens": usage.input_tokens,
+            "output_tokens": usage.output_tokens,
+            "cache_read_tokens": usage.cache_read_tokens,
+            "cache_creation_tokens": usage.cache_creation_tokens,
+            "cost_usd": cost_usd(
+                settings.llm_model,
+                input_tokens=usage.input_tokens,
+                output_tokens=usage.output_tokens,
+                cache_read_tokens=usage.cache_read_tokens,
+                cache_creation_tokens=usage.cache_creation_tokens,
+            ),
+        }
+
+    # Unique labels (orchestrator already returns first-seen parse order)
+    seen_labels: set[str] = set()
+    unique_items = []
+    for item in parsed:
+        if item.label in seen_labels:
+            continue
+        seen_labels.add(item.label)
+        unique_items.append(item)
+    item_queries: list[str] = [it.label for it in unique_items]
+    desired_qtys: dict[str, int] = {
+        it.label: max(1, int(it.quantity or 1)) for it in unique_items
+    }
+    items_with_match = sum(1 for lbl in item_queries if offers_by_item.get(lbl))
 
     t0 = time.perf_counter()
     stores = build_store_results(

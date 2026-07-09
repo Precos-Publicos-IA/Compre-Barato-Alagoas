@@ -1,14 +1,12 @@
-"""Requester agent (first step of the two-agent architecture).
+"""Requester agent — query writer (plan side of plan-then-execute).
 
-Takes raw user basket, parses it (current LLM), then uses RAG over past successful
-mappings (stored in Cache) + user prefs to produce better search_terms for SEFAZ.
+Takes raw user basket text, parses it (LLM or mock), then rewrites each
+``search_term`` using RAG over past successful mappings so SEFAZ/web calls
+are more likely to hit real products.
 
-This is the "organize user input tidily + write good API query" role.
-Keeps the existing parse_list contract but adds refinement for scale/cost (fewer bad SEFAZ calls).
-
-Lightweight start: uses the new Cache RAG methods (keyword + success counts).
-Later can add real embeddings / pgvector without changing callers.
+Validated pattern: Enhanced RAG rewrite *before* tool call; no free-form agent loop.
 """
+
 from __future__ import annotations
 
 import logging
@@ -16,14 +14,17 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from .base import LLMClient, ParsedItem, ParseResult
-from ...cache import Cache
+from ..rag.store import RAGStore
 
 logger = logging.getLogger(__name__)
 
 
 class Requester(Protocol):
     async def refine_and_parse(
-        self, raw_items: list[str], *, cache: Cache | None = None
+        self,
+        raw_items: list[str],
+        *,
+        rag: RAGStore | None = None,
     ) -> ParseResult:
         """Parse + rewrite using historical RAG for better SEFAZ terms."""
         ...
@@ -31,28 +32,43 @@ class Requester(Protocol):
 
 @dataclass
 class BasicRequester:
-    """Basic implementation: current parser + simple RAG rewrite from Cache."""
+    """Parser + deterministic RAG rewrite (no second LLM call)."""
 
     inner: LLMClient
 
     async def refine_and_parse(
-        self, raw_items: list[str], *, cache: Cache | None = None
+        self,
+        raw_items: list[str],
+        *,
+        rag: RAGStore | None = None,
+        cache=None,  # backward-compat alias; prefer ``rag``
     ) -> ParseResult:
+        if rag is None and cache is not None:
+            rag = RAGStore(redis=cache.redis)
+
         base = await self.inner.parse_list(raw_items)
-        if cache is None:
+        if rag is None:
             return base
 
         refined: list[ParsedItem] = []
+        rag_hits = 0
         for item in base.items:
-            # Try exact historical first, then creative lightweight similarity (token overlap)
-            candidates = await cache.lookup_effective_terms(item.label, limit=2)
+            candidates = await rag.lookup_effective_terms(item.label, limit=2)
             if not candidates:
-                candidates = await cache.find_similar_effective_terms(item.label, limit=2)
+                candidates = await rag.find_similar_effective_terms(
+                    item.label, limit=2, min_overlap=1
+                )
+            # Also try the raw search_term as a key
+            if not candidates and item.search_term != item.label:
+                candidates = await rag.lookup_effective_terms(item.search_term, limit=2)
 
             if candidates:
                 best = candidates[0]
-                if best and best != item.search_term.lower():
-                    logger.debug("requester: refined %r -> %r (from RAG+overlap)", item.search_term, best)
+                if best and best != (item.search_term or "").lower():
+                    rag_hits += 1
+                    logger.debug(
+                        "requester: refined %r -> %r (RAG)", item.search_term, best
+                    )
                     refined.append(
                         ParsedItem(
                             raw=item.raw,
@@ -64,5 +80,6 @@ class BasicRequester:
                     continue
             refined.append(item)
 
-        # Record the (possibly refined) terms as "used" for future learning happens in verifier
+        if rag_hits:
+            logger.info("requester: RAG rewrote %d/%d items", rag_hits, len(refined))
         return ParseResult(items=refined, usage=base.usage)

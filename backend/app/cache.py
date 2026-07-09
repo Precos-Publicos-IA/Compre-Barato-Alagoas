@@ -250,74 +250,31 @@ class Cache:
 
     MAPPING_TTL = 60 * 60 * 24 * 180  # 180 days
 
+    def rag_store(self):
+        """Agent-facing RAG facade (keyword term mappings; not a SEFAZ mirror)."""
+        from .services.rag.store import RAGStore
+
+        return RAGStore(redis=self._redis, mapping_ttl=self.MAPPING_TTL)
+
     async def record_successful_mapping(
         self, user_term: str, effective_search_term: str, offers_found: int
     ) -> None:
         """Record that a user term mapped well to a SEFAZ term (for RAG in agents)."""
-        if not user_term or not effective_search_term or offers_found < 1:
-            return
-        u = user_term.lower().strip()[:64]
-        e = effective_search_term.lower().strip()[:64]
-        try:
-            pipe = self._redis.pipeline()
-            # Hash of user_term -> best effective
-            pipe.hset(f"rag:user_to_term:{u}", mapping={e: str(offers_found)})
-            pipe.expire(f"rag:user_to_term:{u}", self.MAPPING_TTL)
-            # Global top effective terms for a user_term stem (for suggestions)
-            pipe.zincrby(f"rag:effective_for:{u}", offers_found, e)
-            pipe.expire(f"rag:effective_for:{u}", self.MAPPING_TTL)
-            await pipe.execute()
-        except Exception:  # pragma: no cover
-            logger.exception("record_successful_mapping failed")
+        await self.rag_store().record_success(
+            user_term, effective_search_term, offers_found
+        )
 
     async def lookup_effective_terms(self, user_term: str, limit: int = 3) -> list[str]:
         """Return previously successful SEFAZ search_terms for this user term."""
-        u = user_term.lower().strip()[:64]
-        try:
-            raw = await self._redis.zrevrange(f"rag:effective_for:{u}", 0, limit - 1)
-            return [r.decode() if isinstance(r, bytes) else r for r in raw]
-        except Exception:  # pragma: no cover
-            return []
+        return await self.rag_store().lookup_effective_terms(user_term, limit)
 
     async def get_best_effective_term(self, user_term: str) -> str | None:
-        terms = await self.lookup_effective_terms(user_term, 1)
-        return terms[0] if terms else None
+        return await self.rag_store().best_effective_term(user_term)
 
     async def find_similar_effective_terms(
         self, user_term: str, limit: int = 3, min_overlap: int = 2
     ) -> list[str]:
-        """Creative lightweight 'semantic' RAG without embeddings/deps.
-
-        Uses simple token overlap on previously recorded effective terms.
-        This helps vague user input like "pao" find "pao frances" or "pao de forma"
-        from past successful searches, reducing bad SEFAZ calls at scale.
-        Pure Python, very cheap, logarithmic benefit as more data is learned.
-        """
-        u = user_term.lower().strip()[:64]
-        user_tokens = set(u.split())
-        if not user_tokens:
-            return []
-
-        candidates: dict[str, int] = {}
-        try:
-            # Scan recent effective keys (we keep limited via the zsets)
-            # For simplicity we scan a few known patterns from top items + direct keys.
-            # In real use the zsets from record_ are the source of truth.
-            keys = await self._redis.keys("rag:effective_for:*")
-            for k in keys[:50]:  # bound the scan for safety
-                try:
-                    eterm = k.split(":", 2)[-1] if isinstance(k, str) else ""
-                    if not eterm:
-                        continue
-                    et_tokens = set(eterm.lower().split())
-                    overlap = len(user_tokens & et_tokens)
-                    if overlap >= min_overlap:
-                        score = await self._redis.zscore(f"rag:effective_for:{eterm}", eterm) or 1
-                        candidates[eterm] = max(candidates.get(eterm, 0), overlap * int(score))
-                except Exception:
-                    continue
-        except Exception:  # pragma: no cover
-            pass
-
-        ranked = sorted(candidates.items(), key=lambda x: -x[1])[:limit]
-        return [t for t, _ in ranked]
+        """Token-overlap RAG without embeddings (cheap stand-in until pgvector)."""
+        return await self.rag_store().find_similar_effective_terms(
+            user_term, limit=limit, min_overlap=min_overlap
+        )
