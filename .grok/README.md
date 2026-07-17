@@ -1,6 +1,6 @@
 # Autonomous dev cycle (imported)
 
-Synced from 1st-rust-game + vinys-toolbelt (2026-07-17): multi-role deep review R1→R3, capture-bound analysis, *.review.json sidecars.
+Synced from 1st-rust-game + vinys-toolbelt: multi-role R1→R3, full-matrix-only residual, hardware-integrity orchestrator.
 
 ## Layout
 

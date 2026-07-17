@@ -38,19 +38,19 @@ each run; never assume prior run progress.
 
 ## Alagoas stack map (this repo)
 
-Process from vinys-toolbelt / 1st-rust-game (latest multi-role review). Paths
-and stack adjusted for Compre Barato Alagoas.
+Process from vinys-toolbelt / 1st-rust-game (latest). Paths adjusted for Compre
+Barato Alagoas.
 
 | Cycle concept | Compre Barato Alagoas |
 |---------------|----------------------|
 | Product UI | Flutter `frontend/` (web + Android; iOS scaffold) — **Flutter is the app** |
 | API | FastAPI `backend/` |
 | Admin / docs | `admin-frontend/`, `docs/` static |
-| Matrix JSON | `e2e/qa_matrix.json` (`expected_cells`: **147** = screens × formats) |
-| **PASS/FAIL criteria** | **`e2e/qa_success_criteria.json`** (open before any CRITIQUE/VIDEO / sidecar) |
+| Matrix JSON | `e2e/qa_matrix.json` (`expected_cells`: **147**) |
+| **PASS/FAIL criteria** | **`e2e/qa_success_criteria.json`** |
 | Desktop e2e | `e2e/full.js` via `npm run full:local` |
 | Live post-deploy | `cd e2e && npm run live` |
-| Unit tests (A1) | `pytest` + **`flutter test`** (required when `frontend/` changes) |
+| Unit tests (A1) | `pytest` + **`flutter test`** when `frontend/` changes |
 | Web build (A2) | `flutter build web` + `e2e/run_local.sh` |
 | Deploy (Phase B) | push `main` → `deploy.yml` → VPS |
 | Live hosts | `*.alagoas.precospublicos.ia.br` |
@@ -58,21 +58,29 @@ and stack adjusted for Compre Barato Alagoas.
 
 ### Baseline vs full matrix — and do not skip runners
 
-| Layer | What it is | Gate? |
-|-------|------------|--------|
-| **Baseline capture** | `npm run full:local` + post-deploy `npm run live` | **Always required** |
-| **Deep criteria review** | R1→R3 + `*.review.json` + rollups under `qa_success_criteria.json` | **Always required** |
-| **A1 units** | `pytest` / **`flutter test`** for changed layers | **Yes** |
-| **A2 web build** | `flutter build web --release` when UI ships | **Yes** when frontend ships |
-| **Priority / debug subset** | `matrix:priority` / `MATRIX_FORMATS=priority` | **Not residual-close** |
-| **Full 147-cell matrix** | All screens×formats + VIDEO + deep A4b∥A6 + sidecars | **Required for residual close / full visual QA** |
+| Layer | Gate? |
+|-------|--------|
+| **Baseline** `npm run full:local` + post-deploy `npm run live` + deep review | **Always** |
+| **Full 147-cell matrix** + deep A4b∥A6 + sidecars | **Required for residual close / full visual QA** |
+| Priority / debug subset | **Not residual-close** |
 
-1. **`expected_cells` (147) is the real matrix.** Missing runners are not a free pass —
-   install/build them, then capture + deep-review all cells.
-2. Priority subset is debug only. Green baseline does not close residual.
-3. Never remove Flutter from A1/A2 — product UI is Flutter.
-4. **iPhone / Safari:** Chromium ≠ WebKit; use iPhone checklist + `scripts/verify_ios_webkit_e2e.py`.
+Missing runners → **build them**, then capture + review. Never remove Flutter from A1/A2.
+**iPhone / Safari:** Chromium ≠ WebKit; use iPhone checklist + `scripts/verify_ios_webkit_e2e.py`.
 
+
+## Full matrix only (debug subsets are not residual close)
+
+Ship path is **all** `qa_matrix.json` → `formats[]` / `expected_cells` with deep
+review. From multi-project lessons:
+
+| Allowed | Not ship / not residual close |
+|---------|-------------------------------|
+| `E2E_FORMATS=…` / one-format debug while iterating | Claiming A7 on a subset |
+| Priority / residual recapture of known gaps | Labeling incomplete matrix “done” or “aspirational residual” |
+| Missing emulator/desktop runner for a class of formats | Documenting “no runners yet” and shipping |
+
+**If runners or tooling cannot produce a required unit → build/finish them**, then
+capture + review. Do **not** park gaps as optional residual.
 
 ## Capture is the bottleneck — analysis is deep, parallel, and bounded
 
@@ -782,6 +790,8 @@ unit lands. **Barrier is not** “A4 capture process exit 0 before any review.�
 | `CAPTURE_MATRIX` | `1` (on) typical for ship path | `0` only for video-only debug; then A5 must fill missing PNGs (still avoid a full duplicate walk if possible). |
 | `MATRIX_HOLD_MS` | Quality-hold settle (~450 typical) | Increase if PNGs are mid-transition (criterion **9**); never “fix” flaky stills by skipping holds. |
 
+**Hardware readings when tuning N (orchestrator / anyone setting CONCURRENCY):** treat sensors as **fallible**. If a value does not fit the rest of the picture (e.g. package “17°C” while windowed CPU is ~88% and loadavg is high), **investigate** before scaling — wrong thermal zone (`acpitz` stubs), bad sample, or wrong host. Prefer credible package sensors (`k10temp` Tctl, `coretemp`, …). Full integrity rules live in **`.grok/prompts/orchestrator-loop.md`** (Hardware reading integrity); do not schedule “cool headroom” on a reading you have not sanity-checked.
+
 ### Phone / emulator / desktop (do not confuse)
 
 | Goal | How | Counts as phase A ship proof? |
@@ -795,10 +805,10 @@ unit lands. **Barrier is not** “A4 capture process exit 0 before any review.�
 ### Anti-patterns (explicit)
 
 - **Treating suite `PASS` / exit 0 / N/N as visual review or A7** — that is CAPTURE_OK only
-- **Calling full matrix “optional / aspirational residual” because runners are missing** — install/build the runners, then run all 147 cells
-- **Closing residual with priority/`matrix:local` subset only** and labeling it done
 - **Skipping `flutter test` after `frontend/` changes** when SDK can be installed
 - **Writing `BAD: none` because capture succeeded** or because a prior critique said so
+- **Closing residual with `E2E_FORMATS` / priority subset only** and labeling full matrix done
+- **Calling incomplete matrix “optional / aspirational residual” because runners are missing** — install/build runners, then run all `expected_cells`
 - Parallelizing across a **ship barrier** (push while A4/A7 still open) — criterion **3**
 - **Stopping after an intermediate step** without chain rule / next task
 - **Waiting for the user after a true gate PASS** (e.g. A7 review PASS) instead of
@@ -1362,6 +1372,8 @@ phase A, not a silent ship.
 - **Phase A incomplete**
 - Build skipped or still running when tests “passed”
 - Fewer than **expected_cells** matrix screenshots
+- **Subset-only capture** (`E2E_FORMATS` / priority) treated as full residual close
+- **Missing runners** left as documented residual instead of built and run
 - Any matrix cell not **visually inspected** (A6) **or** missing a matrix CRITIQUE line
   **or** missing `{cell}.review.json` sidecar
 - E2E not run on every format **or** A4b video review skipped / missing `video_critique.md`
