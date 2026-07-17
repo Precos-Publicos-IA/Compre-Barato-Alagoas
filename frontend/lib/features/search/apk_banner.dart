@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config.dart';
+import '../../core/theme.dart';
 
 /// Detects iPhone/iPad/iPod in the browser user-agent (web only).
-///
-/// Kept pure/testable so we do not show Android APK CTAs on iOS Safari, where
-/// the only install path today is "Add to Home Screen" (no App Store build yet).
 bool isIosWebUserAgent(String userAgent) {
   final ua = userAgent.toLowerCase();
   return ua.contains('iphone') ||
@@ -15,18 +13,12 @@ bool isIosWebUserAgent(String userAgent) {
       ua.contains('ipod');
 }
 
-/// Web-only, dismissible install / home-screen banner.
-///
-/// - **Android / non-iOS browsers**: offer the APK download.
-/// - **iPhone/iPad Safari**: explain how to add the web app to the Home Screen
-///   (native iOS app is tracked separately; no misleading APK button).
-///
-/// Renders nothing outside the web build.
+/// Web-only, dismissible install / home-screen banner — de-emphasized chrome.
 class ApkBanner extends StatefulWidget {
-  const ApkBanner({super.key, this.userAgentOverride});
+  const ApkBanner({super.key, this.userAgentOverride, this.compact = false});
 
-  /// Injected in tests; production reads [AppConfig.webUserAgent] / platform.
   final String? userAgentOverride;
+  final bool compact;
 
   @override
   State<ApkBanner> createState() => _ApkBannerState();
@@ -41,27 +33,44 @@ class _ApkBannerState extends State<ApkBanner> {
   @override
   Widget build(BuildContext context) {
     if (!kIsWeb || _dismissed) return const SizedBox.shrink();
-    final scheme = Theme.of(context).colorScheme;
     final ios = isIosWebUserAgent(_ua);
+    final compact = widget.compact;
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: compact ? 6 : 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 8 : 10,
+        vertical: compact ? 4 : 8,
+      ),
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(compact ? 8 : 10),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.7)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(ios ? Icons.ios_share : Icons.android, size: 28),
-          const SizedBox(width: 10),
+          Icon(
+            ios ? Icons.ios_share_rounded : Icons.smartphone_rounded,
+            size: compact ? 16 : 18,
+            color: AppColors.inkMuted,
+          ),
+          SizedBox(width: compact ? 6 : 8),
           Expanded(
             child: Text(
               ios
-                  ? 'No iPhone/iPad: toque em Compartilhar e depois em '
-                      '"Adicionar à Tela de Início" para usar como app.'
-                  : 'Use no celular: baixe o app Android.',
-              style: const TextStyle(fontSize: 15),
+                  ? (compact
+                      ? 'iPhone: Compartilhar → Tela de Início'
+                      : 'No iPhone/iPad: Compartilhar → Adicionar à Tela de Início')
+                  : (compact
+                      ? 'App Android disponível'
+                      : 'Prefere o app? Baixe a versão Android.'),
+              style: TextStyle(
+                fontSize: compact ? 12 : 13,
+                color: AppColors.inkMuted,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           if (!ios)
@@ -70,11 +79,25 @@ class _ApkBannerState extends State<ApkBanner> {
                 Uri.parse(AppConfig.androidApkUrl),
                 mode: LaunchMode.externalApplication,
               ),
-              child: const Text('Baixar APK'),
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                foregroundColor: AppColors.primary,
+                textStyle: TextStyle(
+                  fontSize: compact ? 12 : 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              child: const Text('Baixar'),
             ),
           IconButton(
-            icon: const Icon(Icons.close),
+            icon: Icon(Icons.close_rounded, size: compact ? 16 : 18),
             tooltip: 'Fechar',
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            padding: EdgeInsets.zero,
+            color: AppColors.inkMuted,
             onPressed: () => setState(() => _dismissed = true),
           ),
         ],

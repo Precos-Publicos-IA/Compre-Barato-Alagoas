@@ -307,20 +307,20 @@ async function flutterClick(page, nx, ny) {
 function homeLayout(vp) {
   const h = vp.height;
   const w = vp.width;
-  const short = h < 500; // phone landscape class — chips often below fold
-  // Flutter web layout is TOP-ALIGNED with fixed Material chrome sizes, not
-  // percentage-scaled. Measured (CSS px):
-  //   1366×768: field ~y=220, Arroz chip ~y=320, VER PREÇOS ~y=728
-  //   800×360 landscape: field ~y=210, VER PREÇOS ~y=320 (chips off-screen)
-  const appBar = 56;
-  const banner = short ? 52 : 56;
+  const short = h < 500; // phone landscape class
+  // Flutter web layout is TOP-ALIGNED with fixed chrome sizes, not % scaled.
+  // Measured after mobile redesign (CSS px @ 844×390 landscape):
+  //   appBar ~48, compact banner ~36, title ~28, field ~48 → chips ~y=200
+  // Portrait 390×844: field ~y=220, chip wrap ~y=310, VER PREÇOS bottom.
+  const appBar = short ? 48 : 56;
+  const banner = short ? 40 : 52;
   const fieldAbsY = short
-    ? Math.min(h - 130, appBar + banner + 100) // ~208 on 360h
-    : appBar + banner + 48 + 50; // ~210–220
+    ? Math.min(h - 150, appBar + banner + 42) // ~130 on 390h
+    : appBar + banner + 72; // hero + field ~180–220
   const chipAbsY = short
-    ? Math.min(h - 90, fieldAbsY + 55)
-    : fieldAbsY + 100; // ~310–320
-  const recentAbsY = chipAbsY + (short ? 30 : 90);
+    ? Math.min(h - 100, fieldAbsY + 48) // row under field
+    : fieldAbsY + 90; // section label + wrap
+  const recentAbsY = chipAbsY + (short ? 42 : 110);
   // Bottom bar ~48–56px tall — pin near bottom edge in CSS px.
   const verAbsY = Math.max(h - 32, short ? h - 40 : h - 36);
   return {
@@ -350,20 +350,27 @@ async function flutterAddItem(page, text) {
   const L = homeLayout(vp);
 
   // Dismiss APK banner (X) so landscape has room for field/chips.
-  await clickXY(page, vp.width - 28, L.short ? 70 : 90);
+  await clickXY(page, vp.width - 28, L.short ? 58 : 90);
   await sleep(250);
 
-  if (!L.short) {
-    // Tall: chip first (more reliable than TextField focus on Flutter canvas).
-    const chipX = vp.width < 500 ? 0.18 : 0.055;
-    await flutterClick(page, chipX, L.chipY);
-    await sleep(500);
-    await flutterClick(page, chipX, Math.min(0.70, L.chipY + 0.03));
+  // Chip first on every height — staple tiles are always above the fold now
+  // (horizontal row on PhoneLandscape; wrap on portrait).
+  const chipX = L.short
+    ? (vp.width < 500 ? 0.12 : 0.08)
+    : (vp.width < 500 ? 0.18 : 0.055);
+  await flutterClick(page, chipX, L.chipY);
+  await sleep(450);
+  // Second band: short layout chip row sits just under the field.
+  await flutterClick(page, chipX, Math.min(0.78, L.chipY + (L.short ? 0.02 : 0.03)));
+  await sleep(300);
+  // Recent-list row fallback (often "Arroz" from prior captures).
+  if (L.short) {
+    await flutterClick(page, 0.25, L.recentY);
     await sleep(350);
   }
 
-  // TextField onSubmitted → _addCurrent (critical for landscape)
-  await clickXY(page, Math.min(vp.width * 0.4, 320), L.fieldY * vp.height);
+  // TextField onSubmitted / + button → _addCurrent
+  await clickXY(page, Math.min(vp.width * 0.35, 280), L.fieldY * vp.height);
   await sleep(400);
   const input = await page.$('input, textarea').catch(() => null);
   if (input) {
@@ -377,12 +384,14 @@ async function flutterAddItem(page, text) {
   await page.keyboard.type(text, { delay: 35 });
   await sleep(150);
   await page.keyboard.press('Enter');
-  await sleep(500);
-  // Adicionar — avoid far-right (mic). Enter already commits via onSubmitted.
-  if (!L.short) {
-    await flutterClick(page, Math.min(0.85, L.addX), L.addY);
-    await sleep(350);
-  }
+  await sleep(400);
+  // + button inside search field (left of mic) — critical on Flutter web
+  // where Enter sometimes does not fire onSubmitted.
+  const addBtnX = L.short
+    ? Math.min(0.90, (vp.width - 100) / vp.width)
+    : Math.min(0.85, L.addX);
+  await flutterClick(page, addBtnX, L.fieldY);
+  await sleep(350);
 }
 
 async function flutterTapVerPrecos(page) {

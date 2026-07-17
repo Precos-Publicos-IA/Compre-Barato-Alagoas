@@ -168,9 +168,31 @@ final cloudSyncProvider =
 final locationServiceProvider =
     Provider<LocationService>((ref) => LocationService());
 
-/// Common-item suggestion chips.
-final suggestionsProvider = FutureProvider<List<Suggestion>>((ref) {
-  return ref.watch(apiClientProvider).fetchSuggestions();
+/// Offline staple list so home never looks empty if the network is slow/down.
+const kFallbackSuggestions = <Suggestion>[
+  Suggestion(label: 'Arroz', emoji: '🍚'),
+  Suggestion(label: 'Feijão', emoji: '🫘'),
+  Suggestion(label: 'Leite', emoji: '🥛'),
+  Suggestion(label: 'Ovo', emoji: '🥚'),
+  Suggestion(label: 'Açúcar', emoji: '🧂'),
+  Suggestion(label: 'Café', emoji: '☕'),
+  Suggestion(label: 'Óleo', emoji: '🛢️'),
+  Suggestion(label: 'Macarrão', emoji: '🍝'),
+  Suggestion(label: 'Banana', emoji: '🍌'),
+  Suggestion(label: 'Tomate', emoji: '🍅'),
+  Suggestion(label: 'Frango', emoji: '🍗'),
+  Suggestion(label: 'Refrigerante', emoji: '🥤'),
+];
+
+/// Common-item suggestion chips (network with offline fallback).
+final suggestionsProvider = FutureProvider<List<Suggestion>>((ref) async {
+  try {
+    final items = await ref.watch(apiClientProvider).fetchSuggestions();
+    if (items.isNotEmpty) return items;
+  } catch (_) {
+    // Fall through to offline staples.
+  }
+  return kFallbackSuggestions;
 });
 
 /// The user's shopping list (the basket).
