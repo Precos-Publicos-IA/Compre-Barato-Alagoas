@@ -1,6 +1,6 @@
 # Autonomous dev cycle (imported)
 
-Latest from `/code/vinys-toolbelt/docs/autonomous-dev-cycle` (2026-07-17).
+Synced from 1st-rust-game + vinys-toolbelt (2026-07-17): multi-role deep review R1→R3, capture-bound analysis, *.review.json sidecars.
 
 ## Layout
 

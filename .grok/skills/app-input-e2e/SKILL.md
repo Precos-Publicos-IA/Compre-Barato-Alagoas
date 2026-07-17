@@ -5,7 +5,7 @@ description: >
   Compre Barato Alagoas. Use when changing UI, search, results, map, settings,
   admin, docs, voice, share, or window scaling; when the user mentions controls,
   keyboard, mouse, touch, e2e, input, or playtesting; or runs /app-input-e2e.
-  Adapted from latest autonomous-dev-cycle game-input-e2e (2026-07-17).
+  Synced with 1st-rust-game / vinys-toolbelt deep-review process (2026-07-17).
 ---
 
 # App input E2E (Compre Barato Alagoas)
@@ -21,7 +21,8 @@ blockers before claiming "done".
 **Authority:** **`ui-viewport-qa`** → *Parallel vs serial* (criteria 1–9, task map).
 
 **PASS/FAIL authority:** **`e2e/qa_success_criteria.json`** — open before any
-CRITIQUE/VIDEO line; cite criterion ids on BAD lines.
+CRITIQUE/VIDEO / `*.review.json`. Follow **ui-viewport-qa** multi-role review
+(R1 discover → R2 map/checklist → R3 adversary). Cite criterion or OPEN-* ids.
 
 **Short form — parallel OK:** matrix units (`CONCURRENCY=<N>`); pipeline A4b ∥ A6
 per finished unit; critique batches; build wait overlapping read-only work.
@@ -83,8 +84,10 @@ deploy.yml) → Phase C (physical phone if present).
 # Flutter is product UI — keep in A1. Host may need Flutter SDK installed.
 (cd frontend && flutter test)             # required when frontend/ changes
 (cd frontend && flutter build web --release)
-cd e2e && npm install && npm run full:local   # baseline ship bar (+ criteria critiques)
-# Full 147-cell matrix is aspirational until runners land; see ui-viewport-qa.
+cd e2e && npm install && npm run full:local   # baseline always (+ criteria critiques)
+cd e2e && npm run matrix:local                 # full 147 (default all); build runners if missing
+# npm run matrix:full  # + emulator handheld (adb screenrecord + input)
+# npm run matrix:priority  # debug only — not residual-close bar
 # A7 then: git push origin main; gh run watch; npm run live
 ```
 

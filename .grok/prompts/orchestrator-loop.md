@@ -9,12 +9,9 @@ description: >
 
 # Orchestrator loop (session)
 
-Reusable `/loop` schedule for the Grok session orchestrator.
+Reusable `/loop` schedule for the session orchestrator.
 
-**Project:** Compre Barato Alagoas (import 2026-07-17). Workflow =
-`.grok/skills/ui-viewport-qa/SKILL.md` (+ `app-input-e2e`). Criteria =
-`e2e/qa_success_criteria.json`. Deploy = VPS `deploy.yml`.
-
+**Project:** Compre Barato Alagoas. Workflow = `.grok/skills/ui-viewport-qa` (+ `app-input-e2e`). Criteria = `e2e/qa_success_criteria.json`. Deploy = VPS `deploy.yml`.
 
 ## Paste-ready (preferred)
 
@@ -49,6 +46,9 @@ Each cycle:
    - Only schedule work that still makes sense per skill + status. Avoid duplicate jobs and processes that no longer serve the workflow. Prefer the right device for the job (GPU for GPU-bound work, CPU for CPU-bound; don’t pin useless load on a contended resource).
 7. From status + skill, if required work is unfinished or not running, start those tasks (when resources allow) and update the status files.
    - **Trust the workflow gates:** when evidence on disk + skill criteria show a true next phase (e.g. A7 PASS → Phase B commit/push/deploy watch), **start it immediately**. Do **not** idle waiting for the user after an honest gate PASS. Still never skip or weaken a failed gate.
+   - **CAPTURE_OK ≠ A7:** suite exit 0 / N/N is capture only. A7 needs deep multi-role review (R1→R3 when required), per-artifact `*.review.json` sidecars, and clean rollups. Do not spawn Phase B on capture green alone.
+   - **Analysis depth:** keep review fan-out high so suite wall-clock stays **capture-bound**. Do not thrift R1 discovery / multi-frame / adversary to save tokens when workers are idle.
+   - **Missing matrix runners:** if residual is blocked on missing runners, spawn work to **build/finish runners** and run full `expected_cells` — do not park as optional residual.
 8. Short report: skill edits (if any), status-file edits, tasks kept/stopped/started, **concurrency adjustments (old → new + why)**, hardware snapshot (**windowed CPU%** vs 50–80% target + window length, temp vs ~80°C if known) + scheduling rationale, unfinished gaps closed, next focus.
 ```
 
@@ -65,11 +65,16 @@ Each cycle:
 
 ## Project paths this orchestrator expects
 
+Convention (map to the current project if paths differ):
+
 | Role | Path |
 |------|------|
-| Workflow skill (process only) | `.grok/skills/ui-viewport-qa/SKILL.md` (and related skills as needed) |
+| Workflow skill (process only) | `.grok/skills/ui-viewport-qa/SKILL.md` (+ `app-input-e2e`) |
+| Criteria | `e2e/qa_success_criteria.json` |
 | Live session status | `.grok/status/session.md` |
-| Other status bits | `.grok/status/*` (e.g. `reviewed_units.txt`, `e2e_pid`) |
+| Other status bits | `.grok/status/*` |
+
+If the project has no status dir yet, create `status/session.md` with goal / phase / in-progress / blocked / next — still never put that into the workflow skill.
 
 ## Notes
 
@@ -79,4 +84,4 @@ Each cycle:
 - **CPU for scheduling:** always use a multi-second window (~10–30s average). Instantaneous or 1s samples mislead when Chrome/ffmpeg/AVD spike.
 - **Trust the workflow gates:** when status + skill show a true next step (e.g. A7 PASS → Phase B), spawn that work immediately. Do **not** idle waiting for the user after an honest gate PASS.
 - To change cadence only: re-run `/loop` with a different interval (and cancel the old job if still active).
-
+- Pair with heavy process skills (`ui-viewport-qa`, input e2e) that stay stateless while this loop owns coordination.
