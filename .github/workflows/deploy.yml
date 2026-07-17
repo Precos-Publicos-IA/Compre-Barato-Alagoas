@@ -246,10 +246,17 @@ jobs:
             # Otherwise recreate api so a token-only / static deploy takes effect.
             if [ "$restart" = "true" ]; then
               rec=0
+              pin_image=""
             else
               rec=1
+              # Prefer image already running on VPS so recreate never falls back
+              # to missing compre-barato-alagoas-api:latest (frontend-only deploys).
+              pin_image="$($SSH "$H" "docker inspect --format '{{.Config.Image}}' deploy-api-1 2>/dev/null || true)"
+              if [ -n "$pin_image" ]; then
+                echo "==> Token-sync recreate will pin API_IMAGE=$pin_image"
+              fi
             fi
-            RECREATE_API="$rec" DEPLOY_SSH_KEY_FILE="$HOME/.ssh/deploy_key" \
+            API_IMAGE="$pin_image" RECREATE_API="$rec" DEPLOY_SSH_KEY_FILE="$HOME/.ssh/deploy_key" \
               deploy/sync-sefaz-token.sh
           else
             echo "==> SEFAZ_APP_TOKEN secret not set — VPS secrets/sefaz_app_token left as-is"

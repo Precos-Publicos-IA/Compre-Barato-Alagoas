@@ -45,8 +45,9 @@ remote_incoming="${DEPLOY_DIR}/.sefaz_app_token.incoming"
 rm -f "$tmp"
 trap - EXIT
 
+# Optional API_IMAGE pin from caller (CI); otherwise remote resolves from running container.
 "${SSH[@]}" "$DEPLOY_HOST" \
-  "DEPLOY_DIR=$(printf %q "$DEPLOY_DIR") RECREATE_API=$(printf %q "$RECREATE_API") bash -s" <<'REMOTE'
+  "DEPLOY_DIR=$(printf %q "$DEPLOY_DIR") RECREATE_API=$(printf %q "$RECREATE_API") API_IMAGE=$(printf %q "${API_IMAGE:-}") bash -s" <<'REMOTE'
 set -euo pipefail
 umask 077
 
@@ -183,8 +184,25 @@ PY
 
 if [ "${RECREATE_API}" = "1" ]; then
   cd "${DEPLOY_DIR}/deploy"
-  if docker compose --env-file ../.env ps -q api 2>/dev/null | grep -q .; then
-    echo "==> Recreating api container to load new secrets env_file"
+  cid="$(docker compose --env-file ../.env ps -q api 2>/dev/null | head -n1 || true)"
+  if [ -n "$cid" ]; then
+    # Pin the image already running on this host. Frontend/static deploys never
+    # load a new API image; compose default is compre-barato-alagoas-api:latest,
+    # which is often absent (CI only keeps sha tags). Without this pin,
+    # force-recreate tries to pull/use :latest and fails.
+    if [ -z "${API_IMAGE:-}" ]; then
+      API_IMAGE="$(docker inspect --format '{{.Config.Image}}' "$cid" 2>/dev/null || true)"
+    fi
+    if [ -z "${API_IMAGE:-}" ]; then
+      echo "ABORT: could not resolve API image from running container $cid" >&2
+      exit 1
+    fi
+    if ! docker image inspect "$API_IMAGE" >/dev/null 2>&1; then
+      echo "ABORT: API image not present on host: $API_IMAGE (no bare :latest fallback)" >&2
+      exit 1
+    fi
+    export API_IMAGE
+    echo "==> Recreating api to load new secrets env_file (API_IMAGE=$API_IMAGE)"
     # Pass both env files explicitly (compose also lists them).
     docker compose --env-file ../.env --env-file ../secrets/sefaz.env \
       up -d --no-build --force-recreate api
