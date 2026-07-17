@@ -11,7 +11,12 @@
     "admin_smoke": "node admin_smoke.js",
     "matrix": "node matrix_capture.js",
     "matrix:local": "bash run_matrix_local.sh",
-    "matrix:verify": "VERIFY_ONLY=1 node matrix_capture.js"
+    "matrix:verify": "VERIFY_ONLY=1 MATRIX_FORMATS=all MATRIX_SCREENS=all node matrix_capture.js",
+    "matrix:priority": "MATRIX_FORMATS=priority MATRIX_SCREENS=priority bash run_matrix_local.sh",
+    "matrix:desktop": "MATRIX_FORMATS=desktop bash run_matrix_local.sh",
+    "matrix:handheld": "MATRIX_FORMATS=handheld bash run_matrix_local.sh",
+    "matrix:emulator": "node matrix_emulator.js",
+    "matrix:full": "RUN_EMULATOR=1 bash run_matrix_local.sh"
   },
   "dependencies": {
     "puppeteer": "^21.11.0"

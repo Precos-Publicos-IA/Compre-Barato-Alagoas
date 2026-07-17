@@ -55,7 +55,9 @@ e2e/screenshots/viewports/phone_android_landscape_02_results.png
 
 ## Commit
 
-See `git log -1` after push — SHA filled by session update.
+- **SHA:** `d2497c1580392869a53e76c0bb5428a7b47efd53` (`d2497c1`)
+- **Branch:** `main` (pushed)
+- **Message:** feat(ui): serious mobile product design for Compre Barato
 
 ## Follow-ups (optional, not blocking mobile ship)
 

@@ -1,5 +1,24 @@
 # Project rules — Compre Barato Alagoas
 
+## Project lock (HARD — refuse other projects)
+
+**Read first:** [`PROJECT_LOCK.md`](PROJECT_LOCK.md).
+
+This session/workspace is **locked to Compre Barato Alagoas** (public product repo; private ops sibling only when needed for the **same** product).
+
+- **Allowed roots:** `Compre-Barato-Alagoas/`, optionally `Compre-Barato-Alagoas-Privado/`.
+- **Refuse** implementing, committing, or spawning work under other trees (e.g. `/code/1st-rust-game`, other apps/games). If the user asks about another project: refuse + redirect; do not “just fix it” here.
+- Skills and status under **this** repo only; do not import game process as Alagoas ship truth without adapting.
+
+## Finish completable work (HARD — no half-done parking)
+
+- Do **not** leave completable Alagoas work as “optional / residual / later / idle.”
+- **Completable** = agents can finish without external blockers (code, tests, recapture, critique, commit, push, deploy watch, live smoke).
+- **Hard block only** = missing credentials, dead third-party host, no device, explicit user hold — document in `.grok/status/session.md` with evidence.
+- After true gates (e.g. A7 PASS): proceed to Phase B immediately (commit/push/`main`/deploy/live) unless user held.
+- CAPTURE_OK ≠ done. Missing runners → build them. Dirty intentional tree after ship → commit/push.
+- Session may say **Done** only when the checklist in `session.md` has no completable open items.
+
 ## Autonomous dev cycle (substantial work)
 
 For **substantial** user-facing or multi-file work, the delivery process is the
@@ -131,8 +150,9 @@ scaffold; full Xcode target is issue #4).
 cd e2e && npm install && npm run full:local
 # Then open e2e/qa_success_criteria.json and critique this-run stills
 #   (matrix_critique.md / video_critique.md). Suite exit 0 ≠ visual review.
-# Full 147-cell matrix (e2e/qa_matrix.json expected_cells) is aspirational until
-# multi-format runners land; when a matrix:local subset is present, review those cells.
+# Full 147-cell matrix (e2e/qa_matrix.json expected_cells): required for residual
+# close / full visual QA. If runners missing or priority-only → install/finish them.
+# matrix:local subset is debug only; review those cells, then complete 147.
 
 # (B) Live — after deploy succeeds (CI job `live-verify` or locally)
 cd e2e && npm run live
@@ -149,9 +169,11 @@ Exit code must be **0** for that phase. Runtime screenshot dumps under `e2e/scre
 are gitignored; critique templates under `e2e/screenshots/viewports/` and
 `e2e/screenshots/web/e2e/` are tracked.
 
-**Ship bar vs residual:** baseline = `full:local` + `live` + criteria critiques (+ A1
-for changed layers). Full screens×formats matrix (147 cells) is a documented residual
-/ target, not a reason to drop baseline gates or remove Flutter from A1/A2.
+**Ship bar vs matrix residual:** baseline = `full:local` + `live` + criteria critiques
+(+ A1 for changed layers) — always. Full screens×formats matrix (147 cells) is the
+required target for residual close / full visual QA; if runners are incomplete,
+**install/finish them** (do not treat missing runners as optional). Never drop
+baseline gates or remove Flutter from A1/A2.
 
 ### CI image (do not rebuild on every PR)
 

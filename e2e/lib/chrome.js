@@ -36,6 +36,7 @@ function launchOpts(viewport) {
   return {
     headless: 'new',
     executablePath: resolveChrome(),
+    protocolTimeout: Number(process.env.PUPPETEER_PROTOCOL_TIMEOUT_MS || 120000),
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',

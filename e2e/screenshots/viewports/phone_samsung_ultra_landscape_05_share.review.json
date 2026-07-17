@@ -1,0 +1,30 @@
+{
+  "artifact": "e2e/screenshots/viewports/phone_samsung_ultra_landscape_05_share.png",
+  "artifact_kind": "matrix_png",
+  "reviewed_at": "2026-07-17T23:13:10Z",
+  "reviewer": "W-capture-local-api",
+  "review_roles_completed": [
+    "discover",
+    "map_checklist",
+    "adversary"
+  ],
+  "run_start_unix": 1784329990,
+  "opened": true,
+  "frames_or_stills_opened": [
+    "e2e/screenshots/viewports/phone_samsung_ultra_landscape_05_share.png"
+  ],
+  "discovery_notes": [
+    "COMPARTILHAR ECONOMIA full on savings banner; prices visible; no API error"
+  ],
+  "verdict": "all_good",
+  "summary": "all good \u2014 local mock API prices + COMPARTILHAR",
+  "issues": [],
+  "criteria_checked": [
+    "V-SHARE-CTA",
+    "V-STATE-MATCH",
+    "V-CLIP-TEXT",
+    "V-READABLE"
+  ],
+  "sim_scenarios_checked": [],
+  "adversary_reviewed": true
+}

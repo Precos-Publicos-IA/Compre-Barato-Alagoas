@@ -1,6 +1,11 @@
-# Autonomous dev cycle (imported)
+# Autonomous dev cycle (Alagoas)
 
-Synced from 1st-rust-game + vinys-toolbelt: multi-role R1→R3, full-matrix-only residual, hardware-integrity orchestrator.
+## Project lock + finish rules
+
+| Doc | Role |
+|-----|------|
+| **[`../PROJECT_LOCK.md`](../PROJECT_LOCK.md)** | **HARD:** Alagoas-only; refuse other projects; no half-done parking |
+| [`../AGENTS.md`](../AGENTS.md) | Delivery, batching, ship on `main` |
 
 ## Layout
 
@@ -8,9 +13,9 @@ Synced from 1st-rust-game + vinys-toolbelt: multi-role R1→R3, full-matrix-only
 |------|------|
 | `skills/ui-viewport-qa/SKILL.md` | Process A/B/C (Alagoas stack + baseline vs matrix) |
 | `skills/app-input-e2e/SKILL.md` | Input rules |
-| `skills/orchestrator-loop/SKILL.md` | Orchestrator |
-| `prompts/orchestrator-loop.md` | `/loop` paste |
-| `status/session.md` | Live status |
+| `skills/orchestrator-loop/SKILL.md` | Orchestrator (lock + finish + hardware integrity) |
+| `prompts/orchestrator-loop.md` | `/loop` paste — **re-schedule after edits** |
+| `status/session.md` | Live status / must-complete checklist |
 
 | Path | Role |
 |------|------|
@@ -20,11 +25,12 @@ Synced from 1st-rust-game + vinys-toolbelt: multi-role R1→R3, full-matrix-only
 
 ## Alagoas reality (read with skill)
 
-- **Product UI is Flutter** (`frontend/`) — keep `flutter test` / `flutter build web` in A1/A2. Host may need Flutter SDK installed.
+- **Product UI is Flutter** (`frontend/`) — keep `flutter test` / `flutter build web` in A1/A2.
 - **Baseline ship bar:** `npm run full:local` + post-deploy `npm run live` + criteria critiques (not suite exit 0 alone).
-- **Full 147-cell matrix** is **aspirational** until multi-format runners land; document residual; review any `matrix:local` subset when present.
+- **Full 147-cell matrix:** required for residual close / full visual QA. **Missing runners → install/finish them** — do not park as optional.
+- **Completable work** stays on `session.md` checklist until done or hard-blocked.
 
 ## Source note
 
-Toolbelt `qa_success_criteria.json` (game) → adapted product criteria for Alagoas
-screens. Process/order from `ui-viewport-qa` kept with VPS/Flutter path mapping.
+Toolbelt / game criteria were adapted for Alagoas product surfaces. Do not treat
+game-specific input (stick/DASH/two-finger) as Alagoas product requirements.

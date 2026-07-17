@@ -1,43 +1,48 @@
 # Session status
 
-Last update: **W-live-ship DONE** — deploy green + live smoke; **A7 practical PASS** (mobile)
+Last update: orchestrator tick — project lock active; host hot; hygiene ship spawned; heavy V-FORM deferred this tick
+
+## Project lock
+- **Alagoas only** (`PROJECT_LOCK.md`). Refuse other projects.
+- Workers inherit lock + cwd `/code/alagoas/Compre-Barato-Alagoas`.
 
 ## Goal
-~~Clear mobile capture BADs + deploy d2497c1~~ → **DONE**
+Close **all completable** residuals (no half-done parking)
 
 ## Phase
-**B SUCCESS** · **A7 practical PASS** for mobile residual close
+A/B — finish must-complete 1–3
+
+## Hardware (this tick — credible sensors)
+| Signal | Value | Action |
+|--------|--------|--------|
+| windowed CPU 12s | **~95%** | **above** 50–80% — no heavy capture/UI fan-out |
+| loadavg | ~22 / 19 / 18 | high |
+| **Tctl k10temp** | **~69°C** | under 80°C but load high |
+| RAM | 16/30 Gi | OK |
 
 ## Workers
 | id | Status |
 |----|--------|
-| W-mobile-design | DONE `d2497c1` |
-| W-re-critique-mobile | DONE open_bads **19→10**; V-CLIP landscape product **0** |
-| W-capture-local-api | DONE — 6 API residuals CLEARED |
-| **W-live-ship** | **DONE** run **29619545203** success · live stores>0 web |
+| W-ship-hygiene | **SPAWNED** `…` commit/push PROJECT_LOCK + AGENTS + orchestrator skill/prompt + completed status/e2e hygiene (not half V-FORM UI) |
+| W-vform | **NOT started this tick** — host CPU ~95%; start next tick if windowed CPU &lt; ~50–60% |
+| W-emulator-smoke | **NOT started this tick** — same; emulator-5554 present when ready |
 
-## Metrics
-| Metric | Count |
-|--------|------:|
-| open_bads_matrix | **4** (desktop V-FORM only) |
-| open_bads_video | **0** |
-| mobile V-CLIP product | **0** |
-| API-capture residuals | **0** |
-| CI deploy `d2497c1` | **green** |
-| Live search (cold+popular) | **stores=5**, `data_source=web` |
+## Must-complete
+| # | Work | Status |
+|---|------|--------|
+| 1 | V-FORM qhd/4k (4 open BADs) fix+recapture+critique → open_bads 0 | **OPEN** (deferred: host overload) |
+| 2 | Git hygiene: lock/docs/status/runners on main + CI | **IN PROGRESS** (W-ship-hygiene) |
+| 3 | matrix_emulator smoke or hard-block evidence | **OPEN** |
+| 4 | Operator re-schedule `/loop` with new paste (PROJECT_LOCK) | **OPEN** (human) |
 
-## Residual (accepted A7 practical)
-- qhd_01_home · qhd_06_admin · 4k_01_home · 4k_06_admin — V-FORM-FACTOR sparse QHD/4K (usable)
+## Done (do not redo)
+- `5d911a3` matrix true-state; `d2497c1` mobile UI live; video 0; mobile V-CLIP 0; live stores=5 web
 
-## Thermal
-Use **k10temp Tctl** only (not acpitz).
+## Concurrency
+- **N=1** light ship only (docs/status)
+- **Scale down:** no second suite, no flutter build/matrix until CPU cools
+- Next tick: if CPU &lt;50% and Tctl ok → spawn W-vform then W-emulator-smoke (serial preferred)
 
-## SEFAZ / prod path
-`USE_MOCK_SEFAZ=false` **`USE_WEB_SEFAZ=true`** (official host still broken; token in secrets/)  
-API image pin on this deploy: `b6ec7a8…` (frontend-only ship of mobile UI)
-
-## Next (optional)
-1. Desktop QHD/4K form polish (4 cells) or leave accepted residual
-2. Push local `50f65cb` skill sync if desired
-3. Phase C physical phone when device available
-4. Re-enable official SEFAZ API when host fixed
+## Next
+1. Reap W-ship-hygiene
+2. When load allows: V-FORM → open_bads 0 → emulator smoke → Done checklist

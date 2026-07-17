@@ -1,0 +1,31 @@
+{
+  "artifact": "e2e/screenshots/viewports/phone_samsung_ultra_landscape_02_results.png",
+  "artifact_kind": "matrix_png",
+  "reviewed_at": "2026-07-17T23:13:10Z",
+  "reviewer": "W-capture-local-api",
+  "review_roles_completed": [
+    "discover",
+    "map_checklist",
+    "adversary"
+  ],
+  "run_start_unix": 1784329990,
+  "opened": true,
+  "frames_or_stills_opened": [
+    "e2e/screenshots/viewports/phone_samsung_ultra_landscape_02_results.png"
+  ],
+  "discovery_notes": [
+    "Settled results on 915\u00d7412: prices R$22,63 + COMPARTILHAR ECONOMIA + EDITAR LISTA; API mock OK"
+  ],
+  "verdict": "all_good",
+  "summary": "all good \u2014 local mock API prices + COMPARTILHAR",
+  "issues": [],
+  "criteria_checked": [
+    "V-STATE-MATCH",
+    "V-CLIP-TEXT",
+    "V-READABLE",
+    "V-SHARE-CTA",
+    "V-BLANK-PANIC"
+  ],
+  "sim_scenarios_checked": [],
+  "adversary_reviewed": true
+}

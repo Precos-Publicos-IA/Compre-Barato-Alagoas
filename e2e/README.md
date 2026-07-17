@@ -80,38 +80,54 @@ Ship process for substantial UI work: [`.grok/skills/ui-viewport-qa/SKILL.md`](.
 | `screenshots/viewports/matrix_critique.md` | A6 PNG / baseline still critiques |
 | `screenshots/web/e2e/video_critique.md` | A4b video critiques |
 
-### Baseline ship bar vs full matrix
+### Baseline vs full matrix
 
 | Layer | Command / artifact | Gate? |
 |-------|-------------------|-------|
-| **Baseline local** | `npm run full:local` | **Required** before push (user-facing) |
-| **Baseline live** | `npm run live` after deploy | **Required** post-deploy |
-| **Criteria critiques** | Open `qa_success_criteria.json`; write GOOD/BAD on this-run stills | **Required** (CAPTURE_OK ≠ review) |
+| **Baseline local** | `npm run full:local` | **Always required** before push |
+| **Baseline live** | `npm run live` after deploy | **Always required** post-deploy |
+| **Criteria critiques** | Open `qa_success_criteria.json`; write GOOD/BAD on this-run stills | **Always required** (CAPTURE_OK ≠ review) |
 | **A1 Flutter** | `cd frontend && flutter test` when `frontend/` changes | **Required** (product UI is Flutter; host may need SDK) |
-| **Matrix subset** | `matrix:local` / multi-format stills when a runner produces them | Review **present** cells under criteria |
-| **Full 147-cell matrix** | Every screen × format VIDEO + quality-hold PNG | **Aspirational** until multi-format runners land (residual) |
+| **Priority / debug subset** | `matrix:local` / `MATRIX_FORMATS=priority` | **Debug only** — review present cells; does **not** close 147 residual |
+| **Full 147-cell matrix** | Every screen × format VIDEO + quality-hold PNG + A4b∥A6 | **Required** for residual close / full visual QA |
 
-Do **not** skip baseline capture or criteria critiques because the full matrix is
-incomplete. Do **not** invent 147 CRITIQUE lines without pixels.
+**If multi-format runners are missing or incomplete → install/finish them**, then
+run full 147. Do **not** treat “no runners yet” as optional residual. Do **not**
+skip baseline. Do **not** invent 147 CRITIQUE lines without pixels.
 
-### Prioritized matrix runner (`matrix:local`)
+See `.grok/skills/ui-viewport-qa/SKILL.md` → *Baseline vs full matrix*.
 
-`matrix_capture.js` reads `qa_matrix.json` and captures a **priority subset**
-(default formats: `phone_portrait`, `phone_android`, `laptop_hd`, `1080p`) for
-admin login, docs home, API `/health` document, and Flutter app home when
-`APP_URL` is set or `frontend/build/web` exists. Desktop CDP screencast →
-`screenshots/web/e2e/recordings/1080p_mouse.webm` when `RECORD_VIDEO=1` (default).
+### Matrix runner (`matrix:local` / `matrix`) — **full 147 by default**
+
+`matrix_capture.js` reads `qa_matrix.json`. **Default is full matrix**
+(`MATRIX_FORMATS=all` × all 7 screens = **147** cells) when Flutter web is
+available (`APP_URL` or auto `flutter build web` + serve). Product screens:
+home, results, map, settings, share (+ admin, docs).
+
+| Command | Role |
+|---------|------|
+| `npm run matrix:local` | Full matrix (default all) + stack boot |
+| `npm run matrix:full` | Full matrix + `matrix_emulator.js` handheld Phase A |
+| `npm run matrix:priority` | **Debug/fast only** — not residual-close bar |
+| `npm run matrix:desktop` | `touch:false` formats only |
+| `npm run matrix:emulator` | Handheld adb path (stack must already be up) |
+| `npm run matrix:verify` | Presence check for all 147 cells |
+
+- **Desktop / laptop:** Puppeteer + CDP screencast → `recordings/{format}_mouse.webm`
+- **Handheld layout assist:** Chrome device metrics PNGs in `matrix_capture.js`
+- **Handheld ship-valid Phase A:** `matrix_emulator.js` — emulator +
+  `adb shell screenrecord` + `adb shell input` → `recordings/{format}_touch.mp4`
 
 ```bash
-cd e2e && npm run matrix:local
-# Expand later:
-# MATRIX_FORMATS=all npm run matrix:local
-# MATRIX_FORMATS=phone_portrait,tablet_portrait,1080p MATRIX_SCREENS=admin,docs npm run matrix
-# npm run matrix:verify
+cd e2e && npm run matrix:local          # full 147 path (default)
+npm run matrix:full                     # + emulator handheld
+npm run matrix:priority                 # debug subset only
+npm run matrix:verify                   # A5 presence for 147
+# CONCURRENCY=2 MATRIX_VIDEO_FORMATS=desktop RECORD_VIDEO=1
 ```
 
-Artifacts: `screenshots/viewports/{format}_{shot_suffix}.png`. Capture exit 0 is
-**CAPTURE_OK only** — open images and write `matrix_critique.md` /
-`video_critique.md` under `qa_success_criteria.json` before claiming review.
-Path to full matrix: grow `MATRIX_FORMATS` / `MATRIX_SCREENS` (or `MATRIX_FORMATS=all`)
-once Flutter web + remaining screens are wired.
+Artifacts: `screenshots/viewports/{format}_{shot_suffix}.png`,
+`screenshots/web/e2e/recordings/`. Capture exit 0 is **CAPTURE_OK only** —
+open images and write `matrix_critique.md` / `video_critique.md` under
+`qa_success_criteria.json` before claiming review or A7.
+
