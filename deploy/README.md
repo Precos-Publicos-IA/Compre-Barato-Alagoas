@@ -91,6 +91,32 @@ Configure repository *secrets* once (nothing host-specific is committed):
 | `DEPLOY_SSH_KEY` | deploy **private** SSH key (file contents) |
 | `DEPLOY_DIR` | app directory on the server |
 | `DEPLOY_DOMAIN` | public domain (used in the Flutter build) |
+| `SEFAZ_APP_TOKEN` | Economiza Alagoas / SEFAZ **AppToken** (optional until you go live on the official API) |
+
+### SEFAZ AppToken via GitHub Actions (recommended)
+
+The token must **never** be committed. Put it in the repo secret `SEFAZ_APP_TOKEN`;
+each deploy to `main` upserts it into the **server-only** `.env` over SSH and sets
+`USE_MOCK_SEFAZ=false` / `USE_WEB_SEFAZ=false`. The value is never logged (only
+length). Script: [`sync-sefaz-token.sh`](sync-sefaz-token.sh).
+
+```bash
+# From a trusted machine (value is read silently from the terminal):
+cd /path/to/Compre-Barato-Alagoas
+gh secret set SEFAZ_APP_TOKEN
+# paste the AppToken, Enter, then Ctrl-D if needed
+
+# Apply immediately without a code change:
+gh workflow run "CI/CD — test, build & deploy to VPS" --ref main
+gh run watch
+```
+
+Or: **GitHub → Settings → Secrets and variables → Actions → New repository secret**
+→ name `SEFAZ_APP_TOKEN` → paste token → Save, then **Actions → Run workflow**.
+
+After deploy, `/health` should report the official SEFAZ path (`data_source` /
+equivalent) when the token is active. You can still override via the admin panel
+(encrypted Redis store takes precedence when set — see backend secrets docs).
 
 Host nginx/TLS is **not** touched by the pipeline (still managed by hand on the server).
 To run manually without a push, use **Actions → this workflow → Run workflow**.
@@ -103,12 +129,15 @@ CI/CD above owns deploy. Run it with the same environment variables as the first
 
 ## Going live with real data
 
-Edit `.env` on the server:
+**Preferred:** set the GitHub Actions secret `SEFAZ_APP_TOKEN` (see table above)
+and run the deploy workflow — CI writes the token into the server `.env` securely.
+
+**Manual alternative** — edit `.env` on the server:
 
 ```
 USE_MOCK_SEFAZ=false
 # Leave empty to scrape the public Economiza website (tokenless fallback).
-# When SEFAZ issues an AppToken, set it here or via the admin Settings panel.
+# Prefer GitHub secret SEFAZ_APP_TOKEN (auto-synced on deploy) or the admin panel.
 SEFAZ_APP_TOKEN=
 USE_MOCK_LLM=false
 ANTHROPIC_API_KEY=<key>

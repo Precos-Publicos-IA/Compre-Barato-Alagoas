@@ -177,6 +177,7 @@ jobs:
       - name: Ship changed parts to the VPS
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          SEFAZ_APP_TOKEN: ${{ secrets.SEFAZ_APP_TOKEN }}
           CH_BACKEND: ${{ needs.changes.outputs.backend }}
           CH_FRONTEND: ${{ needs.changes.outputs.frontend }}
           CH_ADMIN: ${{ needs.changes.outputs.admin }}
@@ -198,7 +199,7 @@ jobs:
           image_tag=""
 
           if [ "$CH_BACKEND" = "true" ] || [ "$CH_DEPLOYCFG" = "true" ]; then
-            echo "==> Sync deploy/ (compose + remote-update.sh) and .env.example"
+            echo "==> Sync deploy/ (compose + remote-update.sh + secret sync helper) and .env.example"
             rsync -az --delete -e "$SSH" --exclude '.env' deploy "$H:$DEPLOY_DIR/"
             rsync -az -e "$SSH" .env.example "$H:$DEPLOY_DIR/.env.example"
             restart=true
@@ -232,11 +233,29 @@ jobs:
             rsync -az --delete -e "$SSH" docs/ "$H:$DEPLOY_DIR/docs/"
           fi
 
+          # Upsert SEFAZ AppToken into server .env *before* stack restart so the
+          # new containers load it. Token never printed (GitHub masks the secret).
+          if [ -n "${SEFAZ_APP_TOKEN:-}" ]; then
+            echo "==> Applying SEFAZ_APP_TOKEN GitHub secret to VPS .env"
+            chmod +x deploy/sync-sefaz-token.sh
+            # If remote-update will restart the stack, only write .env here.
+            # Otherwise recreate api now so a token-only / static deploy takes effect.
+            if [ "$restart" = "true" ]; then
+              rec=0
+            else
+              rec=1
+            fi
+            RECREATE_API="$rec" DEPLOY_SSH_KEY_FILE="$HOME/.ssh/deploy_key" \
+              deploy/sync-sefaz-token.sh
+          else
+            echo "==> SEFAZ_APP_TOKEN secret not set — VPS .env SEFAZ keys left as-is"
+          fi
+
           if [ "$restart" = "true" ]; then
             echo "==> Restart stack via remote-update.sh (disk pre-check + health check)"
             $SSH "$H" "API_IMAGE='$image_tag' DEPLOY_DIR='$DEPLOY_DIR' bash '$DEPLOY_DIR/deploy/remote-update.sh'"
           else
-            echo "==> Static-only change → no stack restart needed."
+            echo "==> Static-only change → no full stack restart (API recreated above if token synced)."
           fi
 
   # ---- Live suite: same published image (main, after successful deploy). ----
