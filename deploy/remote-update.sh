@@ -22,9 +22,24 @@ if [ "$avail_mb" -lt "$MIN_FREE_MB" ]; then
 fi
 
 if [ ! -f "$DEPLOY_DIR/.env" ]; then
-  echo "ABORT: $DEPLOY_DIR/.env is missing (secrets live only on the server)." >&2
+  echo "ABORT: $DEPLOY_DIR/.env is missing (config lives only on the server)." >&2
   exit 1
 fi
+
+# SEFAZ AppToken is a Compose secret file (not .env). Ensure path exists so
+# compose can always mount it (empty = no token → website scrape / mock flags).
+mkdir -p "$DEPLOY_DIR/secrets"
+chmod 700 "$DEPLOY_DIR/secrets"
+if [ ! -f "$DEPLOY_DIR/secrets/sefaz_app_token" ]; then
+  umask 077
+  : > "$DEPLOY_DIR/secrets/sefaz_app_token"
+  chmod 600 "$DEPLOY_DIR/secrets/sefaz_app_token"
+  echo "==> Created empty secrets/sefaz_app_token (set GitHub secret SEFAZ_APP_TOKEN to fill)"
+else
+  chmod 600 "$DEPLOY_DIR/secrets/sefaz_app_token" 2>/dev/null || true
+fi
+# Harden shared .env while we are here (ignore if not owner).
+chmod 600 "$DEPLOY_DIR/.env" 2>/dev/null || true
 
 cd "$DEPLOY_DIR/deploy"
 export API_IMAGE

@@ -95,10 +95,18 @@ Configure repository *secrets* once (nothing host-specific is committed):
 
 ### SEFAZ AppToken via GitHub Actions (recommended)
 
-The token must **never** be committed. Put it in the repo secret `SEFAZ_APP_TOKEN`;
-each deploy to `main` upserts it into the **server-only** `.env` over SSH and sets
-`USE_MOCK_SEFAZ=false` / `USE_WEB_SEFAZ=false`. The value is never logged (only
-length). Script: [`sync-sefaz-token.sh`](sync-sefaz-token.sh).
+The token must **never** be committed. Put it in the repo secret `SEFAZ_APP_TOKEN`.
+Each deploy to `main` installs it as a **dedicated secret file** on the VPS (not
+the shared `.env`):
+
+| Location | Role |
+|----------|------|
+| GitHub `SEFAZ_APP_TOKEN` | Source of truth (survives VPS rebuild) |
+| `$DEPLOY_DIR/secrets/sefaz_app_token` | Host file, mode `600`, dir `700` |
+| Container `/run/secrets/sefaz_app_token` | Compose secret mount → `SEFAZ_APP_TOKEN_FILE` |
+| `$DEPLOY_DIR/.env` | Flags only (`USE_MOCK_SEFAZ=false`, …); `SEFAZ_APP_TOKEN` cleared |
+
+The value is never logged (length only). Script: [`sync-sefaz-token.sh`](sync-sefaz-token.sh).
 
 ```bash
 # From a trusted machine (value is read silently from the terminal):
@@ -114,9 +122,10 @@ gh run watch
 Or: **GitHub → Settings → Secrets and variables → Actions → New repository secret**
 → name `SEFAZ_APP_TOKEN` → paste token → Save, then **Actions → Run workflow**.
 
-After deploy, `/health` should report the official SEFAZ path (`data_source` /
-equivalent) when the token is active. You can still override via the admin panel
-(encrypted Redis store takes precedence when set — see backend secrets docs).
+After deploy, `/health` should report the official SEFAZ path when the token is
+active. **Leave the admin-panel sefaz token empty** so GitHub/file remains the
+source of truth (admin Redis overrides the file if set). Keep a copy in your
+password manager as a second backup.
 
 Host nginx/TLS is **not** touched by the pipeline (still managed by hand on the server).
 To run manually without a push, use **Actions → this workflow → Run workflow**.
@@ -130,25 +139,26 @@ CI/CD above owns deploy. Run it with the same environment variables as the first
 ## Going live with real data
 
 **Preferred:** set the GitHub Actions secret `SEFAZ_APP_TOKEN` (see table above)
-and run the deploy workflow — CI writes the token into the server `.env` securely.
+and run the deploy workflow — CI writes `$DEPLOY_DIR/secrets/sefaz_app_token`.
 
-**Manual alternative** — edit `.env` on the server:
+**Manual alternative** on the server:
 
+```bash
+mkdir -p /srv/apps/alagoas/secrets && chmod 700 /srv/apps/alagoas/secrets
+# paste token into the file (no trailing junk); never commit this path
+install -m 600 /dev/null /srv/apps/alagoas/secrets/sefaz_app_token
+nano /srv/apps/alagoas/secrets/sefaz_app_token
+chmod 600 /srv/apps/alagoas/secrets/sefaz_app_token
+
+# .env flags only — leave SEFAZ_APP_TOKEN empty
+# USE_MOCK_SEFAZ=false
+# USE_WEB_SEFAZ=false
+
+cd /srv/apps/alagoas/deploy && docker compose --env-file ../.env up -d --force-recreate api
 ```
-USE_MOCK_SEFAZ=false
-# Leave empty to scrape the public Economiza website (tokenless fallback).
-# Prefer GitHub secret SEFAZ_APP_TOKEN (auto-synced on deploy) or the admin panel.
-SEFAZ_APP_TOKEN=
-USE_MOCK_LLM=false
-ANTHROPIC_API_KEY=<key>
-# Website scrape is slow — keep concurrency low (defaults are already conservative).
-SEFAZ_WEB_CONCURRENCY=2
-SEFAZ_CONCURRENCY=3
-```
 
-then `cd deploy && docker compose --env-file ../.env up -d` to restart the API.
-No code changes are required. Health (`/health`) reports `data_source` as `web`
-or `sefaz` depending on whether a token is active.
+Health (`/health`) reports `data_source` as `web` or `sefaz` depending on whether
+a token is active.
 
 ## Notes
 

@@ -8,6 +8,7 @@ few flags. See ``.env.example`` at the repo root for the full list.
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -55,11 +56,14 @@ class Settings(BaseSettings):
     sefaz_base_url: str = (
         "https://api.sefaz.al.gov.br/sfz-economiza-alagoas-api/api/public/"
     )
-    # Legacy/bootstrap fallback only. Prefer setting the token via the admin panel
-    # (encrypted in Redis, never on disk). Leave empty in production.
-    # When empty (and use_web_sefaz is False), the factory auto-falls back to the
-    # public website scraper until SEFAZ issues a token.
-    sefaz_app_token: str = ""  # secret; server-side only, never sent to clients
+    # AppToken resolution (server-side only; never sent to clients), in order:
+    # 1) admin panel Redis secret (sefaz_token) — see SecretStore
+    # 2) SEFAZ_APP_TOKEN_FILE — Docker/host secret file (preferred on VPS)
+    # 3) SEFAZ_APP_TOKEN env / .env — legacy bootstrap only
+    # When all empty (and use_web_sefaz is False), factory falls back to website scrape.
+    sefaz_app_token: str = ""
+    # Absolute path inside the container/host (e.g. /run/secrets/sefaz_app_token).
+    sefaz_app_token_file: str = ""
     sefaz_timeout_seconds: float = 15.0
     # Hard per-item deadline for the whole SEFAZ fetch (all pages). Caps how long a
     # single slow/hung item can hold a worker before it degrades to "not found",
@@ -167,6 +171,24 @@ class Settings(BaseSettings):
         if raw in {"0", "false", "no", "off"}:
             return False
         return not self.is_production
+
+    @property
+    def resolved_sefaz_app_token(self) -> str:
+        """AppToken from secret file (if set) else env/.env.
+
+        File path wins when the file exists and is non-empty so production can keep
+        the token out of the shared ``.env`` (Compose secrets / host ``secrets/``).
+        Admin Redis still overrides this at the SEFAZ factory layer.
+        """
+        path = (self.sefaz_app_token_file or "").strip()
+        if path:
+            try:
+                text = Path(path).read_text(encoding="utf-8").strip()
+            except OSError:
+                text = ""
+            if text:
+                return text
+        return (self.sefaz_app_token or "").strip()
 
 
 @lru_cache

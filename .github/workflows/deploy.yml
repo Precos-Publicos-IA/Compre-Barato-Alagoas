@@ -233,13 +233,13 @@ jobs:
             rsync -az --delete -e "$SSH" docs/ "$H:$DEPLOY_DIR/docs/"
           fi
 
-          # Upsert SEFAZ AppToken into server .env *before* stack restart so the
-          # new containers load it. Token never printed (GitHub masks the secret).
+          # Install SEFAZ AppToken as secrets/sefaz_app_token (mode 600) — not in
+          # the shared .env. Token never printed (GitHub masks the secret).
           if [ -n "${SEFAZ_APP_TOKEN:-}" ]; then
-            echo "==> Applying SEFAZ_APP_TOKEN GitHub secret to VPS .env"
+            echo "==> Applying SEFAZ_APP_TOKEN GitHub secret → VPS secrets/sefaz_app_token"
             chmod +x deploy/sync-sefaz-token.sh
-            # If remote-update will restart the stack, only write .env here.
-            # Otherwise recreate api now so a token-only / static deploy takes effect.
+            # If remote-update will restart the stack, only write files here.
+            # Otherwise recreate api so a token-only / static deploy takes effect.
             if [ "$restart" = "true" ]; then
               rec=0
             else
@@ -248,7 +248,7 @@ jobs:
             RECREATE_API="$rec" DEPLOY_SSH_KEY_FILE="$HOME/.ssh/deploy_key" \
               deploy/sync-sefaz-token.sh
           else
-            echo "==> SEFAZ_APP_TOKEN secret not set — VPS .env SEFAZ keys left as-is"
+            echo "==> SEFAZ_APP_TOKEN secret not set — VPS secrets/sefaz_app_token left as-is"
           fi
 
           if [ "$restart" = "true" ]; then

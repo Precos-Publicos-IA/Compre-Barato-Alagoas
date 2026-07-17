@@ -1,5 +1,8 @@
 # Production stack for Compre Barato Alagoas (API + Postgres + Redis).
-# Config and secrets live in the single `.env` at the repo root (never committed).
+# Non-secret config: single `.env` at the app root (never committed).
+# SEFAZ AppToken: host file ../secrets/sefaz_app_token (mode 600), mounted as a
+# Compose secret — not stuffed into .env. CI writes that file from the GitHub
+# Actions secret SEFAZ_APP_TOKEN (see deploy/sync-sefaz-token.sh).
 # Run with: docker compose --env-file ../.env up -d --build
 #
 # Fronting is handled by an nginx + certbot on the host (see deploy/nginx/).
@@ -18,6 +21,10 @@ services:
       REDIS_URL: redis://redis:6379/0
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-alagoas}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}@postgres:5432/${POSTGRES_DB:-alagoas}
       WEB_CONCURRENCY: "2"
+      # Prefer secret file over SEFAZ_APP_TOKEN in .env (leave that empty on VPS).
+      SEFAZ_APP_TOKEN_FILE: /run/secrets/sefaz_app_token
+    secrets:
+      - sefaz_app_token
     depends_on:
       postgres:
         condition: service_healthy
@@ -64,6 +71,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+# Host path is relative to this compose file (deploy/). remote-update ensures the
+# file exists (empty OK until GitHub secret is set). Never commit real contents.
+secrets:
+  sefaz_app_token:
+    file: ../secrets/sefaz_app_token
 
 volumes:
   pgdata:

@@ -61,8 +61,9 @@ The backend is a secure intermediary: it holds the SEFAZ access token — the to
 
 Each folder has its own README with detailed instructions.
 
-**Delivery (agents):** branch → PR → review → merge `main` → VPS deploy (CI) → live tests.
-See [`AGENTS.md`](AGENTS.md). Local: `cd e2e && npm run full:local`. Post-deploy: `cd e2e && npm run live`.
+**Delivery (agents):** verified change → commit `main` → VPS deploy (CI) → live tests.
+See [`AGENTS.md`](AGENTS.md) and the autonomous cycle under [`.grok/`](.grok/README.md).
+Local: `cd e2e && npm run full:local`. Post-deploy: `cd e2e && npm run live`.
 
 ## Documentation
 
@@ -108,11 +109,12 @@ requested directly from the department.
   `api@sefaz.al.gov.br`.
 - **General information:** `economizaalagoas@sefaz.al.gov.br`
 
-While the official AppToken is pending, set `USE_MOCK_SEFAZ=false` and leave
-`SEFAZ_APP_TOKEN` empty: the backend **auto-falls back to the public Economiza
-website** (tokenless scrape, concurrency-limited and stream-capped because the site
-is slow). When SEFAZ issues a token, set it via the admin panel or `.env` — traffic
-switches to the JSON API with **no code changes** (see
+While the official AppToken is pending, set `USE_MOCK_SEFAZ=false` and leave the
+token empty: the backend **auto-falls back to the public Economiza website**
+(tokenless scrape, concurrency-limited and stream-capped because the site is slow).
+When SEFAZ issues a token, set the GitHub Actions secret `SEFAZ_APP_TOKEN` (deploy
+writes a mode-`600` file under `secrets/` on the VPS) or use the admin panel —
+traffic switches to the JSON API with **no code changes** (see
 [`deploy/README.md`](deploy/README.md)). For offline dev, keep `USE_MOCK_SEFAZ=true`.
 
 ## AI agents (Requester + Verifier)

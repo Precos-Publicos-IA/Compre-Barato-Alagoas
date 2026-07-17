@@ -90,7 +90,7 @@ def _token_provider(
             stored = await secrets.get_secret("sefaz_token")
             if stored:
                 return stored
-        return settings.sefaz_app_token or None
+        return settings.resolved_sefaz_app_token or None
 
     return provider
 

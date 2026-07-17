@@ -150,3 +150,42 @@ async def test_sefaz_token_prefers_store_over_env(monkeypatch):
     await store.set_secret("sefaz_token", SEFAZ_TOKEN)
     assert await client._token_provider() == SEFAZ_TOKEN
     await client.aclose()
+
+
+def test_resolved_sefaz_app_token_prefers_file(tmp_path):
+    from app.config import Settings
+
+    secret = tmp_path / "sefaz_app_token"
+    secret.write_text("file-token-value\n", encoding="utf-8")
+    settings = Settings(
+        sefaz_app_token="env-should-lose",
+        sefaz_app_token_file=str(secret),
+    )
+    assert settings.resolved_sefaz_app_token == "file-token-value"
+
+
+def test_resolved_sefaz_app_token_falls_back_to_env(tmp_path):
+    from app.config import Settings
+
+    missing = tmp_path / "does-not-exist"
+    settings = Settings(
+        sefaz_app_token="  env-only-token  ",
+        sefaz_app_token_file=str(missing),
+    )
+    assert settings.resolved_sefaz_app_token == "env-only-token"
+
+
+async def test_sefaz_token_provider_uses_file(tmp_path):
+    from app.config import Settings
+    from app.services.sefaz.factory import build_sefaz_client
+
+    secret = tmp_path / "tok"
+    secret.write_text("from-file", encoding="utf-8")
+    settings = Settings(
+        use_mock_sefaz=False,
+        sefaz_app_token="from-env",
+        sefaz_app_token_file=str(secret),
+    )
+    client = build_sefaz_client(settings, secrets=None)
+    assert await client._token_provider() == "from-file"
+    await client.aclose()
