@@ -237,10 +237,10 @@ jobs:
             rsync -az --delete -e "$SSH" docs/ "$H:$DEPLOY_DIR/docs/"
           fi
 
-          # Install SEFAZ AppToken as secrets/sefaz_app_token (mode 600) — not in
-          # the shared .env. Token never printed (GitHub masks the secret).
+          # Install SEFAZ AppToken under secrets/sefaz.env (+ FILE fallback).
+          # Token never printed (GitHub masks the secret).
           if [ -n "${SEFAZ_APP_TOKEN:-}" ]; then
-            echo "==> Applying SEFAZ_APP_TOKEN GitHub secret → VPS secrets/sefaz_app_token"
+            echo "==> Applying SEFAZ_APP_TOKEN GitHub secret → VPS secrets/sefaz.env"
             chmod +x deploy/sync-sefaz-token.sh
             # If remote-update will restart the stack, only write files here.
             # Otherwise recreate api so a token-only / static deploy takes effect.

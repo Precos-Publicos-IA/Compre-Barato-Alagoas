@@ -96,15 +96,18 @@ Configure repository *secrets* once (nothing host-specific is committed):
 ### SEFAZ AppToken via GitHub Actions (recommended)
 
 The token must **never** be committed. Put it in the repo secret `SEFAZ_APP_TOKEN`.
-Each deploy to `main` installs it as a **dedicated secret file** on the VPS (not
-the shared `.env`):
+Each deploy to `main` installs it under `$DEPLOY_DIR/secrets/` (not the shared `.env`):
 
 | Location | Role |
 |----------|------|
 | GitHub `SEFAZ_APP_TOKEN` | Source of truth (survives VPS rebuild) |
-| `$DEPLOY_DIR/secrets/sefaz_app_token` | Host file, mode `600`, dir `700` |
-| Container `/run/secrets/sefaz_app_token` | Compose secret mount → `SEFAZ_APP_TOKEN_FILE` |
-| `$DEPLOY_DIR/.env` | Flags only (`USE_MOCK_SEFAZ=false`, …); `SEFAZ_APP_TOKEN` cleared |
+| `$DEPLOY_DIR/secrets/sefaz.env` | `SEFAZ_APP_TOKEN=…` only, mode `600` — **primary** (Compose `env_file`) |
+| `$DEPLOY_DIR/secrets/sefaz_app_token` | Raw token, mode `644` — bind-mounted `SEFAZ_APP_TOKEN_FILE` fallback |
+| `$DEPLOY_DIR/.env` | Flags only (`USE_MOCK_SEFAZ=false`, …); no AppToken |
+
+**Why not a mode-600-only bind mount?** The API runs as non-root `appuser` (uid
+10001). A `600` host file is unreadable in-container, so the app silently fell
+back to the website scrape. `env_file` is read on the host by the deploy user.
 
 The value is never logged (length only). Script: [`sync-sefaz-token.sh`](sync-sefaz-token.sh).
 
@@ -145,16 +148,18 @@ and run the deploy workflow — CI writes `$DEPLOY_DIR/secrets/sefaz_app_token`.
 
 ```bash
 mkdir -p /srv/apps/alagoas/secrets && chmod 700 /srv/apps/alagoas/secrets
-# paste token into the file (no trailing junk); never commit this path
-install -m 600 /dev/null /srv/apps/alagoas/secrets/sefaz_app_token
-nano /srv/apps/alagoas/secrets/sefaz_app_token
-chmod 600 /srv/apps/alagoas/secrets/sefaz_app_token
+# Primary: env fragment (mode 600)
+printf 'SEFAZ_APP_TOKEN="%s"\n' 'YOUR_TOKEN_HERE' > /srv/apps/alagoas/secrets/sefaz.env
+chmod 600 /srv/apps/alagoas/secrets/sefaz.env
+# Optional FILE fallback (mode 644 for non-root container read)
+printf '%s' 'YOUR_TOKEN_HERE' > /srv/apps/alagoas/secrets/sefaz_app_token
+chmod 644 /srv/apps/alagoas/secrets/sefaz_app_token
 
-# .env flags only — leave SEFAZ_APP_TOKEN empty
-# USE_MOCK_SEFAZ=false
-# USE_WEB_SEFAZ=false
+# .env flags: USE_MOCK_SEFAZ=false, USE_WEB_SEFAZ=false; leave SEFAZ_APP_TOKEN empty
 
-cd /srv/apps/alagoas/deploy && docker compose --env-file ../.env up -d --force-recreate api
+cd /srv/apps/alagoas/deploy && \
+  docker compose --env-file ../.env --env-file ../secrets/sefaz.env \
+  up -d --force-recreate api
 ```
 
 Health (`/health`) reports `data_source` as `web` or `sefaz` depending on whether

@@ -1,13 +1,18 @@
 # Production stack for Compre Barato Alagoas (API + Postgres + Redis).
-# Non-secret config: single `.env` at the app root (never committed).
-# SEFAZ AppToken: host file ../secrets/sefaz_app_token (mode 600), mounted as a
-# Compose secret — not stuffed into .env. CI writes that file from the GitHub
-# Actions secret SEFAZ_APP_TOKEN (see deploy/sync-sefaz-token.sh).
-# Run with: docker compose --env-file ../.env up -d --build
 #
-# Fronting is handled by an nginx + certbot on the host (see deploy/nginx/).
-# The API is published only on localhost; the Flutter web build is served by nginx
-# directly from the deployed web/ directory.
+# Config split (never commit real secrets):
+#   ../.env                 — non-secret flags, DB password, admin token, etc.
+#   ../secrets/sefaz.env    — SEFAZ_APP_TOKEN only (mode 600; CI-managed)
+#   ../secrets/sefaz_app_token — raw token file for SEFAZ_APP_TOKEN_FILE (mode 644
+#       so non-root appuser can read the bind mount)
+#
+# Why env_file for the AppToken: the API runs as uid 10001; a mode-600 host
+# "Compose secret" mount is unreadable in-container. env_file is read on the host
+# by the deploy user and injected into the process environment.
+#
+# Run: docker compose --env-file ../.env up -d --build
+#
+# Fronting: host nginx + certbot. API on 127.0.0.1:8000 only.
 services:
   api:
     build:
@@ -15,16 +20,22 @@ services:
     # CI pins a specific tag via API_IMAGE (built in the pipeline and loaded onto
     # the host); a manual `docker compose up --build` falls back to :latest.
     image: ${API_IMAGE:-compre-barato-alagoas-api:latest}
-    env_file: ../.env
+    env_file:
+      - ../.env
+      - ../secrets/sefaz.env
     environment:
       ENVIRONMENT: production
       REDIS_URL: redis://redis:6379/0
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-alagoas}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}@postgres:5432/${POSTGRES_DB:-alagoas}
       WEB_CONCURRENCY: "2"
-      # Prefer secret file over SEFAZ_APP_TOKEN in .env (leave that empty on VPS).
+      # File fallback (bind mount below). Env SEFAZ_APP_TOKEN from sefaz.env wins
+      # when set; file is used if env is empty (see Settings.resolved_sefaz_app_token).
       SEFAZ_APP_TOKEN_FILE: /run/secrets/sefaz_app_token
-    secrets:
-      - sefaz_app_token
+    volumes:
+      - type: bind
+        source: ../secrets/sefaz_app_token
+        target: /run/secrets/sefaz_app_token
+        read_only: true
     depends_on:
       postgres:
         condition: service_healthy
@@ -37,7 +48,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
-    # Published on localhost only; the host nginx reverse-proxies to it.
     ports:
       - "127.0.0.1:8000:8000"
 
@@ -45,7 +55,6 @@ services:
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-alagoas}
-      # No weak fallback: fail fast if the operator hasn't set a real password (#145).
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
       POSTGRES_DB: ${POSTGRES_DB:-alagoas}
     volumes:
@@ -59,24 +68,15 @@ services:
 
   redis:
     image: redis:7-alpine
-    # AOF persistence so shared-list UUIDs survive restarts (30-day TTLs).
     command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
     volumes:
       - redisdata:/data
     restart: unless-stopped
-    # Gate the API on Redis actually answering, not just the container starting, so
-    # the app (Redis is mandatory) doesn't flap on a cold/slow restart (#327).
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-# Host path is relative to this compose file (deploy/). remote-update ensures the
-# file exists (empty OK until GitHub secret is set). Never commit real contents.
-secrets:
-  sefaz_app_token:
-    file: ../secrets/sefaz_app_token
 
 volumes:
   pgdata:

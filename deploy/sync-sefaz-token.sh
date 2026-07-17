@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
-# Sync SEFAZ_APP_TOKEN from CI (GitHub Actions secret) onto the VPS as a
-# dedicated secret *file* — not into the shared .env.
+# Sync SEFAZ_APP_TOKEN from CI (GitHub Actions secret) onto the VPS.
+#
+# Why secrets/sefaz.env (not a mode-600 bind mount alone):
+#   The API container runs as non-root appuser (uid 10001). A host file with
+#   mode 600 bind-mounted as a Compose "secret" is unreadable inside the
+#   container → token empty → website scrape fallback → flaky live search.
+#   Compose env_file is read on the *host* by the deploy user and injected as
+#   process env, so non-root can use the token without world-readable files.
 #
 # Layout on VPS (DEPLOY_DIR):
-#   secrets/sefaz_app_token   # mode 600, dir 700 — Compose mounts as /run/secrets/…
-#   .env                      # non-secret flags only; SEFAZ_APP_TOKEN cleared/empty
+#   secrets/sefaz.env         # mode 600, only SEFAZ_APP_TOKEN=… (Compose env_file)
+#   secrets/sefaz_app_token   # mode 644 raw token (optional FILE fallback)
+#   .env                      # non-secret flags; SEFAZ_APP_TOKEN cleared
 #
-# Never prints the token. Streams it over scp into a short-lived incoming file,
-# installs it under secrets/, hardens perms, flips USE_MOCK_SEFAZ / USE_WEB_SEFAZ
-# in .env, and optionally recreates the API container.
+# Never prints the token.
 #
-# Required env:
-#   SEFAZ_APP_TOKEN  — AppToken value (empty ⇒ no-op exit 0)
-#   DEPLOY_HOST      — user@host
-#   DEPLOY_DIR       — app dir on server (e.g. /srv/apps/alagoas)
-# Optional:
-#   DEPLOY_SSH_KEY_FILE — private key path (default: ~/.ssh/deploy_key)
-#   RECREATE_API        — "1" (default) recreate api; "0" only write files
+# Required env: SEFAZ_APP_TOKEN, DEPLOY_HOST, DEPLOY_DIR
+# Optional: DEPLOY_SSH_KEY_FILE, RECREATE_API (default 1)
 set -euo pipefail
 
 if [ -z "${SEFAZ_APP_TOKEN:-}" ]; then
-  echo "==> SEFAZ_APP_TOKEN secret empty — leaving VPS secrets/sefaz_app_token unchanged"
+  echo "==> SEFAZ_APP_TOKEN secret empty — leaving VPS secrets/ unchanged"
   exit 0
 fi
 
@@ -32,14 +32,12 @@ RECREATE_API="${RECREATE_API:-1}"
 SSH=(ssh -i "$KEY" -o BatchMode=yes -o IdentitiesOnly=yes)
 SCP=(scp -i "$KEY" -o BatchMode=yes -o IdentitiesOnly=yes)
 
-# Never log the token — length only.
-echo "==> Syncing SEFAZ_APP_TOKEN → ${DEPLOY_HOST}:${DEPLOY_DIR}/secrets/sefaz_app_token (len=${#SEFAZ_APP_TOKEN}; value not logged)"
+echo "==> Syncing SEFAZ_APP_TOKEN → ${DEPLOY_HOST}:${DEPLOY_DIR}/secrets/ (len=${#SEFAZ_APP_TOKEN}; value not logged)"
 
 tmp="$(mktemp)"
 cleanup() { rm -f "$tmp"; }
 trap cleanup EXIT
 chmod 600 "$tmp"
-# No trailing newline so the secret file is exact.
 printf '%s' "$SEFAZ_APP_TOKEN" > "$tmp"
 
 remote_incoming="${DEPLOY_DIR}/.sefaz_app_token.incoming"
@@ -55,10 +53,11 @@ umask 077
 IN="${DEPLOY_DIR}/.sefaz_app_token.incoming"
 ENV_FILE="${DEPLOY_DIR}/.env"
 SECRETS_DIR="${DEPLOY_DIR}/secrets"
-TOKEN_FILE="${SECRETS_DIR}/sefaz_app_token"
+TOKEN_RAW="${SECRETS_DIR}/sefaz_app_token"
+TOKEN_ENV="${SECRETS_DIR}/sefaz.env"
 
 if [ ! -f "$ENV_FILE" ]; then
-  echo "ABORT: ${ENV_FILE} missing (create it on the server first; secrets never ship from git)." >&2
+  echo "ABORT: ${ENV_FILE} missing (create it on the server first)." >&2
   rm -f "$IN"
   exit 1
 fi
@@ -70,25 +69,67 @@ fi
 mkdir -p "$SECRETS_DIR"
 chmod 700 "$SECRETS_DIR"
 
-# Install token file atomically (mode 600).
-install -m 600 /dev/null "${TOKEN_FILE}.tmp" 2>/dev/null || {
-  : > "${TOKEN_FILE}.tmp"
-  chmod 600 "${TOKEN_FILE}.tmp"
-}
-cat "$IN" > "${TOKEN_FILE}.tmp"
-chmod 600 "${TOKEN_FILE}.tmp"
-mv -f "${TOKEN_FILE}.tmp" "$TOKEN_FILE"
-chmod 600 "$TOKEN_FILE"
+TOKEN=$(cat "$IN")
+if [ -z "${TOKEN// }" ]; then
+  echo "ABORT: token empty after transfer." >&2
+  rm -f "$IN"
+  exit 1
+fi
 
-# Shred incoming (best-effort).
+# 1) Raw file for SEFAZ_APP_TOKEN_FILE fallback. Mode 644 so non-root appuser
+#    can read a bind mount (host multi-user risk is low on a dedicated VPS).
+umask 022
+printf '%s' "$TOKEN" > "${TOKEN_RAW}.tmp"
+chmod 644 "${TOKEN_RAW}.tmp"
+mv -f "${TOKEN_RAW}.tmp" "$TOKEN_RAW"
+chmod 644 "$TOKEN_RAW"
+
+# 2) env_file fragment — primary path (compose injects into container env).
+export TOKEN TOKEN_ENV
+python3 <<'PY'
+import os
+import pathlib
+import tempfile
+
+token = os.environ["TOKEN"]
+path = pathlib.Path(os.environ["TOKEN_ENV"])
+
+def quote_env(value: str) -> str:
+    escaped = (
+        value.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+    )
+    return f'"{escaped}"'
+
+body = (
+    "# Managed by deploy/sync-sefaz-token.sh — never commit\n"
+    f"SEFAZ_APP_TOKEN={quote_env(token)}\n"
+)
+fd, tmp_name = tempfile.mkstemp(dir=str(path.parent), prefix="sefaz.env.", suffix=".tmp")
+try:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        f.write(body)
+    os.chmod(tmp_name, 0o600)
+    os.replace(tmp_name, path)
+    os.chmod(path, 0o600)
+finally:
+    try:
+        os.unlink(tmp_name)
+    except FileNotFoundError:
+        pass
+print(f"OK: wrote {path} (mode 600) and sefaz_app_token (mode 644 for FILE fallback)")
+PY
+
+# Shred incoming
 if command -v shred >/dev/null 2>&1; then
   shred -u "$IN" 2>/dev/null || rm -f "$IN"
 else
   rm -f "$IN"
 fi
 
-# Flags in .env only — clear any leftover SEFAZ_APP_TOKEN so the token is not
-# duplicated in the shared env file (Compose uses SEFAZ_APP_TOKEN_FILE).
+# Flags only in shared .env — clear any leftover SEFAZ_APP_TOKEN there.
 export ENV_FILE
 python3 <<'PY'
 import os
@@ -119,13 +160,10 @@ def upsert(text: str, key: str, value: str) -> str:
 raw = env_path.read_text(encoding="utf-8")
 updated = upsert(raw, "USE_MOCK_SEFAZ", "false")
 updated = upsert(updated, "USE_WEB_SEFAZ", "false")
-# Empty string — token lives in secrets/sefaz_app_token only.
 updated = upsert(updated, "SEFAZ_APP_TOKEN", "")
 
 mode = env_path.stat().st_mode & 0o777
-fd, tmp_name = tempfile.mkstemp(
-    dir=str(env_path.parent), prefix=".env.", suffix=".tmp"
-)
+fd, tmp_name = tempfile.mkstemp(dir=str(env_path.parent), prefix=".env.", suffix=".tmp")
 try:
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(updated)
@@ -140,15 +178,16 @@ finally:
         os.unlink(tmp_name)
     except FileNotFoundError:
         pass
-
-print("OK: secrets/sefaz_app_token installed; .env flags USE_MOCK_SEFAZ=false USE_WEB_SEFAZ=false; SEFAZ_APP_TOKEN cleared")
+print("OK: .env USE_MOCK_SEFAZ=false USE_WEB_SEFAZ=false; SEFAZ_APP_TOKEN cleared from shared .env")
 PY
 
 if [ "${RECREATE_API}" = "1" ]; then
   cd "${DEPLOY_DIR}/deploy"
   if docker compose --env-file ../.env ps -q api 2>/dev/null | grep -q .; then
-    echo "==> Recreating api container to mount updated secret file"
-    docker compose --env-file ../.env up -d --no-build --force-recreate api
+    echo "==> Recreating api container to load new secrets env_file"
+    # Pass both env files explicitly (compose also lists them).
+    docker compose --env-file ../.env --env-file ../secrets/sefaz.env \
+      up -d --no-build --force-recreate api
     for i in 1 2 3 4 5 6; do
       if curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1; then
         echo "==> API healthy after token sync"
@@ -156,9 +195,9 @@ if [ "${RECREATE_API}" = "1" ]; then
       fi
       sleep 5
     done
-    echo "WARN: API not healthy yet after recreate (deploy job may still be bringing stack up)." >&2
+    echo "WARN: API not healthy yet after recreate." >&2
   else
-    echo "==> api not running yet; secret file ready — next compose up will mount it"
+    echo "==> api not running yet; secrets ready — next compose up will load them"
   fi
 fi
 REMOTE

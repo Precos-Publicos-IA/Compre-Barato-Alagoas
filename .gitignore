@@ -4,6 +4,8 @@
 !.env.example
 # Host-only secret files (VPS layout: $DEPLOY_DIR/secrets/*) — never commit
 /secrets/
+secrets/
+secrets/sefaz.env
 secrets/sefaz_app_token
 secrets/**
 

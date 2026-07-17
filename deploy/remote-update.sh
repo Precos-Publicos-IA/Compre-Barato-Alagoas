@@ -26,19 +26,27 @@ if [ ! -f "$DEPLOY_DIR/.env" ]; then
   exit 1
 fi
 
-# SEFAZ AppToken is a Compose secret file (not .env). Ensure path exists so
-# compose can always mount it (empty = no token → website scrape / mock flags).
+# SEFAZ AppToken lives under secrets/ (see sync-sefaz-token.sh + docker-compose).
+# Ensure files exist so compose env_file / bind never fail (empty = no token → web).
 mkdir -p "$DEPLOY_DIR/secrets"
 chmod 700 "$DEPLOY_DIR/secrets"
-if [ ! -f "$DEPLOY_DIR/secrets/sefaz_app_token" ]; then
+if [ ! -f "$DEPLOY_DIR/secrets/sefaz.env" ]; then
   umask 077
-  : > "$DEPLOY_DIR/secrets/sefaz_app_token"
-  chmod 600 "$DEPLOY_DIR/secrets/sefaz_app_token"
-  echo "==> Created empty secrets/sefaz_app_token (set GitHub secret SEFAZ_APP_TOKEN to fill)"
+  printf '%s\n' '# Managed by deploy — set via GitHub SEFAZ_APP_TOKEN' 'SEFAZ_APP_TOKEN=' \
+    > "$DEPLOY_DIR/secrets/sefaz.env"
+  chmod 600 "$DEPLOY_DIR/secrets/sefaz.env"
+  echo "==> Created empty secrets/sefaz.env (set GitHub secret SEFAZ_APP_TOKEN to fill)"
 else
-  chmod 600 "$DEPLOY_DIR/secrets/sefaz_app_token" 2>/dev/null || true
+  chmod 600 "$DEPLOY_DIR/secrets/sefaz.env" 2>/dev/null || true
 fi
-# Harden shared .env while we are here (ignore if not owner).
+if [ ! -f "$DEPLOY_DIR/secrets/sefaz_app_token" ]; then
+  : > "$DEPLOY_DIR/secrets/sefaz_app_token"
+  chmod 644 "$DEPLOY_DIR/secrets/sefaz_app_token"
+  echo "==> Created empty secrets/sefaz_app_token (FILE fallback)"
+else
+  # Keep world-readable for non-root appuser bind mount (token also in sefaz.env).
+  chmod 644 "$DEPLOY_DIR/secrets/sefaz_app_token" 2>/dev/null || true
+fi
 chmod 600 "$DEPLOY_DIR/.env" 2>/dev/null || true
 
 cd "$DEPLOY_DIR/deploy"
@@ -46,7 +54,7 @@ export API_IMAGE
 
 echo "==> Starting stack with API_IMAGE=$API_IMAGE"
 # No --build: the image is already loaded on the host.
-docker compose --env-file ../.env up -d --no-build
+docker compose --env-file ../.env --env-file ../secrets/sefaz.env up -d --no-build
 
 # Remove our own previous API images so per-commit tags don't pile up. Scoped
 # strictly to this app's repository name, so other clients' images are never
