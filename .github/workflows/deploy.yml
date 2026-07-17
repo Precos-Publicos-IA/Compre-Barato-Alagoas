@@ -44,8 +44,8 @@ jobs:
       deployable: ${{ steps.f.outputs.backend == 'true' || steps.f.outputs.frontend == 'true' || steps.f.outputs.admin == 'true' || steps.f.outputs.docs == 'true' || steps.f.outputs.deploycfg == 'true' || github.event_name == 'workflow_dispatch' }}
       needs_e2e: ${{ steps.f.outputs.backend == 'true' || steps.f.outputs.frontend == 'true' || steps.f.outputs.admin == 'true' || steps.f.outputs.docs == 'true' || steps.f.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
         id: f
         with:
           filters: |
@@ -84,7 +84,7 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # App source from checkout; runtime/test libs already in the image.
       - name: pytest
         run: PYTHONPATH=. pytest
@@ -106,7 +106,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
       options: --user root
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Full headless suite
         env:
           ADMIN_TOKEN: test-admin-token-0123456789
@@ -114,7 +114,7 @@ jobs:
         run: bash e2e/run_local.sh
       - name: Upload e2e screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: e2e-screenshots-local
           path: e2e/screenshots/
@@ -136,13 +136,13 @@ jobs:
       DOMAIN: ${{ secrets.DEPLOY_DOMAIN }}
       DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - if: needs.changes.outputs.backend == 'true'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Build API image
         if: needs.changes.outputs.backend == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: backend
           load: true
@@ -153,7 +153,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - if: needs.changes.outputs.frontend == 'true'
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2.23.0
         with:
           channel: stable
       - name: Build Flutter web + APK
@@ -279,7 +279,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
       options: --user root
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Live headless suite
         env:
           NODE_PATH: /opt/ci/e2e/node_modules
@@ -291,7 +291,7 @@ jobs:
         run: node e2e/live.js
       - name: Upload live screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: e2e-screenshots-live
           path: e2e/screenshots/
