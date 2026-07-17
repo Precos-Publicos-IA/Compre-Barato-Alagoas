@@ -11,6 +11,9 @@ Puppeteer drives real **Chrome/Chromium** with **simulated user input** and
 | `npm run live` | Production app/API/docs (+ optional admin) post-deploy |
 | `npm run smoke` | Lighter live app + API shape check |
 | `npm run admin_smoke` | Admin SPA gate + `esc()` presence (#134); optional `ADMIN_TOKEN` |
+| `npm run matrix:local` | Boot stack + **prioritized** multi-format PNGs (+ optional desktop VIDEO) |
+| `npm run matrix` | Matrix capture against already-running URLs |
+| `npm run matrix:verify` | Presence check for the prioritized subset only |
 
 ## iPhone / Safari / WebKit limitation (issue #16)
 
@@ -72,10 +75,43 @@ Ship process for substantial UI work: [`.grok/skills/ui-viewport-qa/SKILL.md`](.
 
 | File | Role |
 |------|------|
-| [`qa_matrix.json`](qa_matrix.json) | Screens × CSS formats (`expected_cells`) |
+| [`qa_matrix.json`](qa_matrix.json) | Screens × CSS formats (`expected_cells`: **147** full matrix) |
 | [`qa_success_criteria.json`](qa_success_criteria.json) | **PASS/FAIL** criterion ids (open before critiques) |
-| `screenshots/viewports/matrix_critique.md` | A6 PNG critiques |
+| `screenshots/viewports/matrix_critique.md` | A6 PNG / baseline still critiques |
 | `screenshots/web/e2e/video_critique.md` | A4b video critiques |
 
-Baseline producer remains `npm run full:local` / `npm run live`. Extend toward
-per–matrix-unit VIDEO + quality-hold PNGs; do not skip visual critique gates.
+### Baseline ship bar vs full matrix
+
+| Layer | Command / artifact | Gate? |
+|-------|-------------------|-------|
+| **Baseline local** | `npm run full:local` | **Required** before push (user-facing) |
+| **Baseline live** | `npm run live` after deploy | **Required** post-deploy |
+| **Criteria critiques** | Open `qa_success_criteria.json`; write GOOD/BAD on this-run stills | **Required** (CAPTURE_OK ≠ review) |
+| **A1 Flutter** | `cd frontend && flutter test` when `frontend/` changes | **Required** (product UI is Flutter; host may need SDK) |
+| **Matrix subset** | `matrix:local` / multi-format stills when a runner produces them | Review **present** cells under criteria |
+| **Full 147-cell matrix** | Every screen × format VIDEO + quality-hold PNG | **Aspirational** until multi-format runners land (residual) |
+
+Do **not** skip baseline capture or criteria critiques because the full matrix is
+incomplete. Do **not** invent 147 CRITIQUE lines without pixels.
+
+### Prioritized matrix runner (`matrix:local`)
+
+`matrix_capture.js` reads `qa_matrix.json` and captures a **priority subset**
+(default formats: `phone_portrait`, `phone_android`, `laptop_hd`, `1080p`) for
+admin login, docs home, API `/health` document, and Flutter app home when
+`APP_URL` is set or `frontend/build/web` exists. Desktop CDP screencast →
+`screenshots/web/e2e/recordings/1080p_mouse.webm` when `RECORD_VIDEO=1` (default).
+
+```bash
+cd e2e && npm run matrix:local
+# Expand later:
+# MATRIX_FORMATS=all npm run matrix:local
+# MATRIX_FORMATS=phone_portrait,tablet_portrait,1080p MATRIX_SCREENS=admin,docs npm run matrix
+# npm run matrix:verify
+```
+
+Artifacts: `screenshots/viewports/{format}_{shot_suffix}.png`. Capture exit 0 is
+**CAPTURE_OK only** — open images and write `matrix_critique.md` /
+`video_critique.md` under `qa_success_criteria.json` before claiming review.
+Path to full matrix: grow `MATRIX_FORMATS` / `MATRIX_SCREENS` (or `MATRIX_FORMATS=all`)
+once Flutter web + remaining screens are wired.

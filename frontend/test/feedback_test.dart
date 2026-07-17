@@ -34,6 +34,7 @@ class _FakeApi extends ApiClient {
     String? deviceToken,
     String? analyticsId,
     List<String> excludedCnpjs = const [],
+    List<String> favoriteCnpjs = const [],
   }) async {
     return SearchResponse(
       originLat: -9.65,
@@ -78,6 +79,36 @@ class _FakeApi extends ApiClient {
         quantityParseRate: 1.0,
       ),
     );
+  }
+
+  /// Production search path uses NDJSON stream; tests skip the network.
+  @override
+  Future<SearchResponse> searchStream(
+    List<String> items, {
+    double? latitude,
+    double? longitude,
+    int? radiusKm,
+    int? days,
+    String? deviceToken,
+    String? analyticsId,
+    List<String> excludedCnpjs = const [],
+    List<String> favoriteCnpjs = const [],
+    void Function(String message)? onStatus,
+    void Function(SearchResponse partial)? onPartial,
+  }) async {
+    final result = await search(
+      items,
+      latitude: latitude,
+      longitude: longitude,
+      radiusKm: radiusKm,
+      days: days,
+      deviceToken: deviceToken,
+      analyticsId: analyticsId,
+      excludedCnpjs: excludedCnpjs,
+      favoriteCnpjs: favoriteCnpjs,
+    );
+    onPartial?.call(result);
+    return result;
   }
 
   @override
@@ -135,11 +166,15 @@ void main() {
     await tester.tap(find.text('VER PREÇOS'));
     await tester.pumpAndSettle();
 
+    // Scroll past store cards; bottom bar (EDITAR LISTA) can obscure the
+    // feedback row, so ensure the "Sim" control itself is fully on-screen.
     await tester.scrollUntilVisible(
-      find.text('Este resultado foi útil?'),
+      find.text('Sim'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('Sim'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Sim'));
     await tester.pumpAndSettle();
 

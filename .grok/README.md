@@ -6,7 +6,7 @@ Latest from `/code/vinys-toolbelt/docs/autonomous-dev-cycle` (2026-07-17).
 
 | Path | Role |
 |------|------|
-| `skills/ui-viewport-qa/SKILL.md` | Process A/B/C |
+| `skills/ui-viewport-qa/SKILL.md` | Process A/B/C (Alagoas stack + baseline vs matrix) |
 | `skills/app-input-e2e/SKILL.md` | Input rules |
 | `skills/orchestrator-loop/SKILL.md` | Orchestrator |
 | `prompts/orchestrator-loop.md` | `/loop` paste |
@@ -14,9 +14,15 @@ Latest from `/code/vinys-toolbelt/docs/autonomous-dev-cycle` (2026-07-17).
 
 | Path | Role |
 |------|------|
-| `e2e/qa_matrix.json` | Screens × formats |
+| `e2e/qa_matrix.json` | Screens × formats (`expected_cells` 147 = full matrix target) |
 | **`e2e/qa_success_criteria.json`** | **PASS/FAIL** |
 | `e2e/screenshots/**/*_critique.md` | Critiques |
+
+## Alagoas reality (read with skill)
+
+- **Product UI is Flutter** (`frontend/`) — keep `flutter test` / `flutter build web` in A1/A2. Host may need Flutter SDK installed.
+- **Baseline ship bar:** `npm run full:local` + post-deploy `npm run live` + criteria critiques (not suite exit 0 alone).
+- **Full 147-cell matrix** is **aspirational** until multi-format runners land; document residual; review any `matrix:local` subset when present.
 
 ## Source note
 

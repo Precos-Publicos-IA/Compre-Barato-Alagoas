@@ -40,21 +40,34 @@ paths/stack adjusted.
 
 | Cycle concept | Compre Barato Alagoas |
 |---------------|----------------------|
-| Product UI | Flutter `frontend/` (web + Android; iOS scaffold) |
+| Product UI | Flutter `frontend/` (web + Android; iOS scaffold) — **Flutter is the app** |
 | API | FastAPI `backend/` |
 | Admin / docs | `admin-frontend/`, `docs/` static |
-| Matrix JSON | `e2e/qa_matrix.json` |
+| Matrix JSON | `e2e/qa_matrix.json` (`expected_cells`: **147** = screens × formats) |
 | **PASS/FAIL criteria** | **`e2e/qa_success_criteria.json`** (open before any CRITIQUE/VIDEO line) |
 | Desktop e2e | `e2e/full.js` via `npm run full:local` |
 | Live post-deploy | `cd e2e && npm run live` |
-| Unit tests (A1) | `pytest` + `flutter test` |
-| Web build (A2) | `flutter build web` + `e2e/run_local.sh` |
+| Unit tests (A1) | `pytest` + **`flutter test`** (required when `frontend/` changes; keep Flutter in A1) |
+| Web build (A2) | `flutter build web` + `e2e/run_local.sh` (keep Flutter in A2) |
 | Deploy (Phase B) | push `main` → `deploy.yml` → VPS |
 | Live hosts | `*.alagoas.precospublicos.ia.br` |
 | Solo delivery | Commit on **`main`** after A7 (see `AGENTS.md` for minor batching) |
 
-**Baseline today:** `npm run full:local` / `npm run live` until matrix runners exist.
-Still open **`e2e/qa_success_criteria.json`** before `BAD: none`.
+### Baseline ship bar vs full matrix (do not conflate)
+
+| Layer | What it is | Ship gate today? |
+|-------|------------|------------------|
+| **Baseline capture** | `npm run full:local` (local/mock) + post-deploy `npm run live` | **Yes — current ship bar** |
+| **Criteria critiques** | Open `qa_success_criteria.json`; write GOOD/BAD on **this-run** baseline artifacts | **Yes** |
+| **A1 units** | `pytest` when backend moves; **`flutter test` when `frontend/` changes** | **Yes** (for changed layers) |
+| **A2 web build** | `flutter build web --release` when product UI ships | **Yes** when frontend ships |
+| **Matrix subset** | Any `matrix:local` / multi-format stills or VIDEO cells **when present** | Review those cells under criteria (**required for present cells**) |
+| **Full 147-cell matrix** | Every `screens[]` × `formats[]` VIDEO + quality-hold PNG + A4b∥A6 | **Aspirational** until matrix runners land — residual, not a silent skip of baseline |
+
+- Process below still describes the **full** capture∥review pipeline (target state).
+- **Do not** claim A7 on suite exit 0 alone; **do not** treat missing 147 cells as “fail baseline” while residual is open — document residual, still pass baseline + critiques.
+- When matrix runners exist, close the residual and require full matrix again.
+- **Never remove Flutter from A1/A2** — the product UI is Flutter.
 
 **iPhone / Safari:** Chromium ≠ WebKit; use iPhone checklist + `scripts/verify_ios_webkit_e2e.py`.
 
@@ -129,7 +142,8 @@ waiting for a human “go ahead.”
 - The same applies across **all** anti-stop points: intermediate success is not
   a stopping point; **gate failure** is.
 - Still **never** skip or weaken a gate (do not push with open BADs, incomplete
-  matrix, or missing reviews). Trust does not mean optimism without evidence —
+  **baseline** reviews, or missing critiques for present cells). Full 147-cell
+  matrix may be residual. Trust does not mean optimism without evidence —
   it means **evidence satisfied → continue**.
 - Only pause for the user when the skill/status truly cannot decide (missing
   credentials, ambiguous product acceptance of residual BADs the user must
@@ -241,10 +255,18 @@ Three **phases**. Only phase A unlocks push. Phone work never replaces phase A.
 
 ```text
 PHASE A — LOCAL ONLY (blocks push until every box is true)
-  A1. pytest + flutter test
-  A2. cd frontend && flutter build web --release          # wait for finish; fresh dist/
-  A3. serve dist                      # local stack (API :8000, admin :8081, docs :8082) + Flutter web APP_URL (also reachable by emulator via adb reverse)
-  A4.  PIPELINE — per matrix unit (format id + CSS resolution):
+  A1. Unit tests (layer-aware; Flutter stays in the cycle):
+        - backend/ changes or full cycle → (cd backend && pytest -q)
+        - frontend/ changes or full cycle → (cd frontend && flutter test)
+          Host may need Flutter SDK installed (`flutter` on PATH); install
+          stable if missing. Do not drop flutter test from A1.
+  A2. cd frontend && flutter build web --release   # when UI ships; wait; fresh dist/
+  A3. serve local stack           # API :8000, admin :8081, docs :8082 + Flutter web when built
+  A4.  BASELINE (required today): npm run full:local
+       + open qa_success_criteria.json → critique this-run stills (matrix_critique /
+         video_critique). CAPTURE_OK ≠ review.
+       ASPIRATIONAL (full 147-cell matrix — residual until runners exist):
+        per matrix unit (format id + CSS resolution):
         Desktop / laptop formats → Chrome + Puppeteer (e2e_inputs path)
         Handheld / touch formats → Android emulator + adb (required; see below)
         For EACH unit, as soon as its capture finishes:
@@ -252,9 +274,12 @@ PHASE A — LOCAL ONLY (blocks push until every box is true)
           A6  review that unit's PNGs   → matrix_critique.md  ⎭ with each other
         …while other units are still capturing / being reviewed
         Do NOT wait for all units before starting any review
-  A5.  VERIFY matrix complete (viewport_shots.mjs VERIFY_ONLY or missing-only)
-  A7.  PRE-PROD: every unit reviewed; video BAD none + matrix BAD none
-       (or user-accepted)
+        When a matrix:local subset is present, review those cells now.
+  A5.  VERIFY: baseline artifacts present; if matrix path ran, expected cells for
+       that run (full 147 only when full matrix capture is in scope)
+  A7.  PRE-PROD: baseline reviewed under criteria; no unaccepted BAD
+       (or user-accepted by criterion id). Full-matrix completeness is residual
+       until runners land — document, do not fake 147 CRITIQUE lines.
   ── only after A7 PASS may you commit + push ──
 
 PHASE B — PUSH + PAGES (only after A7 PASS)
@@ -281,7 +306,7 @@ PHASE C — PHYSICAL USB PHONE (only if real adb device present; after B2 succes
 | Phone against **live** before phase A finished | process | **No** |
 | Handheld matrix covered only by Chrome `page.emulate` / resized desktop | wrong capture path | **No** |
 | Critiques all say `BAD: none` without opening this-run images | rubber-stamp | **No** |
-| Full phase A: capture + **A4b+A6 review** + A5 + **A7 review PASS** | capture **and** review | **Yes** → phase B |
+| Full phase A **baseline**: `full:local` + criteria review + **A7 PASS** (matrix subset if present) | capture **and** review | **Yes** → phase B |
 
 Physical USB against local stack is **debug only** and never unlocks push. Phase A
 handheld ship proof is the **Android emulator** path (below), not Puppeteer-only
@@ -297,10 +322,28 @@ severity, anti-patterns).
 
 ## Phase A checklist (required before push)
 
-You are not allowed to `git push` until **all** of these are true:
+You are not allowed to `git push` until **all baseline boxes** are true. Full
+147-cell matrix items are the **aspirational** path (close residual when runners
+exist).
 
-1. **Build finished** — `cd frontend && flutter build web --release` exit 0; wait as long as needed.
-2. **A4 capture — Unified per matrix unit** — every `formats[]` entry gets exhaustive
+### Baseline (ship bar today)
+
+1. **A1 units** — `pytest` when backend moved; **`flutter test` when frontend
+   moved** (or full cycle). Flutter is the product UI — keep it. Host may need
+   Flutter SDK installed.
+2. **A2 build (when UI ships)** — `cd frontend && flutter build web --release`
+   exit 0; wait as long as needed.
+3. **A4 baseline capture** — `cd e2e && npm run full:local` exit 0 (CAPTURE_OK
+   only until reviewed).
+4. **A4 baseline review** — open **`e2e/qa_success_criteria.json`**, open this-run
+   screenshots, write/update lines in `matrix_critique.md` / `video_critique.md`.
+   **CAPTURE_OK ≠ A7.**
+5. **A7 — PRE-PROD REVIEW PASS** — no unaccepted BADs on baseline artifacts (or
+   user-accepted by criterion id). Document matrix residual if 147 cells absent.
+
+### Aspirational full matrix (residual until runners)
+
+6. **A4 capture — Unified per matrix unit** — every `formats[]` entry gets exhaustive
    surface + **quality-hold matrix PNGs** + VIDEO. **Desktop** formats: Chrome +
    Puppeteer (`e2e_inputs` / `CAPTURE_MATRIX=1`). **Handheld / touch** formats:
    **Android emulator** with full-display **`adb shell screenrecord`** and OS-level
@@ -308,17 +351,19 @@ You are not allowed to `git push` until **all** of these are true:
    Chrome `page.emulate` alone is **not** ship-valid for handhelds. Parallel units
    via `CONCURRENCY` (level set outside this skill — orchestrator/session from
    hardware + quality, not a fixed N here).
-3. **A4 pipeline review** — for **each** matrix unit, **as soon as that unit’s**
+7. **A4 pipeline review** — for **each** matrix unit, **as soon as that unit’s**
    artifacts exist: **A4b** video review **and** **A6** matrix PNG review for
    that unit (simultaneous with each other and with other units’ capture/review).
    Critiques live in `video_critique.md` and `matrix_critique.md`. Do **not**
    defer all review until the full capture job ends.
-4. **A5 — Matrix present** — all `expected_cells` PNGs exist (usually already from A4;
+8. **A5 — Matrix present** — all `expected_cells` PNGs exist (usually already from A4;
    `VERIFY_ONLY=1 node e2e matrix verify` or missing-only capture).
-5. **A7 — PRE-PROD REVIEW PASS** — every unit has critique lines; no unaccepted
-   BADs in **either** critique file.
+9. **Matrix subset when present** — if a `matrix:local` (or similar) subset was
+   captured this run, those cells **must** be reviewed under criteria before A7.
 
-Partial matrices (e.g. only menu@1080p) do **not** count.
+One random viewport smoke does **not** replace baseline `full:local` + critiques.
+Claiming full-matrix ship with only a handful of cells and no residual note is also
+invalid.
 
 ---
 
@@ -592,13 +637,16 @@ screen id. High-signal blockers (non-exhaustive):
 
 ### What you must do
 
-1. Confirm capture prerequisites (CAPTURE_OK): expected recordings + matrix
-   PNGs on disk; suite failed count 0 for the ship paths used this run.
+1. Confirm capture prerequisites (CAPTURE_OK): **baseline** suite exit 0
+   (`full:local` pre-push; `live` post-deploy). When matrix path ran, expected
+   recordings/PNGs for **that run** (full 147 only when full matrix is in scope;
+   otherwise document residual). Suite failed count 0 for ship paths used.
 2. Open **`e2e/qa_success_criteria.json`** (criteria authority) plus
    **both** `e2e/screenshots/web/e2e/video_critique.md` **and**
    `e2e/screenshots/viewports/matrix_critique.md`.
-3. Confirm **every** matrix cell and **every** required recording has a
-   CRITIQUE/VIDEO line for **this run** (not only that files exist).
+3. Confirm **every this-run baseline artifact** and **every present matrix cell
+   / recording** has a CRITIQUE/VIDEO line (not only that files exist). Do not
+   invent lines for 147 missing cells.
 4. Collect every line in **either** critique file where `BAD:` is not exactly
    `none` (or still cites unaccepted criterion ids).
 5. Spot-check that this-run artifacts do not still match
@@ -606,21 +654,22 @@ screen id. High-signal blockers (non-exhaustive):
    (rubber-stamp detector — open the PNG/stills with the image tool).
 6. **If capture prereqs hold, both BAD lists empty, and spot-check is clean**
    → **PRE-PROD REVIEW: PASS**. **Immediately** proceed to Phase B — do not
-   wait for the user.
-7. **If capture incomplete, any BAD remains, or rubber-stamp spot-check fails**
+   wait for the user. Residual full-matrix gap stays documented until runners land.
+7. **If baseline capture incomplete, any BAD remains, or rubber-stamp spot-check fails**
    → **PRE-PROD REVIEW: FAIL**. Do **not** push. Fix loop:
 
 ```text
 START OF FIX LOOP
   1. Patch code for every open BAD (video and/or matrix).
-  2. pytest + flutter test
-  3. cd frontend && flutter build web --release          # wait for finish
-  4. ensure dist served
-  5. A4 PIPELINE: desktop via e2e_inputs; handheld via Android emulator + adb
-     screenrecord + adb shell input (CONCURRENCY=<N> as hardware allows)
+  2. A1: pytest (backend) + flutter test (frontend — keep; install SDK if needed)
+  3. cd frontend && flutter build web --release          # wait for finish when UI ships
+  4. ensure local stack served
+  5. A4 BASELINE: npm run full:local → criteria critiques on this-run artifacts
+     A4 MATRIX (when runners/subset present): desktop via e2e_inputs; handheld via
+     Android emulator + adb screenrecord + adb shell input (CONCURRENCY=<N>)
      — as EACH matrix unit finishes: A4b + A6 for that unit immediately
-  6. VERIFY_ONLY=1 node e2e matrix verify               # A5 verify
-  7. Confirm every unit has critique lines; rewrite any stale lines
+  6. A5: baseline artifacts present; matrix verify when matrix path in scope
+  7. Confirm critique lines for this-run units; rewrite any stale lines
   8. Return to this pre-prod review gate
 END LOOP — until every BAD is "none" (or user-accepted in writing)
 ```
@@ -662,13 +711,19 @@ review_evidence: opened images/stills for this run (yes/no)
 **File:** `e2e/qa_matrix.json`  
 **PASS/FAIL criteria:** `e2e/qa_success_criteria.json` (required companion)
 
+`expected_cells` (**147**) is the **full** screens×formats target. Until multi-format
+matrix runners land, that completeness is an **aspirational residual**; baseline
+ship remains `full:local` + `live` + criteria critiques. When you add matrix
+capture, grow coverage toward 147 and review every present cell.
+
 Whenever you **add/remove a screen or format**, you **must**:
 
 1. Update `e2e/qa_matrix.json` (`screens[]`, `formats[]`, `expected_cells`,
    and `selection_rationale` for new sizes)
-2. Ensure `e2e matrix verify` and `e2e/full.js` still load
+2. Ensure matrix tooling and `e2e/full.js` still load
    the matrix (they import the JSON — do not hardcode stale lists in scripts)
-3. Re-run full phase A and inspect **all** cells (including new ones)
+3. Re-run phase A baseline; when matrix path is in scope, inspect **all captured**
+   cells (including new ones)
 
 ### How to read the matrix (stateless)
 
@@ -727,42 +782,45 @@ Flutter web release builds can take **many minutes**. Rules:
 ### Phase A — local (required before push)
 
 ```bash
-# A1
-(cd backend && pytest -q); (cd frontend && flutter test)
+# A1 — layer-aware; Flutter is product UI (keep in cycle)
+(cd backend && pytest -q)                 # backend/ changes or full cycle
+# Host may need Flutter SDK installed (`flutter` on PATH); install stable if missing.
+(cd frontend && flutter test)             # frontend/ changes or full cycle — required
 
-# A2 — WAIT for completion (can be long)
+# A2 — WAIT for completion (can be long); when UI ships
 cd frontend && flutter build web --release
 
-# A3
-cd e2e && npm run full:local   # local stack (API :8000, admin :8081, docs :8082) + Flutter web APP_URL
+# A3 + A4 BASELINE (ship bar today)
+cd e2e && npm run full:local   # local stack (API :8000, admin :8081, docs :8082) + suite
+# Then: open e2e/qa_success_criteria.json → critique this-run stills
+#   (matrix_critique.md / video_critique.md). CAPTURE_OK ≠ review.
 
-# A4 PIPELINE — per matrix unit (format id + CSS resolution):
-# Desktop / laptop (keyboard+mouse):
-CAPTURE_MATRIX=1 CONCURRENCY=<N> node e2e/full.js
-# Handheld / touch (REQUIRED for ship): Android emulator + adb
+# A4 ASPIRATIONAL — full 147-cell matrix (residual until runners exist)
+# Desktop / laptop (keyboard+mouse), when matrix runner present:
+# CAPTURE_MATRIX=1 CONCURRENCY=<N> node e2e/full.js   # or matrix:local subset
+# Handheld / touch (REQUIRED for full-matrix ship): Android emulator + adb
 #   - boot AVD(s); adb reverse tcp:8080 tcp:8080
 #   - full-display: adb shell screenrecord …
 #   - touches: adb shell input tap|swipe … (not CDP/Puppeteer touch)
 #   - same pipeline: as each unit finishes → A4b ∥ A6 immediately
-# (Runner may be e2e_phone-style tooling pointed at local dist + emulator, or a
-#  dedicated emulator matrix script — process rules above are authoritative.)
+# When a matrix:local subset is present, review those cells under criteria now.
 
-# → as each unit finishes:
+# → as each matrix unit finishes (when matrix path runs):
 #     recordings for that unit + viewports/{format_id}_*.png (+ stills if any)
 #     IMMEDIATELY: A4b review that unit's video  → video_critique.md
 #                  A6  review that unit's PNGs   → matrix_critique.md
 #     (while other units still capture / review)
 
-# A5 — verify matrix complete (no-op capture if A4 filled all cells)
-VERIFY_ONLY=1 node e2e matrix verify
+# A5 — baseline artifacts present; full expected_cells only when full matrix in scope
+# VERIFY_ONLY=1 node e2e matrix verify   # when matrix verify tooling exists
 # If missing cells only: CONCURRENCY=<N> node e2e matrix verify
 
-# A7 — PRE-PROD: every unit reviewed; both critique files clean
+# A7 — PRE-PROD: baseline reviewed clean; residual 147-cell gap documented if open
 ```
 
 Optional during A (debug only, **not** a ship gate): physical USB handset via
-`adb reverse tcp:8080 tcp:8080`. Still must finish full A4–A7 (including **emulator**
-handhelds) before push.
+`adb reverse tcp:8080 tcp:8080`. Still must finish baseline A4–A7 (and any
+matrix/emulator path in scope) before push.
 
 ### Phase B — after A7 PASS
 
@@ -940,17 +998,19 @@ stacking unstable AVDs (criterion **8**).
 
 ## Phase B: push (only after A7 PASS)
 
-Only after **PRE-PROD REVIEW: PASS** (zero unaccepted BADs) **and** full A4
-pipeline (every matrix unit captured and reviewed):
+Only after **PRE-PROD REVIEW: PASS** (zero unaccepted BADs on **this-run**
+baseline artifacts, plus any matrix subset cells that were captured):
 
-1. Commit source, matrix scripts, screenshots, and **`matrix_critique.md`**.
+1. Commit source, scripts, screenshots, and **`matrix_critique.md`** / video critiques.
 2. `git push -u origin HEAD` (usually `main`).
 3. deploy CI (`.github/workflows/deploy.yml`) rebuilds
    `https://alagoas.precospublicos.ia.br/`.
 
-**Do not push** if: phase A incomplete, matrix incomplete, critiques missing,
-e2e failed/missing videos, screenshots not inspected, **or** any critique BAD
+**Do not push** if: phase A **baseline** incomplete, critiques missing for this-run
+artifacts, e2e suite failed, screenshots not inspected, **or** any critique BAD
 without user acceptance, **or** you only validated on a phone against local dist.
+Full 147-cell matrix incomplete is a **documented residual** until runners land —
+not a free pass to skip baseline.
 
 ---
 
@@ -971,24 +1031,30 @@ phase A, not a silent ship.
 
 ## Do not ship if
 
-- **Phase A incomplete**
-- Build skipped or still running when tests “passed”
-- Fewer than **expected_cells** matrix screenshots
-- Any matrix cell not **visually inspected** (A6) **or** missing a matrix CRITIQUE line
-- E2E not run on every format **or** A4b video review skipped / missing `video_critique.md`
-- E2E skipped full surface (not all modes/difficulties/controls or &lt;20s play)
-- E2E has no video recordings
-- **Only CAPTURE_OK** (suite exit 0 / N/N) without completed A4b+A6+A7 review
-- Phone/tablet tested only as resized desktop windows or Chrome `page.emulate` (no **Android emulator** path)
-- Handheld A4 without **full-display** `adb shell screenrecord` and **`adb shell input`** touches
-- **Pushed after physical-phone adb reverse only** (no full local matrix + e2e, including emulator handhelds)
-- Physical phone connected for phase C but real-device step skipped without reason / user skip
-- Phone touch inventory has unaccepted FAILs (fix locally, redeploy) — inventory PASS lines are often CAPTURE_OK; still need video review for Phase C
-- **Pre-prod critique review not run, or any unaccepted `BAD` still open**
+### Baseline (always)
+
+- **Phase A baseline incomplete** (`full:local` not green, or criteria critiques skipped)
+- **A1 skipped for changed layers** — especially **`flutter test` skipped after `frontend/` changes** when SDK could be installed
+- Build skipped or still running when UI tests “passed”
+- **Only CAPTURE_OK** (suite exit 0 / N/N) without baseline critique review + A7
+- **Pre-prod critique review not run, or any unaccepted `BAD` still open** on baseline artifacts
+- Matrix subset / extra stills present this run but **not** reviewed under criteria
 - Wrong control copy for PC/laptop vs phone/tablet
 - Laptop sizes (esp. 1366×768) classified or rendered as handheld
 - Never pushed after true phase A **review** PASS, or push without deploy success
 - Pushed “knowing” about open BADs “to fix later”
+
+### Full matrix path (when claiming full-matrix ship / residual closed)
+
+- Fewer than **expected_cells** (147) matrix screenshots without residual note
+- Any captured matrix cell not **visually inspected** (A6) **or** missing a CRITIQUE line
+- E2E not run on every format **or** A4b video review skipped for units that recorded video
+- E2E skipped full product surface for a claimed full matrix run
+- Phone/tablet “handheld proof” only as resized desktop / Chrome `page.emulate` (no **Android emulator** path)
+- Handheld A4 without **full-display** `adb shell screenrecord` and **`adb shell input`** touches
+- **Pushed after physical-phone adb reverse only** (no baseline local suite + reviews)
+- Physical phone connected for phase C but real-device step skipped without reason / user skip
+- Phone touch inventory has unaccepted FAILs (fix locally, redeploy) — inventory PASS lines are often CAPTURE_OK; still need video review for Phase C
 
 ---
 

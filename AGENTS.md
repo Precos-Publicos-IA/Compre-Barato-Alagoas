@@ -52,8 +52,10 @@ verified change ──commit──► push to main ──► deploy to VPS (auto
 ### 1. Commit on `main`
 
 Once a change set **passes its local verification** (headless suite when user-facing;
-backend/Flutter tests when only those layers moved), **commit it directly to `main`** —
-do not leave a verified batch sitting uncommitted unless the user asked to wait.
+`pytest` when backend moved; **`flutter test` when `frontend/` moved** — host may need
+Flutter SDK installed; Flutter is the product UI and stays in A1/A2), **commit it
+directly to `main`** — do not leave a verified batch sitting uncommitted unless the
+user asked to wait.
 
 - **Okay to combine** multiple features/fixes/docs tweaks in the **same commit** when they landed together in one batch; prefer simplicity over one-commit-per-feature micro-history.
 - Write a clear commit message that names the main themes (what + why), not a novel.
@@ -120,9 +122,17 @@ scaffold; full Xcode target is issue #4).
 ### How to run
 
 ```bash
-# (A) Local / mock — Phase A baseline (before push)
+# (A0) Unit tests — layer-aware. Flutter IS the product UI (keep in cycle).
+(cd backend && pytest -q)                 # when backend/ changes or full cycle
+# Host may need Flutter SDK installed (`flutter` on PATH); install stable if missing.
+(cd frontend && flutter test)             # required when frontend/ changes
+
+# (A) Local / mock — Phase A baseline ship bar (before push)
 cd e2e && npm install && npm run full:local
-# Full matrix / video path: see .grok/skills/ui-viewport-qa + e2e/qa_matrix.json
+# Then open e2e/qa_success_criteria.json and critique this-run stills
+#   (matrix_critique.md / video_critique.md). Suite exit 0 ≠ visual review.
+# Full 147-cell matrix (e2e/qa_matrix.json expected_cells) is aspirational until
+# multi-format runners land; when a matrix:local subset is present, review those cells.
 
 # (B) Live — after deploy succeeds (CI job `live-verify` or locally)
 cd e2e && npm run live
@@ -138,6 +148,10 @@ python3 scripts/verify_ios_webkit_e2e.py
 Exit code must be **0** for that phase. Runtime screenshot dumps under `e2e/screenshots/`
 are gitignored; critique templates under `e2e/screenshots/viewports/` and
 `e2e/screenshots/web/e2e/` are tracked.
+
+**Ship bar vs residual:** baseline = `full:local` + `live` + criteria critiques (+ A1
+for changed layers). Full screens×formats matrix (147 cells) is a documented residual
+/ target, not a reason to drop baseline gates or remove Flutter from A1/A2.
 
 ### CI image (do not rebuild on every PR)
 

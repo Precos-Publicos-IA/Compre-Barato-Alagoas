@@ -1,28 +1,31 @@
 # Session status
 
-Last update: Full QA cycle COMPLETE (A7 PASS baseline + B3 live)
+Last update: A7 residual re-check PASS (practical) — shipping via W-ship
 
 ## Goal
-Full QA cycle — **CLOSED**
+Close baseline QA residuals — **A7 practical PASS**
 
 ## Phase
-**COMPLETE** (baseline A1–A7 + live B3)
+B — ship verified residual work to main
 
-## Results
-| Step | Result |
-|------|--------|
-| A1 pytest | PASS (all) |
-| A1 flutter test | SKIP — flutter not on PATH |
-| A2/A3 full:local | PASS **43/43** |
-| A4 artifacts | stills under e2e/screenshots/ |
-| A4b/A6 critiques | written (criterion format) |
-| A7 PRE-PROD | PASS baseline (residuals: no full 147-cell matrix, no flutter SDK, no continuous video) |
-| B3 live | PASS **14/14** |
+## Workers
+| id | Status |
+|----|--------|
+| W1 Flutter | DONE 66 tests green |
+| W2 matrix/video | DONE priority 12 PNGs + 1080p webm |
+| W3 docs | DONE Flutter kept; 147 aspirational |
+| W-ship | **spawned** commit+push verified subset |
 
-## Residuals (accepted for baseline)
-- Full screens×formats matrix not automated yet
-- Flutter unit tests not run (no SDK on agent host)
-- No continuous e2e VIDEO files
+## Checklist
+- [x] W1 flutter test green
+- [x] W2 multi-format stills and/or video
+- [x] W3 cycle docs accurate
+- [x] A7 re-check practical close (open_bads 0 for captured subset; full 147 residual accepted per W3)
+- [ ] Ship verified subset to main
+
+## Residuals remaining (accepted, not ship-block)
+- Full 147-cell automation
+- Flutter home matrix cells / search→results VIDEO (optional re-run with APP_URL after build)
 
 ## Next
-Optional: wire matrix capture CONCURRENCY; install flutter for A1 completeness; Phase C if USB phone present.
+W-ship: commit frontend test fixes + e2e matrix runner + cycle docs; push main; watch one CI.

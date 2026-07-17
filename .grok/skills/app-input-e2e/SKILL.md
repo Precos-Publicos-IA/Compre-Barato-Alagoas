@@ -79,10 +79,12 @@ Enforced by **`ui-viewport-qa`** (process) + **`e2e/qa_success_criteria.json`**
 deploy.yml) → Phase C (physical phone if present).
 
 ```bash
-(cd backend && pytest -q)
-(cd frontend && flutter test)
+(cd backend && pytest -q)                 # when backend/ changes
+# Flutter is product UI — keep in A1. Host may need Flutter SDK installed.
+(cd frontend && flutter test)             # required when frontend/ changes
 (cd frontend && flutter build web --release)
-cd e2e && npm install && npm run full:local
+cd e2e && npm install && npm run full:local   # baseline ship bar (+ criteria critiques)
+# Full 147-cell matrix is aspirational until runners land; see ui-viewport-qa.
 # A7 then: git push origin main; gh run watch; npm run live
 ```
 

@@ -332,7 +332,7 @@
     "If unsure, FAIL major — do not invent BAD: none.",
     "Criteria file wins PASS/FAIL; skills win process/order.",
     "Update this file when new regression classes appear.",
-    "Alagoas baseline: full:local / live until matrix runners; still apply criteria to every shot."
+    "Alagoas baseline ship bar: full:local + live + criteria critiques; full 147-cell matrix is aspirational until runners land; review matrix:local subset when present; flutter test required when frontend/ changes (Flutter is the app)."
   ],
   "known_fail_examples": [],
   "imported_from": "vinys-toolbelt/docs/autonomous-dev-cycle (2026-07-17)",

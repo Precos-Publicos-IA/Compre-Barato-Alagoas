@@ -8,7 +8,10 @@
     "full": "node full.js",
     "full:local": "bash run_local.sh",
     "live": "node live.js",
-    "admin_smoke": "node admin_smoke.js"
+    "admin_smoke": "node admin_smoke.js",
+    "matrix": "node matrix_capture.js",
+    "matrix:local": "bash run_matrix_local.sh",
+    "matrix:verify": "VERIFY_ONLY=1 node matrix_capture.js"
   },
   "dependencies": {
     "puppeteer": "^21.11.0"

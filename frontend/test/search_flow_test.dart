@@ -34,6 +34,7 @@ class FakeApiClient extends ApiClient {
     String? deviceToken,
     String? analyticsId,
     List<String> excludedCnpjs = const [],
+    List<String> favoriteCnpjs = const [],
   }) async {
     StoreResult store(String cnpj, String name, double total) => StoreResult(
           cnpj: cnpj,
@@ -79,6 +80,36 @@ class FakeApiClient extends ApiClient {
         quantityParseRate: 1.0,
       ),
     );
+  }
+
+  /// Production search path uses NDJSON stream; tests skip the network.
+  @override
+  Future<SearchResponse> searchStream(
+    List<String> items, {
+    double? latitude,
+    double? longitude,
+    int? radiusKm,
+    int? days,
+    String? deviceToken,
+    String? analyticsId,
+    List<String> excludedCnpjs = const [],
+    List<String> favoriteCnpjs = const [],
+    void Function(String message)? onStatus,
+    void Function(SearchResponse partial)? onPartial,
+  }) async {
+    final result = await search(
+      items,
+      latitude: latitude,
+      longitude: longitude,
+      radiusKm: radiusKm,
+      days: days,
+      deviceToken: deviceToken,
+      analyticsId: analyticsId,
+      excludedCnpjs: excludedCnpjs,
+      favoriteCnpjs: favoriteCnpjs,
+    );
+    onPartial?.call(result);
+    return result;
   }
 }
 
