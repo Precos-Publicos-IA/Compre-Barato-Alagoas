@@ -202,6 +202,25 @@ jobs:
           restart=false
           image_tag=""
 
+          # Resolve a pin for the API image already on the VPS (never bare :latest).
+          # Prefer container Config.Image (running or stopped); else newest local sha tag.
+          resolve_remote_api_image() {
+            local img
+            img="$($SSH "$H" "docker inspect --format '{{.Config.Image}}' deploy-api-1 2>/dev/null" || true)"
+            if [ -z "$img" ] || ! $SSH "$H" "docker image inspect $(printf %q "$img") >/dev/null 2>&1"; then
+              img="$($SSH "$H" "docker images compre-barato-alagoas-api --format '{{.Repository}}:{{.Tag}}' | grep -v ':latest\$' | head -n1" || true)"
+            fi
+            if [ -z "$img" ]; then
+              echo "ABORT: no usable compre-barato-alagoas-api image on host (need sha tag; :latest missing)" >&2
+              exit 1
+            fi
+            if ! $SSH "$H" "docker image inspect $(printf %q "$img") >/dev/null 2>&1"; then
+              echo "ABORT: resolved image not present on host: $img" >&2
+              exit 1
+            fi
+            printf '%s\n' "$img"
+          }
+
           if [ "$CH_BACKEND" = "true" ] || [ "$CH_DEPLOYCFG" = "true" ]; then
             echo "==> Sync deploy/ (compose + remote-update.sh + secret sync helper) and .env.example"
             rsync -az --delete -e "$SSH" --exclude '.env' deploy "$H:$DEPLOY_DIR/"
@@ -214,8 +233,9 @@ jobs:
             docker save "$API_IMAGE" | gzip | $SSH "$H" "gunzip | docker load"
             image_tag="$API_IMAGE"
           elif [ "$CH_DEPLOYCFG" = "true" ]; then
-            echo "==> Deploy config changed → restart with the image already running"
-            image_tag="$($SSH "$H" "docker inspect --format '{{.Config.Image}}' deploy-api-1")"
+            echo "==> Deploy config changed → restart with image already on host"
+            image_tag="$(resolve_remote_api_image)"
+            echo "==> Resolved API_IMAGE=$image_tag"
           fi
 
           if [ "$CH_FRONTEND" = "true" ]; then
@@ -249,12 +269,9 @@ jobs:
               pin_image=""
             else
               rec=1
-              # Prefer image already running on VPS so recreate never falls back
-              # to missing compre-barato-alagoas-api:latest (frontend-only deploys).
-              pin_image="$($SSH "$H" "docker inspect --format '{{.Config.Image}}' deploy-api-1 2>/dev/null || true)"
-              if [ -n "$pin_image" ]; then
-                echo "==> Token-sync recreate will pin API_IMAGE=$pin_image"
-              fi
+              # Pin running/host image so recreate never falls back to missing :latest.
+              pin_image="$(resolve_remote_api_image)"
+              echo "==> Token-sync recreate will pin API_IMAGE=$pin_image"
             fi
             API_IMAGE="$pin_image" RECREATE_API="$rec" DEPLOY_SSH_KEY_FILE="$HOME/.ssh/deploy_key" \
               deploy/sync-sefaz-token.sh

@@ -50,6 +50,18 @@ fi
 chmod 600 "$DEPLOY_DIR/.env" 2>/dev/null || true
 
 cd "$DEPLOY_DIR/deploy"
+
+# Never start with a missing tag. Bare :latest is only OK if that image exists
+# locally (manual compose); CI pins sha tags and often has no :latest.
+if [ -z "${API_IMAGE:-}" ]; then
+  echo "ABORT: API_IMAGE is empty (refuse default :latest when unset)." >&2
+  exit 1
+fi
+if ! docker image inspect "$API_IMAGE" >/dev/null 2>&1; then
+  echo "ABORT: API image not present on host: $API_IMAGE" >&2
+  echo "       Load a built image or pass a tag that exists (docker images compre-barato-alagoas-api)." >&2
+  exit 1
+fi
 export API_IMAGE
 
 echo "==> Starting stack with API_IMAGE=$API_IMAGE"

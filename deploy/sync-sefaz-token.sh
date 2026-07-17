@@ -184,38 +184,35 @@ PY
 
 if [ "${RECREATE_API}" = "1" ]; then
   cd "${DEPLOY_DIR}/deploy"
-  cid="$(docker compose --env-file ../.env ps -q api 2>/dev/null | head -n1 || true)"
-  if [ -n "$cid" ]; then
-    # Pin the image already running on this host. Frontend/static deploys never
-    # load a new API image; compose default is compre-barato-alagoas-api:latest,
-    # which is often absent (CI only keeps sha tags). Without this pin,
-    # force-recreate tries to pull/use :latest and fails.
-    if [ -z "${API_IMAGE:-}" ]; then
+  # Pin image already on host. Frontend/static deploys never load a new API
+  # image; compose default is compre-barato-alagoas-api:latest, which is often
+  # absent (CI only keeps sha tags). Without this pin, force-recreate fails.
+  if [ -z "${API_IMAGE:-}" ]; then
+    cid="$(docker compose --env-file ../.env ps -aq api 2>/dev/null | head -n1 || true)"
+    if [ -n "$cid" ]; then
       API_IMAGE="$(docker inspect --format '{{.Config.Image}}' "$cid" 2>/dev/null || true)"
     fi
-    if [ -z "${API_IMAGE:-}" ]; then
-      echo "ABORT: could not resolve API image from running container $cid" >&2
-      exit 1
-    fi
-    if ! docker image inspect "$API_IMAGE" >/dev/null 2>&1; then
-      echo "ABORT: API image not present on host: $API_IMAGE (no bare :latest fallback)" >&2
-      exit 1
-    fi
-    export API_IMAGE
-    echo "==> Recreating api to load new secrets env_file (API_IMAGE=$API_IMAGE)"
-    # Pass both env files explicitly (compose also lists them).
-    docker compose --env-file ../.env --env-file ../secrets/sefaz.env \
-      up -d --no-build --force-recreate api
-    for i in 1 2 3 4 5 6; do
-      if curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1; then
-        echo "==> API healthy after token sync"
-        exit 0
-      fi
-      sleep 5
-    done
-    echo "WARN: API not healthy yet after recreate." >&2
-  else
-    echo "==> api not running yet; secrets ready — next compose up will load them"
   fi
+  if [ -z "${API_IMAGE:-}" ] || ! docker image inspect "${API_IMAGE:-}" >/dev/null 2>&1; then
+    API_IMAGE="$(docker images 'compre-barato-alagoas-api' --format '{{.Repository}}:{{.Tag}}' \
+      | grep -v ':latest$' | head -n1 || true)"
+  fi
+  if [ -z "${API_IMAGE:-}" ] || ! docker image inspect "$API_IMAGE" >/dev/null 2>&1; then
+    echo "ABORT: no usable API image on host for recreate (refuse bare :latest)" >&2
+    exit 1
+  fi
+  export API_IMAGE
+  echo "==> Recreating api to load new secrets env_file (API_IMAGE=$API_IMAGE)"
+  # Pass both env files explicitly (compose also lists them).
+  docker compose --env-file ../.env --env-file ../secrets/sefaz.env \
+    up -d --no-build --force-recreate api
+  for i in 1 2 3 4 5 6; do
+    if curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1; then
+      echo "==> API healthy after token sync"
+      exit 0
+    fi
+    sleep 5
+  done
+  echo "WARN: API not healthy yet after recreate." >&2
 fi
 REMOTE
