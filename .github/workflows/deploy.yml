@@ -27,8 +27,12 @@ on:
 env:
   CI_E2E_IMAGE: ghcr.io/precos-publicos-ia/compre-barato-alagoas/ci-e2e:latest
 
+# One deploy pipeline at a time per branch. Do NOT include event_name in the group:
+# push + workflow_dispatch used to race and both ship to the VPS (token deploy +
+# follow-up CI fix at the same time → flaky live-verify). Queue instead of cancel
+# on main so an in-flight deploy is never interrupted mid-rsync/restart.
 concurrency:
-  group: deploy-vps-${{ github.event_name }}-${{ github.ref }}
+  group: deploy-vps-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
