@@ -64,13 +64,16 @@ class Settings(BaseSettings):
     sefaz_app_token: str = ""
     # Absolute path inside the container/host (e.g. /run/secrets/sefaz_app_token).
     sefaz_app_token_file: str = ""
-    sefaz_timeout_seconds: float = 15.0
+    # Per-request httpx timeout for the official JSON API. Keep short so a dead
+    # upstream (TLS/hang) fails fast and RoutingSefazClient can still finish the
+    # website fallback inside nginx/gunicorn budgets (~60–120s).
+    sefaz_timeout_seconds: float = 5.0
     # Hard per-item deadline for the whole SEFAZ fetch (all pages). Caps how long a
     # single slow/hung item can hold a worker before it degrades to "not found",
     # independent of the per-request httpx timeout above (issue #219).
     # Must cover official-API timeout + website fallback (RoutingSefazClient) when
     # the JSON API is down; web scrape alone is already slow.
-    sefaz_item_deadline_seconds: float = 70.0
+    sefaz_item_deadline_seconds: float = 55.0
 
     # --- Public website scraper (tokenless fallback) ---
     sefaz_web_base_url: str = "https://economizaalagoas.sefaz.al.gov.br"

@@ -160,7 +160,14 @@ def upsert(text: str, key: str, value: str) -> str:
 
 raw = env_path.read_text(encoding="utf-8")
 updated = upsert(raw, "USE_MOCK_SEFAZ", "false")
-updated = upsert(updated, "USE_WEB_SEFAZ", "false")
+# Official JSON host api.sefaz.al.gov.br is currently unusable from our edge
+# (TLS cert SAN mismatch + path 404/403). Token is still installed for when
+# SEFAZ restores the API; force website scrape so cold searches return stores
+# inside nginx's ~60s proxy budget (API fail + scrape was 504-ing).
+# Flip to "false" once the official API answers product/pesquisa again.
+updated = upsert(updated, "USE_WEB_SEFAZ", "true")
+updated = upsert(updated, "SEFAZ_TIMEOUT_SECONDS", "5")
+updated = upsert(updated, "SEFAZ_ITEM_DEADLINE_SECONDS", "55")
 updated = upsert(updated, "SEFAZ_APP_TOKEN", "")
 
 mode = env_path.stat().st_mode & 0o777
@@ -179,7 +186,11 @@ finally:
         os.unlink(tmp_name)
     except FileNotFoundError:
         pass
-print("OK: .env USE_MOCK_SEFAZ=false USE_WEB_SEFAZ=false; SEFAZ_APP_TOKEN cleared from shared .env")
+print(
+    "OK: .env USE_MOCK_SEFAZ=false USE_WEB_SEFAZ=true "
+    "(official API host broken; token kept in secrets/); "
+    "SEFAZ_APP_TOKEN cleared from shared .env"
+)
 PY
 
 if [ "${RECREATE_API}" = "1" ]; then
