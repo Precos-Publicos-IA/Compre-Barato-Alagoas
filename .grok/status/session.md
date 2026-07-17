@@ -1,31 +1,38 @@
 # Session status
 
-Last update: A7 residual re-check PASS (practical) — shipping via W-ship
+Last update: W-matrix-fix done — open_bads_matrix 78→19; open_bads_video 4→0
 
 ## Goal
-Close baseline QA residuals — **A7 practical PASS**
+Drive matrix open_bads → 0 (capture quality + re-review) → A7 → ship
 
 ## Phase
-B — ship verified residual work to main
+A — **fix loop** (capture true-state fixed; residual product V-CLIP-TEXT / V-FORM-FACTOR)
 
 ## Workers
 | id | Status |
 |----|--------|
-| W1 Flutter | DONE 66 tests green |
-| W2 matrix/video | DONE priority 12 PNGs + 1080p webm |
-| W3 docs | DONE Flutter kept; 147 aspirational |
-| W-ship | **spawned** commit+push verified subset |
+| W-live-verify | DONE — prod healthy |
+| W-A4b | DONE — then re-done by W-matrix-fix (video 0 open_bads) |
+| W-A6 | DONE — then re-done by W-matrix-fix (matrix 19 residual) |
+| W-video-fix | STOPPED (merged) |
+| W-matrix-fix | **DONE** — capture fix + re-capture + re-critique |
+
+## Open BAD summary
+| Source | Count | Notes |
+|--------|------:|-------|
+| A6 PNG | **19** | V-CLIP-TEXT landscape (15), V-FORM-FACTOR qhd/4k (4) — product residual |
+| A4b VIDEO | **0** | desktop mouse journeys show results prices |
 
 ## Checklist
-- [x] W1 flutter test green
-- [x] W2 multi-format stills and/or video
-- [x] W3 cycle docs accurate
-- [x] A7 re-check practical close (open_bads 0 for captured subset; full 147 residual accepted per W3)
-- [ ] Ship verified subset to main
+- [x] 147 CAPTURE_OK + 147 CRITIQUE
+- [x] Capture runner true-state fix
+- [x] Re-capture + re-critique
+- [x] VIDEO open_bads → 0 (present desktop)
+- [ ] Product residual V-CLIP-TEXT / V-FORM-FACTOR accept or fix
+- [ ] A7 PASS when residuals accepted or cleared
+- [ ] Phase B: commit skill + runners + critiques
 
-## Residuals remaining (accepted, not ship-block)
-- Full 147-cell automation
-- Flutter home matrix cells / search→results VIDEO (optional re-run with APP_URL after build)
-
-## Next
-W-ship: commit frontend test fixes + e2e matrix runner + cycle docs; push main; watch one CI.
+## Next focus
+1. Product residual decision (accept PhoneLandscape clip + 4k sparse) or UX tweak
+2. Commit/push matrix_capture.js + critiques
+3. A7 when open_bads acceptable

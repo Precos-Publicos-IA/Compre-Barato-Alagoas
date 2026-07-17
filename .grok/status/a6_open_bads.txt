@@ -1,0 +1,19 @@
+phone_android_landscape_01_home	V-CLIP-TEXT: staple chip row clipped/pushed under short PhoneLandscape height (field+banner fill viewport)
+phone_android_landscape_02_results	V-CLIP-TEXT: short landscape may crop store cards below fold (savings+COMPARTILHAR visible)
+phone_android_landscape_05_share	V-CLIP-TEXT: short landscape share cell shows savings CTA; store list may be below fold
+phone_landscape_01_home	V-CLIP-TEXT: staple chip row clipped/pushed under short PhoneLandscape height (field+banner fill viewport)
+phone_landscape_02_results	V-CLIP-TEXT: short landscape may crop store cards below fold (savings+COMPARTILHAR visible)
+phone_landscape_05_share	V-CLIP-TEXT: short landscape share cell shows savings CTA; store list may be below fold
+phone_iphone_promax_landscape_01_home	V-CLIP-TEXT: staple chip row clipped/pushed under short PhoneLandscape height (field+banner fill viewport)
+phone_iphone_promax_landscape_02_results	V-CLIP-TEXT: short landscape may crop store cards below fold (savings+COMPARTILHAR visible)
+phone_iphone_promax_landscape_05_share	V-CLIP-TEXT: short landscape share cell shows savings CTA; store list may be below fold
+phone_samsung_ultra_landscape_01_home	V-CLIP-TEXT: staple chip row clipped/pushed under short PhoneLandscape height (field+banner fill viewport)
+phone_samsung_ultra_landscape_02_results	V-CLIP-TEXT: short landscape may crop store cards below fold (savings+COMPARTILHAR visible)
+phone_samsung_ultra_landscape_05_share	V-CLIP-TEXT: short landscape share cell shows savings CTA; store list may be below fold
+phone_rodin_landscape_01_home	V-CLIP-TEXT: staple chip row clipped/pushed under short PhoneLandscape height (field+banner fill viewport)
+phone_rodin_landscape_02_results	V-CLIP-TEXT: short landscape may crop store cards below fold (savings+COMPARTILHAR visible)
+phone_rodin_landscape_05_share	V-CLIP-TEXT: short landscape share cell shows savings CTA; store list may be below fold
+qhd_01_home	V-FORM-FACTOR: large empty canvas / sparse chrome on QHD-4K class (usable)
+qhd_06_admin	V-FORM-FACTOR: tiny card in large QHD/4K canvas (usable)
+4k_01_home	V-FORM-FACTOR: large empty canvas / sparse chrome on QHD-4K class (usable)
+4k_06_admin	V-FORM-FACTOR: tiny card in large QHD/4K canvas (usable)

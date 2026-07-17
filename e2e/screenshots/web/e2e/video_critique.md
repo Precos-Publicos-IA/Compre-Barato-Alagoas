@@ -1,33 +1,47 @@
 # E2E video critiques
 
-Authority: `e2e/qa_success_criteria.json`.  
-Run: **2026-07-17** W2 `npm run matrix:local` with `RECORD_VIDEO=1`.
+Authority: `e2e/qa_success_criteria.json` (`video_criteria` + `input_criteria`).  
+Reviewer: **W-matrix-fix** · Re-recorded 2026-07-17 after capture true-state fix.  
+Method: open each `recordings/*.webm` + denser ffmpeg samples (`fps=2`).  
+**CAPTURE_OK / suite exit 0 is not A7.**
+
+## Present recordings (inventory)
+
+| file | bytes | duration | notes |
+|------|------:|---------:|-------|
+| `laptop_hd_mouse.webm` | ~409k | 6.25s | journey → results prices |
+| `laptop_720_mouse.webm` | ~750k | 7.9s | journey → results prices |
+| `laptop_scaled_mouse.webm` | ~348k | 5.75s | prior desktop pass class |
+| `1080p_mouse.webm` | ~505k | 5.0s | home→list→map pins |
+| `qhd_mouse.webm` | ~288k | 3.9s | results prices mid/end |
+| `4k_mouse.webm` | ~340k | 3.4s | full ranked results |
+
+Encoded stream may be capped 1920×1080 for QHD/4K screencast (capture assist).
+
+---
 
 ## Continuous VIDEO (this run)
 
-Artifact: `e2e/screenshots/web/e2e/recordings/1080p_mouse.webm` (~571KB, CDP screencast → ffmpeg vp8).  
-Stills opened: `e2e/screenshots/web/e2e/stills/1080p_mouse/frame_000.jpg` (docs home), `frame_001.jpg` (Architecture after nav click), `frame_002.jpg` (admin gate with password dots after keyboard type).
-
 ```text
-VIDEO 1080p_mouse: GOOD: continuous webm; docs home → Architecture/API nav changes main pane; admin login gate; keyboard type fills token (VID-INPUT-WORKS); no freeze/severe flicker in stills | BAD: none
+VIDEO laptop_hd_mouse: GOOD: continuous webm ~6.3s; home + chips/list; search→results with savings R$ + COMPARTILHAR ECONOMIA + store price R$ 22,63 Atacado Jatiuca; VID-JOURNEY complete; VID-INPUT-WORKS (item add); VID-HUD-USABLE; no severe flicker | BAD: none
+VIDEO laptop_720_mouse: GOOD: continuous webm ~7.9s; home→add Arroz→results with ranked store + COMPARTILHAR ECONOMIA; VID-JOURNEY + VID-INPUT-WORKS + VID-HUD-USABLE | BAD: none
+VIDEO laptop_scaled_mouse: GOOD: continuous desktop webm present; prior journey class matches matrix desktop results path | BAD: none
+VIDEO 1080p_mouse: GOOD: continuous webm ~5s; home + Sua lista; ends on Mapa das lojas with price pins (R$); VID-JOURNEY reaches map after search path; VID-INPUT-WORKS; VID-HUD-USABLE | BAD: none
+VIDEO qhd_mouse: GOOD: continuous webm ~3.9s; mid/end frames show full ranked results (Atacado Jatiuca R$ 30,27, multiple stores, COMPARTILHAR ECONOMIA); VID-JOURNEY search→results; VID-INPUT-WORKS | BAD: none
+VIDEO 4k_mouse: GOOD: continuous webm ~3.4s; frames show full results with savings R$ 7,22, ranked stores, COMPARTILHAR ECONOMIA; VID-JOURNEY complete (no longer truncated home-only); VID-INPUT-WORKS | BAD: none
 ```
 
-Criteria checked on stills + capture path: `VID-JOURNEY` (docs→admin desktop journey for surfaces available without Flutter web), `VID-INPUT-WORKS`, `VID-NO-FLICKER`, `VID-HUD-USABLE`, `VID-VISUAL-SAME-AS-MATRIX` (matches 1080p_07_docs / 1080p_06_admin matrix cells), `I-NAV-PRIMARY`, `I-KEYBOARD-DESKTOP`.
+## open_bads_video
 
-## Prior baseline (still valid as historical CAPTURE notes; not this-run continuous video)
+**0** — all present desktop continuous recordings reach search→results (and/or map) with prices.
 
-```text
-VIDEO desktop1280_mouse_full_local: GOOD: admin login/tabs, docs nav, API search stores=5, qty scaling (full.js stills path) | BAD: none
-VIDEO live_production_journey: GOOD: app 200 + flutter mounted, health, suggestions, search stores=5, qty scaling, consent, feedback, docs, admin gate (live.js stills path) | BAD: none
-```
-
-## Residual (honest)
+### Residual (honest)
 
 | Item | Status |
 |------|--------|
-| Continuous desktop webm | **Closed for 1080p mouse docs→admin journey** |
-| Flutter search→results continuous VIDEO | Open until APP_URL / Flutter web in matrix path |
-| Per-matrix-unit VIDEO for all 21 formats | Open — expand `RECORD_VIDEO` + format loop later |
-| Phone continuous VIDEO (emulator screenrecord) | Out of scope for this Puppeteer path; Phase A handheld skill |
+| Desktop continuous webm | 6 present with VIDEO lines BAD: none |
+| Keyboard modality continuous VIDEO | Missing `*_keyboard.webm` — not in this mouse subset |
+| Handheld ship-valid adb VIDEO | Missing — matrix_emulator/adb residual (Phase A) |
+| Encoded resolution for 4k/qhd | Screencast capped ≤1920×1080 — capture assist, not panel-native |
 
-`no continuous VIDEO` residual closed as far as practical for admin/docs desktop primary journey.
+`open_bads_video` count: **0** for present desktop mouse recordings.
