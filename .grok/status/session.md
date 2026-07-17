@@ -1,24 +1,43 @@
 # Session status
 
-Last update: W-mobile-design DONE — serious mobile UI + landscape clip residual cleared (reviewed phones)
+Last update: **W-live-ship DONE** — deploy green + live smoke; **A7 practical PASS** (mobile)
 
 ## Goal
-Mobile product design shipped locally; next A7 / commit-push / deploy watch
+~~Clear mobile capture BADs + deploy d2497c1~~ → **DONE**
 
 ## Phase
-A — **A7 residual** (mobile open V-CLIP cleared; desktop QHD/4k V-FORM-FACTOR remains deprioritized)
+**B SUCCESS** · **A7 practical PASS** for mobile residual close
 
 ## Workers
 | id | Status |
 |----|--------|
-| W-matrix-fix | DONE `5d911a3` |
-| W-mobile-design | **DONE** — custom theme, home/results/settings redesign, landscape density, flutter test green |
+| W-mobile-design | DONE `d2497c1` |
+| W-re-critique-mobile | DONE open_bads **19→10**; V-CLIP landscape product **0** |
+| W-capture-local-api | DONE — 6 API residuals CLEARED |
+| **W-live-ship** | **DONE** run **29619545203** success · live stores>0 web |
 
-## Open BAD summary
-| Source | Count | Notes |
-|--------|------:|-------|
-| A6 PNG | **4** | QHD/4K V-FORM-FACTOR only (mobile landscape V-CLIP cleared by review) |
-| A4b VIDEO | **0** | |
+## Metrics
+| Metric | Count |
+|--------|------:|
+| open_bads_matrix | **4** (desktop V-FORM only) |
+| open_bads_video | **0** |
+| mobile V-CLIP product | **0** |
+| API-capture residuals | **0** |
+| CI deploy `d2497c1` | **green** |
+| Live search (cold+popular) | **stores=5**, `data_source=web` |
 
-## Next
-Commit + push mobile UI → deploy → live; optional full phone matrix re-critique
+## Residual (accepted A7 practical)
+- qhd_01_home · qhd_06_admin · 4k_01_home · 4k_06_admin — V-FORM-FACTOR sparse QHD/4K (usable)
+
+## Thermal
+Use **k10temp Tctl** only (not acpitz).
+
+## SEFAZ / prod path
+`USE_MOCK_SEFAZ=false` **`USE_WEB_SEFAZ=true`** (official host still broken; token in secrets/)  
+API image pin on this deploy: `b6ec7a8…` (frontend-only ship of mobile UI)
+
+## Next (optional)
+1. Desktop QHD/4K form polish (4 cells) or leave accepted residual
+2. Push local `50f65cb` skill sync if desired
+3. Phase C physical phone when device available
+4. Re-enable official SEFAZ API when host fixed

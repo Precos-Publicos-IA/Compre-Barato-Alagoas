@@ -1,9 +1,10 @@
-# Post W-mobile-design (2026-07-17) — phone landscape residual re-reviewed via opened PNGs.
-# Phone landscape V-CLIP-TEXT (home chips + results winner/CTA): CLEARED on reviewed cells.
-# Remaining from prior A6 (desktop / not re-opened this worker):
+# W-capture-local-api (2026-07-17) — 6 API-capture residuals CLEARED.
+# Rebuild: flutter build web --release --dart-define=API_BASE_URL=http://127.0.0.1:8000
+# Recapture: promax/samsung/rodin landscape × results+share (mock SEFAZ :8000, APP :18090)
+# Opened PNGs: prices R$22,63 + COMPARTILHAR ECONOMIA visible → BAD: none
+# Remaining open BADs (match matrix_critique.md open_bads_matrix = 4):
 qhd_01_home	V-FORM-FACTOR: large empty canvas / sparse chrome on QHD-4K class (usable)
 qhd_06_admin	V-FORM-FACTOR: tiny card in large QHD/4K canvas (usable)
 4k_01_home	V-FORM-FACTOR: large empty canvas / sparse chrome on QHD-4K class (usable)
 4k_06_admin	V-FORM-FACTOR: tiny card in large QHD/4K canvas (usable)
-# Note: full 147-cell A6 rewrite not re-run; phone_landscape_* and phone_*_landscape_*
-# home/results opened and PASS for V-CLIP-TEXT after redesign.
+# open_bads_matrix = 4 (desktop V-FORM-FACTOR only; 0 API-capture; 0 product V-CLIP landscape)
