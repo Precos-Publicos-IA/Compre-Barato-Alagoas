@@ -68,8 +68,9 @@ class Settings(BaseSettings):
     # Hard per-item deadline for the whole SEFAZ fetch (all pages). Caps how long a
     # single slow/hung item can hold a worker before it degrades to "not found",
     # independent of the per-request httpx timeout above (issue #219).
-    # Web scrape needs more headroom than the JSON API (site is slow).
-    sefaz_item_deadline_seconds: float = 45.0
+    # Must cover official-API timeout + website fallback (RoutingSefazClient) when
+    # the JSON API is down; web scrape alone is already slow.
+    sefaz_item_deadline_seconds: float = 70.0
 
     # --- Public website scraper (tokenless fallback) ---
     sefaz_web_base_url: str = "https://economizaalagoas.sefaz.al.gov.br"

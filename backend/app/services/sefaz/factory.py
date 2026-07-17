@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Awaitable, Callable
 
 from ...config import Settings
 from ..secrets import SecretStore
 from .base import SefazClient
 from .models import PesquisaResponse
+
+logger = logging.getLogger(__name__)
 
 
 TokenProvider = Callable[[], Awaitable[str | None]]
@@ -18,6 +21,10 @@ class RoutingSefazClient:
 
     Token is resolved **per request** so an admin-panel rotation takes effect without
     restart, and so we can live without a token (web scrape) until SEFAZ issues one.
+
+    If a token is present but the official API errors/times out (upstream outage,
+    bad TLS, invalid token), fall back to the public website so searches stay useful
+    instead of returning empty baskets.
     """
 
     # Stable cache namespace (must not flip between "web"/"sefaz" mid-basket).
@@ -54,17 +61,25 @@ class RoutingSefazClient:
     ) -> PesquisaResponse:
         token = await self._token_provider()
         if token:
-            self._last_source = self._http.source_name
-            return await self._http.search_product(
-                descricao=descricao,
-                gtin=gtin,
-                latitude=latitude,
-                longitude=longitude,
-                radius_km=radius_km,
-                days=days,
-                pagina=pagina,
-                registros_por_pagina=registros_por_pagina,
-            )
+            try:
+                self._last_source = self._http.source_name
+                return await self._http.search_product(
+                    descricao=descricao,
+                    gtin=gtin,
+                    latitude=latitude,
+                    longitude=longitude,
+                    radius_km=radius_km,
+                    days=days,
+                    pagina=pagina,
+                    registros_por_pagina=registros_por_pagina,
+                )
+            except Exception as exc:
+                # Keep the message short; never log the token.
+                logger.warning(
+                    "Official SEFAZ API failed (%s: %s); falling back to website",
+                    type(exc).__name__,
+                    exc,
+                )
         self._last_source = self._web.source_name
         return await self._web.search_product(
             descricao=descricao,
