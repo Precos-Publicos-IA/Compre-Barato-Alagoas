@@ -65,3 +65,17 @@ Bootstrap once (needs `packages: write` on the publish workflow, package visibil
 If a job fails with “pull access denied” / missing image, **do not** add a build step to `deploy.yml`; re-run the publish workflow.
 
 Screenshots land in `screenshots/` (gitignored). Exit non-zero on any failed check.
+
+## Autonomous dev cycle / viewport matrix
+
+Ship process for substantial UI work: [`.grok/skills/ui-viewport-qa/SKILL.md`](../.grok/skills/ui-viewport-qa/SKILL.md).
+
+| File | Role |
+|------|------|
+| [`qa_matrix.json`](qa_matrix.json) | Screens × CSS formats (`expected_cells`) |
+| [`qa_success_criteria.json`](qa_success_criteria.json) | **PASS/FAIL** criterion ids (open before critiques) |
+| `screenshots/viewports/matrix_critique.md` | A6 PNG critiques |
+| `screenshots/web/e2e/video_critique.md` | A4b video critiques |
+
+Baseline producer remains `npm run full:local` / `npm run live`. Extend toward
+per–matrix-unit VIDEO + quality-hold PNGs; do not skip visual critique gates.

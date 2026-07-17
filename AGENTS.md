@@ -1,19 +1,39 @@
 # Project rules — Compre Barato Alagoas
 
+## Autonomous dev cycle (substantial work)
+
+For **substantial** user-facing or multi-file work, the delivery process is the
+imported cycle under [`.grok/`](.grok/README.md):
+
+| Role | Path |
+|------|------|
+| Ship order A/B/C, capture∥review pipeline, pre-prod gate | [`.grok/skills/ui-viewport-qa/SKILL.md`](.grok/skills/ui-viewport-qa/SKILL.md) |
+| Keyboard / mouse / touch on every surface | [`.grok/skills/app-input-e2e/SKILL.md`](.grok/skills/app-input-e2e/SKILL.md) |
+| Session orchestrator (`/loop`) | [`.grok/prompts/orchestrator-loop.md`](.grok/prompts/orchestrator-loop.md) |
+| Live goal / phase / concurrency | [`.grok/status/session.md`](.grok/status/session.md) |
+| Screens × formats matrix | [`e2e/qa_matrix.json`](e2e/qa_matrix.json) |
+| **PASS/FAIL criteria** | [`e2e/qa_success_criteria.json`](e2e/qa_success_criteria.json) |
+
+Skills are **process only** (no live status, no fixed `CONCURRENCY`). Status
+files hold progress. **Trust the gates:** true A7 PASS → commit/push/`main` →
+watch `deploy.yml` → `cd e2e && npm run live` without idling for a human “go”.
+
+Product checklist (human): [`TODO.md`](TODO.md).
+
 ## Workflow: batch small changes; full pipeline only for substantial work
 
 Post-deploy the maintainer often sends a stream of small ideas. Treat that as **inbox**, not a deploy trigger.
 
 | Situation | What the agent should do |
 |-----------|---------------------------|
-| **Minor / trivial** (typo, copy tweak, one-liner, tiny style fix, single-file nit) | **Do not** start implement/review/e2e/commit/PR on its own. **Ask** whether to apply it now or **hold it in a batch**. Prefer holding. |
-| **Several small items** already on the table | **Batch** them into one change set (one branch/PR when committing). One headless run and one review pass for the batch—not once per idea. |
-| **Substantial work** (new feature, multi-file behavior change, API/UI flow, anything that needs verification) | Proceed autonomously: implement, run the mandatory headless suite once for the batch, finish cleanly. |
+| **Minor / trivial** (typo, copy tweak, one-liner, tiny style fix, single-file nit) | **Do not** start implement/review/e2e/commit on its own. **Ask** whether to apply it now or **hold it in a batch**. Prefer holding. |
+| **Several small items** already on the table | **Batch** them into one change set. One headless run and one review pass for the batch—not once per idea. |
+| **Substantial work** (new feature, multi-file behavior change, API/UI flow, anything that needs verification) | Proceed autonomously via the **autonomous dev cycle** (`.grok/` skills): implement, A1–A7, ship on `main`. |
 
 Rules of thumb:
 
 1. **Default after a deploy or a short idea message:** acknowledge, classify size, and if it's small → ask *“Apply now or batch for later?”* unless the user already said “do it” / “ship it”.
-2. **Never spin the whole workflow** (plan → implement personas → full e2e → PR) for a single minor tweak unless explicitly requested.
+2. **Never spin the whole cycle** (A1–A7 + deploy + live) for a single minor tweak unless explicitly requested.
 3. **Headless suite still applies** when a batch *ships*—run `e2e` once over the combined diff, not per micro-change while drafting.
 4. If unsure whether something is “minor” vs “substantial,” **ask once** instead of over-building.
 
@@ -73,7 +93,7 @@ Every change that touches user-facing surfaces **must** be verified with a **hea
 2. **Captures screenshots** of each major screen/step under `e2e/screenshots/`.
 3. Exercises **all product functionalities**, not only the code path that changed. This app is small enough that full coverage is the default.
 
-Apply this **twice in the delivery path:** (A) locally/mock **before PR**, (B) **against live** after deploy.
+Apply this **twice in the delivery path:** (A) locally/mock **before push** (Phase A), (B) **against live** after deploy (Phase B3 / C).
 
 ### Surfaces in scope
 
@@ -100,8 +120,9 @@ scaffold; full Xcode target is issue #4).
 ### How to run
 
 ```bash
-# (A) Local / mock — before or with the PR
+# (A) Local / mock — Phase A baseline (before push)
 cd e2e && npm install && npm run full:local
+# Full matrix / video path: see .grok/skills/ui-viewport-qa + e2e/qa_matrix.json
 
 # (B) Live — after deploy succeeds (CI job `live-verify` or locally)
 cd e2e && npm run live
@@ -114,7 +135,9 @@ cd frontend && flutter test integration_test/app_test.dart \
 python3 scripts/verify_ios_webkit_e2e.py
 ```
 
-Exit code must be **0** for that phase. Screenshots under `e2e/screenshots/` are gitignored.
+Exit code must be **0** for that phase. Runtime screenshot dumps under `e2e/screenshots/`
+are gitignored; critique templates under `e2e/screenshots/viewports/` and
+`e2e/screenshots/web/e2e/` are tracked.
 
 ### CI image (do not rebuild on every PR)
 

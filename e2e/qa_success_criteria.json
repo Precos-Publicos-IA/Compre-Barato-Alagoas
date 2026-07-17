@@ -1,0 +1,341 @@
+{
+  "description": "Authoritative PASS/FAIL criteria for Compre Barato Alagoas visual + input QA. Pair with e2e/qa_matrix.json. Open before matrix_critique.md / video_critique.md. Adapted from vinys-toolbelt autonomous-dev-cycle (2026-07-17).",
+  "version": 2,
+  "updated": "2026-07-17",
+  "related": {
+    "matrix": "e2e/qa_matrix.json",
+    "matrix_critique": "e2e/screenshots/viewports/matrix_critique.md",
+    "video_critique": "e2e/screenshots/web/e2e/video_critique.md",
+    "phone_inventory": "e2e/screenshots/web/phone/touch_inventory.md",
+    "process_skill": ".grok/skills/ui-viewport-qa/SKILL.md",
+    "input_skill": ".grok/skills/app-input-e2e/SKILL.md"
+  },
+  "gate_rules": {
+    "pre_prod_pass_requires": [
+      "Every expected matrix cell has a CRITIQUE line",
+      "Every e2e recording has a VIDEO line",
+      "No open BAD where severity is blocker (or user accepted residual BADs in writing with IDs listed)",
+      "Artifact labels match actual GameState on the image/frame",
+      "Phase A handhelds used Android emulator + adb screenrecord + adb shell input (not Chrome emulate alone)"
+    ],
+    "critique_format": {
+      "matrix_line": "CRITIQUE {format_id}_{shot_suffix}: GOOD: <evidence> | BAD: none | BAD: {criterion_id}: <what fails> [; {criterion_id}: ...]",
+      "video_line": "VIDEO {format_id}_{keyboard|mouse|touch}: GOOD: <evidence> | BAD: none | BAD: {criterion_id}: <what fails>",
+      "rules": [
+        "GOOD and BAD both required on every line",
+        "BAD: none only after opening the artifact(s) and checking every applicable criterion in this file",
+        "When failing, cite criterion id(s) from this file (e.g. V-CLIP-TEXT)",
+        "Listing a directory or trusting a prior agent PASS is not review",
+        "Filename alone is not proof of screen state — verify screen state from pixels/text"
+      ]
+    },
+    "severity": {
+      "blocker": "Must be fixed or user-accepted in writing before push (Phase B) or claim ship",
+      "major": "Ship blocker unless user accepts residual in writing with criterion IDs",
+      "minor": "Should fix; may ship only if user accepts residual in writing"
+    },
+    "anti_patterns": [
+      "Marking BAD: none because a previous critique said so without re-opening THIS run's artifacts",
+      "Accepting *_02_results.png that shows home search",
+      "Ignoring Phase C open_bads / events=0 because Phase A critiques were green",
+      "Treating Chrome page.emulate handhelds as ship-valid Phase A",
+      "Reviewing only boot/menu and skipping playing + landscape",
+      "Calling double blue frames or OOB stars 'intentional' without code proof + product sign-off",
+      "Treating suite CAPTURE_OK / exit 0 / N/N as A7 or as permission to write BAD: none",
+      "Status line '15/15 PASS open_bads none' without opened CRITIQUE/VIDEO evidence for this run",
+      "Calling A5 VERIFY (files present) a visual review"
+    ]
+  },
+  "form_factor": {
+    "description": "Logical form factors for CSS viewports (not physical panel pixels).",
+    "classes": {
+      "PhonePortrait": "short side typically ≤430 CSS px, portrait",
+      "PhoneLandscape": "short side typically ≤440 CSS px, landscape",
+      "TabletPortrait": "tablet-class portrait",
+      "TabletLandscape": "tablet-class landscape",
+      "Desktop1080": "laptops/desktops incl. 1366×768 (never tablet)",
+      "Desktop4k": "QHD/4K — comfortable, not sparse huge chrome"
+    },
+    "rules": [
+      "Never classify 1366×768 as tablet/handheld",
+      "Desktop: keyboard+mouse primary",
+      "Handheld: targets ≥48 CSS px; gaps ≥12 CSS px"
+    ]
+  },
+  "visual_criteria": {
+    "description": "Static matrix PNG criteria (A6).",
+    "global": [
+      {
+        "id": "V-CLIP-TEXT",
+        "severity": "blocker",
+        "pass": "No clipped primary text (prices, store names, CTAs)"
+      },
+      {
+        "id": "V-READABLE",
+        "severity": "blocker",
+        "pass": "Type readable on phone landscape and laptop_hd"
+      },
+      {
+        "id": "V-BLANK-PANIC",
+        "severity": "blocker",
+        "pass": "Not blank / frozen / panic"
+      },
+      {
+        "id": "V-STATE-MATCH",
+        "severity": "blocker",
+        "pass": "Pixels match labeled screen"
+      },
+      {
+        "id": "V-PANEL-IN-VIEWPORT",
+        "severity": "blocker",
+        "pass": "Panels inside viewport"
+      },
+      {
+        "id": "V-FORM-FACTOR",
+        "severity": "major",
+        "pass": "Layout matches phone/tablet/desktop class"
+      },
+      {
+        "id": "V-SAFE-AREA",
+        "severity": "major",
+        "pass": "Critical UI not under notch/home indicator"
+      }
+    ],
+    "home": [
+      {
+        "id": "V-HOME-SEARCH",
+        "severity": "blocker",
+        "pass": "Search field + submit visible"
+      }
+    ],
+    "results": [
+      {
+        "id": "V-RESULTS-PRICES",
+        "severity": "blocker",
+        "pass": "Prices and ranking readable"
+      },
+      {
+        "id": "V-RESULTS-EMPTY-HONEST",
+        "severity": "major",
+        "pass": "Honest empty state when no stores"
+      }
+    ],
+    "map": [
+      {
+        "id": "V-MAP-USABLE",
+        "severity": "blocker",
+        "pass": "Map and controls usable"
+      }
+    ],
+    "settings": [
+      {
+        "id": "V-SETTINGS-TOGGLES",
+        "severity": "major",
+        "pass": "Toggles/links usable"
+      }
+    ],
+    "share": [
+      {
+        "id": "V-SHARE-CTA",
+        "severity": "major",
+        "pass": "Share CTA reachable when in scope"
+      }
+    ],
+    "admin": [
+      {
+        "id": "V-ADMIN-GATE",
+        "severity": "blocker",
+        "pass": "Login gate / app chrome correct"
+      }
+    ],
+    "docs": [
+      {
+        "id": "V-DOCS-NAV",
+        "severity": "major",
+        "pass": "Brand + nav readable"
+      }
+    ]
+  },
+  "input_criteria": {
+    "description": "Keyboard / mouse / touch (A4b + app-input-e2e).",
+    "exhaustive_surface": [
+      {
+        "id": "I-SEARCH-SUBMIT",
+        "severity": "blocker",
+        "pass": "Search via Enter and pointer/touch"
+      },
+      {
+        "id": "I-NAV-PRIMARY",
+        "severity": "blocker",
+        "pass": "Primary nav works on path"
+      },
+      {
+        "id": "I-NO-DEAD-END",
+        "severity": "blocker",
+        "pass": "No single-modality dead ends"
+      },
+      {
+        "id": "I-TOUCH-TARGET",
+        "severity": "major",
+        "pass": "Handheld targets ≥48 CSS px"
+      }
+    ],
+    "per_path": [
+      {
+        "id": "I-KEYBOARD-DESKTOP",
+        "severity": "blocker",
+        "pass": "Desktop: type + activate without touch"
+      },
+      {
+        "id": "I-TOUCH-HANDHELD",
+        "severity": "blocker",
+        "pass": "Handheld: touch completes search→results"
+      }
+    ]
+  },
+  "video_criteria": {
+    "description": "Journey over time (A4b).",
+    "checks": [
+      {
+        "id": "VID-JOURNEY",
+        "severity": "blocker",
+        "pass": "Search→results journey visible, not frozen"
+      },
+      {
+        "id": "VID-INPUT-WORKS",
+        "severity": "blocker",
+        "pass": "Inputs change UI mid-recording"
+      },
+      {
+        "id": "VID-NO-FLICKER",
+        "severity": "major",
+        "pass": "No severe flicker"
+      },
+      {
+        "id": "VID-HUD-USABLE",
+        "severity": "major",
+        "pass": "Critical copy usable mid-flow"
+      },
+      {
+        "id": "VID-VISUAL-SAME-AS-MATRIX",
+        "severity": "blocker",
+        "pass": "Stills that fail V-* still fail video"
+      }
+    ]
+  },
+  "artifact_criteria": {
+    "description": "Presence and honesty of QA artifacts.",
+    "checks": [
+      {
+        "id": "A-MATRIX-COMPLETE",
+        "severity": "blocker",
+        "pass": "All expected_cells present non-empty"
+      },
+      {
+        "id": "A-CRITIQUE-COVERAGE",
+        "severity": "blocker",
+        "pass": "Every cell CRITIQUE; every recording VIDEO"
+      },
+      {
+        "id": "A-LABEL-TRUTH",
+        "severity": "blocker",
+        "pass": "Label matches actual UI state"
+      }
+    ]
+  },
+  "phase_gates": {
+    "A7_pre_prod": {
+      "pass_if": [
+        "A-MATRIX-COMPLETE",
+        "A-CRITIQUE-COVERAGE",
+        "No open blocker/major BADs (unless user-accepted)"
+      ],
+      "fail_if_any": [
+        "Unaccepted BAD in critiques",
+        "Rubber-stamp (GOOD while known_fail_examples still on this-run artifacts)"
+      ]
+    },
+    "B_push": {
+      "requires": "A7 PASS",
+      "pass_if": [
+        "push main",
+        "deploy.yml success",
+        "live HTTP 200",
+        "e2e live exit 0 or triaged"
+      ],
+      "fail_if_any": [
+        "Deploy failed",
+        "Live search 0 stores without acceptance"
+      ]
+    },
+    "C_physical_phone": {
+      "requires": "B success + physical adb device",
+      "pass_if": [
+        "Phone 2×2 or documented skip",
+        "I-TOUCH-HANDHELD",
+        "I-SEARCH-SUBMIT",
+        "A-LABEL-TRUTH"
+      ],
+      "fail_sends_to": "Phase A fix loop"
+    }
+  },
+  "review_checklist_by_screen": {
+    "home": [
+      "V-HOME-SEARCH",
+      "V-CLIP-TEXT",
+      "V-READABLE",
+      "V-BLANK-PANIC",
+      "V-STATE-MATCH",
+      "V-FORM-FACTOR"
+    ],
+    "results": [
+      "V-RESULTS-PRICES",
+      "V-RESULTS-EMPTY-HONEST",
+      "V-CLIP-TEXT",
+      "V-READABLE",
+      "V-STATE-MATCH",
+      "V-SAFE-AREA"
+    ],
+    "map": [
+      "V-MAP-USABLE",
+      "V-CLIP-TEXT",
+      "V-STATE-MATCH",
+      "V-SAFE-AREA"
+    ],
+    "settings": [
+      "V-SETTINGS-TOGGLES",
+      "V-READABLE",
+      "V-CLIP-TEXT",
+      "V-STATE-MATCH"
+    ],
+    "share": [
+      "V-SHARE-CTA",
+      "V-CLIP-TEXT",
+      "V-STATE-MATCH"
+    ],
+    "admin": [
+      "V-ADMIN-GATE",
+      "V-CLIP-TEXT",
+      "V-READABLE",
+      "V-STATE-MATCH"
+    ],
+    "docs": [
+      "V-DOCS-NAV",
+      "V-READABLE",
+      "V-STATE-MATCH"
+    ]
+  },
+  "agent_instructions": [
+    "Before any A4b/A6 critique: open e2e/qa_success_criteria.json and e2e/qa_matrix.json.",
+    "Open each artifact with the image tool (or sample video stills).",
+    "Walk review_checklist_by_screen; FAIL with criterion id.",
+    "If unsure, FAIL major — do not invent BAD: none.",
+    "Criteria file wins PASS/FAIL; skills win process/order.",
+    "Update this file when new regression classes appear.",
+    "Alagoas baseline: full:local / live until matrix runners; still apply criteria to every shot."
+  ],
+  "known_fail_examples": [],
+  "imported_from": "vinys-toolbelt/docs/autonomous-dev-cycle (2026-07-17)",
+  "source_version": 2,
+  "source_updated": "2026-07-17"
+}

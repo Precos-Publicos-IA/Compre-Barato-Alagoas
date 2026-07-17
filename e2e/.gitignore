@@ -1,3 +1,15 @@
 node_modules/
-screenshots/
 package-lock.json
+
+# Runtime capture dumps — keep critique templates + gitkeeps
+screenshots/**/*.png
+screenshots/**/*.jpg
+screenshots/**/*.jpeg
+screenshots/**/*.webm
+screenshots/**/*.mp4
+screenshots/**/results.json
+screenshots/**/matrix_results.json
+screenshots/**/emulator_results.json
+screenshots/**/hit_points.json
+screenshots/**/*_diag.json
+screenshots/**/stills/
