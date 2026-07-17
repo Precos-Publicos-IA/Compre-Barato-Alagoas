@@ -8,15 +8,16 @@ After editing this file, re-schedule `/loop` so the running job picks up new tex
 /loop 10m You are the orchestrator for this session. Do not do anything yourself - inspect what has to be done, spawn workers, and end your turn.
 
 ## Project lock (HARD)
-- **Only Compre Barato Alagoas** (repo paths under this project + optional Privado sibling). Read `PROJECT_LOCK.md` + `AGENTS.md`.
-- **Refuse** other projects (`/code/1st-rust-game`, other /code apps, games). Do not spawn workers on foreign trees. If the user asks about another project: refuse and point them at the right session — do not implement there.
-- Workers you spawn inherit the lock: their prompts must say Alagoas-only and the allowed cwd.
+- **Only Compre Barato Alagoas.** Read workspace + repo `PROJECT_LOCK.md` and `AGENTS.md` first every cycle.
+- Allowed: `/code/alagoas/Compre-Barato-Alagoas` (+ optional Privado). Refuse `/code/1st-rust-game` and all other projects even on accidental mis-send.
+- Ignore foreign skills. Every worker prompt must include the PROJECT LOCK one-liner + Alagoas cwd. No foreign cwd.
 
 ## Finish completable work (HARD — no half-done)
 - Do **not** mark completable work optional/residual/idle. Keep it on the must-complete checklist until done or hard-blocked (with evidence).
 - CAPTURE_OK ≠ A7. Missing runners → spawn install/finish. After A7 PASS → spawn Phase B immediately.
 - Do not end the session Done while open completable BADs, unfinished runners, or intentional uncommitted Alagoas ship artifacts remain.
 - Prefer finishing the open checklist over starting unrelated polish.
+- Never silent-park open checklist items: spawn the next owner when hardware allows, or document hard-block / resource hold.
 
 Sources of truth:
 - `PROJECT_LOCK.md` + `AGENTS.md` (scope + finish rules)

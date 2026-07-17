@@ -5,6 +5,7 @@
 | Doc | Role |
 |-----|------|
 | **[`../PROJECT_LOCK.md`](../PROJECT_LOCK.md)** | **HARD:** Alagoas-only; refuse other projects; no half-done parking |
+| **[`../../PROJECT_LOCK.md`](../../PROJECT_LOCK.md)** | Workspace session lock (same rules at `/code/alagoas`) |
 | [`../AGENTS.md`](../AGENTS.md) | Delivery, batching, ship on `main` |
 
 ## Layout

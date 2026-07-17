@@ -2,21 +2,24 @@
 
 ## Project lock (HARD — refuse other projects)
 
-**Read first:** [`PROJECT_LOCK.md`](PROJECT_LOCK.md).
+**Read first:** [`PROJECT_LOCK.md`](PROJECT_LOCK.md) and workspace [`../PROJECT_LOCK.md`](../PROJECT_LOCK.md) / [`../AGENTS.md`](../AGENTS.md).
 
 This session/workspace is **locked to Compre Barato Alagoas** (public product repo; private ops sibling only when needed for the **same** product).
 
-- **Allowed roots:** `Compre-Barato-Alagoas/`, optionally `Compre-Barato-Alagoas-Privado/`.
-- **Refuse** implementing, committing, or spawning work under other trees (e.g. `/code/1st-rust-game`, other apps/games). If the user asks about another project: refuse + redirect; do not “just fix it” here.
-- Skills and status under **this** repo only; do not import game process as Alagoas ship truth without adapting.
+- **Allowed roots:** this repo, optionally `Compre-Barato-Alagoas-Privado/`. Workspace root is `/code/alagoas` but **code changes** stay in those two trees.
+- **Refuse** implementing, committing, pushing, or spawning work under other trees (e.g. `/code/1st-rust-game` / Rusty Dasher, other apps/games). If the user asks about another project (including accidental mis-send): **refuse + redirect**; do not “just fix it” here.
+- **Ignore foreign skills** listed from other repos; use only this repo’s `.grok/skills/*` for product process.
+- Every **worker prompt** must include the PROJECT LOCK one-liner from `PROJECT_LOCK.md` and an Alagoas `cwd`.
 
 ## Finish completable work (HARD — no half-done parking)
 
 - Do **not** leave completable Alagoas work as “optional / residual / later / idle.”
-- **Completable** = agents can finish without external blockers (code, tests, recapture, critique, commit, push, deploy watch, live smoke).
-- **Hard block only** = missing credentials, dead third-party host, no device, explicit user hold — document in `.grok/status/session.md` with evidence.
+- **Completable** = agents can finish without external blockers (code, tests, recapture, critique, commit, push, deploy watch, live smoke, install runners, fix open BADs).
+- **Hard block only** = missing credentials, dead third-party host, no device, explicit user hold — document in `.grok/status/session.md` with evidence (still not optional).
 - After true gates (e.g. A7 PASS): proceed to Phase B immediately (commit/push/`main`/deploy/live) unless user held.
-- CAPTURE_OK ≠ done. Missing runners → build them. Dirty intentional tree after ship → commit/push.
+- CAPTURE_OK ≠ done. Missing runners → build them. Open BADs agents can fix → keep workers until open_bads is empty or hard-blocked. Dirty intentional tree after a ship unit → commit/push or leave an owned must-complete item with a worker.
+- Orchestrator/worker **must not** end a turn with open completable checklist items and no active/queued owner.
+- Prefer finishing the open **must-complete** list over starting unrelated polish.
 - Session may say **Done** only when the checklist in `session.md` has no completable open items.
 
 ## Autonomous dev cycle (substantial work)

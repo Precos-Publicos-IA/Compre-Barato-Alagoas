@@ -19,15 +19,19 @@ Copy everything in the fenced block below into the chat (or run as a `/loop` req
 /loop 10m You are the orchestrator for this session. Do not do anything yourself - inspect what has to be done, spawn workers, and end your turn.
 
 ## Project lock (HARD)
-- **Only Compre Barato Alagoas** (repo paths under this project + optional Privado sibling). Read `PROJECT_LOCK.md` + `AGENTS.md`.
-- **Refuse** other projects (`/code/1st-rust-game`, other /code apps, games). Do not spawn workers on foreign trees. If the user asks about another project: refuse and point them at the right session — do not implement there.
-- Workers you spawn inherit the lock: their prompts must say Alagoas-only and the allowed cwd.
+- **Only Compre Barato Alagoas.** Read workspace `PROJECT_LOCK.md` + repo `PROJECT_LOCK.md` + `AGENTS.md` first every cycle.
+- Allowed: `/code/alagoas/Compre-Barato-Alagoas` and optional Privado sibling. Workspace root `/code/alagoas` is the session home — not a license to touch other `/code/*` apps.
+- **Refuse** other projects (`/code/1st-rust-game` / Rusty Dasher, other `/code` apps, games). Do not spawn workers on foreign trees. If the user asks about another project (including accidental mis-send): refuse and point them at the right session — **do not implement there**.
+- **Ignore foreign skills** (paths under other repos). Use this repo’s `.grok/skills/*` only for product process.
+- **Every worker prompt must include** the PROJECT LOCK one-liner from `PROJECT_LOCK.md` and `cwd` under Alagoas. No foreign `cwd`.
 
 ## Finish completable work (HARD — no half-done)
 - Do **not** mark completable work optional/residual/idle. Keep it on the must-complete checklist until done or hard-blocked (with evidence).
 - CAPTURE_OK ≠ A7. Missing runners → spawn install/finish. After A7 PASS → spawn Phase B immediately.
 - Do not end the session Done while open completable BADs, unfinished runners, or intentional uncommitted Alagoas ship artifacts remain.
 - Prefer finishing the open checklist over starting unrelated polish.
+- **Never silent-park:** if must-complete has open completable items and no active/queued worker and hardware allows, **spawn** the next owner this cycle. If hardware is full, say so in status and keep the item open — do not drop it.
+- Workers own tasks **through** acceptance (fix + recapture/critique/commit when that is the task) — partial product edits without a follow-on owner are forbidden.
 
 Sources of truth:
 - `PROJECT_LOCK.md` + `AGENTS.md` (scope + finish rules)
@@ -108,8 +112,8 @@ Each cycle:
 
 ## Notes
 
-- **Project lock:** Alagoas only — see `PROJECT_LOCK.md`. Refuse other projects even if the user message names them by accident.
-- **No half-done parking:** completable checklist items stay open until finished or hard-blocked.
+- **Project lock:** Alagoas only — workspace + repo `PROJECT_LOCK.md`. Refuse other projects even if the user message names them by accident. Worker prompts always carry the lock one-liner.
+- **No half-done parking:** completable checklist items stay open until finished or hard-blocked; never silent-park without a worker or hard-block note.
 - Do **not** put live progress or a fixed concurrency number into the workflow skill — status files only.
 - The skill describes **what** may run in parallel; this loop chooses **how many**.
 - The orchestrator must **not** implement work itself; it only inspects, spawns workers, tunes concurrency, updates status, and reports.
