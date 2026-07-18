@@ -24,6 +24,7 @@ async def test_json_roundtrip():
 
 
 def test_ip_whitelist_exact_and_cidr():
+    # Use RFC 5737 documentation addresses only — never real lab/ops IPs in git.
     s = Settings(
         environment="production",
         ratelimit_whitelist_ips="203.0.113.50,10.0.0.0/8",
