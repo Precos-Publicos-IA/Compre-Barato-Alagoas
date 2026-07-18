@@ -148,14 +148,14 @@ CRITIQUE 1080p_04_settings: GOOD: Configurações sheet: radius/days steppers + 
 CRITIQUE 1080p_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
 CRITIQUE 1080p_06_admin: GOOD: Admin login gate (token + Sign in) | BAD: none
 CRITIQUE 1080p_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
-CRITIQUE qhd_01_home: GOOD: code path widens contentMaxWidth + desktop shell/tips (widget-tested) | BAD: V-FORM-FACTOR: HARD-BLOCK — local/live headless CanvasKit first-frame with empty flt-glass-pane (no scene host); cannot honest-recapture home pixels while host GPU thrash (qemu -gpu host ~265% CPU)
+CRITIQUE qhd_01_home: GOOD: code path widens contentMaxWidth + desktop shell/tips (widget-tested) | BAD: V-FORM-FACTOR: HARD-BLOCK — 2026-07-17 W-home-recapture re-probe: CAPTURE_OK splash-only PNG (~99% white, VER PREÇOS bar only); flutter-view + empty flt-glass-pane, canvas=0, _flutterFirstFrame=false 30–60s; local :18090 + live HTTPS; after qemu friends kill still no scene
 CRITIQUE qhd_02_results: GOOD: settled results with prices/savings (R$) / ranked stores or savings banner; V-STATE-MATCH results surface | BAD: none
 CRITIQUE qhd_03_map: GOOD: Mapa das lojas + price pins / OSM tiles; V-MAP-USABLE | BAD: none
 CRITIQUE qhd_04_settings: GOOD: Configurações sheet: radius/days steppers + usage toggle; V-SETTINGS-TOGGLES | BAD: none
 CRITIQUE qhd_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
 CRITIQUE qhd_06_admin: GOOD: scaled login card + outer frame + glow on QHD; readable token/Sign in | BAD: none
 CRITIQUE qhd_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
-CRITIQUE 4k_01_home: GOOD: code path widens contentMaxWidth + desktop shell/tips (widget-tested) | BAD: V-FORM-FACTOR: HARD-BLOCK — same CanvasKit empty-scene recapture block as qhd_01_home
+CRITIQUE 4k_01_home: GOOD: code path widens contentMaxWidth + desktop shell/tips (widget-tested) | BAD: V-FORM-FACTOR: HARD-BLOCK — same empty-scene recapture block as qhd_01_home (4k_01_home.png 41588b, white%≈99)
 CRITIQUE 4k_02_results: GOOD: settled results with prices/savings (R$) / ranked stores or savings banner; V-STATE-MATCH results surface | BAD: none
 CRITIQUE 4k_03_map: GOOD: Mapa das lojas + price pins / OSM tiles; V-MAP-USABLE | BAD: none
 CRITIQUE 4k_04_settings: GOOD: Configurações sheet: radius/days steppers + usage toggle; V-SETTINGS-TOGGLES | BAD: none
@@ -168,13 +168,20 @@ CRITIQUE 4k_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: non
 
 | cell | residual |
 |------|----------|
-| `qhd_01_home` | V-FORM-FACTOR HARD-BLOCK: headless CanvasKit empty `flt-glass-pane` (first-frame fires, no scene host/canvas) — cannot honest-recapture; code fixed+widget-tested (`desktop4k_layout_test`) |
-| `4k_01_home` | same HARD-BLOCK as qhd_01_home |
+| `qhd_01_home` | V-FORM-FACTOR HARD-BLOCK: CanvasKit scene never mounts under Chrome capture this host/session (empty glass / splash-only still) — layout code fixed+widget-tested (`desktop4k_layout_test`); see `qhd_01_home.review.json` |
+| `4k_01_home` | same HARD-BLOCK as qhd_01_home; `4k_01_home.review.json` |
 
 ### Residual notes
 - **V-CLIP-TEXT phone landscape (layout):** CLEARED (prior).
 - **API capture residuals:** CLEARED (prior).
 - **V-FORM-FACTOR admin QHD/4K:** CLEARED 2026-07-17 W-vform — `admin-frontend/styles.css` clamp + frame; opened `qhd_06_admin.png` / `4k_06_admin.png` → BAD: none.
-- **V-FORM-FACTOR home QHD/4K:** code shipped (`AppLayout.contentMaxWidth` ~half viewport, desktop shell + tips; `frontend/test/desktop4k_layout_test.dart` green). Pixel recapture **hard-blocked** while host qemu emulator holds GPU (`qemu-system-x86_64 -gpu host` ~265% CPU) and headless Chrome produces empty scene for **both** local APP_URL and live HTTPS. Re-capture home when GPU free / emulator stopped.
+- **V-FORM-FACTOR home QHD/4K:** code shipped (`AppLayout.contentMaxWidth` ~half viewport, desktop shell + tips; `frontend/test/desktop4k_layout_test.dart` green). **W-home-recapture 2026-07-17** re-attempted honest pixel proof:
+  1. Stack: API :8000, `frontend/build/web` on **:18090** (not 8080).
+  2. Matrix: `BUILD_WEB=0 CONCURRENCY=1 MATRIX_FORMATS=qhd,4k MATRIX_SCREENS=home APP_URL=http://127.0.0.1:18090` → CAPTURE_OK but stills are boot-splash only (qhd 21898b / 4k 41588b).
+  3. Probes: WebGL OK (SwiftShader / MakeWebGLCanvasSurface), canvaskit.js+wasm 200, main.dart.js runs; **no** `flt-scene-host` / canvas / first-frame for 30–60s.
+  4. Stopped friends AVD (`qemu-system-x86_64 -avd friends -gpu host`, was ~285% CPU) — **still** no first frame after kill; clean `flutter build web` did not fix.
+  5. Live `https://alagoas.precospublicos.ia.br/` same empty glass under headless.
+  6. Emulator restart **not** required for this task (left down; may be respawned by other tools).
+  Host recovery (CanvasKit first-frame paints under Chrome) required before open_bads can go to 0; do **not** mark PASS on splash stills.
 - Portrait samples: unchanged BAD: none.
 

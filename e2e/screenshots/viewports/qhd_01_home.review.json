@@ -1,0 +1,31 @@
+{
+  "artifact": "e2e/screenshots/viewports/qhd_01_home.png",
+  "artifact_kind": "matrix_png",
+  "reviewed_at": "2026-07-18T00:52:34Z",
+  "reviewer": "W-home-recapture",
+  "review_roles_completed": ["discover", "map_checklist", "adversary"],
+  "run_start_unix": 1784335954,
+  "opened": true,
+  "frames_or_stills_opened": [
+    "e2e/screenshots/viewports/qhd_01_home.png"
+  ],
+  "discovery_notes": [
+    "Recapture 2026-07-17: MATRIX_FORMATS=qhd,4k MATRIX_SCREENS=home APP_URL=http://127.0.0.1:18090 CAPTURE_OK sizes splash-class",
+    "Vision/heuristic: ~99% white; only HTML boot splash bar (VER PREÇOS) — no Flutter SearchScreen / contentMaxWidth chrome",
+    "Probe: flutter-view + empty flt-glass-pane, canvas=0, _flutterFirstFrame=false for 30-60s; flutterCanvasKit=true; MakeWebGLCanvasSurface OK",
+    "Retries: with qemu friends -gpu host UP; after kill qemu DOWN; clean flutter build web; local+live; Chrome 121 swiftshader + Chrome 150 headed — all no first frame",
+    "HARD-BLOCK: cannot honest-pass V-FORM-FACTOR home pixels this host/session"
+  ],
+  "verdict": "has_issues",
+  "summary": "HARD-BLOCK V-FORM-FACTOR — splash-only still; CanvasKit scene never mounts",
+  "issues": [
+    {
+      "id": "V-FORM-FACTOR",
+      "severity": "hard_block",
+      "note": "empty CanvasKit scene / splash-only PNG; layout code already widget-tested"
+    }
+  ],
+  "criteria_checked": ["V-FORM-FACTOR", "V-STATE-MATCH", "V-READABLE"],
+  "sim_scenarios_checked": [],
+  "adversary_reviewed": true
+}

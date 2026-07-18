@@ -1,6 +1,6 @@
 # Session status
 
-Last update: orchestrator /loop tick — W-home-recapture still claimed running; host idle
+Last update: W-home-recapture DONE — #1 hard-blocked with fresh evidence (not PASS)
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign trees.
@@ -9,35 +9,33 @@ Last update: orchestrator /loop tick — W-home-recapture still claimed running;
 Must-complete until empty or hard-blocked with evidence.
 
 ## Phase
-A — home QHD/4K residual (#1)
+A residual closed as **hard-block** (home V-FORM pixels)
 
-## Hardware (15s)
+## Hardware (end of W-home-recapture)
 | Signal | Value | Action |
 |--------|--------|--------|
-| windowed CPU | **1.6%** | well below 50% |
-| loadavg | 0.3 / 0.9 / 3.6 | idle |
-| **Tctl k10temp** | **35°C** | cool |
-| MemAvailable | ~16 / 32 Gi | OK |
+| windowed CPU | cool at start (~8%) | tried capture |
+| Tctl | ~50°C at start | tried capture |
+| qemu friends | **killed** mid-task (was ~285% CPU `-gpu host`); restart not required | still no CanvasKit first frame after kill |
 
 ## Workers
 | id | Status |
 |----|--------|
 | W-vform | **DONE** `77c58a5` |
-| W-emulator-smoke | **DONE** `d1a4245` |
-| W-home-recapture `019f72a1-78ed-…` | **RUNNING** ~14m; 47 tools; **no** active capture/puppeteer this sample (only :18090); critique still open_bads=2 hard-block; home PNGs stale ~21:32; may be concluding hard-block or stalled — **re-spawn next tick if still unfinished and process-dead** |
+| W-emulator-smoke | **DONE** `d1a4245` — 7/7 on emulator-5554 |
+| W-home-recapture | **DONE** — hard-block re-documented; report `worker_w_home_recapture_report.md` |
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1 V-FORM open_bads 0 | **IN PROGRESS** / residual hard-block home |
+| 1 V-FORM open_bads 0 | **HARD-BLOCK** residual home only — open_bads_matrix=2; evidence in matrix_critique + review sidecars + a6_open_bads |
 | 2 Project lock | **DONE** |
-| 3 matrix_emulator smoke | **DONE** |
+| 3 matrix_emulator smoke | **DONE** `d1a4245` |
 | 4 Human re-schedule `/loop` | **OPEN** |
 
 ## Concurrency
-**N=1 → N=1**. Do not dual-own home recapture while task id still running. No other completable units.
+**N=0** no active workers.
 
 ## Next
-1. Reap W-home-recapture this/next cycle
-2. If completed hard-block with evidence commit → mark #1 hard-blocked closed
-3. If exit unfinished → re-spawn W-home-recapture immediately
+1. Session **Done** for agent must-complete list except human #4 (hard-block on #1 is documented).
+2. Later: when host Chrome paints Flutter first frame again, re-run `MATRIX_FORMATS=qhd,4k MATRIX_SCREENS=home` on :18090 and clear open_bads.
