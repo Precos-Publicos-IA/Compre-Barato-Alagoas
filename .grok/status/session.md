@@ -1,57 +1,52 @@
 # Session status
 
-Last update: 2026-07-18 — W-fix-empty-cache **E DONE** `c92b9ba`
+Last update: 2026-07-18 — **F DONE** honest serial 100 (W-F-run)
 
 ## Project lock
 **HARD** Alagoas only.
 
-## Goal
-**Search matching quality** — honest eval + empty-cache poison fix.
-
-## Operator correction (HARD)
-Prior B claim “~70% products have no SEFAZ rows” is **INVALID**. Empty 200s came from parallel web-scrape stampede + fetch-fail→[] + **caching empties**. Staples like arroz exist; re-eval must be serial/low-concurrency and not treat poisoned empties as ground truth.
+## Operator correction
+Old B / “71 missing SEFAZ” **INVALID**. Empty 200s = load/timeout/cache poison + dead official API empty without web fallback.
 
 ## Phase
-**Active** — E **DONE** + F (**BLOCKED_429**, honest script ready)
+**Idle after F** — match-improve backlog open (wrong_class=20, esp. egg bleed)
 
 ## Workers
-| ID | Task | Status |
-|----|------|--------|
-| W-catalog-100 | 100 names | **DONE** `81bed97` |
-| W-eval-100 (old) | parallel live eval | **INVALID for coverage** `f7ef373` |
-| W-match-improve | P0 relevance | **DONE** `5853031` |
-| W-ship-D | ship C | **DONE** CI `29650180694` |
-| W-fix-empty-cache | no-cache empty / distinguish fetch fail | **DONE** `c92b9ba` |
-| W-eval-honest | serial honest 100 script + probe | **BLOCKED_429** script ready; re-run tomorrow |
+| ID | Status |
+|----|--------|
+| W-fix-empty-cache (E) | **DONE** `67c26ca` (+ analytics kwargs in `197628c`) |
+| W-eval-honest script | **DONE** |
+| **W-F-run** | **DONE** — serial 100 complete |
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| A catalog | **DONE** `81bed97` |
-| B live eval (old) | **INVALID** — false missing under load |
-| C match improvements | **DONE** `5853031` |
+| A catalog | **DONE** |
+| B old parallel eval | **INVALID** |
+| C match improve | **DONE** `5853031` era |
 | D ship C | **DONE** |
-| **E** empty-cache + fetch-fail honesty | **DONE** `c92b9ba` — W-fix-empty-cache |
-| **F** honest serial 100 live re-eval | **BLOCKED_429** — script ready; probe 429; re-run after quota |
+| E empty-cache fix | **DONE** on VPS via `197628c` ship (empty API → web) |
+| **F** honest serial 100 | **DONE** |
+
+### F summary
+| verdict | n |
+|---------|--:|
+| pass | **71** |
+| wrong_class | **20** |
+| missing_after_retry | **9** |
+| upstream_error | **0** |
+
+- **arroz:** stores=5, pass, top=`ARROZ EMOCOES INTEGRAL 1KG` (coverage ≠ 0)
+- **data_source:** web×100
+- Artifacts: `.grok/status/match_eval_100_honest.json`, `match_eval_100_honest_report.md`, `worker_w_eval_honest_report.md`
+- Unblock commit: `197628c` (CI deploy `29651426298`)
 
 ## Concurrency
-**N=1** after E lands — F waits on quota only.
+**N=0** idle. Host was cool during serial run (~13.5 min wall).
 
 ## Live signals
-- Prod probe: **HTTP 429** daily limit (W-eval-honest `--probe-only` arroz; evidence `match_eval_100_honest_BLOCKED_429.md`)
-- Scheduler: `019f75c59715` every 10m
+- Prod health after `197628c`: `{"status":"ok"}` (production lean health)
+- Probe arroz: HTTP 200, web, stores=5
 
 ## Next focus
-F re-run after quota:
-```
-API_BASE=https://alagoas.precospublicos.ia.br CONCURRENCY=1 \
-  python3 backend/scripts/eval_shopping_list_100.py --out .grok/status/match_eval_100_honest.json
-```
-Probe first: `python3 backend/scripts/eval_shopping_list_100.py --probe-only` (exit 0 = safe to full run).
-
-## E summary
-- No-cache empty SEFAZ responses; no-cache on fetch exception
-- Read-side purge of poisoned empty cache entries
-- Metrics: `items_fetch_failed` / `fetch_failed_labels` (no_data vs upstream_failed)
-- Tests: `backend/tests/test_empty_cache.py` (5) + partial/api green
-- Report: `.grok/status/worker_w_fix_empty_cache_report.md`
+Spawn match-improve on wrong_class=20 (egg bleed + bakery/cheese) if operator wants; F is closed.
