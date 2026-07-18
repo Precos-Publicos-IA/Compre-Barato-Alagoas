@@ -1,0 +1,641 @@
+[
+  {
+    "id": 1,
+    "query": "arroz",
+    "found": false,
+    "stores": 0,
+    "ms": 2664,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 9,
+    "query": "fubá",
+    "found": false,
+    "stores": 0,
+    "ms": 198,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 10,
+    "query": "macarrão",
+    "found": false,
+    "stores": 0,
+    "ms": 198,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 11,
+    "query": "macarrão espaguete",
+    "found": false,
+    "stores": 0,
+    "ms": 201,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 12,
+    "query": "aveia",
+    "found": false,
+    "stores": 0,
+    "ms": 204,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 13,
+    "query": "leite",
+    "found": false,
+    "stores": 0,
+    "ms": 201,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 14,
+    "query": "leite integral",
+    "found": false,
+    "stores": 0,
+    "ms": 198,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 15,
+    "query": "leite desnatado",
+    "found": false,
+    "stores": 0,
+    "ms": 200,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 16,
+    "query": "leite em pó",
+    "found": false,
+    "stores": 0,
+    "ms": 207,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 19,
+    "query": "manteiga",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 20,
+    "query": "margarina",
+    "found": false,
+    "stores": 0,
+    "ms": 200,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 23,
+    "query": "requeijão",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 24,
+    "query": "iogurte",
+    "found": false,
+    "stores": 0,
+    "ms": 201,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 27,
+    "query": "azeite",
+    "found": false,
+    "stores": 0,
+    "ms": 198,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 28,
+    "query": "vinagre",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 30,
+    "query": "catchup",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 31,
+    "query": "maionese",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 32,
+    "query": "mostarda",
+    "found": false,
+    "stores": 0,
+    "ms": 200,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 33,
+    "query": "tempero",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 34,
+    "query": "alho",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 35,
+    "query": "cebola",
+    "found": false,
+    "stores": 0,
+    "ms": 200,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 37,
+    "query": "frango",
+    "found": false,
+    "stores": 0,
+    "ms": 204,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 39,
+    "query": "carne moída",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 40,
+    "query": "carne",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 41,
+    "query": "linguiça",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 43,
+    "query": "bacon",
+    "found": false,
+    "stores": 0,
+    "ms": 201,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 44,
+    "query": "presunto",
+    "found": false,
+    "stores": 0,
+    "ms": 202,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 45,
+    "query": "peixe",
+    "found": false,
+    "stores": 0,
+    "ms": 200,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 46,
+    "query": "sardinha",
+    "found": false,
+    "stores": 0,
+    "ms": 200,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 47,
+    "query": "atum",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 48,
+    "query": "mortadela",
+    "found": false,
+    "stores": 0,
+    "ms": 200,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 49,
+    "query": "banana",
+    "found": false,
+    "stores": 0,
+    "ms": 199,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 50,
+    "query": "tomate",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 51,
+    "query": "batata",
+    "found": false,
+    "stores": 0,
+    "ms": 198,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 52,
+    "query": "batata doce",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 53,
+    "query": "cenoura",
+    "found": false,
+    "stores": 0,
+    "ms": 197,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 54,
+    "query": "alface",
+    "found": false,
+    "stores": 0,
+    "ms": 198,
+    "descs": [],
+    "status": 200
+  },
+  {
+    "id": 55,
+    "query": "limão",
+    "found": false,
+    "stores": 0,
+    "ms": 2046,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 56,
+    "query": "laranja",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 57,
+    "query": "maçã",
+    "found": false,
+    "stores": 0,
+    "ms": 193,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 58,
+    "query": "mamão",
+    "found": false,
+    "stores": 0,
+    "ms": 290,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 59,
+    "query": "abóbora",
+    "found": false,
+    "stores": 0,
+    "ms": 197,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 60,
+    "query": "chuchu",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 64,
+    "query": "bolo",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 65,
+    "query": "biscoito",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 66,
+    "query": "bolacha",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 67,
+    "query": "torrada",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 72,
+    "query": "refrigerante",
+    "found": false,
+    "stores": 0,
+    "ms": 2266,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 73,
+    "query": "coca cola",
+    "found": false,
+    "stores": 0,
+    "ms": 197,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 74,
+    "query": "suco",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 75,
+    "query": "cerveja",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 76,
+    "query": "chá",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 77,
+    "query": "achocolatado",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 80,
+    "query": "pipoca",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 81,
+    "query": "chocolate",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 82,
+    "query": "amendoim",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 83,
+    "query": "batata chips",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 85,
+    "query": "sabão em pó",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 86,
+    "query": "detergente",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 88,
+    "query": "amaciante",
+    "found": false,
+    "stores": 0,
+    "ms": 193,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 89,
+    "query": "desinfetante",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 90,
+    "query": "esponja",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 91,
+    "query": "papel toalha",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 93,
+    "query": "sabonete",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 94,
+    "query": "shampoo",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 95,
+    "query": "creme dental",
+    "found": false,
+    "stores": 0,
+    "ms": 194,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 96,
+    "query": "papel higiênico",
+    "found": false,
+    "stores": 0,
+    "ms": 196,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 97,
+    "query": "desodorante",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 98,
+    "query": "condicionador",
+    "found": false,
+    "stores": 0,
+    "ms": 197,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 99,
+    "query": "fralda",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  },
+  {
+    "id": 100,
+    "query": "ração",
+    "found": false,
+    "stores": 0,
+    "ms": 195,
+    "descs": [],
+    "status": 429
+  }
+]
