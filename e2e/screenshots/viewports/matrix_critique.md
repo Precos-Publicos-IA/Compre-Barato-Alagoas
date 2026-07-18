@@ -168,8 +168,8 @@ CRITIQUE 4k_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: non
 
 | cell | residual |
 |------|----------|
-| `qhd_01_home` | V-FORM-FACTOR HARD-BLOCK: CanvasKit scene never mounts under Chrome capture this host/session (empty glass / splash-only still) — layout code fixed+widget-tested (`desktop4k_layout_test`); see `qhd_01_home.review.json` |
-| `4k_01_home` | same HARD-BLOCK as qhd_01_home; `4k_01_home.review.json` |
+| `qhd_01_home` | V-FORM-FACTOR OPEN: need honest non-white headless still; layout tested; chrome/waitFlutter gates fixed |
+| `4k_01_home` | same OPEN as qhd_01_home |
 
 ### Residual notes
 - **V-CLIP-TEXT phone landscape (layout):** CLEARED (prior).
