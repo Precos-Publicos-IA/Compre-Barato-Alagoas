@@ -1,51 +1,45 @@
 # Session status
 
-Last update: 2026-07-18 W-G-improve — **G DONE** `efca61d` (RAG cross-class rewrite guard)
+Last update: 2026-07-18 **H DONE** — `efca61d` deployed + scoped smoke PASS
 
 ## Project lock
 **HARD** Alagoas only.
 
-## Operator correction
-Old B “71 missing SEFAZ” **INVALID**. Honest serial: **found_count=91/100**.
+## Goal
+Honest match quality: F measured; G fixed RAG poison; H shipped and smoked.
 
 ## Phase
-**G DONE** — next **H** ship G + live verify (deploy watch)
+**Idle** — mission complete for A–H must-complete chain.
 
 ## Workers
 | ID | Status |
 |----|--------|
-| W-F-run2 | **DONE** (eval finished; final JSON on disk) |
-| **W-F-status** | **DONE** — honest artifacts committed + pushed to `origin/main` |
-| **W-G-improve** | **DONE** — `efca61d` — report `worker_w_g_improve_report.md` |
+| F honest eval | **DONE** |
+| G improve | **DONE** `efca61d` |
+| **W-H-ship** | **DONE** CI `29652301027` + smoke 7/7 |
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| A catalog | **DONE** |
-| B old parallel | **INVALID** |
-| C early match | **DONE** |
-| D ship C | **DONE** |
-| E empty-cache | **DONE** |
-| **F** honest serial 100 | **DONE** — pass=**71** wrong=**20** missing_after_retry=**9** found=**91** upstream_error=**0** all web — artifacts on main |
-| **G** improve from honest WC | **DONE** — **`efca61d`** — RAG poison + residual class gates; offline 20/20 WC emptied |
-| **H** ship G + offline re-score | **OPEN** — deploy watch + live smoke (poison keys filtered even if Redis still has them) |
+| A–E | **DONE** |
+| F honest 100 | **DONE** pass=71 wrong=20 missing=9 found=91 |
+| G RAG/class bleed fix | **DONE** `efca61d` |
+| **H** ship G + smoke | **DONE** — deploy green + scoped live smoke PASS |
 
-## F artifacts (on main)
-- `.grok/status/match_eval_100_honest.json`
-- `.grok/status/match_eval_100_honest_report.md`
-- `.grok/status/match_eval_100_honest_run_log.txt` (`.log` gitignored)
-- `.grok/status/worker_w_eval_honest_report.md`
+## H evidence
+- Product on main: `efca61d`
+- CI/deploy: **success** https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/actions/runs/29652301027
+- Docs stamp run: success `29652307667` (`4ac9505`)
+- Redis: flushed 99 `rag:effective_for:*` → 0 (SSH)
+- Smoke: peito de frango, farinha de trigo, pão, queijo, papel higiênico, salsicha, sabão em pó → **7/7 PASS** (no OVOS BRANCOS top; higiênico≠toalha; no rewrite to ovos/sal/leite)
+- Artifacts: `.grok/status/h_ship_live_smoke.json`, `worker_w_h_ship_report.md`
 
-## Concurrency
-**N=2** — status commit ∥ improve (different files). Host CPU ~73% / Tctl~71°C at F finish — OK.
+## Root cause fixed in G (live verified in H)
+RAG cross-class rewrites (peito→ovos, salsicha→sal, sabão→leite, higiênico→toalha) blocked; prod Redis poison ZSETs cleared.
 
-## F headline (proves operator right)
-| Metric | Old invalid parallel | Honest serial |
-|--------|---------------------:|--------------:|
-| pass | 2 | **71** |
-| wrong_class | 27 | **20** |
-| missing | 71 | **9** (after retry) |
-| found | 29 | **91** |
+## Residual (not must-complete)
+- 9 true SEFAZ `missing_after_retry` data gaps from F (sal, bolacha, cerveja, achocolatado, detergente, amaciante, desinfetante, sabonete, shampoo)
+- Soft: `queijo` can still top `PAO DE QUEIJO` (not egg bleed)
 
 ## Next focus
-G lands → H ship. No new full 100 live unless needed.
+Idle unless user opens new work. Do **not** start full 100 re-eval without explicit ask.

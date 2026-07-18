@@ -1,0 +1,468 @@
+{
+  "ts": "2026-07-18T16:44:10.230819+00:00",
+  "api": "https://alagoas.precospublicos.ia.br",
+  "product_sha_expected": "efca61d",
+  "concurrency": 1,
+  "n": 7,
+  "pass": 7,
+  "fail": 0,
+  "results": [
+    {
+      "q": "peito de frango",
+      "http": 200,
+      "latency_ms": 22507,
+      "request_id": "58e243017d67",
+      "error": null,
+      "issues": [],
+      "ok_flags": [
+        "no_ovos_brancos_top"
+      ],
+      "found_any": true,
+      "stores": 5,
+      "match_rate": 1.0,
+      "search_rewrites": [
+        {
+          "label": "peito de frango",
+          "original": "peito de frango",
+          "search_term": "peito frango"
+        }
+      ],
+      "suggested_refinements": [],
+      "top_lines": [
+        {
+          "store": "BG ALIMENTOS LTDA",
+          "desc": "CF. PEITO FRANGO",
+          "price": 0.1,
+          "query": "peito de frango"
+        },
+        {
+          "store": "MERCADINHO SANTA MARIA LTDA",
+          "desc": "SOPA VONO PEITO DE FRANGO C QUEIJO",
+          "price": 2.99,
+          "query": "peito de frango"
+        },
+        {
+          "store": "LAMENHA COMÉRCIO DE ALIMENTOS LTDA.",
+          "desc": "SOPA VONO PEITO FRANGO COM QUEIJO 17G",
+          "price": 2.99,
+          "query": "peito de frango"
+        },
+        {
+          "store": "SUPERMERCADO BOA VISTA LTDA",
+          "desc": "SOPAO VONO PEITO DE FRANGO COM QUEIJO 17G",
+          "price": 2.99,
+          "query": "peito de frango"
+        },
+        {
+          "store": "SUPERMERCADO PRECO BOM",
+          "desc": "SOPA VONO PEITO FRANGO C QUEIJO 17G",
+          "price": 2.99,
+          "query": "peito de frango"
+        }
+      ],
+      "fetch_failed_labels": [],
+      "items_fetch_failed": 0,
+      "status_message": "Pronto",
+      "upstream": null,
+      "metrics_slim": {
+        "match_rate": 1.0,
+        "search_rewrites": [
+          {
+            "label": "peito de frango",
+            "original": "peito de frango",
+            "search_term": "peito frango"
+          }
+        ],
+        "suggested_refinements": [],
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "status_message": "Pronto"
+      }
+    },
+    {
+      "q": "farinha de trigo",
+      "http": 200,
+      "latency_ms": 22953,
+      "request_id": "8bc340202c68",
+      "error": null,
+      "issues": [],
+      "ok_flags": [
+        "no_ovos_brancos_top"
+      ],
+      "found_any": true,
+      "stores": 5,
+      "match_rate": 1.0,
+      "search_rewrites": [
+        {
+          "label": "farinha de trigo",
+          "original": "farinha de trigo",
+          "search_term": "farinha trigo"
+        }
+      ],
+      "suggested_refinements": [],
+      "top_lines": [
+        {
+          "store": "ATACADAO S.A.",
+          "desc": "FARINHA TRIGO FARINA",
+          "price": 2.6,
+          "query": "farinha de trigo"
+        },
+        {
+          "store": "ATACADAO S.A.",
+          "desc": "FARINHA TRIGO FARINA",
+          "price": 2.89,
+          "query": "farinha de trigo"
+        },
+        {
+          "store": "ATACADAO S.A.",
+          "desc": "FARINHA TRIGO FARINA",
+          "price": 2.89,
+          "query": "farinha de trigo"
+        },
+        {
+          "store": "MIX MATEUS",
+          "desc": "FARINHA TRIGO TIA MARA C FERM 1kg",
+          "price": 2.97,
+          "query": "farinha de trigo"
+        },
+        {
+          "store": "MERCADO SANTA LUCIA",
+          "desc": "FARINHA DE TRIGO FARINA TRAD 1KG",
+          "price": 3.49,
+          "query": "farinha de trigo"
+        }
+      ],
+      "fetch_failed_labels": [],
+      "items_fetch_failed": 0,
+      "status_message": "Pronto",
+      "upstream": null,
+      "metrics_slim": {
+        "match_rate": 1.0,
+        "search_rewrites": [
+          {
+            "label": "farinha de trigo",
+            "original": "farinha de trigo",
+            "search_term": "farinha trigo"
+          }
+        ],
+        "suggested_refinements": [],
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "status_message": "Pronto"
+      }
+    },
+    {
+      "q": "pão",
+      "http": 200,
+      "latency_ms": 32682,
+      "request_id": "1b82537b50ae",
+      "error": null,
+      "issues": [],
+      "ok_flags": [
+        "no_ovos_brancos_top"
+      ],
+      "found_any": true,
+      "stores": 5,
+      "match_rate": 1.0,
+      "search_rewrites": [
+        {
+          "label": "pão",
+          "original": "pão",
+          "search_term": "pao frances"
+        }
+      ],
+      "suggested_refinements": [],
+      "top_lines": [
+        {
+          "store": "BELLO PANE DELICATESSE",
+          "desc": "PAO SIRIO MINI",
+          "price": 0.3,
+          "query": "pão"
+        },
+        {
+          "store": "PANIFICACAO SABOR DO SUL",
+          "desc": "PAO REVENDA",
+          "price": 0.33,
+          "query": "pão"
+        },
+        {
+          "store": "S DE S E SILVA JUNIOR  LTDA",
+          "desc": "PAO SORTIDO",
+          "price": 0.33,
+          "query": "pão"
+        },
+        {
+          "store": "PANIFICACAO MACENA",
+          "desc": "[Ds] PAO UN",
+          "price": 0.33,
+          "query": "pão"
+        },
+        {
+          "store": "TENTAPAO",
+          "desc": "PAO FRANCES",
+          "price": 0.35,
+          "query": "pão"
+        }
+      ],
+      "fetch_failed_labels": [],
+      "items_fetch_failed": 0,
+      "status_message": "Pronto",
+      "upstream": null,
+      "metrics_slim": {
+        "match_rate": 1.0,
+        "search_rewrites": [
+          {
+            "label": "pão",
+            "original": "pão",
+            "search_term": "pao frances"
+          }
+        ],
+        "suggested_refinements": [],
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "status_message": "Pronto"
+      }
+    },
+    {
+      "q": "queijo",
+      "http": 200,
+      "latency_ms": 14100,
+      "request_id": "ec13029ea50d",
+      "error": null,
+      "issues": [],
+      "ok_flags": [
+        "no_ovos_brancos_top"
+      ],
+      "found_any": true,
+      "stores": 5,
+      "match_rate": 1.0,
+      "search_rewrites": [],
+      "suggested_refinements": [],
+      "top_lines": [
+        {
+          "store": "PANIFICACAO J.S.",
+          "desc": "PAO DE QUEIJO",
+          "price": 0.5,
+          "query": "queijo"
+        },
+        {
+          "store": "MEGAMARX SUPERMERCADO E PANIFICACAO",
+          "desc": "PAO DE QUEIJO UND",
+          "price": 0.5,
+          "query": "queijo"
+        },
+        {
+          "store": "PANIFICACAO MARAVILHA",
+          "desc": "MINI PAO DE QUEIJO SEM RECHEIO UNID",
+          "price": 0.6,
+          "query": "queijo"
+        },
+        {
+          "store": "AMADO CAMARAO",
+          "desc": "QUEIJO PARMESAO",
+          "price": 0.64,
+          "query": "queijo"
+        },
+        {
+          "store": "CARAMELANDIA",
+          "desc": "SALG MILHO FLITS SABOR QUEIJO 28GR",
+          "price": 0.65,
+          "query": "queijo"
+        }
+      ],
+      "fetch_failed_labels": [],
+      "items_fetch_failed": 0,
+      "status_message": "Pronto",
+      "upstream": null,
+      "metrics_slim": {
+        "match_rate": 1.0,
+        "search_rewrites": [],
+        "suggested_refinements": [],
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "status_message": "Pronto"
+      }
+    },
+    {
+      "q": "papel higiênico",
+      "http": 200,
+      "latency_ms": 21607,
+      "request_id": "28c40e48e1d8",
+      "error": null,
+      "issues": [],
+      "ok_flags": [
+        "no_ovos_brancos_top",
+        "no_papel_toalha_for_higienico"
+      ],
+      "found_any": true,
+      "stores": 5,
+      "match_rate": 1.0,
+      "search_rewrites": [],
+      "suggested_refinements": [],
+      "top_lines": [
+        {
+          "store": "MERCADINHO SANTA CLARA",
+          "desc": "PAPEL HIGIENICO PIMPO NEUTRO",
+          "price": 2.7,
+          "query": "papel higiênico"
+        },
+        {
+          "store": "PANIFICACAO FLOR DO BAIRRO",
+          "desc": "PAPEL HIGIENICO PIMP",
+          "price": 2.75,
+          "query": "papel higiênico"
+        },
+        {
+          "store": "Mercadinho Santa Clara 2",
+          "desc": "PAPEL HIGIENICO PIMPO NEUTRO",
+          "price": 2.75,
+          "query": "papel higiênico"
+        },
+        {
+          "store": "PANIFICACAO SAO PAULO",
+          "desc": "PAPEL HIGIENICO PIMP",
+          "price": 2.89,
+          "query": "papel higiênico"
+        },
+        {
+          "store": "MERCEARIA TIGRE",
+          "desc": "PAPEL HIGIENICO NOVO 30M C/4",
+          "price": 3.25,
+          "query": "papel higiênico"
+        }
+      ],
+      "fetch_failed_labels": [],
+      "items_fetch_failed": 0,
+      "status_message": "Pronto",
+      "upstream": null,
+      "metrics_slim": {
+        "match_rate": 1.0,
+        "search_rewrites": [],
+        "suggested_refinements": [],
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "status_message": "Pronto"
+      }
+    },
+    {
+      "q": "salsicha",
+      "http": 200,
+      "latency_ms": 13801,
+      "request_id": "10b228d6c0e3",
+      "error": null,
+      "issues": [],
+      "ok_flags": [
+        "no_ovos_brancos_top"
+      ],
+      "found_any": true,
+      "stores": 5,
+      "match_rate": 1.0,
+      "search_rewrites": [],
+      "suggested_refinements": [],
+      "top_lines": [
+        {
+          "store": "E J DA SILVA MERCADINHO LTDA",
+          "desc": "SALSICHA KG",
+          "price": 1.0,
+          "query": "salsicha"
+        },
+        {
+          "store": "SALGATELA - A VIDA E CHEIA DE DOCES E SALGADINHOS",
+          "desc": "ENROLADINHO SALSICHA P",
+          "price": 1.0,
+          "query": "salsicha"
+        },
+        {
+          "store": "PANIFICACAO ANTARES",
+          "desc": "PAO DE SALSICHA",
+          "price": 1.0,
+          "query": "salsicha"
+        },
+        {
+          "store": "MERCADINHO ESPERANCA",
+          "desc": "SALSICHA",
+          "price": 1.0,
+          "query": "salsicha"
+        },
+        {
+          "store": "GOMES & ALMEIDA MERCEARIA",
+          "desc": "SALSICHA PERDIGÃO",
+          "price": 1.0,
+          "query": "salsicha"
+        }
+      ],
+      "fetch_failed_labels": [],
+      "items_fetch_failed": 0,
+      "status_message": "Pronto",
+      "upstream": null,
+      "metrics_slim": {
+        "match_rate": 1.0,
+        "search_rewrites": [],
+        "suggested_refinements": [],
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "status_message": "Pronto"
+      }
+    },
+    {
+      "q": "sabão em pó",
+      "http": 200,
+      "latency_ms": 20688,
+      "request_id": "c2b80fe99452",
+      "error": null,
+      "issues": [],
+      "ok_flags": [
+        "no_ovos_brancos_top"
+      ],
+      "found_any": true,
+      "stores": 5,
+      "match_rate": 1.0,
+      "search_rewrites": [],
+      "suggested_refinements": [],
+      "top_lines": [
+        {
+          "store": "ANTONIO J. DOS SANTOS MERCADINHO - ME",
+          "desc": "SABAO EM PO BRISA LAVANDA 400G",
+          "price": 3.0,
+          "query": "sabão em pó"
+        },
+        {
+          "store": "PANIFICACAO FLOR DO BAIRRO",
+          "desc": "SABAO EM PO SONHO",
+          "price": 3.19,
+          "query": "sabão em pó"
+        },
+        {
+          "store": "Mercadinho Santa Clara 2",
+          "desc": "SABAO EM PO BEM TE VI OLEOS ESSENCIAIS 400",
+          "price": 3.25,
+          "query": "sabão em pó"
+        },
+        {
+          "store": "MERCADINHO SANTA CLARA",
+          "desc": "SABAO EM PO ALA",
+          "price": 3.49,
+          "query": "sabão em pó"
+        },
+        {
+          "store": "ROBERTO JOSE DA PENHA",
+          "desc": "SABAO EM PO BEM TE VI COCO",
+          "price": 3.5,
+          "query": "sabão em pó"
+        }
+      ],
+      "fetch_failed_labels": [],
+      "items_fetch_failed": 0,
+      "status_message": "Pronto",
+      "upstream": null,
+      "metrics_slim": {
+        "match_rate": 1.0,
+        "search_rewrites": [],
+        "suggested_refinements": [],
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "status_message": "Pronto"
+      }
+    }
+  ]
+}
