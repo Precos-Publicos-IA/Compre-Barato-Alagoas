@@ -707,8 +707,10 @@ class _BottomCtaBar extends StatelessWidget {
       shadowColor: AppColors.shadow,
       color: AppColors.surface,
       child: SafeArea(
+        // expand: false — must shrink-wrap; see AppLayout.constrainContent.
         child: AppLayout.constrainContent(
           context: context,
+          expand: false,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               short ? 10 : 16,

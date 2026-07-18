@@ -78,14 +78,26 @@ class AppLayout {
   }
 
   /// Center a child inside [contentMaxWidth] for wide desktops.
+  ///
+  /// [expand] (default true): fill the parent's max height — correct for
+  /// Scaffold **body** so scroll views get a bounded viewport.
+  ///
+  /// Set [expand] false for **bottomNavigationBar** / intrinsic-height bars.
+  /// An expanding [Align] there grows to the full scaffold height, paints a
+  /// full-screen white Material over the body, and pins the CTA near the top
+  /// (y≈30) — blank QHD/4K stills and broken Desktop4k chrome.
   static Widget constrainContent({
     required BuildContext context,
     required Widget child,
+    bool expand = true,
   }) {
     final maxW = contentMaxWidth(context);
     if (maxW == double.infinity) return child;
     return Align(
       alignment: Alignment.topCenter,
+      // heightFactor: 1.0 → shrink-wrap to child height (bottom bars).
+      // null → expand to parent max height (body / scroll viewport).
+      heightFactor: expand ? null : 1.0,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxW),
         child: child,

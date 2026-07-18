@@ -89,6 +89,7 @@ class ResultsScreen extends ConsumerWidget {
         child: SafeArea(
           child: AppLayout.constrainContent(
             context: context,
+            expand: false,
             child: Padding(
               padding: EdgeInsets.fromLTRB(
                 short ? 10 : 16,

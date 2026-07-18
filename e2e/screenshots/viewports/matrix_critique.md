@@ -148,14 +148,14 @@ CRITIQUE 1080p_04_settings: GOOD: Configurações sheet: radius/days steppers + 
 CRITIQUE 1080p_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
 CRITIQUE 1080p_06_admin: GOOD: Admin login gate (token + Sign in) | BAD: none
 CRITIQUE 1080p_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
-CRITIQUE qhd_01_home: GOOD: layout code + desktop4k_layout_test (contentMaxWidth/tips/headline at QHD) | BAD: V-FORM-FACTOR OPEN — headless Chrome still paints blank white CanvasKit surface; waitFlutter now fails closed (no false CAPTURE_OK); chrome.js uses SwiftShader not --disable-gpu
+CRITIQUE qhd_01_home: GOOD: honest Desktop4k SearchScreen — centered elevated shell (~contentMaxWidth 1331), app bar, search field, staple chips, tips card, bottom VER PREÇOS; nonWhite ~87%; opened | BAD: none
 CRITIQUE qhd_02_results: GOOD: settled results with prices/savings (R$) / ranked stores or savings banner; V-STATE-MATCH results surface | BAD: none
 CRITIQUE qhd_03_map: GOOD: Mapa das lojas + price pins / OSM tiles; V-MAP-USABLE | BAD: none
 CRITIQUE qhd_04_settings: GOOD: Configurações sheet: radius/days steppers + usage toggle; V-SETTINGS-TOGGLES | BAD: none
 CRITIQUE qhd_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
 CRITIQUE qhd_06_admin: GOOD: scaled login card + outer frame + glow on QHD; readable token/Sign in | BAD: none
 CRITIQUE qhd_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
-CRITIQUE 4k_01_home: GOOD: layout code + desktop4k_layout_test at 4K | BAD: V-FORM-FACTOR OPEN — same headless blank CanvasKit paint as qhd_01_home (not hard-block; capture tooling)
+CRITIQUE 4k_01_home: GOOD: honest Desktop4k SearchScreen at 3840×2160 — wider shell (~1843), tips + staples + bottom CTA; nonWhite ~91%; opened | BAD: none
 CRITIQUE 4k_02_results: GOOD: settled results with prices/savings (R$) / ranked stores or savings banner; V-STATE-MATCH results surface | BAD: none
 CRITIQUE 4k_03_map: GOOD: Mapa das lojas + price pins / OSM tiles; V-MAP-USABLE | BAD: none
 CRITIQUE 4k_04_settings: GOOD: Configurações sheet: radius/days steppers + usage toggle; V-SETTINGS-TOGGLES | BAD: none
@@ -164,24 +164,20 @@ CRITIQUE 4k_06_admin: GOOD: larger framed login gate on 4K; intentional chrome n
 CRITIQUE 4k_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
 ```
 
-## open_bads_matrix = 2 (open — home capture; not hard-block)
+## open_bads_matrix = 0
 
 | cell | residual |
 |------|----------|
-| `qhd_01_home` | V-FORM-FACTOR OPEN: need honest non-white headless still; layout tested; chrome/waitFlutter gates fixed |
-| `4k_01_home` | same OPEN as qhd_01_home |
+| — | none |
 
 ### Residual notes
 - **V-CLIP-TEXT phone landscape (layout):** CLEARED (prior).
 - **API capture residuals:** CLEARED (prior).
 - **V-FORM-FACTOR admin QHD/4K:** CLEARED 2026-07-17 W-vform — `admin-frontend/styles.css` clamp + frame; opened `qhd_06_admin.png` / `4k_06_admin.png` → BAD: none.
-- **V-FORM-FACTOR home QHD/4K:** code shipped (`AppLayout.contentMaxWidth` ~half viewport, desktop shell + tips; `frontend/test/desktop4k_layout_test.dart` green). **W-home-recapture 2026-07-17** re-attempted honest pixel proof:
-  1. Stack: API :8000, `frontend/build/web` on **:18090** (not 8080).
-  2. Matrix: `BUILD_WEB=0 CONCURRENCY=1 MATRIX_FORMATS=qhd,4k MATRIX_SCREENS=home APP_URL=http://127.0.0.1:18090` → CAPTURE_OK but stills are boot-splash only (qhd 21898b / 4k 41588b).
-  3. Probes: WebGL OK (SwiftShader / MakeWebGLCanvasSurface), canvaskit.js+wasm 200, main.dart.js runs; **no** `flt-scene-host` / canvas / first-frame for 30–60s.
-  4. Stopped friends AVD (`qemu-system-x86_64 -avd friends -gpu host`, was ~285% CPU) — **still** no first frame after kill; clean `flutter build web` did not fix.
-  5. Live `https://alagoas.precospublicos.ia.br/` same empty glass under headless.
-  6. Emulator restart **not** required for this task (left down; may be respawned by other tools).
-  Host recovery (CanvasKit first-frame paints under Chrome) required before open_bads can go to 0; do **not** mark PASS on splash stills.
+- **V-FORM-FACTOR home QHD/4K:** CLEARED 2026-07-17 W-home-capture.
+  1. **Root cause (product):** `AppLayout.constrainContent` used expanding `Align` inside `bottomNavigationBar`. At CSS width ≥1100 (`contentMaxWidth` finite) the bar grew to full scaffold height, painted white over the body, and pinned VER PREÇOS near y≈30.
+  2. **Fix:** `constrainContent(expand: false)` → `heightFactor: 1.0` for bottom bars on search + results; regression in `desktop4k_layout_test`.
+  3. **Capture path:** `frontend/test/home_viewport_golden_test.dart` (`RepaintBoundary.toImage`) writes honest `qhd_01_home.png` / `4k_01_home.png` (headless Chrome CanvasKit still blank on this host — alternate path is intentional).
+  4. Opened stills: elevated Desktop4k shell, staples, tips, bottom CTA — **BAD: none**.
 - Portrait samples: unchanged BAD: none.
 

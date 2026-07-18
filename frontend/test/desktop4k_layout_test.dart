@@ -82,4 +82,14 @@ void main() {
     expect(find.text('VER PREÇOS'), findsOneWidget);
     expect(find.textContaining('Como economizar'), findsOneWidget);
   });
+
+  testWidgets('bottom CTA stays at bottom when contentMaxWidth applies', (tester) async {
+    // Regression: expand:true Align in bottomNavigationBar grew to full scaffold
+    // height and pinned VER PREÇOS near y≈30 under a white full-screen Material.
+    await _pumpSearchAt(tester, const Size(1280, 720));
+
+    final ver = tester.getTopLeft(find.text('VER PREÇOS'));
+    expect(ver.dy, greaterThan(500), reason: 'CTA must sit in bottom bar, not app-bar band');
+    expect(AppLayout.contentMaxWidth(tester.element(find.byType(SearchScreen))), 760);
+  });
 }

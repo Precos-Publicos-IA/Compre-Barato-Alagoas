@@ -1,7 +1,4 @@
-# open residual — NOT hard-block (capture tooling)
-# Layout: 77c58a5 + desktop4k_layout_test (QHD+4K tips/headline/contentMaxWidth)
-# Capture: waitFlutter now fails closed on blank canvas; chrome.js no longer --disable-gpu
-# Host: headless Chrome still paints blank white CanvasKit surface (local+live) — keep working
-qhd_01_home	V-FORM-FACTOR: need honest non-white home still (layout code tested; headless paint blank)
-4k_01_home	V-FORM-FACTOR: need honest non-white home still (layout code tested; headless paint blank)
-# open_bads_matrix = 2 open (completable — capture path)
+# open residual — cleared by W-home-capture
+# Layout fix: constrainContent(expand:false) for bottomNavigationBar (width>=1100 bug)
+# Capture: home_viewport_golden_test.dart → qhd_01_home + 4k_01_home honest stills
+# open_bads_matrix = 0
