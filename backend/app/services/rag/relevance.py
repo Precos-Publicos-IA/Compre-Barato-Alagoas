@@ -3,6 +3,10 @@
 Key idea: for staples, the product word must appear as a *primary* token near
 the start of the NFC-e description. Containing "leite" inside a cookie name is
 not a milk hit.
+
+PR1 (search quality): package-class priors for staples, hard rejects for
+off-intent oil (coco/tiny) and pasta-as-egg (MAC/MACARR), so ranking cannot
+crown sachets or macarrão "c/ovos" as the shopping answer.
 """
 
 from __future__ import annotations
@@ -12,10 +16,13 @@ import unicodedata
 from dataclasses import dataclass
 
 from ..normalization.matcher import NormalizedOffer
+from ..normalization.quantity import extract_quantity
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+", re.I)
 
 # Leading/category noise (cookie, candy, pet, seasoning, hygiene, …).
+# Note: MAC/MACARR abbreviations are handled in egg-specific pasta noise (not
+# global — "MAC" alone can appear in other brands).
 _NOISE = re.compile(
     r"\b("
     r"bala|balas|pirulito|chiclete|chocolate|choc|bombom|caramel[oa]|confeito|"
@@ -43,6 +50,22 @@ _SWEET_QUERY = re.compile(
 _SEASONING_QUERY = re.compile(r"\b(tempero|sazon|caldo|maggi)\b", re.I)
 _YOGURT_QUERY = re.compile(r"\b(iogurte|yakult|chamyto|fermentado)\b", re.I)
 
+# Pasta signals when user wants eggs (W1.2 / W1.3).
+_PASTA_FULL = re.compile(
+    r"\b("
+    r"macarr[aã]o|espaguete|parafuso|penne|ninho|nissin|lamen|l[aá]men|"
+    r"miojo|talharim|parafusinho|padrezinho|massa\s+com"
+    r")\b",
+    re.I,
+)
+_PASTA_ABBREV = frozenset({"mac", "macarr"})
+
+# Coconut oil off-intent for plain "óleo" (W1.3).
+_COCO = re.compile(r"\bcoco\b", re.I)
+_COOKING_OIL_TYPES = re.compile(
+    r"\b(soja|girassol|milho|canola|composto|algod[aã]o|oliva)\b", re.I
+)
+
 # Staple keys (accent-stripped) → positive package/type patterns.
 _STAPLES = {
     "arroz": re.compile(
@@ -64,16 +87,46 @@ _STAPLES = {
         re.I,
     ),
     "acucar": re.compile(r"\b(cristal|refinado|demerara|mascavo|[15]\s*kg)\b", re.I),
-    "oleo": re.compile(r"\b(soja|girassol|milho|canola|900\s*ml|1\s*l)\b", re.I),
+    "oleo": re.compile(
+        r"\b(soja|girassol|milho|canola|composto|900\s*ml|500\s*ml|1\s*l)\b", re.I
+    ),
     "cafe": re.compile(r"\b(torrado|moido|soluvel|capsula|p[oó]|500\s*g)\b", re.I),
-    "ovo": re.compile(r"\b(branco|vermelho|caipira|bandeja|dz|duzia|30\s*un)\b", re.I),
-    "ovos": re.compile(r"\b(branco|vermelho|caipira|bandeja|dz|duzia|30\s*un)\b", re.I),
+    "ovo": re.compile(
+        r"\b(branco|vermelho|caipira|bandeja|dz|duzia|d[uú]zia|"
+        r"[0-9]+\s*un|c/\s*[0-9]+)\b",
+        re.I,
+    ),
+    "ovos": re.compile(
+        r"\b(branco|vermelho|caipira|bandeja|dz|duzia|d[uú]zia|"
+        r"[0-9]+\s*un|c/\s*[0-9]+)\b",
+        re.I,
+    ),
     "macarrao": re.compile(r"\b(espaguete|parafuso|penne|ninho|integral|500\s*g)\b", re.I),
 }
 
 _STOP = frozenset(
     "de da do das dos com para tipo und un pct pacote cx kg g l ml ao".split()
 )
+
+# Package-class ranks (lower is better for ranking). Used by ranking + learn guard.
+# 0 = preferred grocery pack; 1 = acceptable; 2 = demoted (single egg, odd size);
+# 3 = outlier / tiny (should usually already be filtered).
+_CLASS_PREFERRED = 0
+_CLASS_OK = 1
+_CLASS_DEMOT = 2
+_CLASS_OUTLIER = 3
+_CLASS_UNKNOWN = 1
+
+# Cooking oil: reject below this volume (L). 50 ml sachets are not "óleo" shopping.
+_OIL_MIN_L = 0.05
+# Preferred cooking oil pack: ~500 ml – 1.2 L.
+_OIL_PREF_LO = 0.45
+_OIL_PREF_HI = 1.2
+# Sugar preferred around 1–5 kg.
+_SUGAR_PREF_LO = 0.8
+_SUGAR_PREF_HI = 5.5
+# Eggs: bandeja/dúzia class is 6+.
+_EGG_PREF_MIN = 6
 
 
 def _strip_accents(s: str) -> str:
@@ -94,6 +147,14 @@ def _token_set(text: str) -> set[str]:
     return {t for t in _token_list(text) if t not in _STOP}
 
 
+def _expand_synonyms(toks: set[str]) -> set[str]:
+    """ovo/ovos (and similar) must match each other for staple scoring."""
+    out = set(toks)
+    if "ovo" in out or "ovos" in out:
+        out.update({"ovo", "ovos"})
+    return out
+
+
 def _intent_staples(intent: str) -> list[str]:
     t = _norm(intent)
     out = []
@@ -105,6 +166,11 @@ def _intent_staples(intent: str) -> list[str]:
         out.append("feijao")
     if re.search(r"\bp[aã]o\b", intent or "", re.I) and "pao" not in out:
         out.append("pao")
+    # bare "açúcar" accent form
+    if re.search(r"\ba[cç][uú]car\b", intent or "", re.I) and "acucar" not in out:
+        out.append("acucar")
+    if re.search(r"\b[oó]leo\b", intent or "", re.I) and "oleo" not in out:
+        out.append("oleo")
     return out
 
 
@@ -132,7 +198,241 @@ def _user_allows_noise(intent: str, desc: str) -> bool:
         r"\b(iogurte|ferm|chamyto)\b", desc, re.I
     ):
         return True
+    # User asked for pasta → allow macarrão noise tokens.
+    if re.search(r"\bmacarr", intent, re.I) and re.search(
+        r"\b(mac|macarr|macarrao|espaguete)\b", desc, re.I
+    ):
+        return True
     return False
+
+
+def _is_egg_intent(intent_n: str) -> bool:
+    return bool(re.search(r"\bovos?\b", intent_n))
+
+
+def _is_oil_intent(intent_n: str) -> bool:
+    return bool(re.search(r"\boleo\b", intent_n))
+
+
+def _is_sugar_intent(intent_n: str) -> bool:
+    return bool(re.search(r"\bacucar\b", intent_n))
+
+
+def _query_wants_coco(intent_n: str) -> bool:
+    return bool(_COCO.search(intent_n))
+
+
+def _is_pasta_as_egg_noise(desc_n: str, desc_tokens: list[str]) -> bool:
+    """MAC / MACARR / macarrão / nissin … as egg impostors (W1.2)."""
+    if _PASTA_FULL.search(desc_n):
+        return True
+    # Abbreviation as an early product token (e.g. "MAC OVOS FURADINHO").
+    for t in desc_tokens[:4]:
+        if t in _PASTA_ABBREV:
+            return True
+    return False
+
+
+def _volume_liters(
+    description: str,
+    *,
+    quantity: float | None = None,
+    unit: str | None = None,
+    base_unit: str | None = None,
+    quantity_parsed: bool = False,
+) -> float | None:
+    """Best-effort package volume in liters."""
+    if quantity_parsed and base_unit == "L" and quantity is not None:
+        # quantity may be in ml if unit is ml — prefer base when available.
+        # NormalizedOffer.quantity is in `unit`, not always base.
+        from ..normalization.units import to_base
+
+        if unit:
+            conv = to_base(quantity, unit)
+            if conv and conv[1] == "L":
+                return conv[0]
+        if base_unit == "L":
+            # Some callers pass base already in quantity when unit==L
+            return float(quantity)
+    pq = extract_quantity(description or "")
+    if pq and pq.base_unit == "L":
+        return pq.base_value
+    return None
+
+
+def _count_units(
+    description: str,
+    *,
+    quantity: float | None = None,
+    unit: str | None = None,
+    base_unit: str | None = None,
+    quantity_parsed: bool = False,
+) -> float | None:
+    """Best-effort package count (eggs etc.)."""
+    desc_n = _norm(description or "")
+    if quantity_parsed and base_unit == "un" and quantity is not None:
+        from ..normalization.units import to_base
+
+        if unit:
+            conv = to_base(quantity, unit)
+            if conv and conv[1] == "un":
+                return conv[0]
+    pq = extract_quantity(description or "")
+    if pq and pq.base_unit == "un":
+        return pq.base_value
+    # Keyword hints when size parse misses (e.g. bare "DZ").
+    if re.search(r"\b(dz|duzia|dúzia)\b", desc_n, re.I):
+        return 12.0
+    if re.search(r"\bbandeja\b", desc_n):
+        return 12.0
+    return None
+
+
+def _mass_kg(
+    description: str,
+    *,
+    quantity: float | None = None,
+    unit: str | None = None,
+    base_unit: str | None = None,
+    quantity_parsed: bool = False,
+) -> float | None:
+    if quantity_parsed and base_unit == "kg" and quantity is not None:
+        from ..normalization.units import to_base
+
+        if unit:
+            conv = to_base(quantity, unit)
+            if conv and conv[1] == "kg":
+                return conv[0]
+    pq = extract_quantity(description or "")
+    if pq and pq.base_unit == "kg":
+        return pq.base_value
+    return None
+
+
+def package_class_rank(
+    user_label: str,
+    search_term: str = "",
+    *,
+    description: str = "",
+    quantity: float | None = None,
+    unit: str | None = None,
+    base_unit: str | None = None,
+    quantity_parsed: bool = False,
+) -> int:
+    """Return package-class rank for staples (lower = better grocery match).
+
+    Used by ranking (D1: class before unit_price) and RAG learn guard (D5).
+    Non-staple intents return UNKNOWN (neutral).
+    """
+    intent_n = _norm(f"{user_label} {search_term}".strip())
+    desc = description or ""
+    desc_n = _norm(desc)
+    kw = dict(
+        quantity=quantity,
+        unit=unit,
+        base_unit=base_unit,
+        quantity_parsed=quantity_parsed,
+    )
+
+    if _is_oil_intent(intent_n):
+        if not _query_wants_coco(intent_n) and _COCO.search(desc_n):
+            return _CLASS_OUTLIER
+        vol = _volume_liters(desc, **kw)
+        if vol is None:
+            return _CLASS_UNKNOWN
+        if vol < _OIL_MIN_L:
+            return _CLASS_OUTLIER
+        if _OIL_PREF_LO <= vol <= _OIL_PREF_HI:
+            return _CLASS_PREFERRED
+        if 0.2 <= vol < _OIL_PREF_LO or _OIL_PREF_HI < vol <= 2.0:
+            return _CLASS_OK
+        return _CLASS_DEMOT
+
+    if _is_egg_intent(intent_n):
+        if _is_pasta_as_egg_noise(desc_n, _token_list(desc)):
+            return _CLASS_OUTLIER
+        count = _count_units(desc, **kw)
+        if count is None:
+            # Single "OVO … UN" often unparsed; demote vs bandeja.
+            if re.search(r"\b(un|und|unidade)\b", desc_n) and not re.search(
+                r"\b(bandeja|dz|duzia|c/\s*[2-9]|c/\s*[1-9][0-9])\b", desc_n
+            ):
+                return _CLASS_DEMOT
+            return _CLASS_UNKNOWN
+        if count >= _EGG_PREF_MIN:
+            return _CLASS_PREFERRED
+        if count >= 2:
+            return _CLASS_OK
+        return _CLASS_DEMOT  # single egg
+
+    if _is_sugar_intent(intent_n):
+        mass = _mass_kg(desc, **kw)
+        if mass is None:
+            return _CLASS_UNKNOWN
+        if _SUGAR_PREF_LO <= mass <= _SUGAR_PREF_HI:
+            return _CLASS_PREFERRED
+        if mass < 0.2:
+            return _CLASS_OUTLIER
+        return _CLASS_OK
+
+    return _CLASS_UNKNOWN
+
+
+def package_class_ok(
+    user_label: str,
+    search_term: str = "",
+    *,
+    description: str = "",
+    quantity: float | None = None,
+    unit: str | None = None,
+    base_unit: str | None = None,
+    quantity_parsed: bool = False,
+    max_rank: int = _CLASS_OK,
+) -> bool:
+    """True when package is in-class enough to learn / trust (D5)."""
+    rank = package_class_rank(
+        user_label,
+        search_term,
+        description=description,
+        quantity=quantity,
+        unit=unit,
+        base_unit=base_unit,
+        quantity_parsed=quantity_parsed,
+    )
+    return rank <= max_rank
+
+
+def offer_package_class_rank(
+    user_label: str, search_term: str, offer: NormalizedOffer
+) -> int:
+    return package_class_rank(
+        user_label,
+        search_term,
+        description=offer.description or "",
+        quantity=offer.quantity,
+        unit=offer.unit,
+        base_unit=offer.base_unit,
+        quantity_parsed=offer.quantity_parsed,
+    )
+
+
+def offer_package_class_ok(
+    user_label: str,
+    search_term: str,
+    offer: NormalizedOffer,
+    *,
+    max_rank: int = _CLASS_OK,
+) -> bool:
+    return package_class_ok(
+        user_label,
+        search_term,
+        description=offer.description or "",
+        quantity=offer.quantity,
+        unit=offer.unit,
+        base_unit=offer.base_unit,
+        quantity_parsed=offer.quantity_parsed,
+        max_rank=max_rank,
+    )
 
 
 @dataclass(frozen=True)
@@ -140,6 +440,25 @@ class RelevanceResult:
     score: float
     kept: list[NormalizedOffer]
     dropped: int
+
+
+def _hard_reject_score(
+    intent_n: str, desc_n: str, desc_tokens: list[str], description: str
+) -> float | None:
+    """Return a low score for known off-intent SKUs, else None."""
+    # Eggs: pasta "MAC OVOS" / "C/OVOS" macarrão must never win (W1.2/W1.3).
+    if _is_egg_intent(intent_n) and _is_pasta_as_egg_noise(desc_n, desc_tokens):
+        return 0.04
+
+    # Plain óleo: coconut oil and tiny sachets are off-intent (W1.1/W1.3).
+    if _is_oil_intent(intent_n) and not _query_wants_coco(intent_n):
+        if _COCO.search(desc_n):
+            return 0.04
+        vol = _volume_liters(description)
+        if vol is not None and vol < _OIL_MIN_L:
+            return 0.04
+
+    return None
 
 
 def score_description(user_label: str, search_term: str, description: str) -> float:
@@ -151,9 +470,9 @@ def score_description(user_label: str, search_term: str, description: str) -> fl
 
     intent_n = _norm(intent)
     desc_n = _norm(desc)
-    intent_toks = _token_set(intent)
+    intent_toks = _expand_synonyms(_token_set(intent))
     desc_tokens = _token_list(desc)
-    desc_toks = {t for t in desc_tokens if t not in _STOP}
+    desc_toks = _expand_synonyms({t for t in desc_tokens if t not in _STOP})
     if not intent_toks or not desc_toks:
         return 0.0
 
@@ -164,6 +483,10 @@ def score_description(user_label: str, search_term: str, description: str) -> fl
     overlap = content & desc_toks
     if not overlap:
         return 0.0
+
+    hard = _hard_reject_score(intent_n, desc_n, desc_tokens, desc)
+    if hard is not None:
+        return hard
 
     # Hard gate: noise categories (cookie/candy/pet/seasoning) unless asked.
     # No exceptions for "primary token" — "ARROZ P CAES" and "CARAMELO LEITE" must die.
@@ -199,6 +522,27 @@ def score_description(user_label: str, search_term: str, description: str) -> fl
             r"\b(1\s*l|1000\s*ml|integral|desnat)\b", desc_n
         ):
             base += 0.12
+        # Oil: prefer cooking-size mass oils (soja/girassol 900 ml class).
+        if st == "oleo":
+            if _COOKING_OIL_TYPES.search(desc_n):
+                base += 0.08
+            vol = _volume_liters(desc)
+            if vol is not None and _OIL_PREF_LO <= vol <= _OIL_PREF_HI:
+                base += 0.12
+        # Eggs: prefer bandeja/dúzia over single UN.
+        if st in ("ovo", "ovos"):
+            count = _count_units(desc)
+            if count is not None and count >= _EGG_PREF_MIN:
+                base += 0.12
+            elif count is not None and count <= 1:
+                base -= 0.18
+            elif re.search(r"\b(bandeja|dz|duzia)\b", desc_n):
+                base += 0.12
+        # Sugar: prefer 1 kg class.
+        if st == "acucar":
+            mass = _mass_kg(desc)
+            if mass is not None and _SUGAR_PREF_LO <= mass <= _SUGAR_PREF_HI:
+                base += 0.10
 
     # Token overlap refinement
     base += 0.15 * (len(overlap) / max(len(content), 1))
@@ -223,8 +567,15 @@ def filter_offers(
         return RelevanceResult(score=0.0, kept=[], dropped=0)
 
     scored = [(score_offer(user_label, search_term, o), o) for o in offers]
-    # Best relevance first; among equals, cheaper unit price.
-    scored.sort(key=lambda x: (-x[0], x[1].unit_price, x[1].price))
+    # Best relevance first; among equals, better package class then cheaper unit.
+    scored.sort(
+        key=lambda x: (
+            -x[0],
+            offer_package_class_rank(user_label, search_term, x[1]),
+            x[1].unit_price,
+            x[1].price,
+        )
+    )
     best = scored[0][0]
     kept = [o for s, o in scored if s >= min_score]
     if not kept:

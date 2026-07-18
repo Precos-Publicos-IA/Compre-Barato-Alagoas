@@ -1,7 +1,8 @@
 """Aggregate per-item offers into ranked store baskets.
 
-For each (store, requested item) we keep the **best-value** offer (lowest price per
-base unit, then fresher sale, then lower package price), then rank stores:
+For each (store, requested item) we keep the **best-value** offer (preferred
+package class first for staples, then lowest price per base unit, then fresher
+sale, then lower package price), then rank stores:
 
 1. more of the user's list available (``items_found`` desc);
 2. then cheaper basket total asc;
@@ -15,6 +16,7 @@ from datetime import datetime, timezone
 from ..schemas.search import ItemOffer, StoreResult
 from .geo import haversine_km
 from .normalization.matcher import NormalizedOffer
+from .rag.relevance import offer_package_class_rank
 
 
 def _sale_age_days(sale_date: str | None) -> float:
@@ -35,11 +37,23 @@ def _sale_age_days(sale_date: str | None) -> float:
         return 9999.0
 
 
-def _best_offer(offers: list[NormalizedOffer]) -> NormalizedOffer:
-    # Best value; prefer fresher sales; then lower package price.
+def _best_offer(
+    offers: list[NormalizedOffer],
+    query: str = "",
+) -> NormalizedOffer:
+    """Pick best offer: package class first (D1), then unit_price, freshness, pack R$.
+
+    Cooking-size packs must beat 15 ml sachets even when package price is lower
+    or unit_price is unparsed (per-package fallback).
+    """
     return min(
         offers,
-        key=lambda o: (o.unit_price, _sale_age_days(o.sale_date), o.price),
+        key=lambda o: (
+            offer_package_class_rank(query, query, o),
+            o.unit_price,
+            _sale_age_days(o.sale_date),
+            o.price,
+        ),
     )
 
 
@@ -94,7 +108,7 @@ def build_store_results(
                 continue
             per_store.setdefault(offer.cnpj, []).append(offer)
         for cnpj, offers in per_store.items():
-            best = _best_offer(offers)
+            best = _best_offer(offers, query)
             by_store.setdefault(cnpj, {})[query] = best
             store_meta.setdefault(cnpj, best)
 

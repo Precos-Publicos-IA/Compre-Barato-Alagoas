@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from typing import Protocol
 
 from ..normalization.matcher import NormalizedOffer
-from ..rag.relevance import filter_offers
+from ..rag.relevance import filter_offers, offer_package_class_ok
 from ..rag.store import RAGStore
 from .base import ParsedItem
 
@@ -47,8 +47,8 @@ class BasicVerifier:
 
     # Stricter default: candy/pet noise must not pass as "success" for RAG learning.
     min_score: float = 0.35
-    # Only learn mappings when the best offer is clearly on-intent.
-    min_score_to_learn: float = 0.45
+    # Only learn mappings when the best offer is clearly on-intent (D5: in-class).
+    min_score_to_learn: float = 0.50
 
     async def verify_and_organize(
         self,
@@ -77,7 +77,19 @@ class BasicVerifier:
             good_count = len(rel.kept)
 
             if rag is not None:
-                if good_count > 0 and rel.score >= self.min_score_to_learn:
+                best_offer = rel.kept[0] if rel.kept else None
+                in_class = (
+                    best_offer is not None
+                    and offer_package_class_ok(
+                        item.label, item.search_term, best_offer
+                    )
+                )
+                # D5: do not learn coco-oil / pasta-as-egg into staple term maps.
+                if (
+                    good_count > 0
+                    and rel.score >= self.min_score_to_learn
+                    and in_class
+                ):
                     await rag.record_success(
                         user_term=item.label or item.raw,
                         effective_search_term=item.search_term,

@@ -62,3 +62,10 @@ def test_explicit_single_count_unit_is_parsed():
         assert pq is not None, desc
         assert pq.base_unit == "un"
         assert pq.base_value == pytest.approx(1.0)
+
+
+def test_bare_dz_is_dozen():
+    pq = extract_quantity("OVOS VERMELHO DZ")
+    assert pq is not None
+    assert pq.base_unit == "un"
+    assert pq.base_value == 12.0

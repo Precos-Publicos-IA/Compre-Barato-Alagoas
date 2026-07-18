@@ -148,6 +148,21 @@ def extract_quantity(description: str) -> ParsedQuantity | None:
             source=pack.group(0),  # type: ignore[union-attr]
         )
 
+    # 3b) Bare dozen markers without a leading number ("OVOS VERMELHO DZ").
+    if re.search(r"\b(dz|duzia|dúzia)\b", text, re.IGNORECASE):
+        base = to_base(12.0, "un")
+        assert base
+        m = re.search(r"\b(dz|duzia|dúzia)\b", text, re.IGNORECASE)
+        return ParsedQuantity(
+            value=12.0,
+            unit="un",
+            base_value=base[0],
+            base_unit=base[1],
+            confidence=0.7,
+            multipack=True,
+            source=m.group(0) if m else "dz",
+        )
+
     # 4) A bare count unit like "... 12UN", "1UN" or "DUZIA".
     # Accept >= 1 so explicit single-unit markers ("1 unidade", "1 pc") are
     # treated as parsed sizes instead of falling back to per-package.

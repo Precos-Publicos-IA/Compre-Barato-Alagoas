@@ -82,3 +82,58 @@ def test_excluded_cnpjs_filtered_before_top_n(registro_factory):
         ["arroz"], {"arroz": [a, b]}, origin=None, top_n=1, excluded_cnpjs={"B"}
     )
     assert [s.cnpj for s in excl] == ["A"]
+
+
+def test_package_class_beats_cheap_tiny_oil():
+    """D1: cooking-size óleo must beat cheap 15 ml when both are candidates.
+
+    Force per-package unit_price fallback (quantity_parsed=False) so package R$
+    alone would crown the sachet — package class must still win.
+    """
+    from app.services.normalization.matcher import NormalizedOffer
+
+    def make(desc, price, **kw):
+        return NormalizedOffer(
+            description=desc,
+            description_sefaz=desc,
+            gtin=None,
+            unidade_medida="UN",
+            price=price,
+            unit_price=price,  # fallback: package price as unit_price
+            base_unit="un",
+            quantity=1.0,
+            unit="un",
+            quantity_parsed=False,
+            parse_method="fallback",
+            parse_confidence=0.0,
+            sale_date=None,
+            cnpj="A",
+            store_name="A",
+            latitude=None,
+            longitude=None,
+            bairro=None,
+            address=None,
+            **kw,
+        )
+
+    tiny = make("OLEO SOJA 15ML", 1.2)
+    cooking = make("OLEO SOJA 900ML", 8.0)
+    results = build_store_results(
+        ["oleo"], {"oleo": [tiny, cooking]}, origin=None, top_n=5
+    )
+    assert results[0].items[0].description == cooking.description
+
+
+def test_package_class_prefers_egg_dozen_over_single(registro_factory):
+    single = _offer(
+        registro_factory(descricao="OVO BRANCO 1UN", valor_venda=0.8, cnpj="A", nome="A")
+    )
+    dozen = _offer(
+        registro_factory(
+            descricao="OVOS BRANCOS BANDEJA C/12", valor_venda=9.0, cnpj="A", nome="A"
+        )
+    )
+    results = build_store_results(
+        ["ovo"], {"ovo": [single, dozen]}, origin=None, top_n=5
+    )
+    assert "C/12" in results[0].items[0].description or "BANDEJA" in results[0].items[0].description
