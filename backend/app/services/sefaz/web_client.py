@@ -354,15 +354,17 @@ def _filter_relevant(rows: list[Registro], term: str) -> list[Registro]:
     scored.sort(key=lambda x: -x[0])
 
     # Prefer solid matches; if none, keep best mid-score rows (not pure zeros).
+    # Hard-reject band (≤0.08) must never soft-pass as "something is better than
+    # nothing" — that re-introduced egg bleed / snack-as-salt on empty intents.
     hard = [r for s, r in scored if s >= 0.35]
     if hard:
         return hard
-    soft = [r for s, r in scored if s >= 0.18]
+    soft = [r for s, r in scored if s >= 0.20]
     if soft:
         return soft
-    # Last resort: top 15 by score if anything non-zero
-    nonzero = [r for s, r in scored if s > 0.05]
-    return nonzero[:15] if nonzero else []
+    # Last resort only for weak-but-not-rejected mid scores.
+    weak = [r for s, r in scored if s >= 0.15]
+    return weak[:15] if weak else []
 
 
 class WebSefazClient:

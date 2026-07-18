@@ -2,6 +2,9 @@
 
 PR1 goldens (phone eval 2026-07-18): reject coco 15 ml under óleo, pasta MAC/OVOS
 under ovo, keep soja 900 ml / açúcar 1 kg / egg bandeja class.
+
+PR2 goldens (match_eval_100 live 2026-07-18): egg cross-bleed, sal snacks,
+óleo saturado, feijão tempero, zero-açúcar candy, café caramel/spice mix.
 """
 
 from app.services.rag.relevance import (
@@ -196,3 +199,183 @@ def test_coco_allowed_when_query_asks_coco():
     # User who typed "óleo de coco" should not hard-lose real coco oil bottles.
     score = score_description("oleo de coco", "oleo de coco", "OLEO DE COCO 200ML")
     assert score > 0.3
+
+
+# --- PR2 / match_eval_100 P0 goldens ---------------------------------------------
+
+
+def test_egg_cross_bleed_rejected_for_non_egg_queries():
+    """Unrelated intents must never keep OVOS BRANCOS UND (live bleed theme T1)."""
+    egg_descs = [
+        "OVOS BRANCOS UND",
+        "OVOS EXTRA STA MARIA LUNA UN",
+        "OVOS BRANCO - UNIDADE",
+        "OVOS",
+    ]
+    non_egg_queries = [
+        "farinha de trigo",
+        "queijo",
+        "pão",
+        "água",
+        "molho de tomate",
+        "peito de frango",
+        "saco de lixo",
+        "barra de cereal",
+        "água sanitária",
+    ]
+    for q in non_egg_queries:
+        for d in egg_descs:
+            s = score_description(q, q, d)
+            assert s < 0.15, f"{q!r} vs {d!r} scored {s}"
+
+
+def test_egg_still_matches_egg_intent():
+    assert score_description("ovo", "ovo", "OVOS BRANCOS UND") > 0.25
+    assert score_description("ovos", "ovos", "OVOS EXTRA STA MARIA LUNA UN") > 0.25
+
+
+def test_sal_rejects_snacks_keeps_refinado():
+    castanha = score_description("sal", "sal", "CASTANHA CAJU CROC TORRADA S SAL 50G")
+    pipoca = score_description("sal", "sal", "PIPOCA BETTI 15G SAL")
+    salg = score_description("sal", "sal", "SALG MILHO CORINGUITOS CEB SAL 30G")
+    refinado = score_description("sal", "sal", "SAL REFINADO CISNE 1KG")
+    assert castanha < 0.2
+    assert pipoca < 0.2
+    assert salg < 0.2
+    assert refinado > 0.5
+    assert refinado > castanha
+
+
+def test_sal_filter_drops_snacks():
+    offers = [
+        _o("CASTANHA CAJU CROC TORRADA S SAL 50G", price=0.33, unit_price=6.6),
+        _o("PIPOCA BETTI 15G SAL", price=0.5),
+        _o("SAL REFINADO CISNE 1KG", price=2.5, unit_price=2.5, quantity=1.0, unit="kg", base_unit="kg", quantity_parsed=True),
+    ]
+    rel = filter_offers("sal", "sal", offers, min_score=0.35)
+    descs = [o.description for o in rel.kept]
+    assert any("REFINADO" in d for d in descs)
+    assert not any("CASTANHA" in d or "PIPOCA" in d for d in descs)
+
+
+def test_oleo_rejects_saturado_and_fish_oil():
+    sat = score_description("oleo", "oleo", "OLEO SATURADO 1LT")
+    mist = score_description("oleo", "oleo", "MIST.LEITE E OLEO V.DAMARE 17% 200G")
+    sard = score_description("oleo", "oleo", "SARD.PALMEIRA OLEO")
+    soja = score_description("oleo", "oleo", "OLEO DE SOJA SOYA 900ML")
+    assert sat < 0.2
+    assert mist < 0.2
+    assert sard < 0.2
+    assert soja > 0.5
+    assert soja > sat
+
+
+def test_oleo_de_soja_filter_prefers_cooking():
+    offers = [
+        _o("OLEO SATURADO 1LT", price=2.0, unit_price=2.0, quantity=1.0, unit="L", base_unit="L", quantity_parsed=True),
+        _o("MIST.LEITE E OLEO V.DAMARE 17% 200G", price=3.0),
+        _o(
+            "OLEO DE SOJA SOYA 900ML",
+            price=7.0,
+            unit_price=7.78,
+            quantity=900.0,
+            unit="ml",
+            base_unit="L",
+            quantity_parsed=True,
+        ),
+        _o("SARD.PALMEIRA OLEO", price=4.0),
+    ]
+    rel = filter_offers("óleo de soja", "óleo de soja", offers, min_score=0.35)
+    descs = [o.description for o in rel.kept]
+    assert any("SOJA" in d for d in descs)
+    assert not any("SATURADO" in d for d in descs)
+    assert not any("SARD" in d for d in descs)
+
+
+def test_feijao_rejects_tempero_abbrev_and_typos():
+    # Live SEFAZ lines use TEMPE. / TEMPEIRO, not only TEMPERO.
+    bean = score_description("feijão", "feijão", "FEIJAO PT T1 1KG OF3")
+    tempe = score_description("feijão", "feijão", "TEMPE.PARA FEIJAO BOM PALADAR 15g")
+    tempeiro = score_description("feijão", "feijão", "TEMPEIRO PARA FEIJAO 10G")
+    tempero = score_description("feijao", "feijao", "TEMPERO PARA FEIJAO 15G")
+    assert bean > 0.5
+    assert tempe < 0.2
+    assert tempeiro < 0.2
+    assert tempero < 0.2
+    assert bean > tempe
+
+
+def test_feijao_preto_filter_keeps_beans():
+    offers = [
+        _o("TEMPE.PARA FEIJAO BOM PALADAR 15g", price=1.5, unit_price=100.0),
+        _o("TEMPEIRO PARA FEIJAO 10G", price=1.79, unit_price=179.0),
+        _o(
+            "FEIJAO PT T1 1KG OF3",
+            price=2.25,
+            unit_price=2.25,
+            quantity=1.0,
+            unit="kg",
+            base_unit="kg",
+            quantity_parsed=True,
+        ),
+    ]
+    rel = filter_offers("feijão preto", "feijão preto", offers, min_score=0.35)
+    descs = [o.description for o in rel.kept]
+    assert any("FEIJAO PT" in d or "FEIJAO" in d and "TEMP" not in d for d in descs)
+    assert not any("TEMP" in d for d in descs)
+
+
+def test_acucar_rejects_zero_sugar_candy():
+    candy = score_description("açúcar", "açúcar", "BIGBIG ZERO ACUCAR C 4")
+    sachet = score_description("açúcar", "açúcar", "ACUCAR 40G AZUL (SCH) FACA A FESTA")
+    cristal = score_description("açúcar", "açúcar", "ACUCAR CRISTAL ESPECIAL FORMOSO 1KG")
+    assert candy < 0.2
+    assert sachet < 0.25
+    assert cristal > 0.5
+    assert cristal > candy
+
+
+def test_acucar_filter_drops_candy():
+    offers = [
+        _o("BIGBIG ZERO ACUCAR C 4", price=0.5),
+        _o("ACUCAR 40G AZUL (SCH) FACA A FESTA", price=0.4),
+        _o(
+            "ACUCAR CRISTAL ESPECIAL FORMOSO 1KG",
+            price=4.0,
+            unit_price=4.0,
+            quantity=1.0,
+            unit="kg",
+            base_unit="kg",
+            quantity_parsed=True,
+        ),
+    ]
+    rel = filter_offers("açúcar", "açúcar", offers, min_score=0.35)
+    descs = [o.description for o in rel.kept]
+    assert any("CRISTAL" in d for d in descs)
+    assert not any("BIGBIG" in d or "ZERO" in d for d in descs)
+
+
+def test_cafe_rejects_caramel_and_spice_mix():
+    spice = score_description("café", "café", "Coracao, Cafe, Canela")
+    caramel = score_description("café", "café", "CARAMELOS CAFE COM LEITE 1 UN")
+    real = score_description("café", "café", "CAFE TORRADO MOIDO 500G")
+    assert spice < 0.2
+    assert caramel < 0.2
+    assert real > 0.5
+    assert real > spice
+
+
+def test_cafe_soluvel_keeps_product():
+    s = score_description("café solúvel", "café solúvel", "CAFE SOLUVEL NESCAFE 100G")
+    assert s > 0.45
+
+
+def test_filter_non_egg_query_drops_eggs_entirely():
+    offers = [
+        _o("OVOS BRANCOS UND", price=0.5),
+        _o("OVOS EXTRA STA MARIA LUNA UN", price=0.6),
+        _o("FARINHA DE TRIGO 1KG", price=5.0, unit_price=5.0, quantity=1.0, unit="kg", base_unit="kg", quantity_parsed=True),
+    ]
+    rel = filter_offers("farinha de trigo", "farinha de trigo", offers, min_score=0.35)
+    assert all("OVOS" not in o.description for o in rel.kept)
+    assert any("FARINHA" in o.description for o in rel.kept)

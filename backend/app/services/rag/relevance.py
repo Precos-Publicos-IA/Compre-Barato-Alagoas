@@ -7,6 +7,10 @@ not a milk hit.
 PR1 (search quality): package-class priors for staples, hard rejects for
 off-intent oil (coco/tiny) and pasta-as-egg (MAC/MACARR), so ranking cannot
 crown sachets or macarrão "c/ovos" as the shopping answer.
+
+PR2 / match-eval-100 P0: stop egg cross-bleed for non-egg queries; reject
+sal-as-snack, óleo saturado / fish-in-oil, tempero-para-feijão, zero-açúcar
+candy, and café caramel/spice mixes.
 """
 
 from __future__ import annotations
@@ -25,10 +29,10 @@ _TOKEN_RE = re.compile(r"[a-z0-9]+", re.I)
 # global — "MAC" alone can appear in other brands).
 _NOISE = re.compile(
     r"\b("
-    r"bala|balas|pirulito|chiclete|chocolate|choc|bombom|caramel[oa]|confeito|"
+    r"bala|balas|pirulito|chiclete|chocolate|choc|bombom|caramel[oa]s?|confeito|"
     r"bisc(?:oito)?|bolacha|cookie|wafer|kitkat|snickers|trento|"
-    r"bolao|bola\s*de\s*leite|fondant|amanteigado|maluquinho|"
-    r"tempero|temp|sazon|caldo|tablete|maggi|sache|temperinho|condimento|"
+    r"bolao|bola\s*de\s*leite|fondant|amanteigado|maluquinho|bigbig|"
+    r"tempero|tempeiro|tempe|temp|sazon|caldo|tablete|maggi|sache|temperinho|condimento|"
     r"floc(?:ao|ão)?|farinha|crem[ea]|macarr[aã]o|snack|barra|granola|granofibra|"
     r"caes?|c[aã]o|gatos?|dog|cat|ra[cç][aã]o|pet|filhote|canina|felina|"
     r"animal(?:is)?|cachorro|arrozcao|amigaco|amigao|luppy|biluzao|"
@@ -65,6 +69,60 @@ _COCO = re.compile(r"\bcoco\b", re.I)
 _COOKING_OIL_TYPES = re.compile(
     r"\b(soja|girassol|milho|canola|composto|algod[aã]o|oliva)\b", re.I
 )
+# Non-cooking / off-intent oil labels (match-eval-100: OLEO SATURADO, sardinha).
+_OIL_OFF_INTENT = re.compile(
+    r"\b("
+    r"saturado|saturada|"
+    r"sard(?:inha|\.)?|atum|conserva|"
+    r"mist(?:ura|\.)?|"
+    r"em\s+oleo|c/\s*oleo"
+    r")\b",
+    re.I,
+)
+# Table-salt positive cues vs snack "sal" flavor.
+_SALT_PRODUCT = re.compile(
+    r"\b(refinado|grosso|light|iodado|marinho|rosa|himalaia|cisne|"
+    r"1\s*kg|500\s*g|1kg)\b",
+    re.I,
+)
+_SALT_SNACK = re.compile(
+    r"\b("
+    r"pipoca|castanha|salg(?:adinho|ad|a)?|chips?|batata|amendoim|"
+    r"milho|torrada|croc|snack|s\s*sal|sem\s*sal|c/\s*sal|ceb\s*sal"
+    r")\b",
+    re.I,
+)
+# Seasoning-for-beans (not the beans themselves).
+_BEAN_SEASONING = re.compile(
+    r"\b(tempero|tempeiro|tempe|temp|sazon|caldo|maggi|temperinho|condimento)\b",
+    re.I,
+)
+# Zero-sugar candy / confection marketed with "açúcar".
+_SUGAR_CANDY = re.compile(
+    r"\b("
+    r"zero\s*acucar|sem\s*acucar|0\s*acucar|"
+    r"bigbig|bala|balas|chiclete|pirulito|bombom|confeito|"
+    r"faca\s*a\s*festa|festa|sch\b|sache"
+    r")\b",
+    re.I,
+)
+# Coffee impostors: caramels and multi-spice blends (not 3 Corações brand alone).
+_COFFEE_JUNK = re.compile(
+    r"\b(caramel[oa]s?|bala|balas|chiclete|bombom)\b",
+    re.I,
+)
+_COFFEE_SPICE_MIX = re.compile(
+    r"\b(canela|cravo|gengibre|pimenta|cominho)\b",
+    re.I,
+)
+_COFFEE_PRODUCT = re.compile(
+    r"\b(torrado|moido|mo[ií]do|soluvel|sol[uú]vel|capsula|c[aá]psula|"
+    r"pilao|pil[aã]o|extraforte|tradicional|gourmet|grao|gr[aã]o|"
+    r"500\s*g|250\s*g|1\s*kg)\b",
+    re.I,
+)
+# Egg product detection for cross-query bleed (non-egg intents).
+_EGG_TOKEN = re.compile(r"\bovos?\b", re.I)
 
 # Staple keys (accent-stripped) → positive package/type patterns.
 _STAPLES = {
@@ -91,6 +149,9 @@ _STAPLES = {
         r"\b(soja|girassol|milho|canola|composto|900\s*ml|500\s*ml|1\s*l)\b", re.I
     ),
     "cafe": re.compile(r"\b(torrado|moido|soluvel|capsula|p[oó]|500\s*g)\b", re.I),
+    "sal": re.compile(
+        r"\b(refinado|grosso|light|iodado|marinho|rosa|1\s*kg|500\s*g)\b", re.I
+    ),
     "ovo": re.compile(
         r"\b(branco|vermelho|caipira|bandeja|dz|duzia|d[uú]zia|"
         r"[0-9]+\s*un|c/\s*[0-9]+)\b",
@@ -171,12 +232,31 @@ def _intent_staples(intent: str) -> list[str]:
         out.append("acucar")
     if re.search(r"\b[oó]leo\b", intent or "", re.I) and "oleo" not in out:
         out.append("oleo")
+    if re.search(r"\bcaf[eé]\b", intent or "", re.I) and "cafe" not in out:
+        out.append("cafe")
     return out
+
+
+def _token_matches_word(token: str, word: str) -> bool:
+    """Strict-ish token match: avoid sal⊂salg, but keep ovo⊂ovos / feijao⊂feijoes."""
+    if token == word:
+        return True
+    # Simple plural (pt-BR-ish): ovo/ovos, cafe/cafes
+    if token == word + "s" or word == token + "s":
+        return True
+    if token == word + "es" or word == token + "es":
+        return True
+    # Longer stems only: "macarrao" vs "macarr" handled elsewhere; never let
+    # 3-letter query words prefix-match snacks (sal → salg).
+    if len(word) >= 4 and len(token) >= 4:
+        if token.startswith(word) or word.startswith(token):
+            return True
+    return False
 
 
 def _primary_index(tokens: list[str], word: str) -> int | None:
     for i, t in enumerate(tokens[:6]):
-        if t == word or t.startswith(word) or word.startswith(t):
+        if _token_matches_word(t, word):
             return i
     return None
 
@@ -203,6 +283,14 @@ def _user_allows_noise(intent: str, desc: str) -> bool:
         r"\b(mac|macarr|macarrao|espaguete)\b", desc, re.I
     ):
         return True
+    # User asked for flour → allow "farinha" product lines (noise for other staples).
+    if re.search(r"\bfarinha\b", intent, re.I) and re.search(
+        r"\bfarinha\b", desc, re.I
+    ):
+        return True
+    # User asked for cereal bars → allow barra.
+    if re.search(r"\bbarra\b", intent, re.I) and re.search(r"\bbarra\b", desc, re.I):
+        return True
     return False
 
 
@@ -218,6 +306,21 @@ def _is_sugar_intent(intent_n: str) -> bool:
     return bool(re.search(r"\bacucar\b", intent_n))
 
 
+def _is_salt_intent(intent_n: str) -> bool:
+    # Plain "sal" or "sal refinado" — not "salgadinho" / "salsicha".
+    return bool(re.search(r"\bsal\b", intent_n)) and not bool(
+        re.search(r"\b(salgadinho|salsicha|salame)\b", intent_n)
+    )
+
+
+def _is_bean_intent(intent_n: str) -> bool:
+    return bool(re.search(r"\bfeijao\b", intent_n))
+
+
+def _is_coffee_intent(intent_n: str) -> bool:
+    return bool(re.search(r"\bcafe\b", intent_n))
+
+
 def _query_wants_coco(intent_n: str) -> bool:
     return bool(_COCO.search(intent_n))
 
@@ -231,6 +334,19 @@ def _is_pasta_as_egg_noise(desc_n: str, desc_tokens: list[str]) -> bool:
         if t in _PASTA_ABBREV:
             return True
     return False
+
+
+def _looks_like_egg_product(desc_n: str, desc_tokens: list[str]) -> bool:
+    """True when NFC-e line is primarily eggs (not pasta c/ovos)."""
+    if not _EGG_TOKEN.search(desc_n):
+        return False
+    if _is_pasta_as_egg_noise(desc_n, desc_tokens):
+        return False
+    idx = _primary_index(desc_tokens, "ovo")
+    if idx is None:
+        idx = _primary_index(desc_tokens, "ovos")
+    # Primary/early product token is egg.
+    return idx is not None and idx <= 2
 
 
 def _volume_liters(
@@ -337,13 +453,17 @@ def package_class_rank(
     if _is_oil_intent(intent_n):
         if not _query_wants_coco(intent_n) and _COCO.search(desc_n):
             return _CLASS_OUTLIER
+        if _OIL_OFF_INTENT.search(desc_n):
+            return _CLASS_OUTLIER
         vol = _volume_liters(desc, **kw)
         if vol is None:
             return _CLASS_UNKNOWN
         if vol < _OIL_MIN_L:
             return _CLASS_OUTLIER
-        if _OIL_PREF_LO <= vol <= _OIL_PREF_HI:
+        if _OIL_PREF_LO <= vol <= _OIL_PREF_HI and _COOKING_OIL_TYPES.search(desc_n):
             return _CLASS_PREFERRED
+        if _OIL_PREF_LO <= vol <= _OIL_PREF_HI:
+            return _CLASS_OK
         if 0.2 <= vol < _OIL_PREF_LO or _OIL_PREF_HI < vol <= 2.0:
             return _CLASS_OK
         return _CLASS_DEMOT
@@ -446,17 +566,78 @@ def _hard_reject_score(
     intent_n: str, desc_n: str, desc_tokens: list[str], description: str
 ) -> float | None:
     """Return a low score for known off-intent SKUs, else None."""
+    # P0: non-egg queries must never keep egg SKUs (cross-query bleed).
+    if not _is_egg_intent(intent_n) and _looks_like_egg_product(desc_n, desc_tokens):
+        return 0.04
+
     # Eggs: pasta "MAC OVOS" / "C/OVOS" macarrão must never win (W1.2/W1.3).
     if _is_egg_intent(intent_n) and _is_pasta_as_egg_noise(desc_n, desc_tokens):
         return 0.04
 
-    # Plain óleo: coconut oil and tiny sachets are off-intent (W1.1/W1.3).
+    # Plain óleo: coconut oil, saturado, fish-in-oil, tiny sachets (W1.1/W1.3/P0).
     if _is_oil_intent(intent_n) and not _query_wants_coco(intent_n):
         if _COCO.search(desc_n):
+            return 0.04
+        if _OIL_OFF_INTENT.search(desc_n):
             return 0.04
         vol = _volume_liters(description)
         if vol is not None and vol < _OIL_MIN_L:
             return 0.04
+        # Oil must be an early product word (not "SARD … OLEO" tail).
+        oil_idx = _primary_index(desc_tokens, "oleo")
+        if oil_idx is None or oil_idx > 2:
+            return 0.04
+        # Prefer real cooking oils; bare "OLEO …" without type is weak unless size OK.
+        if not _COOKING_OIL_TYPES.search(desc_n):
+            # Allow only if clearly oil pack size and no off-intent already caught.
+            if vol is None or not (_OIL_PREF_LO <= vol <= _OIL_PREF_HI):
+                return 0.08
+
+    # Table salt: snack chips / "S SAL" castanha / pipoca must not win (P0).
+    if _is_salt_intent(intent_n):
+        if _SALT_SNACK.search(desc_n):
+            return 0.04
+        sal_idx = _primary_index(desc_tokens, "sal")
+        if sal_idx is None:
+            return 0.04
+        if sal_idx > 1:
+            return 0.04
+        # "SALG …" no longer matches via prefix; still require product cue or idx0.
+        if sal_idx == 1 and not _SALT_PRODUCT.search(desc_n):
+            return 0.08
+
+    # Feijão: "tempero para feijão" is seasoning, not beans (P0).
+    if _is_bean_intent(intent_n):
+        if _BEAN_SEASONING.search(desc_n):
+            return 0.04
+        bean_idx = _primary_index(desc_tokens, "feijao")
+        if bean_idx is None:
+            return 0.04
+        if bean_idx > 1:
+            return 0.08
+
+    # Açúcar: zero-açúcar candy / party sachets are not crystal sugar (P0).
+    if _is_sugar_intent(intent_n):
+        if _SUGAR_CANDY.search(desc_n):
+            return 0.04
+        sugar_idx = _primary_index(desc_tokens, "acucar")
+        if sugar_idx is None:
+            return 0.04
+        if sugar_idx > 1:
+            return 0.08
+
+    # Café: caramelos / "coração cafe canela" spice mix (P0).
+    if _is_coffee_intent(intent_n):
+        if _COFFEE_JUNK.search(desc_n):
+            return 0.04
+        cafe_idx = _primary_index(desc_tokens, "cafe")
+        if cafe_idx is None:
+            return 0.04
+        # Multi-spice blend listing café as flavor (not coffee product).
+        if _COFFEE_SPICE_MIX.search(desc_n) and not _COFFEE_PRODUCT.search(desc_n):
+            return 0.04
+        if cafe_idx > 1 and not _COFFEE_PRODUCT.search(desc_n):
+            return 0.08
 
     return None
 
@@ -543,6 +724,18 @@ def score_description(user_label: str, search_term: str, description: str) -> fl
             mass = _mass_kg(desc)
             if mass is not None and _SUGAR_PREF_LO <= mass <= _SUGAR_PREF_HI:
                 base += 0.10
+            elif mass is not None and mass < 0.2:
+                base -= 0.20
+        # Salt: prefer refinado/grosso 1 kg class.
+        if st == "sal":
+            if _SALT_PRODUCT.search(desc_n):
+                base += 0.18
+            mass = _mass_kg(desc)
+            if mass is not None and 0.4 <= mass <= 1.5:
+                base += 0.10
+        # Coffee: prefer torrado/moído/solúvel packs.
+        if st == "cafe" and _COFFEE_PRODUCT.search(desc_n):
+            base += 0.12
 
     # Token overlap refinement
     base += 0.15 * (len(overlap) / max(len(content), 1))
