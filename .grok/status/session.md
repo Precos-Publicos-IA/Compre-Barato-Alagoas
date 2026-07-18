@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-18 orchestrator cycle — idle after ship; status hygiene spawn
+Last update: 2026-07-18 W-status-browser DONE — idle N=0
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
@@ -15,7 +15,7 @@ Last update: 2026-07-18 orchestrator cycle — idle after ship; status hygiene s
 4. Tests scoped to the fix.
 
 ## Phase
-**Done (checklist)** — idle hold except status commit hygiene
+**Done (checklist)** — N=0 idle hold
 
 ## Workers
 | ID | Task | Status |
@@ -23,7 +23,7 @@ Last update: 2026-07-18 orchestrator cycle — idle after ship; status hygiene s
 | W-pr1 | match package-class | **DONE** `504eb38` |
 | W-pr3 | honest partial-basket UI | **DONE** `8676303` |
 | W-ship | push + CI + API re-eval | **DONE** CI `29648461645` |
-| W-status-browser | commit browser re-eval status | **RUNNING** |
+| W-status-browser | commit browser re-eval status | **DONE** `f2c5692` |
 
 ## Must-complete
 | # | Status |
@@ -34,19 +34,20 @@ Last update: 2026-07-18 orchestrator cycle — idle after ship; status hygiene s
 | 8 Ship + function re-eval | **DONE** CI `29648461645` + **browser 11/11** (`.grok/status/worker_w_browser_func_reeval.md`) — phone optional |
 
 ## Concurrency
-**N=1** — status hygiene only (then N=0)
+**N=0** — idle hold
 
 ## open_bads_matrix
 **0** — matrix out of scope
 
 ## Evidence
 - Ship: `.grok/status/worker_w_ship_pr1_pr3_report.md`
-- Browser: `.grok/status/worker_w_browser_func_reeval.md` · screenshots `e2e/screenshots/func-*.png`
+- Browser: `.grok/status/worker_w_browser_func_reeval.md` · screenshots `e2e/screenshots/func-*.png` (gitignored)
+- Status commit: `f2c5692` · report: `.grok/status/worker_w_status_browser_report.md`
 - CI: https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/actions/runs/29648461645
 
 ## Live signals
-- Hardware (15s): CPU **1.7%**; loadavg 0.58 0.54 0.39; MemAvailable ~22.1 GiB; **k10temp Tctl=37.6°C**
-- Git: main==origin for product; local dirty session + untracked browser report (W-status-browser owns)
+- Hardware (snapshot): idle; no deploy watch required (docs-only status)
+- Git: main==origin after status hygiene; iOS GeneratedPluginRegistrant untracked junk left uncommitted
 
 ## Optional residuals (NOT must-complete)
 - Sardines-as-oil on thin catalogs
@@ -54,4 +55,4 @@ Last update: 2026-07-18 orchestrator cycle — idle after ship; status hygiene s
 - Multi-item latency (PR4 in plan — not opened this cycle)
 
 ## Next focus
-Await W-status-browser commit/push. Then idle N=0. Operator may `scheduler_delete 019f75a138ce` if loop no longer needed.
+Idle N=0. Optional residuals only if operator opens them. Operator may `scheduler_delete 019f75a138ce` if loop no longer needed.
