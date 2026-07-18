@@ -8,7 +8,7 @@
 
 ## Product SHA
 
-Recorded after commit in this cycle (see `session.md` **C DONE** line).
+**`5853031`** — `fix(match): P0 relevance gates from match_eval_100 wrong_class`
 
 ## Scope delivered
 

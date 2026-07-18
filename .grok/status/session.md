@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-18 — **C DONE** (W-match-improve) `900f0de`
+Last update: 2026-07-18 — **C DONE** (W-match-improve) `5853031`
 
 ## Project lock
 **HARD** Alagoas only.
@@ -19,14 +19,14 @@ Matching/function over looks; API/browser; no full matrix. Orchestrator spawns o
 |----|------|--------|
 | W-catalog-100 | 100 names | **DONE** `81bed97` |
 | W-eval-100 | live eval 100 | **DONE** `f7ef373` |
-| W-match-improve | P0 wrong_class + tests | **DONE** `900f0de` |
+| W-match-improve | P0 wrong_class + tests | **DONE** `5853031` |
 
 ## Must-complete
 | # | Status |
 |---|--------|
 | A catalog | **DONE** `81bed97` |
 | B live eval | **DONE** `f7ef373` |
-| C match improvements | **DONE** `900f0de` |
+| C match improvements | **DONE** `5853031` |
 | D ship + scoped re-eval | **OPEN** — push/deploy + scoped verify |
 
 ## Concurrency
@@ -41,4 +41,4 @@ Matching/function over looks; API/browser; no full matrix. Orchestrator spawns o
 | `.grok/status/worker_w_match_improve_report.md` | Human report + offline re-score |
 
 ## Next focus
-Push `900f0de` → watch deploy → minimal live probes under quota (not full 100).
+Push `5853031` → watch deploy → minimal live probes under quota (not full 100).
