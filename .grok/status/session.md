@@ -1,6 +1,6 @@
 # Session status
 
-Last update: orchestrator /loop tick — PAINT_STILL_EMPTY; N=0 no spawn
+Last update: orchestrator /loop tick — host thrash + PAINT_STILL_EMPTY; N=0
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign trees.
@@ -9,19 +9,18 @@ Last update: orchestrator /loop tick — PAINT_STILL_EMPTY; N=0 no spawn
 Agent-completable empty (#4 human only).
 
 ## Phase
-**Agent Done** — #1 environment hard-block holds
+**Agent Done** — #1 environment hard-block; host busy (not our suite)
 
 ## Hardware (12s)
 | Signal | Value | Action |
 |--------|--------|--------|
-| windowed CPU | **52.9%** | in 50–80% band (host load; not our suite) |
-| loadavg | 11.8 / 10.0 / 8.1 | elevated (qemu friends) |
-| **Tctl k10temp** | **72°C** | under 80°C |
+| windowed CPU | **99.6%** | **above** 50–80% — no spawn |
+| loadavg | 40 / 32 / 20 | thrash |
+| **Tctl k10temp** | **69°C** | under 80°C |
 | MemAvailable | ~19 / 32 Gi | OK |
 
 ## Paint probe (:18090)
-t+1 and t+10: canvas=0 glassC=0 scene=false ff=false → **PAINT_STILL_EMPTY**
-Do not spawn matrix recapture (would produce splash CAPTURE_OK false progress).
+t+1 / t+8 empty glass → **PAINT_STILL_EMPTY**. Hard-block stands. No matrix spawn.
 
 ## Workers
 none — N=0
@@ -29,10 +28,10 @@ none — N=0
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1 V-FORM open_bads 0 | **HARD-BLOCK** (2 home) evidence `6032f07` |
+| 1 V-FORM open_bads 0 | **HARD-BLOCK** `6032f07` |
 | 2 Project lock | **DONE** |
 | 3 matrix_emulator smoke | **DONE** |
 | 4 Human re-schedule `/loop` | **OPEN** (human) |
 
 ## Concurrency
-**N=0 → N=0**. Gate: spawn home recapture only when paint probe shows canvas/scene > 0.
+**N=0 → N=0**. Gate: paint OK + windowed CPU ≤80% before any home recapture spawn.
