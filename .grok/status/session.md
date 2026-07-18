@@ -1,48 +1,45 @@
 # Session status
 
-Last update: W-vform — admin V-FORM closed; home HARD-BLOCK (CanvasKit empty scene under GPU thrash)
+Last update: orchestrator /loop tick — W-vform product shipped; spawned W-emulator-smoke
 
 ## Project lock
-- **Alagoas only** (`PROJECT_LOCK.md` on origin). Refuse other projects.
-- Workers inherit lock + cwd `/code/alagoas/Compre-Barato-Alagoas`.
+**HARD** Alagoas only. Refuse foreign trees. Worker prompts carry lock one-liner.
 
 ## Goal
-Close **all completable** residuals (no half-done parking)
+Must-complete until empty (or hard-blocked with evidence).
 
 ## Phase
-A/B — must-complete 1 partial (admin done; home hard-block); 3 remains
+A/B — #1 partial (admin done; home hard-block); #3 IN PROGRESS
 
-## Hardware (last tick)
+## Hardware (15s window)
 | Signal | Value | Action |
 |--------|--------|--------|
-| qemu emulator | ~265% CPU (`-gpu host`) | thrashing CanvasKit headless paint |
-| **Tctl k10temp** | ~71°C | warm |
-| RAM | 16/30 Gi | OK |
+| windowed CPU | **37.3%** | below 50% — room for emulator smoke |
+| loadavg | 5.7 / 6.1 / 9.7 | OK |
+| **Tctl k10temp** | **65°C** | under 80°C |
+| MemAvailable | ~12 / 32 Gi | OK |
+| qemu AVD friends | `-gpu host` running | use for #3; blocks honest home CanvasKit recapture |
 
 ## Workers
 | id | Status |
 |----|--------|
-| W-vform | **DONE** (admin BADs 0; home 2 hard-block with evidence) — report `worker_w_vform_report.md` |
-| W-emulator-smoke | may be RUNNING (holds GPU) — must-complete #3 |
+| W-vform `019f7271-8ff3-…` | **SHIPPED** product `77c58a5` + report; task may still wind down (~47m) — do not re-spawn V-FORM |
+| W-emulator-smoke `019f729c-e67a-…` | **STARTED** this tick — owns must-complete #3 |
 
 ## Must-complete
-| # | Work | Status |
-|---|------|--------|
-| 1 | V-FORM qhd/4k (4 open BADs) fix+recapture+critique → open_bads 0 | **PARTIAL** — admin CLEARED; home HARD-BLOCK (CanvasKit empty scene) |
-| 2 | Git hygiene: lock/docs/status/runners on main + CI | **DONE** |
-| 3 | matrix_emulator smoke or hard-block evidence | **OPEN** |
-| 4 | Operator re-schedule `/loop` with new paste (PROJECT_LOCK) | **OPEN** (human) |
-
-## Done (do not redo)
-- `5d911a3` matrix true-state; `d2497c1` mobile UI live; video 0; mobile V-CLIP 0; live stores=5 web
-- `a83a285` PROJECT_LOCK + AGENTS finish rules + matrix_emulator + worker status hygiene
-- W-vform: admin QHD/4K V-FORM CSS; home layout code + widget tests
+| # | Status |
+|---|--------|
+| 1 V-FORM open_bads 0 | **PARTIAL** — admin CLEARED; home ×2 **HARD-BLOCK** (CanvasKit empty scene under GPU thrash) — recapture when GPU free after #3 |
+| 2 Project lock / hygiene | **DONE** |
+| 3 matrix_emulator smoke | **IN PROGRESS** (W-emulator-smoke) |
+| 4 Human re-schedule `/loop` | **OPEN** |
 
 ## Concurrency
-- Prefer free GPU before home recapture
-- No second full suite while capture/UI thrash
+- **N=1** product worker focus: emulator smoke (W-vform done shipping).
+- Home recapture **queued after #3** (needs GPU free / qemu calm).
+- Do not stack full matrix_capture while emulator smoke runs.
 
 ## Next
-1. When qemu/GPU free: recapture MATRIX_FORMATS=qhd,4k MATRIX_SCREENS=home → close remaining 2
-2. W-emulator-smoke or hard-block with adb evidence
-3. Human: re-schedule `/loop` paste
+1. Reap W-emulator-smoke → #3 DONE or hard-block evidence
+2. Then W-home-recapture (qhd/4k home only) if CanvasKit paints; else keep hard-block
+3. Done when 1 residual closed or hard-blocked + 3 closed
