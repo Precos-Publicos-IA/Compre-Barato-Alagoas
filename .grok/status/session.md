@@ -1,40 +1,40 @@
 # Session status
 
-Last update: orchestrator reaped W-home-capture — open_bads 0; agent must-complete empty
+Last update: orchestrator /loop tick — #1–3 done; spawned W-deploy-live for 0c38cb6 ship gate
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
 
 ## Goal
-**Agent Done** — open_bads_matrix = 0; remaining #4 is human.
+Close Phase B (deploy + live) for bottom-bar fix; then agent idle.
 
 ## Phase
-**Done** (agent-completable)
+B — deploy watch + live smoke
 
-## Hardware
-Idle this reap (worker finished).
+## Hardware (10s)
+| Signal | Value | Action |
+|--------|--------|--------|
+| windowed CPU | **0.9%** | idle — spawn deploy watcher OK |
+| loadavg | 0.9 / 2.2 / 3.7 | cool |
+| **Tctl k10temp** | **42°C** | cool |
 
 ## Workers
 | id | Status |
 |----|--------|
-| W-home-capture | **DONE** exit 0 — product fix `0c38cb6` + honest goldens; open_bads 0 |
-| prior | vform/emulator/lock DONE earlier |
+| W-home-capture | **DONE** open_bads 0; `0c38cb6` |
+| W-deploy-live | **STARTED** — watch CI/deploy for `0c38cb6` + live smoke |
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1 V-FORM home open_bads 0 | **DONE** `0c38cb6` — bottom-bar expand bug fixed; golden stills BAD: none |
+| 1 V-FORM home open_bads 0 | **DONE** `0c38cb6` |
 | 2 Project lock | **DONE** |
 | 3 matrix_emulator smoke | **DONE** |
-| 4 Human re-schedule `/loop` | **OPEN** (human only) |
-
-## Root cause (for the record)
-`constrainContent` expanding Align inside `bottomNavigationBar` covered body at width≥1100 — white full-screen, CTA at top. Not “only headless.”
+| 4 Human re-schedule `/loop` | **OPEN** (human) |
+| 5 Deploy + live for `0c38cb6` | **IN PROGRESS** (W-deploy-live) — ship gate not parked |
 
 ## Concurrency
-**N=0** — no agent worker needed.
+**N=0 → N=1** (deploy watch only; host idle).
 
-## Next (human / later polish)
-- Re-schedule `/loop` paste if desired
-- Headless Chrome CanvasKit still flaky; matrix home uses golden export path
-- Deploy will carry bottom-bar fix on next main web build
+## Next
+Reap W-deploy-live → mark Phase B closed or hard-block with logs.
