@@ -2,7 +2,7 @@
 
 **Worker:** W-fix-empty-cache  
 **Date:** 2026-07-18  
-**Status:** DONE (product fix committed + pushed)
+**Status:** DONE `c92b9ba`
 
 ## Problem
 1. Parallel web SEFAZ stampede returned empty under load/timeouts.

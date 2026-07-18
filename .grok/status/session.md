@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-18 — W-fix-empty-cache **E DONE** (pending SHA after push)
+Last update: 2026-07-18 — W-fix-empty-cache **E DONE** `c92b9ba`
 
 ## Project lock
 **HARD** Alagoas only.
@@ -21,7 +21,7 @@ Prior B claim “~70% products have no SEFAZ rows” is **INVALID**. Empty 200s 
 | W-eval-100 (old) | parallel live eval | **INVALID for coverage** `f7ef373` |
 | W-match-improve | P0 relevance | **DONE** `5853031` |
 | W-ship-D | ship C | **DONE** CI `29650180694` |
-| W-fix-empty-cache | no-cache empty / distinguish fetch fail | **DONE** (see SHA below) |
+| W-fix-empty-cache | no-cache empty / distinguish fetch fail | **DONE** `c92b9ba` |
 | W-eval-honest | serial honest 100 script + probe | **BLOCKED_429** script ready; re-run tomorrow |
 
 ## Must-complete
@@ -31,7 +31,7 @@ Prior B claim “~70% products have no SEFAZ rows” is **INVALID**. Empty 200s 
 | B live eval (old) | **INVALID** — false missing under load |
 | C match improvements | **DONE** `5853031` |
 | D ship C | **DONE** |
-| **E** empty-cache + fetch-fail honesty | **DONE** — W-fix-empty-cache (SHA after push) |
+| **E** empty-cache + fetch-fail honesty | **DONE** `c92b9ba` — W-fix-empty-cache |
 | **F** honest serial 100 live re-eval | **BLOCKED_429** — script ready; probe 429; re-run after quota |
 
 ## Concurrency
