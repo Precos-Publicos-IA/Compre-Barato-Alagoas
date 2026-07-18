@@ -170,3 +170,42 @@ async def test_routing_falls_back_to_web_when_api_fails():
     assert client.source_name == "web"
     assert len(resp.conteudo) == 1
     assert "ARROZ" in resp.conteudo[0].produto.descricao.upper()
+
+
+@pytest.mark.asyncio
+async def test_routing_falls_back_to_web_when_api_returns_empty():
+    """Token present but official API returns empty conteudo → website path."""
+
+    class EmptyHttp:
+        source_name = "sefaz"
+        cache_namespace = "sefaz"
+
+        async def search_product(self, **kwargs):
+            return PesquisaResponse(conteudo=[], total_paginas=1)
+
+        async def aclose(self):
+            return None
+
+    class StubWeb:
+        source_name = "web"
+        cache_namespace = "web"
+
+        async def search_product(self, **kwargs):
+            return PesquisaResponse(conteudo=[_row("ARROZ CAMIL 1KG")], total_paginas=1)
+
+        async def aclose(self):
+            return None
+
+    async def token():
+        return "dummy-token"
+
+    client = RoutingSefazClient(http=EmptyHttp(), web=StubWeb(), token_provider=token)
+    resp = await client.search_product(
+        descricao="arroz",
+        latitude=-9.66,
+        longitude=-35.7,
+        radius_km=8,
+        days=7,
+    )
+    assert client.source_name == "web"
+    assert len(resp.conteudo) == 1

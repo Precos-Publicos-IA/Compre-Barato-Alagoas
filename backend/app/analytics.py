@@ -120,6 +120,10 @@ class Analytics:
         device_token: str | None = None,
         analytics_id: str | None = None,
         approx_region: str | None = None,
+        # From search_service empty-cache / upstream honesty (E); optional so older
+        # callers still work. Counted for ops, never breaks search.
+        fetch_failed_labels: list[str] | None = None,
+        no_data_labels: list[str] | None = None,
     ) -> None:
         day = _today()
         hour = datetime.now(timezone.utc).strftime("%H")
@@ -132,6 +136,12 @@ class Analytics:
                 pipe.incrby(f"stats:search:offers:{scope}", total_offers)
                 pipe.incrby(f"stats:search:parsed:{scope}", parsed_offers)
                 pipe.incr(f"stats:search:source:{data_source}:{scope}")
+                if fetch_failed_labels:
+                    pipe.incrby(
+                        f"stats:search:fetch_failed:{scope}", len(fetch_failed_labels)
+                    )
+                if no_data_labels:
+                    pipe.incrby(f"stats:search:no_data:{scope}", len(no_data_labels))
             pipe.hincrby(f"stats:search:hour:{day}", hour, 1)
             for method, count in parse_methods.items():
                 if count:
@@ -141,6 +151,10 @@ class Analytics:
                 pipe.zincrby(f"stats:items:searched:{day}", 1, label)
             for label in notfound_labels:
                 pipe.zincrby(f"stats:items:notfound:{day}", 1, label)
+            for label in fetch_failed_labels or []:
+                pipe.zincrby(f"stats:items:fetch_failed:{day}", 1, label)
+            for label in no_data_labels or []:
+                pipe.zincrby(f"stats:items:no_data:{day}", 1, label)
             # Unique-user count: prefer the always-sent anonymous analytics id; fall
             # back to the consent device token (rarely sent). Only a salted hash enters
             # the HyperLogLog — aggregate cardinality, no per-device row, not reversible.

@@ -62,8 +62,7 @@ class RoutingSefazClient:
         token = await self._token_provider()
         if token:
             try:
-                self._last_source = self._http.source_name
-                return await self._http.search_product(
+                resp = await self._http.search_product(
                     descricao=descricao,
                     gtin=gtin,
                     latitude=latitude,
@@ -72,6 +71,15 @@ class RoutingSefazClient:
                     days=days,
                     pagina=pagina,
                     registros_por_pagina=registros_por_pagina,
+                )
+                # Dead official host sometimes returns 200 with empty conteudo while
+                # the public website still has rows. Prefer web over a false no_data.
+                if resp.conteudo:
+                    self._last_source = self._http.source_name
+                    return resp
+                logger.warning(
+                    "Official SEFAZ API returned empty for %r; falling back to website",
+                    (descricao or gtin or "")[:80],
                 )
             except Exception as exc:
                 # Keep the message short; never log the token.
