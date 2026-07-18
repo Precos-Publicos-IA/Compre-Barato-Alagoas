@@ -14,9 +14,9 @@ Last update: orchestrator /loop tick — idle N=0
 ## Hardware (8s)
 | Signal | Value | Action |
 |--------|--------|--------|
-| windowed CPU | **1.9%** | idle |
-| loadavg | 0.4 / 0.3 / 0.2 | cool |
-| **Tctl k10temp** | **32°C** | cool |
+| windowed CPU | **0.8%** | idle |
+| loadavg | 0.2 / 0.2 / 0.2 | cool |
+| **Tctl k10temp** | **31°C** | cool |
 
 ## Workers
 none active — all prior DONE
@@ -27,11 +27,8 @@ none active — all prior DONE
 | 1 V-FORM home open_bads 0 | **DONE** `0c38cb6` |
 | 2 Project lock | **DONE** |
 | 3 matrix_emulator smoke | **DONE** |
-| 4 Human re-schedule `/loop` | **OPEN** (human) |
+| 4 Human re-schedule `/loop` | **OPEN** (human) — optional: refresh paste with PROJECT_LOCK from `.grok/prompts/orchestrator-loop.md` |
 | 5 Deploy + live for `0c38cb6` | **DONE** |
 
 ## Concurrency
-**N=0 → N=0**. No spawn.
-
-## open_bads_matrix
-**0**
+**N=0 → N=0**. No spawn. open_bads_matrix = **0**.
