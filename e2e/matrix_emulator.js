@@ -261,13 +261,15 @@ async function journeyFormat(serial, fmt, screens) {
   // --- App product journey ---
   if (want.has('home') || want.has('results') || want.has('map') || want.has('settings') || want.has('share')) {
     openChrome(serial, APP_URL + '/');
-    await sleep(5000); // Flutter web cold load on emulator
+    await sleep(8000); // Flutter web cold load on emulator (CanvasKit)
 
-    // Dismiss any Chrome first-run / password if present (best-effort)
-    inputKey(serial, 4); // BACK once if interstitial
-    await sleep(300);
-    // Tap center to focus app
-    physTap(serial, phys, 0.5, 0.5);
+    // Do NOT send KEYCODE_BACK after open — on clean AVDs it exits Chrome and
+    // lands on launcher / Google app fre (false home screencaps). Re-assert URL
+    // instead if something stole focus during cold start.
+    openChrome(serial, APP_URL + '/');
+    await sleep(2500);
+    // Tap center to focus app web content (dismiss soft chrome bars best-effort)
+    physTap(serial, phys, 0.5, 0.55);
     await sleep(800);
 
     if (want.has('home')) {
