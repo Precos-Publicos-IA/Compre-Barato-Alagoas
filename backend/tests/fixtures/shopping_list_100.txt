@@ -1,0 +1,100 @@
+arroz
+feijão
+feijão preto
+açúcar
+açúcar demerara
+sal
+farinha de trigo
+farinha de mandioca
+fubá
+macarrão
+macarrão espaguete
+aveia
+leite
+leite integral
+leite desnatado
+leite em pó
+ovo
+ovos
+manteiga
+margarina
+queijo
+queijo mussarela
+requeijão
+iogurte
+óleo
+óleo de soja
+azeite
+vinagre
+molho de tomate
+catchup
+maionese
+mostarda
+tempero
+alho
+cebola
+caldo de galinha
+frango
+peito de frango
+carne moída
+carne
+linguiça
+salsicha
+bacon
+presunto
+peixe
+sardinha
+atum
+mortadela
+banana
+tomate
+batata
+batata doce
+cenoura
+alface
+limão
+laranja
+maçã
+mamão
+abóbora
+chuchu
+pão
+pão de forma
+pão francês
+bolo
+biscoito
+bolacha
+torrada
+pão de queijo
+café
+café solúvel
+água
+refrigerante
+coca cola
+suco
+cerveja
+chá
+achocolatado
+água de coco
+salgadinho
+pipoca
+chocolate
+amendoim
+batata chips
+barra de cereal
+sabão em pó
+detergente
+água sanitária
+amaciante
+desinfetante
+esponja
+papel toalha
+saco de lixo
+sabonete
+shampoo
+creme dental
+papel higiênico
+desodorante
+condicionador
+fralda
+ração

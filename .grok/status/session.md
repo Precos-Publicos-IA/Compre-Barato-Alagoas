@@ -1,58 +1,43 @@
 # Session status
 
-Last update: 2026-07-18 W-status-browser DONE — idle N=0
+Last update: 2026-07-18 — W-catalog-100 DONE (100 shopping-list product names)
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
 
 ## Goal
-**Search usefulness** — PR1 + PR3 **shipped**. Browser re-eval green.
+**Search matching quality** — 100 common list names → live API eval → improve matchers.
 
-## Operator decisions (2026-07-18)
-1. Fix **known problem points** only — not whole-app QA / matrix.
-2. **Functionality over looks.**
-3. **Browser is enough** for function QA — phone not required.
-4. Tests scoped to the fix.
+## Operator HARD
+- Functionality / matching over looks; browser/API over phone; **no** full UI matrix.
+- Orchestrator spawns only; workers implement.
 
 ## Phase
-**Done (checklist)** — N=0 idle hold
+**Active** — Phase A catalog **DONE** → next: B live match eval
 
 ## Workers
 | ID | Task | Status |
 |----|------|--------|
-| W-pr1 | match package-class | **DONE** `504eb38` |
-| W-pr3 | honest partial-basket UI | **DONE** `8676303` |
-| W-ship | push + CI + API re-eval | **DONE** CI `29648461645` |
-| W-status-browser | commit browser re-eval status | **DONE** `f2c5692` |
+| W-catalog-100 | Persist 100 PT-BR shopping-list product names | **DONE** |
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1–5 prior | **DONE** |
-| 6 PR1 match | **DONE** `504eb38` |
-| 7 PR3 honest UI | **DONE** `8676303` |
-| 8 Ship + function re-eval | **DONE** CI `29648461645` + **browser 11/11** (`.grok/status/worker_w_browser_func_reeval.md`) — phone optional |
+| A 100-product catalog landed | **DONE** — `backend/tests/fixtures/shopping_list_100.json` (+ `.txt`); see `worker_w_catalog_100_report.md`; commit **PENDING_SHA** |
+| B Live API match eval report (all 100) | **OPEN** — after A |
+| C Match improvements + scoped tests for worst failures | **OPEN** — after B |
+| D Ship/push product code + scoped re-eval if code changed | **OPEN** — after C |
 
 ## Concurrency
-**N=0** — idle hold
+**N=1** — catalog complete; eval next (shard 100 if CPU allows).
 
-## open_bads_matrix
-**0** — matrix out of scope
+## Live signals (this cycle)
+- Catalog fixtures landed (100 unique queries, balanced categories, hard cases included)
+- No production SEFAZ batch from this worker
+- Untracked iOS GeneratedPluginRegistrant left out of commit (junk)
 
-## Evidence
-- Ship: `.grok/status/worker_w_ship_pr1_pr3_report.md`
-- Browser: `.grok/status/worker_w_browser_func_reeval.md` · screenshots `e2e/screenshots/func-*.png` (gitignored)
-- Status commit: `f2c5692` · report: `.grok/status/worker_w_status_browser_report.md`
-- CI: https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/actions/runs/29648461645
-
-## Live signals
-- Hardware (snapshot): idle; no deploy watch required (docs-only status)
-- Git: main==origin after status hygiene; iOS GeneratedPluginRegistrant untracked junk left uncommitted
-
-## Optional residuals (NOT must-complete)
-- Sardines-as-oil on thin catalogs
-- Sugar coverage gaps under SEFAZ web
-- Multi-item latency (PR4 in plan — not opened this cycle)
+## Scheduling rationale
+A complete → orchestrator should spawn B (live match eval over the 100).
 
 ## Next focus
-Idle N=0. Optional residuals only if operator opens them. Operator may `scheduler_delete 019f75a138ce` if loop no longer needed.
+Spawn W-eval (or shards) against live API for all 100 queries; write match-eval report.

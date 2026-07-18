@@ -1,0 +1,508 @@
+{
+  "version": 1,
+  "locale": "pt-BR",
+  "region_hint": "Alagoas",
+  "description": "100 everyday supermarket shopping-list query names (PT-BR, Alagoas/BR voice) for match-quality eval. Short list-style names people type, not formal catalog titles.",
+  "items": [
+    {
+      "id": 1,
+      "query": "arroz",
+      "category": "staples"
+    },
+    {
+      "id": 2,
+      "query": "feijão",
+      "category": "staples"
+    },
+    {
+      "id": 3,
+      "query": "feijão preto",
+      "category": "staples"
+    },
+    {
+      "id": 4,
+      "query": "açúcar",
+      "category": "staples"
+    },
+    {
+      "id": 5,
+      "query": "açúcar demerara",
+      "category": "staples"
+    },
+    {
+      "id": 6,
+      "query": "sal",
+      "category": "staples"
+    },
+    {
+      "id": 7,
+      "query": "farinha de trigo",
+      "category": "staples"
+    },
+    {
+      "id": 8,
+      "query": "farinha de mandioca",
+      "category": "staples"
+    },
+    {
+      "id": 9,
+      "query": "fubá",
+      "category": "staples"
+    },
+    {
+      "id": 10,
+      "query": "macarrão",
+      "category": "staples"
+    },
+    {
+      "id": 11,
+      "query": "macarrão espaguete",
+      "category": "staples"
+    },
+    {
+      "id": 12,
+      "query": "aveia",
+      "category": "staples"
+    },
+    {
+      "id": 13,
+      "query": "leite",
+      "category": "dairy"
+    },
+    {
+      "id": 14,
+      "query": "leite integral",
+      "category": "dairy"
+    },
+    {
+      "id": 15,
+      "query": "leite desnatado",
+      "category": "dairy"
+    },
+    {
+      "id": 16,
+      "query": "leite em pó",
+      "category": "dairy"
+    },
+    {
+      "id": 17,
+      "query": "ovo",
+      "category": "dairy"
+    },
+    {
+      "id": 18,
+      "query": "ovos",
+      "category": "dairy"
+    },
+    {
+      "id": 19,
+      "query": "manteiga",
+      "category": "dairy"
+    },
+    {
+      "id": 20,
+      "query": "margarina",
+      "category": "dairy"
+    },
+    {
+      "id": 21,
+      "query": "queijo",
+      "category": "dairy"
+    },
+    {
+      "id": 22,
+      "query": "queijo mussarela",
+      "category": "dairy"
+    },
+    {
+      "id": 23,
+      "query": "requeijão",
+      "category": "dairy"
+    },
+    {
+      "id": 24,
+      "query": "iogurte",
+      "category": "dairy"
+    },
+    {
+      "id": 25,
+      "query": "óleo",
+      "category": "oils"
+    },
+    {
+      "id": 26,
+      "query": "óleo de soja",
+      "category": "oils"
+    },
+    {
+      "id": 27,
+      "query": "azeite",
+      "category": "oils"
+    },
+    {
+      "id": 28,
+      "query": "vinagre",
+      "category": "oils"
+    },
+    {
+      "id": 29,
+      "query": "molho de tomate",
+      "category": "oils"
+    },
+    {
+      "id": 30,
+      "query": "catchup",
+      "category": "oils"
+    },
+    {
+      "id": 31,
+      "query": "maionese",
+      "category": "oils"
+    },
+    {
+      "id": 32,
+      "query": "mostarda",
+      "category": "oils"
+    },
+    {
+      "id": 33,
+      "query": "tempero",
+      "category": "oils"
+    },
+    {
+      "id": 34,
+      "query": "alho",
+      "category": "oils"
+    },
+    {
+      "id": 35,
+      "query": "cebola",
+      "category": "oils"
+    },
+    {
+      "id": 36,
+      "query": "caldo de galinha",
+      "category": "oils"
+    },
+    {
+      "id": 37,
+      "query": "frango",
+      "category": "meat"
+    },
+    {
+      "id": 38,
+      "query": "peito de frango",
+      "category": "meat"
+    },
+    {
+      "id": 39,
+      "query": "carne moída",
+      "category": "meat"
+    },
+    {
+      "id": 40,
+      "query": "carne",
+      "category": "meat"
+    },
+    {
+      "id": 41,
+      "query": "linguiça",
+      "category": "meat"
+    },
+    {
+      "id": 42,
+      "query": "salsicha",
+      "category": "meat"
+    },
+    {
+      "id": 43,
+      "query": "bacon",
+      "category": "meat"
+    },
+    {
+      "id": 44,
+      "query": "presunto",
+      "category": "meat"
+    },
+    {
+      "id": 45,
+      "query": "peixe",
+      "category": "meat"
+    },
+    {
+      "id": 46,
+      "query": "sardinha",
+      "category": "meat"
+    },
+    {
+      "id": 47,
+      "query": "atum",
+      "category": "meat"
+    },
+    {
+      "id": 48,
+      "query": "mortadela",
+      "category": "meat"
+    },
+    {
+      "id": 49,
+      "query": "banana",
+      "category": "produce"
+    },
+    {
+      "id": 50,
+      "query": "tomate",
+      "category": "produce"
+    },
+    {
+      "id": 51,
+      "query": "batata",
+      "category": "produce"
+    },
+    {
+      "id": 52,
+      "query": "batata doce",
+      "category": "produce"
+    },
+    {
+      "id": 53,
+      "query": "cenoura",
+      "category": "produce"
+    },
+    {
+      "id": 54,
+      "query": "alface",
+      "category": "produce"
+    },
+    {
+      "id": 55,
+      "query": "limão",
+      "category": "produce"
+    },
+    {
+      "id": 56,
+      "query": "laranja",
+      "category": "produce"
+    },
+    {
+      "id": 57,
+      "query": "maçã",
+      "category": "produce"
+    },
+    {
+      "id": 58,
+      "query": "mamão",
+      "category": "produce"
+    },
+    {
+      "id": 59,
+      "query": "abóbora",
+      "category": "produce"
+    },
+    {
+      "id": 60,
+      "query": "chuchu",
+      "category": "produce"
+    },
+    {
+      "id": 61,
+      "query": "pão",
+      "category": "bakery"
+    },
+    {
+      "id": 62,
+      "query": "pão de forma",
+      "category": "bakery"
+    },
+    {
+      "id": 63,
+      "query": "pão francês",
+      "category": "bakery"
+    },
+    {
+      "id": 64,
+      "query": "bolo",
+      "category": "bakery"
+    },
+    {
+      "id": 65,
+      "query": "biscoito",
+      "category": "bakery"
+    },
+    {
+      "id": 66,
+      "query": "bolacha",
+      "category": "bakery"
+    },
+    {
+      "id": 67,
+      "query": "torrada",
+      "category": "bakery"
+    },
+    {
+      "id": 68,
+      "query": "pão de queijo",
+      "category": "bakery"
+    },
+    {
+      "id": 69,
+      "query": "café",
+      "category": "beverages"
+    },
+    {
+      "id": 70,
+      "query": "café solúvel",
+      "category": "beverages"
+    },
+    {
+      "id": 71,
+      "query": "água",
+      "category": "beverages"
+    },
+    {
+      "id": 72,
+      "query": "refrigerante",
+      "category": "beverages"
+    },
+    {
+      "id": 73,
+      "query": "coca cola",
+      "category": "beverages"
+    },
+    {
+      "id": 74,
+      "query": "suco",
+      "category": "beverages"
+    },
+    {
+      "id": 75,
+      "query": "cerveja",
+      "category": "beverages"
+    },
+    {
+      "id": 76,
+      "query": "chá",
+      "category": "beverages"
+    },
+    {
+      "id": 77,
+      "query": "achocolatado",
+      "category": "beverages"
+    },
+    {
+      "id": 78,
+      "query": "água de coco",
+      "category": "beverages"
+    },
+    {
+      "id": 79,
+      "query": "salgadinho",
+      "category": "snacks"
+    },
+    {
+      "id": 80,
+      "query": "pipoca",
+      "category": "snacks"
+    },
+    {
+      "id": 81,
+      "query": "chocolate",
+      "category": "snacks"
+    },
+    {
+      "id": 82,
+      "query": "amendoim",
+      "category": "snacks"
+    },
+    {
+      "id": 83,
+      "query": "batata chips",
+      "category": "snacks"
+    },
+    {
+      "id": 84,
+      "query": "barra de cereal",
+      "category": "snacks"
+    },
+    {
+      "id": 85,
+      "query": "sabão em pó",
+      "category": "cleaning"
+    },
+    {
+      "id": 86,
+      "query": "detergente",
+      "category": "cleaning"
+    },
+    {
+      "id": 87,
+      "query": "água sanitária",
+      "category": "cleaning"
+    },
+    {
+      "id": 88,
+      "query": "amaciante",
+      "category": "cleaning"
+    },
+    {
+      "id": 89,
+      "query": "desinfetante",
+      "category": "cleaning"
+    },
+    {
+      "id": 90,
+      "query": "esponja",
+      "category": "cleaning"
+    },
+    {
+      "id": 91,
+      "query": "papel toalha",
+      "category": "cleaning"
+    },
+    {
+      "id": 92,
+      "query": "saco de lixo",
+      "category": "cleaning"
+    },
+    {
+      "id": 93,
+      "query": "sabonete",
+      "category": "hygiene"
+    },
+    {
+      "id": 94,
+      "query": "shampoo",
+      "category": "hygiene"
+    },
+    {
+      "id": 95,
+      "query": "creme dental",
+      "category": "hygiene"
+    },
+    {
+      "id": 96,
+      "query": "papel higiênico",
+      "category": "hygiene"
+    },
+    {
+      "id": 97,
+      "query": "desodorante",
+      "category": "hygiene"
+    },
+    {
+      "id": 98,
+      "query": "condicionador",
+      "category": "hygiene"
+    },
+    {
+      "id": 99,
+      "query": "fralda",
+      "category": "baby"
+    },
+    {
+      "id": 100,
+      "query": "ração",
+      "category": "pet"
+    }
+  ]
+}
