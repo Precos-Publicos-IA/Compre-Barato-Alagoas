@@ -53,21 +53,13 @@
       color: #1a1a1a;
       -webkit-text-size-adjust: 100%;
     }
-    /* Ensure CanvasKit host fills the viewport even before Flutter injects
-       scene CSS (avoids zero-size flt-glass-pane → blank first frame). */
+    /* Host only — do not style flt-glass-pane / force absolute on engine hosts;
+       that can leave first-frame firing with an empty glass (no canvas). */
     flutter-view {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      display: block;
-    }
-    flt-glass-pane {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
     }
     #boot-splash {
       position: fixed;

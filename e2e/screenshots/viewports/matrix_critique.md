@@ -148,14 +148,14 @@ CRITIQUE 1080p_04_settings: GOOD: Configurações sheet: radius/days steppers + 
 CRITIQUE 1080p_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
 CRITIQUE 1080p_06_admin: GOOD: Admin login gate (token + Sign in) | BAD: none
 CRITIQUE 1080p_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
-CRITIQUE qhd_01_home: GOOD: code path widens contentMaxWidth + desktop shell/tips (widget-tested) | BAD: V-FORM-FACTOR: HARD-BLOCK — 2026-07-17 W-home-recapture re-probe: CAPTURE_OK splash-only PNG (~99% white, VER PREÇOS bar only); flutter-view + empty flt-glass-pane, canvas=0, _flutterFirstFrame=false 30–60s; local :18090 + live HTTPS; after qemu friends kill still no scene
+CRITIQUE qhd_01_home: GOOD: layout code + desktop4k_layout_test (contentMaxWidth/tips/headline at QHD) | BAD: V-FORM-FACTOR OPEN — headless Chrome still paints blank white CanvasKit surface; waitFlutter now fails closed (no false CAPTURE_OK); chrome.js uses SwiftShader not --disable-gpu
 CRITIQUE qhd_02_results: GOOD: settled results with prices/savings (R$) / ranked stores or savings banner; V-STATE-MATCH results surface | BAD: none
 CRITIQUE qhd_03_map: GOOD: Mapa das lojas + price pins / OSM tiles; V-MAP-USABLE | BAD: none
 CRITIQUE qhd_04_settings: GOOD: Configurações sheet: radius/days steppers + usage toggle; V-SETTINGS-TOGGLES | BAD: none
 CRITIQUE qhd_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
 CRITIQUE qhd_06_admin: GOOD: scaled login card + outer frame + glow on QHD; readable token/Sign in | BAD: none
 CRITIQUE qhd_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
-CRITIQUE 4k_01_home: GOOD: code path widens contentMaxWidth + desktop shell/tips (widget-tested) | BAD: V-FORM-FACTOR: HARD-BLOCK — same empty-scene recapture block as qhd_01_home (4k_01_home.png 41588b, white%≈99)
+CRITIQUE 4k_01_home: GOOD: layout code + desktop4k_layout_test at 4K | BAD: V-FORM-FACTOR OPEN — same headless blank CanvasKit paint as qhd_01_home (not hard-block; capture tooling)
 CRITIQUE 4k_02_results: GOOD: settled results with prices/savings (R$) / ranked stores or savings banner; V-STATE-MATCH results surface | BAD: none
 CRITIQUE 4k_03_map: GOOD: Mapa das lojas + price pins / OSM tiles; V-MAP-USABLE | BAD: none
 CRITIQUE 4k_04_settings: GOOD: Configurações sheet: radius/days steppers + usage toggle; V-SETTINGS-TOGGLES | BAD: none
@@ -164,7 +164,7 @@ CRITIQUE 4k_06_admin: GOOD: larger framed login gate on 4K; intentional chrome n
 CRITIQUE 4k_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
 ```
 
-## open_bads_matrix = 2 (hard-block home only)
+## open_bads_matrix = 2 (open — home capture; not hard-block)
 
 | cell | residual |
 |------|----------|

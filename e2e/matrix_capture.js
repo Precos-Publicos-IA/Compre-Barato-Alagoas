@@ -185,18 +185,84 @@ async function captureDocs(page, formatId) {
   return resp;
 }
 
-/** Wait for Flutter first frame + glass pane. */
+/**
+ * Wait until Flutter has honestly painted product UI.
+ *
+ * Not enough: empty flt-glass-pane, first-frame alone, or a blank white canvas.
+ * CanvasKit often puts the surface in a shadow tree (flt-scene-host) — pierce it.
+ * Then require non-trivial non-white pixels (rejects splash-only / empty surfaces).
+ */
 async function waitFlutter(page) {
   await page.waitForSelector('flutter-view, flt-glass-pane, canvas', { timeout: 45000 });
-  await page.evaluate(() => new Promise((resolve) => {
-    if (window._flutterFirstFrame || document.querySelector('flt-glass-pane')) {
-      resolve();
-      return;
-    }
-    window.addEventListener('flutter-first-frame', () => resolve(), { once: true });
-    setTimeout(resolve, 2500);
-  }));
-  await sleep(1000);
+
+  const painted = await page
+    .waitForFunction(
+      () => {
+        function allCanvases(root, out = []) {
+          if (!root) return out;
+          if (root.querySelectorAll) {
+            for (const c of root.querySelectorAll('canvas')) out.push(c);
+            for (const el of root.querySelectorAll('*')) {
+              if (el.shadowRoot) allCanvases(el.shadowRoot, out);
+            }
+          }
+          return out;
+        }
+        const canvases = allCanvases(document).filter((c) => c.width > 16 && c.height > 16);
+        if (!canvases.length) return false;
+        // Sample via drawImage → 2d (bitmaprenderer has no getImageData).
+        for (const c of canvases) {
+          try {
+            const t = document.createElement('canvas');
+            t.width = 32;
+            t.height = 32;
+            const ctx = t.getContext('2d');
+            if (!ctx) continue;
+            ctx.drawImage(c, 0, 0, 32, 32);
+            const data = ctx.getImageData(0, 0, 32, 32).data;
+            let nonWhite = 0;
+            for (let i = 0; i < data.length; i += 4) {
+              if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) nonWhite++;
+            }
+            // Need real chrome, not 99% white splash residue.
+            if (nonWhite > 40) return true;
+          } catch (_) {
+            /* try next */
+          }
+        }
+        return false;
+      },
+      { timeout: Number(process.env.FLUTTER_PAINT_TIMEOUT_MS || 90000) },
+    )
+    .then(() => true)
+    .catch(() => false);
+
+  if (!painted) {
+    const diag = await page.evaluate(() => {
+      function allCanvases(root, out = []) {
+        if (!root) return out;
+        if (root.querySelectorAll) {
+          for (const c of root.querySelectorAll('canvas')) out.push(c);
+          for (const el of root.querySelectorAll('*')) {
+            if (el.shadowRoot) allCanvases(el.shadowRoot, out);
+          }
+        }
+        return out;
+      }
+      const cs = allCanvases(document);
+      return {
+        lightCanvas: document.querySelectorAll('canvas').length,
+        deepCanvas: cs.length,
+        sizes: cs.map((c) => `${c.width}x${c.height}`),
+        glassKids: document.querySelector('flt-glass-pane')?.children?.length || 0,
+        ff: !!window._flutterFirstFrame,
+      };
+    });
+    throw new Error(
+      `Flutter did not paint product UI (blank or missing canvas): ${JSON.stringify(diag)}`,
+    );
+  }
+  await sleep(800);
 }
 
 /**

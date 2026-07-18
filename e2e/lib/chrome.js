@@ -32,19 +32,51 @@ function resolveChrome() {
   return undefined;
 }
 
+/**
+ * Chrome flags for Flutter web (CanvasKit) under headless Puppeteer.
+ *
+ * Do NOT pass bare `--disable-gpu`: that leaves flt-glass-pane empty (no canvas /
+ * first-frame) so captures are splash-only white. Prefer software GL (SwiftShader)
+ * so CI and GPU-busy hosts still paint. Override with CHROME_GL=host|swiftshader|off.
+ */
+function flutterChromeArgs() {
+  const gl = (process.env.CHROME_GL || 'swiftshader').toLowerCase();
+  const base = [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--window-size=1280,900',
+    '--lang=pt-BR',
+  ];
+  if (gl === 'off' || gl === 'disable' || gl === 'disable-gpu') {
+    // Explicit opt-out only (broken for CanvasKit product UI).
+    return [...base, '--disable-gpu'];
+  }
+  if (gl === 'host' || gl === 'desktop') {
+    return [
+      ...base,
+      '--enable-webgl',
+      '--ignore-gpu-blocklist',
+      '--enable-gpu-rasterization',
+    ];
+  }
+  // Default: ANGLE + SwiftShader — works headless without host GPU.
+  return [
+    ...base,
+    '--enable-webgl',
+    '--ignore-gpu-blocklist',
+    '--use-gl=angle',
+    '--use-angle=swiftshader',
+    '--enable-unsafe-swiftshader',
+  ];
+}
+
 function launchOpts(viewport) {
   return {
     headless: 'new',
     executablePath: resolveChrome(),
     protocolTimeout: Number(process.env.PUPPETEER_PROTOCOL_TIMEOUT_MS || 120000),
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--window-size=1280,900',
-      '--lang=pt-BR',
-    ],
+    args: flutterChromeArgs(),
     defaultViewport: viewport || { width: 1280, height: 900 },
   };
 }

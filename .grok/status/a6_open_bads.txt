@@ -1,11 +1,7 @@
-# W-home-recapture (2026-07-17) — home V-FORM still HARD-BLOCK after honest retry
-# Prior: admin V-FORM CLEARED (W-vform 77c58a5); layout code + desktop4k_layout_test green
-# Attempt: serve :18090, MATRIX qhd+4k home, vision+pixel review
-# CAPTURE_OK wrote splash-only PNGs (qhd ~22KB 98.9% white; 4k ~42KB 99% white)
-# Probe: flutterCanvasKit=true, WebGL surface OK, flutter-view + empty flt-glass-pane,
-#   canvas=0, _flutterFirstFrame=false 30-60s — local and live
-# qemu friends -gpu host killed after first fail; still no first frame without qemu
-# Remaining open BADs (hard-block — not completable without host CanvasKit paint recovery):
-qhd_01_home	V-FORM-FACTOR HARD-BLOCK: empty CanvasKit scene / splash-only still — code fixed, pixels not recapturable this host/session
-4k_01_home	V-FORM-FACTOR HARD-BLOCK: empty CanvasKit scene / splash-only still — code fixed, pixels not recapturable this host/session
-# open_bads_matrix = 2 hard-block (0 completable agent work without capture environment recovery)
+# open residual — NOT hard-block (capture tooling)
+# Layout: 77c58a5 + desktop4k_layout_test (QHD+4K tips/headline/contentMaxWidth)
+# Capture: waitFlutter now fails closed on blank canvas; chrome.js no longer --disable-gpu
+# Host: headless Chrome still paints blank white CanvasKit surface (local+live) — keep working
+qhd_01_home	V-FORM-FACTOR: need honest non-white home still (layout code tested; headless paint blank)
+4k_01_home	V-FORM-FACTOR: need honest non-white home still (layout code tested; headless paint blank)
+# open_bads_matrix = 2 open (completable — capture path)
