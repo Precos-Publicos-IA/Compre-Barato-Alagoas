@@ -1,30 +1,42 @@
 # Session status
 
-Last update: fixed false CAPTURE_OK + CanvasKit chrome flags; home pixel proof still open
+Last update: orchestrator /loop tick — spawned W-home-capture for open qhd/4k stills
 
 ## Project lock
-**HARD** Alagoas only. Refuse other projects (Rusty Dasher etc.).
+**HARD** Alagoas only. Refuse foreign projects.
 
 ## Goal
-Clear qhd/4k home V-FORM with honest pixels (not fake hard-block).
+open_bads 0 for qhd/4k home (honest pixels).
 
-## Findings (this session)
-1. `e2e/lib/chrome.js` had **`--disable-gpu`** — bad for CanvasKit. Now defaults to ANGLE+SwiftShader + `--enable-unsafe-swiftshader`.
-2. `waitFlutter` treated empty `flt-glass-pane` as ready → **splash-only CAPTURE_OK**. Now requires **shadow-piercing canvas + non-white pixels**.
-3. `index.html` no longer forces styles on `flt-glass-pane` (could interfere with host).
-4. Headless Chrome still produces **blank white bitmaprenderer canvas** (surface exists, content white) on local+live — product layout remains proven by **widget tests** (QHD+4K). Matrix home cells stay **OPEN** until headless paints real UI (or alternate capture path lands).
+## Phase
+A — home capture tooling / alternate stills
+
+## Hardware (12s)
+| Signal | Value | Action |
+|--------|--------|--------|
+| windowed CPU | **17.6%** | below 50% — spawn 1 worker |
+| loadavg | 3.3 / 5.2 / 9.2 | OK |
+| **Tctl k10temp** | **57°C** | under 80°C |
+| MemAvailable | ~19 / 32 Gi | OK |
+| app :18090 | 200 | stack up |
+| api :8000 | 200 | OK |
+| qemu friends | up | not our worker; leave alone |
+
+## Workers
+| id | Status |
+|----|--------|
+| W-home-capture | **STARTED** — honest qhd/4k home stills (not hard-block) |
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1 V-FORM home qhd/4k open_bads 0 | **OPEN** — layout code + widget tests green; honest capture gate shipped; headless paint still blank |
+| 1 V-FORM home open_bads 0 | **IN PROGRESS** (W-home-capture) |
 | 2 Project lock | **DONE** |
-| 3 matrix_emulator smoke | **DONE** `d1a4245` |
+| 3 matrix_emulator smoke | **DONE** |
 | 4 Human re-schedule `/loop` | **OPEN** (human) |
 
-## Not a hard-block
-Empty CanvasKit in headless is a **capture tooling defect**, not “agents cannot work.” Keep iterating (Chrome flags / headed / alternate capture). Do not park as optional.
+## Concurrency
+**N=0 → N=1** (CPU 17.6%, completable #1 had no owner).
 
 ## Next
-- Land chrome/waitFlutter fixes
-- Continue until headless (or alternate) produces non-white qhd/4k home stills → critique BAD: none
+Reap W-home-capture → open_bads 0 or next concrete capture progress on main.
