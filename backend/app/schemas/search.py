@@ -117,6 +117,10 @@ class SearchMetrics(BaseModel):
     # Progress helpers for progressive UX (optional on final response).
     items_completed: int | None = None
     status_message: str | None = None
+    # Distinguishes "SEFAZ had no rows" (true no_data) from "fetch/timeout failed"
+    # so clients/evals do not treat upstream outages as missing products.
+    items_fetch_failed: int = 0
+    fetch_failed_labels: list[str] = Field(default_factory=list)
 
 
 class Origin(BaseModel):

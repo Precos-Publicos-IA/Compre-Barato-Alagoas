@@ -89,6 +89,10 @@ async def run_search(
     parse_methods: dict[str, int] = {}
     total_offers = 0
     parsed_offers = 0
+    # Track per-label SEFAZ outcome so clients/evals can tell no_data vs upstream_failed.
+    # A later successful attempt (e.g. Verifier retry) clears the failed classification.
+    labels_fetch_error: set[str] = set()
+    labels_fetch_ok: set[str] = set()
     sem = asyncio.Semaphore(max(1, settings.sefaz_concurrency))
     src_ns = getattr(sefaz, "cache_namespace", sefaz.source_name)
 
@@ -138,9 +142,26 @@ async def run_search(
         t0 = time.perf_counter()
         cached = await cache.get_json(key)
         out["cache_ms"] += (time.perf_counter() - t0) * 1000
+        resp: PesquisaResponse | None = None
+        from_cache = False
         if cached is not None:
-            resp = PesquisaResponse.model_validate(cached)
-        else:
+            candidate = PesquisaResponse.model_validate(cached)
+            # Never trust empty cache entries (stampede/timeout poison with 6h TTL).
+            if candidate.conteudo:
+                resp = candidate
+                from_cache = True
+            else:
+                logger.info(
+                    "Ignoring empty cached SEFAZ response for %r (%r); re-fetching",
+                    label,
+                    search_term,
+                )
+                try:
+                    await cache.delete(key)
+                except Exception:  # pragma: no cover - best-effort purge
+                    pass
+
+        if resp is None:
             try:
                 async with sem:
                     resp = await asyncio.wait_for(
@@ -148,8 +169,10 @@ async def run_search(
                         timeout=settings.sefaz_item_deadline_seconds,
                     )
             except Exception:
+                # Do not cache failures — next request must retry upstream.
+                labels_fetch_error.add(label)
                 logger.warning(
-                    "SEFAZ fetch failed for %r (%r); partial results",
+                    "SEFAZ fetch failed for %r (%r); upstream_failed, not caching",
                     label,
                     search_term,
                 )
@@ -157,11 +180,25 @@ async def run_search(
                 cache_ms += out["cache_ms"]
                 provider_calls_acc.extend(out["provider_calls"])
                 return []
-            t0 = time.perf_counter()
-            await cache.set_json(
-                key, resp.model_dump(by_alias=True), ttl=settings.cache_ttl_seconds
-            )
-            out["cache_ms"] += (time.perf_counter() - t0) * 1000
+            labels_fetch_ok.add(label)
+            # Successful empty is true no_data — still do not cache for full TTL.
+            # Caching empties poisoned evals/users for hours under load.
+            if resp.conteudo:
+                t0 = time.perf_counter()
+                await cache.set_json(
+                    key,
+                    resp.model_dump(by_alias=True),
+                    ttl=settings.cache_ttl_seconds,
+                )
+                out["cache_ms"] += (time.perf_counter() - t0) * 1000
+            else:
+                logger.info(
+                    "SEFAZ empty response for %r (%r); no_data, not caching",
+                    label,
+                    search_term,
+                )
+        else:
+            labels_fetch_ok.add(label)
 
         t0 = time.perf_counter()
         offers = [
@@ -177,6 +214,8 @@ async def run_search(
         parsed_offers += sum(1 for o in offers if o.quantity_parsed)
         for o in offers:
             parse_methods[o.parse_method] = parse_methods.get(o.parse_method, 0) + 1
+        if from_cache:
+            logger.debug("SEFAZ cache hit for %r (%r)", label, search_term)
         return offers
 
     # Progressive partials: when a fetch finishes, re-rank whatever we have so far.
@@ -299,6 +338,15 @@ async def run_search(
         it.label: max(1, int(it.quantity or 1)) for it in unique_items
     }
     items_with_match = sum(1 for lbl in item_queries if offers_by_item.get(lbl))
+    # Labels with no offers where every attempt raised/timed out (never a clean empty).
+    # Successful empty → true no_data; exception-only → upstream_failed.
+    fetch_failed = sorted(
+        lbl
+        for lbl in item_queries
+        if not offers_by_item.get(lbl)
+        and lbl in labels_fetch_error
+        and lbl not in labels_fetch_ok
+    )
 
     t0 = time.perf_counter()
     stores = build_store_results(
@@ -332,10 +380,18 @@ async def run_search(
         search_rewrites=rewrites,
         items_completed=len(item_queries),
         status_message="Pronto",
+        items_fetch_failed=len(fetch_failed),
+        fetch_failed_labels=fetch_failed,
     )
 
     if batch is not None:
         notfound = [lbl for lbl in item_queries if not offers_by_item.get(lbl)]
+        # no_data = missing after at least one successful upstream response (empty).
+        no_data = [
+            lbl
+            for lbl in notfound
+            if lbl in labels_fetch_ok or lbl not in labels_fetch_error
+        ]
         batch.search = {
             "items_requested": len(item_queries),
             "items_with_match": items_with_match,
@@ -344,6 +400,8 @@ async def run_search(
             "data_source": sefaz.source_name,
             "item_labels": item_queries,
             "notfound_labels": notfound,
+            "fetch_failed_labels": fetch_failed,
+            "no_data_labels": no_data,
             "parse_methods": parse_methods,
             "device_token": device_token,
             "analytics_id": analytics_id,
