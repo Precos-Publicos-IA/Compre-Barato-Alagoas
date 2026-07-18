@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-18 W-F-status — **F DONE** (honest serial 100 artifacts on main)
+Last update: 2026-07-18 W-G-improve — **G DONE** `efca61d` (RAG cross-class rewrite guard)
 
 ## Project lock
 **HARD** Alagoas only.
@@ -9,14 +9,14 @@ Last update: 2026-07-18 W-F-status — **F DONE** (honest serial 100 artifacts o
 Old B “71 missing SEFAZ” **INVALID**. Honest serial: **found_count=91/100**.
 
 ## Phase
-**Active** — G DONE; H ship next
+**G DONE** — next **H** ship G + live verify (deploy watch)
 
 ## Workers
 | ID | Status |
 |----|--------|
 | W-F-run2 | **DONE** (eval finished; final JSON on disk) |
 | **W-F-status** | **DONE** — honest artifacts committed + pushed to `origin/main` |
-| W-G-improve | **RUNNING** — fix 20 wrong_class from honest eval |
+| **W-G-improve** | **DONE** — `efca61d` — report `worker_w_g_improve_report.md` |
 
 ## Must-complete
 | # | Status |
@@ -27,8 +27,8 @@ Old B “71 missing SEFAZ” **INVALID**. Honest serial: **found_count=91/100**.
 | D ship C | **DONE** |
 | E empty-cache | **DONE** |
 | **F** honest serial 100 | **DONE** — pass=**71** wrong=**20** missing_after_retry=**9** found=**91** upstream_error=**0** all web — artifacts on main |
-| **G** improve from honest WC | **DONE** — see worker_w_g_improve_report.md |
-| **H** ship G + offline re-score | **OPEN** — after G |
+| **G** improve from honest WC | **DONE** — **`efca61d`** — RAG poison + residual class gates; offline 20/20 WC emptied |
+| **H** ship G + offline re-score | **OPEN** — deploy watch + live smoke (poison keys filtered even if Redis still has them) |
 
 ## F artifacts (on main)
 - `.grok/status/match_eval_100_honest.json`

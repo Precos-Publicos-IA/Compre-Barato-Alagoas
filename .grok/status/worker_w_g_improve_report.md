@@ -3,6 +3,7 @@
 **Status:** **G DONE**  
 **Worker:** W-G-improve  
 **Date:** 2026-07-18  
+**Product SHA:** **`efca61d`** (`fix(match): block RAG cross-class rewrites causing egg/class bleed`)  
 **Evidence in:** `.grok/status/match_eval_100_honest.json` (pass=71, wrong_class=20, missing_after_retry=9, found=91, all web)
 
 ## Root cause (not scorer alone)
