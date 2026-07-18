@@ -1,6 +1,6 @@
 # Session status
 
-Last update: orchestrator /loop tick — idle N=0 (2026-07-18)
+Last update: orchestrator /loop tick — idle N=0
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
@@ -14,8 +14,8 @@ Last update: orchestrator /loop tick — idle N=0 (2026-07-18)
 ## Hardware (8s)
 | Signal | Value | Action |
 |--------|--------|--------|
-| windowed CPU | **0.8%** | idle |
-| loadavg | 0.4 / 0.2 / 0.4 | cool |
+| windowed CPU | **1.8%** | idle |
+| loadavg | 0.4 / 0.3 / 0.3 | cool |
 | **Tctl k10temp** | **33°C** | cool |
 
 ## Workers
