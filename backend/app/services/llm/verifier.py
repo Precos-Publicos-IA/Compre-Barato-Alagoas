@@ -13,7 +13,7 @@ from typing import Protocol
 
 from ..normalization.matcher import NormalizedOffer
 from ..rag.relevance import filter_offers, offer_package_class_ok
-from ..rag.store import RAGStore
+from ..rag.store import RAGStore, filter_compatible_terms, rewrite_compatible
 from .base import ParsedItem
 
 logger = logging.getLogger(__name__)
@@ -104,16 +104,20 @@ class BasicVerifier:
                     misses += 1
 
             if good_count == 0 and rag is not None:
-                alts = await rag.lookup_effective_terms(item.label, limit=3)
+                label = item.label or item.raw or ""
+                alts = await rag.lookup_effective_terms(label, limit=5)
                 if not alts:
                     alts = await rag.find_similar_effective_terms(
-                        item.label, limit=3, min_overlap=1
+                        label, limit=5, min_overlap=1
                     )
-                # Don't retry the same term we already used
+                alts = filter_compatible_terms(label, alts)
+                # Don't retry the same term we already used or cross-class poison.
                 alts = [
                     a
                     for a in alts
-                    if a and a.lower() != (item.search_term or "").lower()
+                    if a
+                    and a.lower() != (item.search_term or "").lower()
+                    and rewrite_compatible(label, a)
                 ]
                 if alts and allow_retry:
                     retry_terms[item.label] = alts[0]

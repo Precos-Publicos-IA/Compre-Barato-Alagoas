@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from .base import LLMClient, ParsedItem, ParseResult
-from ..rag.store import RAGStore
+from ..rag.store import RAGStore, filter_compatible_terms, rewrite_compatible
 
 logger = logging.getLogger(__name__)
 
@@ -53,18 +53,28 @@ class BasicRequester:
         refined: list[ParsedItem] = []
         rag_hits = 0
         for item in base.items:
-            candidates = await rag.lookup_effective_terms(item.label, limit=2)
+            label = item.label or item.raw or ""
+            candidates = await rag.lookup_effective_terms(label, limit=4)
             if not candidates:
                 candidates = await rag.find_similar_effective_terms(
-                    item.label, limit=2, min_overlap=1
+                    label, limit=4, min_overlap=1
                 )
-            # Also try the raw search_term as a key
+            # Also try the raw search_term as a key (still class-filtered).
             if not candidates and item.search_term != item.label:
-                candidates = await rag.lookup_effective_terms(item.search_term, limit=2)
+                candidates = await rag.lookup_effective_terms(
+                    item.search_term, limit=4
+                )
+                # Only keep rewrites still compatible with the *user label*.
+                candidates = filter_compatible_terms(label, candidates)
 
+            candidates = filter_compatible_terms(label, candidates)
             if candidates:
                 best = candidates[0]
-                if best and best != (item.search_term or "").lower():
+                if (
+                    best
+                    and best != (item.search_term or "").lower()
+                    and rewrite_compatible(label, best)
+                ):
                     rag_hits += 1
                     logger.debug(
                         "requester: refined %r -> %r (RAG)", item.search_term, best

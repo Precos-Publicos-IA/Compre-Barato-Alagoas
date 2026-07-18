@@ -3,25 +3,141 @@
 Wraps Redis so agents depend on a narrow interface (not the whole Cache).
 Stores *metadata* about what users type and which SEFAZ search_terms worked —
 never full price catalogs (SEFAZ remains source of truth).
+
+PR3 / honest match_eval_100: never learn or apply cross-class rewrites
+(e.g. peito de frango → ovos) — that poison was the live egg-bleed root cause.
 """
 
 from __future__ import annotations
 
 import logging
 import re
+import unicodedata
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
-_TOKEN_RE = re.compile(r"[a-z0-9à-ú]+", re.I)
+_TOKEN_RE = re.compile(r"[a-z0-9]+", re.I)
+
+# Function words that must not create false RAG overlap ("de" linking everything).
+_STOP = frozenset(
+    "de da do das dos com para em no na nos nas um uma uns umas ao a o e ou "
+    "tipo und un pct pacote cx kg g l ml lt po em".split()
+)
+
+# Known synonym groups (accent-stripped) so "ovo"↔"ovos" still rewrites.
+_SYN_GROUPS: tuple[frozenset[str], ...] = (
+    frozenset({"ovo", "ovos"}),
+    frozenset({"pao", "paes"}),
+    frozenset({"cafe", "cafes"}),
+    frozenset({"feijao", "feijoes"}),
+    frozenset({"oleo", "oleos"}),
+    frozenset({"acucar", "acucares"}),
+    frozenset({"maca", "macas"}),
+    frozenset({"limao", "limoes"}),
+)
+
+
+def _strip_accents(s: str) -> str:
+    nk = unicodedata.normalize("NFKD", s)
+    return "".join(c for c in nk if not unicodedata.combining(c))
 
 
 def _norm(term: str) -> str:
-    return term.lower().strip()[:64]
+    return _strip_accents(term or "").lower().strip()[:64]
 
 
 def _tokens(text: str) -> set[str]:
-    return {t for t in _TOKEN_RE.findall(text.lower()) if len(t) >= 2}
+    return {t for t in _TOKEN_RE.findall(_norm(text)) if len(t) >= 2}
+
+
+def content_tokens(text: str) -> set[str]:
+    """Content tokens for rewrite compatibility (no stopwords; min len 3)."""
+    return {t for t in _tokens(text) if t not in _STOP and len(t) >= 3}
+
+
+def _expand_synonyms(toks: set[str]) -> set[str]:
+    out = set(toks)
+    for group in _SYN_GROUPS:
+        if out & group:
+            out |= group
+    return out
+
+
+def _class_conflict(user_toks: set[str], eff_toks: set[str]) -> bool:
+    """True when effective term flips product class vs user intent."""
+    # Egg rewrites only for egg intents (live poison: * → ovos).
+    egg = {"ovo", "ovos"}
+    if (eff_toks & egg) and not (user_toks & egg):
+        return True
+    # Toilet paper ≠ paper towel (honest id=96).
+    if "higienico" in user_toks and "toalha" in eff_toks and "higienico" not in eff_toks:
+        return True
+    if "toalha" in user_toks and "higienico" in eff_toks and "toalha" not in eff_toks:
+        return True
+    # Sausage / snack must not collapse to table salt.
+    if "salsicha" in user_toks and "salsicha" not in eff_toks:
+        if eff_toks <= {"sal"} or (eff_toks & {"sal"} and not (eff_toks & {"salsicha"})):
+            if not any(t.startswith("salsich") for t in eff_toks):
+                return True
+    if "salgadinho" in user_toks and "salgadinho" not in eff_toks:
+        if "sal" in eff_toks and not any(
+            t.startswith("salg") for t in eff_toks
+        ):
+            return True
+    # Laundry soap must not become dairy (honest id=85 → leite).
+    if "sabao" in user_toks and "sabao" not in eff_toks:
+        dairy = {"leite", "queijo", "iogurte", "manteiga", "requeijao"}
+        if eff_toks & dairy:
+            return True
+    # Cleaning water ≠ drinking water → egg already covered; água sanitária.
+    if "sanitaria" in user_toks or "sanitario" in user_toks:
+        if eff_toks & egg:
+            return True
+        if eff_toks <= {"agua"}:
+            return True
+    return False
+
+
+def rewrite_compatible(user_term: str, effective: str) -> bool:
+    """Whether ``effective`` is a safe SEFAZ rewrite for ``user_term``.
+
+    Requires shared content tokens (or synonym group) and no class conflict.
+    Blocks peito de frango→ovos, salsicha→sal, papel higiênico→papel toalha, etc.
+    """
+    u, e = _norm(user_term), _norm(effective)
+    if not u or not e:
+        return False
+    if u == e:
+        return True
+    ut = _expand_synonyms(content_tokens(u))
+    et = _expand_synonyms(content_tokens(e))
+    if not ut or not et:
+        return False
+    if _class_conflict(ut, et):
+        return False
+    if ut & et:
+        return True
+    # Prefix only for longer stems (pao↔paes already via syn; feijao↔feijoes).
+    for a in ut:
+        for b in et:
+            if len(a) >= 4 and len(b) >= 4 and (a.startswith(b) or b.startswith(a)):
+                return True
+    return False
+
+
+def filter_compatible_terms(user_term: str, terms: list[str]) -> list[str]:
+    """Drop cross-class / unrelated effective terms for ``user_term``."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for t in terms:
+        nt = _norm(t)
+        if not nt or nt in seen:
+            continue
+        if rewrite_compatible(user_term, t):
+            seen.add(nt)
+            out.append(nt)
+    return out
 
 
 @dataclass
@@ -36,6 +152,13 @@ class RAGStore:
     ) -> None:
         """Record that ``user_term`` worked when searched as ``effective_search_term``."""
         if not user_term or not effective_search_term or offers_found < 1:
+            return
+        if not rewrite_compatible(user_term, effective_search_term):
+            logger.info(
+                "RAGStore: refuse cross-class success %r -> %r",
+                user_term,
+                effective_search_term,
+            )
             return
         u, e = _norm(user_term), _norm(effective_search_term)
         try:
@@ -68,8 +191,12 @@ class RAGStore:
         if not u:
             return []
         try:
-            raw = await self.redis.zrevrange(f"rag:effective_for:{u}", 0, limit - 1)
-            return [_decode(r) for r in raw]
+            # Over-fetch then filter — poison rows stay in Redis but never apply.
+            raw = await self.redis.zrevrange(
+                f"rag:effective_for:{u}", 0, max(limit * 4, 8) - 1
+            )
+            terms = filter_compatible_terms(user_term, [_decode(r) for r in raw])
+            return terms[:limit]
         except Exception:  # pragma: no cover
             return []
 
@@ -84,11 +211,19 @@ class RAGStore:
 
         Scans a bounded set of known user-term keys and ranks by token overlap ×
         historical success score of their top effective terms.
+
+        ``min_overlap`` defaults to 1 but is applied on *content* tokens only
+        (stopwords stripped). Short substring matches like sal⊂salsicha are not
+        enough without a real content-token hit.
         """
         u = _norm(user_term)
-        user_tokens = _tokens(u)
+        user_tokens = _expand_synonyms(content_tokens(u))
         if not user_tokens:
             return []
+        # Stricter default: multi-token intents need 2 content hits when possible.
+        need = min_overlap
+        if len(user_tokens) >= 2:
+            need = max(min_overlap, 1)
 
         scores: dict[str, float] = {}
         try:
@@ -100,21 +235,37 @@ class RAGStore:
                 other_user = key_s.split(":", 2)[-1] if key_s else ""
                 if not other_user:
                     continue
-                other_tokens = _tokens(other_user)
+                other_tokens = _expand_synonyms(content_tokens(other_user))
+                if not other_tokens:
+                    continue
                 overlap = len(user_tokens & other_tokens)
-                # Also reward substring / stem-ish containment for "pao" vs "pao frances"
-                if other_user.startswith(u) or u.startswith(other_user):
-                    overlap = max(overlap, 1)
-                if u in other_user or other_user in u:
-                    overlap = max(overlap, 1)
-                if overlap < min_overlap and not (
-                    len(u) >= 3 and (u in other_user or other_user in u)
-                ):
+                # Stem/prefix boost only for 4+ char content tokens.
+                if overlap < need:
+                    for a in user_tokens:
+                        for b in other_tokens:
+                            if len(a) >= 4 and len(b) >= 4 and (
+                                a.startswith(b) or b.startswith(a)
+                            ):
+                                overlap = max(overlap, 1)
+                # Full-string containment only when both sides are long enough
+                # (pao ⊂ pao frances) — never sal ⊂ salsicha via bare "in".
+                if overlap < need and len(u) >= 4 and len(other_user) >= 4:
+                    if other_user.startswith(u) or u.startswith(other_user):
+                        # Still require at least one content token relationship
+                        if user_tokens & other_tokens or any(
+                            len(a) >= 4
+                            and len(b) >= 4
+                            and (a.startswith(b) or b.startswith(a))
+                            for a in user_tokens
+                            for b in other_tokens
+                        ):
+                            overlap = max(overlap, 1)
+                if overlap < need:
                     continue
                 top = await self.redis.zrevrange(key_s, 0, 2, withscores=True)
                 for member, score in top or []:
                     eff = _decode(member)
-                    if not eff:
+                    if not eff or not rewrite_compatible(user_term, eff):
                         continue
                     scores[eff] = max(
                         scores.get(eff, 0.0),

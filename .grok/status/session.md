@@ -9,7 +9,7 @@ Last update: 2026-07-18 W-F-status — **F DONE** (honest serial 100 artifacts o
 Old B “71 missing SEFAZ” **INVALID**. Honest serial: **found_count=91/100**.
 
 ## Phase
-**Active** — G match improve from honest wrong_class
+**Active** — G DONE; H ship next
 
 ## Workers
 | ID | Status |
@@ -27,7 +27,7 @@ Old B “71 missing SEFAZ” **INVALID**. Honest serial: **found_count=91/100**.
 | D ship C | **DONE** |
 | E empty-cache | **DONE** |
 | **F** honest serial 100 | **DONE** — pass=**71** wrong=**20** missing_after_retry=**9** found=**91** upstream_error=**0** all web — artifacts on main |
-| **G** improve from honest WC | **OPEN** — W-G-improve |
+| **G** improve from honest WC | **DONE** — see worker_w_g_improve_report.md |
 | **H** ship G + offline re-score | **OPEN** — after G |
 
 ## F artifacts (on main)

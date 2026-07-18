@@ -1,0 +1,7 @@
+{
+  "wrong_class": 20,
+  "fixed_empty": 20,
+  "fixed_onclass": 0,
+  "residual": [],
+  "note": "offline re-score of stored top_lines with poisoned live search_terms; empty better than wrong class"
+}

@@ -11,6 +11,10 @@ crown sachets or macarrão "c/ovos" as the shopping answer.
 PR2 / match-eval-100 P0: stop egg cross-bleed for non-egg queries; reject
 sal-as-snack, óleo saturado / fish-in-oil, tempero-para-feijão, zero-açúcar
 candy, and café caramel/spice mixes.
+
+PR3 / honest match_eval_100: ignore cross-class RAG search_term poison
+(peito→ovos); reject papel toalha for papel higiênico; require primary
+product token for salsicha / salgadinho / sabão.
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ from dataclasses import dataclass
 
 from ..normalization.matcher import NormalizedOffer
 from ..normalization.quantity import extract_quantity
+from .store import rewrite_compatible
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+", re.I)
 
@@ -123,6 +128,17 @@ _COFFEE_PRODUCT = re.compile(
 )
 # Egg product detection for cross-query bleed (non-egg intents).
 _EGG_TOKEN = re.compile(r"\bovos?\b", re.I)
+# Paper products: toilet paper vs kitchen towel (honest id=96).
+_TOILET_PAPER = re.compile(r"\bhigi[eê]nico\b", re.I)
+_PAPER_TOWEL = re.compile(r"\btoalha\b", re.I)
+# Primary-product intents that must appear in the NFC-e line.
+_SALSICHA = re.compile(r"\bsalsicha\b", re.I)
+_SALGADINHO = re.compile(r"\bsalgadinho\b", re.I)
+_SABAO = re.compile(r"\bsab[aã]o\b", re.I)
+_DETERGENTE_PO = re.compile(
+    r"\b(omo|tixan|ace|brilhante|surf|ariel|yp[eê]|persil|em\s*p[oó]|p[oó])\b",
+    re.I,
+)
 
 # Staple keys (accent-stripped) → positive package/type patterns.
 _STAPLES = {
@@ -563,16 +579,58 @@ class RelevanceResult:
 
 
 def _hard_reject_score(
-    intent_n: str, desc_n: str, desc_tokens: list[str], description: str
+    intent_n: str,
+    desc_n: str,
+    desc_tokens: list[str],
+    description: str,
+    *,
+    label_n: str | None = None,
 ) -> float | None:
-    """Return a low score for known off-intent SKUs, else None."""
-    # P0: non-egg queries must never keep egg SKUs (cross-query bleed).
-    if not _is_egg_intent(intent_n) and _looks_like_egg_product(desc_n, desc_tokens):
+    """Return a low score for known off-intent SKUs, else None.
+
+    ``label_n`` is the user-facing label only (not RAG search_term). Class gates
+    that prevent cross-query bleed use the label so a poisoned rewrite like
+    peito de frango→ovos cannot reclassify the query as egg intent.
+    """
+    class_n = label_n if label_n is not None else intent_n
+
+    # P0/P3: non-egg *labels* must never keep egg SKUs (even if search_term is ovos).
+    if not _is_egg_intent(class_n) and _looks_like_egg_product(desc_n, desc_tokens):
         return 0.04
 
     # Eggs: pasta "MAC OVOS" / "C/OVOS" macarrão must never win (W1.2/W1.3).
-    if _is_egg_intent(intent_n) and _is_pasta_as_egg_noise(desc_n, desc_tokens):
+    if _is_egg_intent(class_n) and _is_pasta_as_egg_noise(desc_n, desc_tokens):
         return 0.04
+
+    # Papel higiênico ≠ papel toalha (honest id=96).
+    if _TOILET_PAPER.search(class_n) and _PAPER_TOWEL.search(desc_n):
+        if not _TOILET_PAPER.search(desc_n):
+            return 0.04
+
+    # Salsicha / salgadinho must carry the product token (not salt snacks).
+    if _SALSICHA.search(class_n) and not _SALSICHA.search(desc_n):
+        return 0.04
+    if _SALGADINHO.search(class_n):
+        if not (
+            _SALGADINHO.search(desc_n)
+            or re.search(r"\b(chips?|cheetos|ruffles|doritos|fandangos|baconzitos)\b", desc_n)
+        ):
+            # Allow generic salgadinho-ish snacks only with clear snack brands; pipoca≠salgadinho.
+            if re.search(r"\bpipoca\b", desc_n) or not re.search(
+                r"\b(salg|snack|batata)\b", desc_n
+            ):
+                return 0.04
+
+    # Sabão em pó: dairy/candy lines are never laundry soap (honest id=85).
+    if _SABAO.search(class_n):
+        if re.search(
+            r"\b(leite|cocada|queijo|iogurte|chocolate|bala|bombom)\b", desc_n
+        ) and not _SABAO.search(desc_n):
+            return 0.04
+        if not _SABAO.search(desc_n) and not _DETERGENTE_PO.search(desc_n):
+            # Weak: description has neither sabão nor detergent cues.
+            if not re.search(r"\b(lava\s*roupa|roupas?)\b", desc_n):
+                return 0.04
 
     # Plain óleo: coconut oil, saturado, fish-in-oil, tiny sachets (W1.1/W1.3/P0).
     if _is_oil_intent(intent_n) and not _query_wants_coco(intent_n):
@@ -644,12 +702,18 @@ def _hard_reject_score(
 
 def score_description(user_label: str, search_term: str, description: str) -> float:
     """Score a free-text product description against user intent (0..1)."""
-    intent = f"{user_label} {search_term}".strip()
+    label = (user_label or "").strip()
+    term = (search_term or "").strip()
+    # Poisoned RAG rewrites (label→ovos/sal/leite) must not redefine intent.
+    if label and term and not rewrite_compatible(label, term):
+        term = label
+    intent = f"{label} {term}".strip()
     desc = description or ""
     if not intent or not desc:
         return 0.0
 
     intent_n = _norm(intent)
+    label_n = _norm(label) if label else intent_n
     desc_n = _norm(desc)
     intent_toks = _expand_synonyms(_token_set(intent))
     desc_tokens = _token_list(desc)
@@ -661,13 +725,17 @@ def score_description(user_label: str, search_term: str, description: str) -> fl
     if not content:
         content = intent_toks
 
+    # Class hard-rejects first (label-primary) so eggs die even with zero overlap
+    # after a poisoned term was neutralized — still catch pure egg rows early.
+    hard = _hard_reject_score(
+        intent_n, desc_n, desc_tokens, desc, label_n=label_n
+    )
+    if hard is not None:
+        return hard
+
     overlap = content & desc_toks
     if not overlap:
         return 0.0
-
-    hard = _hard_reject_score(intent_n, desc_n, desc_tokens, desc)
-    if hard is not None:
-        return hard
 
     # Hard gate: noise categories (cookie/candy/pet/seasoning) unless asked.
     # No exceptions for "primary token" — "ARROZ P CAES" and "CARAMELO LEITE" must die.

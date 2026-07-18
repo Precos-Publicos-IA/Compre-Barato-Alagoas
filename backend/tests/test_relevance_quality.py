@@ -379,3 +379,113 @@ def test_filter_non_egg_query_drops_eggs_entirely():
     rel = filter_offers("farinha de trigo", "farinha de trigo", offers, min_score=0.35)
     assert all("OVOS" not in o.description for o in rel.kept)
     assert any("FARINHA" in o.description for o in rel.kept)
+
+
+# --- PR3 / honest match_eval_100 wrong_class goldens -----------------------------
+
+
+def test_poisoned_rag_search_term_cannot_force_eggs():
+    """Live root cause: RAG rewrote peito/farinha/queijo/pão → ovos."""
+    egg = "OVOS BRANCOS UND"
+    poisoned = [
+        "peito de frango",
+        "farinha de trigo",
+        "farinha de mandioca",
+        "queijo",
+        "queijo mussarela",
+        "pão",
+        "pão de forma",
+        "pão francês",
+        "pão de queijo",
+        "água",
+        "água de coco",
+        "água sanitária",
+        "molho de tomate",
+        "caldo de galinha",
+        "barra de cereal",
+        "saco de lixo",
+    ]
+    for q in poisoned:
+        s = score_description(q, "ovos", egg)
+        assert s < 0.15, f"poisoned rewrite {q!r}→ovos kept egg with score {s}"
+
+
+def test_filter_peito_drops_eggs_even_with_ovos_search_term():
+    offers = [
+        _o("OVOS BRANCOS UND", price=0.5),
+        _o("OVOS EXTRA STA MARIA LUNA UN", price=0.6),
+        _o(
+            "PEITO DE FRANGO CONGELADO 1KG",
+            price=18.0,
+            unit_price=18.0,
+            quantity=1.0,
+            unit="kg",
+            base_unit="kg",
+            quantity_parsed=True,
+        ),
+    ]
+    rel = filter_offers("peito de frango", "ovos", offers, min_score=0.35)
+    assert all("OVOS" not in o.description.upper() for o in rel.kept)
+    assert any("FRANGO" in o.description.upper() for o in rel.kept)
+
+
+def test_papel_higienico_rejects_papel_toalha():
+    """Honest id=96: PAPEL TOALHA must not win for papel higiênico."""
+    toalha = score_description(
+        "papel higiênico",
+        "papel toalha",
+        "PAPEL TOALHA MALU 2 ROLOS 100FOLHAS",
+    )
+    hig = score_description(
+        "papel higiênico",
+        "papel higienico",
+        "PAPEL HIGIENICO NEVE 12 ROLOS",
+    )
+    assert toalha < 0.15
+    assert hig > 0.45
+    offers = [
+        _o("PAPEL TOALHA MALU 2 ROLOS 100FOLHAS", price=3.0),
+        _o("PAPEL TOALHA MILI 2 UND", price=3.5),
+        _o("PAPEL HIGIENICO NEVE 12 ROLOS", price=12.0),
+    ]
+    rel = filter_offers("papel higiênico", "papel toalha", offers, min_score=0.35)
+    assert all("TOALHA" not in o.description for o in rel.kept)
+    assert any("HIGIENICO" in o.description for o in rel.kept)
+
+
+def test_salsicha_rejects_pipoca_sal_snacks():
+    """Honest id=42: Pipoca Bokus sal is not salsicha (RAG had rewritten → sal)."""
+    pipoca = score_description("salsicha", "sal", "Pipoca Bokus sal 30g")
+    real = score_description("salsicha", "salsicha", "SALSICHA PERDIGAO 500G")
+    assert pipoca < 0.15
+    assert real > 0.45
+    rel = filter_offers(
+        "salsicha",
+        "sal",
+        [_o("Pipoca Bokus sal 30g"), _o("PIPOCA BOKUS SAL 10G")],
+        min_score=0.35,
+    )
+    assert rel.kept == []
+
+
+def test_salgadinho_rejects_pipoca_only():
+    """Honest id=79."""
+    assert score_description("salgadinho", "sal", "Pipoca Bokus sal 30g") < 0.15
+    assert score_description("salgadinho", "salgadinho", "SALGADINHO CHEETOS 40G") > 0.45
+
+
+def test_sabao_em_po_rejects_dairy_cocada():
+    """Honest id=85: COCADA LEITE / LEITE when RAG rewrote → leite."""
+    for desc in ("COCADA LEITE", "LEITE 50ML", "LEITE CONDENSADO 30G"):
+        s = score_description("sabão em pó", "leite", desc)
+        assert s < 0.15, f"{desc!r} scored {s}"
+    real = score_description("sabão em pó", "sabao em po", "SABAO EM PO OMO 800G")
+    assert real > 0.45
+    rel = filter_offers(
+        "sabão em pó",
+        "leite",
+        [_o("COCADA LEITE"), _o("LEITE 50ML"), _o("SABAO EM PO OMO 800G")],
+        min_score=0.35,
+    )
+    assert all("LEITE" not in o.description or "SABAO" in o.description for o in rel.kept)
+    assert any("SABAO" in o.description for o in rel.kept)
