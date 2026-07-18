@@ -1,26 +1,28 @@
 # Session status
 
-Last update: W-deploy-live DONE — Phase B closed for `0c38cb6` (deploy + live PASS)
+Last update: orchestrator /loop tick — Phase B confirmed closed; agent idle N=0
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
 
 ## Goal
-Phase B ship gate for bottom-bar fix — **closed**. Agent idle pending human `/loop` if desired.
+**Agent Done** — ship gates closed; only human #4 remains.
 
 ## Phase
-**B closed** — deploy green + live smoke PASS. No open completable agent work.
+**Done** (agent-completable)
 
-## Hardware (10s)
+## Hardware (10s this tick)
 | Signal | Value | Action |
 |--------|--------|--------|
-| (at close) | cool / idle | no spawn |
+| windowed CPU | **1.2%** | idle |
+| loadavg | 0.7 / 0.8 / 2.2 | cool |
+| **Tctl k10temp** | **36°C** | cool |
 
 ## Workers
 | id | Status |
 |----|--------|
-| W-home-capture | **DONE** open_bads 0; `0c38cb6` |
-| W-deploy-live | **DONE** deploy run 29626602645 success; live 14/14 (CI + local prod) |
+| W-deploy-live | **DONE** (status `de32d00`; may still wind down in runtime) — CI 29626602645 + live 14/14 |
+| all prior | DONE |
 
 ## Must-complete
 | # | Status |
@@ -28,11 +30,11 @@ Phase B ship gate for bottom-bar fix — **closed**. Agent idle pending human `/
 | 1 V-FORM home open_bads 0 | **DONE** `0c38cb6` |
 | 2 Project lock | **DONE** |
 | 3 matrix_emulator smoke | **DONE** |
-| 4 Human re-schedule `/loop` | **OPEN** (human only) |
-| 5 Deploy + live for `0c38cb6` | **DONE** run [29626602645](https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/actions/runs/29626602645); report `worker_w_deploy_live_report.md` |
+| 4 Human re-schedule `/loop` | **OPEN** (human) |
+| 5 Deploy + live for `0c38cb6` | **DONE** |
 
 ## Concurrency
-**N=0** — no active workers.
+**N=0 → N=0**. No completable agent work. Do not spawn.
 
 ## Next
-Idle. Human may re-schedule `/loop` for residual product work; ship gate for this fix is closed.
+Idle. Human #4 only if they want a fresh `/loop` paste.
