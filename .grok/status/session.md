@@ -1,6 +1,6 @@
 # Session status
 
-Last update: orchestrator /loop tick — agent idle N=0 (no open completable work)
+Last update: orchestrator /loop tick — idle N=0
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
@@ -14,8 +14,8 @@ Last update: orchestrator /loop tick — agent idle N=0 (no open completable wor
 ## Hardware (8s)
 | Signal | Value | Action |
 |--------|--------|--------|
-| windowed CPU | **0.8%** | idle |
-| loadavg | 0.2 / 0.3 / 0.8 | cool |
+| windowed CPU | **0.9%** | idle |
+| loadavg | 0.1 / 0.2 / 0.5 | cool |
 | **Tctl k10temp** | **33°C** | cool |
 
 ## Workers
