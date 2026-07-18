@@ -1,49 +1,47 @@
 # Session status
 
-Last update: orchestrator reaped W-home-recapture — agent must-complete exhausted
+Last update: orchestrator /loop tick — re-verified CanvasKit still empty; N=0
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign trees.
 
 ## Goal
-Agent-completable checklist empty (remaining #4 is human).
+Agent-completable checklist empty (remaining #4 human).
 
 ## Phase
-**Agent Done** — open residuals only hard-block (environment) or human
+**Agent Done** — #1 hard-block reconfirmed this tick
 
-## Hardware
-Idle last tick (~1–3% CPU). Not scheduling further capture until host paints Flutter first frame.
+## Hardware (12s)
+| Signal | Value | Action |
+|--------|--------|--------|
+| windowed CPU | **22.1%** | below 50% |
+| loadavg | 5.7 / 9.3 / 7.4 | mild (qemu back) |
+| **Tctl k10temp** | **60°C** | under 80°C |
+| MemAvailable | ~20 / 32 Gi | OK |
+| qemu friends | **UP** again `-gpu host` | not required for agent work |
+| adb | emulator-5554 | idle |
 
 ## Workers
 | id | Status |
 |----|--------|
-| W-vform | **DONE** `77c58a5` admin V-FORM + home layout code |
-| W-emulator-smoke | **DONE** `d1a4245` 7/7 emulator-5554 |
-| W-home-recapture | **DONE** reaped exit 0; hard-block evidence `6032f07` |
+| all prior | DONE (vform, emulator-smoke, home-recapture) |
+| this tick | **none spawned** |
+
+## Paint probe (orchestrator re-verify, :18090)
+- t+1 / t+5 / t+15: `canvas=0 glassC=0 scene=false ff=false` → **PAINT_STILL_EMPTY**
+- Hard-block remains valid; do **not** re-run full matrix (would waste cycles / false CAPTURE_OK splash)
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1 V-FORM open_bads 0 | **HARD-BLOCK** (2 cells home) — evidence `6032f07` / `worker_w_home_recapture_report.md`; layout code OK; Chrome CanvasKit empty glass this host |
+| 1 V-FORM open_bads 0 | **HARD-BLOCK** (2 home) — evidence `6032f07`; reconfirmed empty glass this tick |
 | 2 Project lock | **DONE** |
 | 3 matrix_emulator smoke | **DONE** |
-| 4 Human re-schedule `/loop` paste | **OPEN** (human only) |
+| 4 Human re-schedule `/loop` | **OPEN** (human) |
 
 ## Concurrency
-**N=0** — no agent worker; nothing completable without host recovery.
+**N=0 → N=0**. No completable agent work. #1 needs host Chrome to paint Flutter first frame before spawn.
 
-## Unblock #1 later (not parked as optional — environment gate)
-When host Chrome paints Flutter CanvasKit first frame (`flt-glass-pane` children / canvas > 0):
-```bash
-cd e2e
-BUILD_WEB=0 CONCURRENCY=1 MATRIX_FORMATS=qhd,4k MATRIX_SCREENS=home \
-APP_URL=http://127.0.0.1:18090 APP_PORT=18090 bash run_matrix_local.sh
-```
-Then open PNGs → BAD: none → open_bads 0.
-
-## Done this session (agents)
-- PROJECT_LOCK + finish rules (workspace + repo)
-- Admin QHD/4K V-FORM cleared + shipped
-- Home layout code + widget tests shipped
-- matrix_emulator smoke green + runner BACK fix
-- Home pixel residual hard-blocked with honest evidence (not false PASS)
+## Unblock #1 (environment gate)
+When paint probe shows canvas/scene > 0, spawn home recapture only:
+`MATRIX_FORMATS=qhd,4k MATRIX_SCREENS=home APP_URL=http://127.0.0.1:18090 APP_PORT=18090`
