@@ -1,0 +1,32 @@
+{
+  "artifact": "e2e/screenshots/viewports/qhd_06_admin.png",
+  "artifact_kind": "matrix_png",
+  "reviewed_at": "2026-07-18T00:15:07Z",
+  "reviewer": "W-vform",
+  "review_roles_completed": [
+    "discover",
+    "map_checklist",
+    "adversary"
+  ],
+  "run_start_unix": 1784333707,
+  "opened": true,
+  "frames_or_stills_opened": [
+    "e2e/screenshots/viewports/qhd_06_admin.png"
+  ],
+  "discovery_notes": [
+    "QHD 2560x1440: login card scales via clamp + framed backdrop; not postage-stamp",
+    "Token field + Sign in CTA readable; radial green glow + outer frame present at min-width 2400",
+    "No tiny pin-in-void; V-FORM-FACTOR admin residual cleared"
+  ],
+  "verdict": "all_good",
+  "summary": "all good \u2014 V-FORM-FACTOR admin fixed",
+  "issues": [],
+  "criteria_checked": [
+    "V-FORM-FACTOR",
+    "V-STATE-MATCH",
+    "V-READABLE",
+    "V-CLIP-TEXT"
+  ],
+  "sim_scenarios_checked": [],
+  "adversary_reviewed": true
+}

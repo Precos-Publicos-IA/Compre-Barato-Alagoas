@@ -33,25 +33,75 @@ body {
     max(16px, env(safe-area-inset-left, 0px));
 }
 .login-card {
-  background: var(--card); padding: 32px; border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,.45); width: 320px; max-width: 100%;
+  background: var(--card);
+  /* Scale with viewport so QHD/4K don't leave a postage-stamp gate (V-FORM-FACTOR). */
+  padding: clamp(28px, 2.4vw, 64px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45);
+  width: clamp(320px, 34vw, 640px);
+  max-width: 100%;
   text-align: center;
   border: 1px solid var(--line);
 }
-.login-card h1 { margin: 0 0 4px; font-size: 22px; }
-.login-card p { margin: 0 0 16px; color: var(--muted); }
+.login-card h1 {
+  margin: 0 0 6px;
+  font-size: clamp(22px, 1.55vw, 38px);
+}
+.login-card p {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: clamp(14px, 0.95vw, 20px);
+}
 .login-card input {
-  width: 100%; padding: 12px; border: 1px solid var(--line);
-  border-radius: 8px; font-size: 15px; margin-bottom: 12px;
-  background: var(--bg-soft); color: var(--ink);
+  width: 100%;
+  padding: clamp(12px, 1vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: clamp(15px, 1vw, 22px);
+  margin-bottom: 14px;
+  background: var(--bg-soft);
+  color: var(--ink);
 }
 .login-card input::placeholder { color: var(--muted); }
 .login-card button {
-  width: 100%; padding: 12px; border: 0; border-radius: 8px;
-  background: var(--accent); color: #06231a; font-weight: 700;
-  font-size: 15px; cursor: pointer;
+  width: 100%;
+  padding: clamp(12px, 1vw, 20px);
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #06231a;
+  font-weight: 700;
+  font-size: clamp(15px, 1vw, 22px);
+  cursor: pointer;
+  min-height: 48px;
 }
 .error { color: var(--bad); }
+
+/* Desktop4k: frame the gate so it reads as intentional chrome, not a pin. */
+@media (min-width: 2400px) {
+  .login {
+    background:
+      radial-gradient(ellipse 48% 42% at 50% 48%, rgba(54, 201, 143, .10), transparent 70%),
+      var(--bg);
+  }
+  .login::before {
+    content: "";
+    position: absolute;
+    width: min(880px, 48vw);
+    height: min(560px, 48vh);
+    border-radius: 36px;
+    background: rgba(18, 31, 53, .55);
+    border: 1px solid rgba(54, 201, 143, .14);
+    box-shadow: 0 24px 80px rgba(0,0,0,.45);
+    pointer-events: none;
+  }
+  .login-card {
+    position: relative;
+    width: clamp(480px, 30vw, 720px);
+    padding: clamp(40px, 2.6vw, 72px);
+    box-shadow: 0 16px 64px rgba(0,0,0,.55), 0 0 0 1px rgba(54, 201, 143, .16);
+  }
+}
 
 /* Topbar */
 .topbar {

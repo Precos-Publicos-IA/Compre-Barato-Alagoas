@@ -184,105 +184,47 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               final desktop4k = AppLayout.isDesktop4k(context);
+              final shellPad = desktop4k
+                  ? (constraints.maxWidth >= 1400 ? 36.0 : 28.0)
+                  : pad;
               final form = SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(pad, short ? 4 : 8, pad, pad),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // De-emphasize install chrome on phone landscape so staple
-                    // chips + field + CTA stay in the first viewport.
-                    if (!phoneLand) ApkBanner(compact: short),
-                    if (!short) ...[
-                      Text(
-                        'O que você precisa comprar?',
-                        style: desktop4k
-                            ? Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.w800)
-                            : Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Compare preços de mercados em Alagoas e economize.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.inkMuted,
-                            ),
-                      ),
-                      SizedBox(height: desktop4k ? 18 : 14),
-                    ] else ...[
-                      Text(
-                        'Monte sua lista',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 6),
-                    ],
-                    _SearchField(
-                      controller: _controller,
-                      listening: _listening,
-                      compact: short,
-                      onSubmit: _addCurrent,
-                      onMic: _toggleVoice,
-                      onAdd: _addCurrent,
-                    ),
-                    SizedBox(height: short ? 8 : 14),
-                    suggestions.when(
-                      data: (items) {
-                        if (items.isEmpty) return const SizedBox.shrink();
-                        return _StapleSection(
-                          items: items,
-                          compact: short,
-                          desktop4k: desktop4k,
-                          onPick: (label) {
-                            ref.read(basketProvider.notifier).add(label);
-                            _dismissKeyboard();
-                          },
-                        );
-                      },
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, _) => const SizedBox.shrink(),
-                    ),
-                    if (basket.isEmpty) _RecentLists(compact: short),
-                    if (desktop4k && basket.isEmpty) ...[
-                      const SizedBox(height: 28),
-                      const _DesktopTipsCard(),
-                    ],
-                    if (basket.isNotEmpty) ...[
-                      SizedBox(height: short ? 10 : 18),
-                      Row(
-                        children: [
-                          Text(
-                            'Sua lista (${basket.length})',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const Spacer(),
-                          TextButton(
-                            onPressed: () =>
-                                ref.read(basketProvider.notifier).clear(),
-                            style: TextButton.styleFrom(
-                              visualDensity: VisualDensity.compact,
-                              foregroundColor: AppColors.inkMuted,
-                            ),
-                            child: const Text('Limpar'),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: short ? 4 : 8),
-                      _BasketList(items: basket, compact: short),
-                    ],
-                  ],
+                padding: EdgeInsets.fromLTRB(
+                  shellPad,
+                  desktop4k ? shellPad - 4 : (short ? 4 : 8),
+                  shellPad,
+                  shellPad,
+                ),
+                child: _HomeFormColumn(
+                  short: short,
+                  phoneLand: phoneLand,
+                  desktop4k: desktop4k,
+                  basket: basket,
+                  suggestions: suggestions,
+                  controller: _controller,
+                  listening: _listening,
+                  onSubmit: _addCurrent,
+                  onMic: _toggleVoice,
+                  onAdd: _addCurrent,
+                  onPickStaple: (label) {
+                    ref.read(basketProvider.notifier).add(label);
+                    _dismissKeyboard();
+                  },
+                  onClearBasket: () =>
+                      ref.read(basketProvider.notifier).clear(),
                 ),
               );
 
               if (!desktop4k) return form;
 
+              // Wide desktop: elevated product shell so QHD/4K reads as a
+              // comfortable centered column (V-FORM-FACTOR).
               return Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                padding: EdgeInsets.fromLTRB(shellPad * 0.65, 28, shellPad * 0.65, 12),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(AppRadii.lg),
-                    boxShadow: appCardShadow(elevation: 1.2),
+                    borderRadius: BorderRadius.circular(AppRadii.xl),
+                    boxShadow: appCardShadow(elevation: 1.6),
                     border: Border.all(color: AppColors.outline),
                   ),
                   child: form,
@@ -304,6 +246,122 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 }
 
 /// Elevated search field with integrated mic + add — not a bare OutlineInput.
+/// Shared home form body (search + staples + basket).
+class _HomeFormColumn extends StatelessWidget {
+  const _HomeFormColumn({
+    required this.short,
+    required this.phoneLand,
+    required this.desktop4k,
+    required this.basket,
+    required this.suggestions,
+    required this.controller,
+    required this.listening,
+    required this.onSubmit,
+    required this.onMic,
+    required this.onAdd,
+    required this.onPickStaple,
+    required this.onClearBasket,
+  });
+
+  final bool short;
+  final bool phoneLand;
+  final bool desktop4k;
+  final List<String> basket;
+  final AsyncValue<List<Suggestion>> suggestions;
+  final TextEditingController controller;
+  final bool listening;
+  final VoidCallback onSubmit;
+  final VoidCallback onMic;
+  final VoidCallback onAdd;
+  final ValueChanged<String> onPickStaple;
+  final VoidCallback onClearBasket;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (!phoneLand) ApkBanner(compact: short),
+        if (!short) ...[
+          Text(
+            'O que você precisa comprar?',
+            style: desktop4k
+                ? Theme.of(context)
+                    .textTheme
+                    .headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.w800)
+                : Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Compare preços de mercados em Alagoas e economize.',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.inkMuted,
+                  fontSize: desktop4k ? 17 : null,
+                ),
+          ),
+          SizedBox(height: desktop4k ? 22 : 14),
+        ] else ...[
+          Text(
+            'Monte sua lista',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 6),
+        ],
+        _SearchField(
+          controller: controller,
+          listening: listening,
+          compact: short,
+          onSubmit: onSubmit,
+          onMic: onMic,
+          onAdd: onAdd,
+        ),
+        SizedBox(height: short ? 8 : 14),
+        suggestions.when(
+          data: (items) {
+            if (items.isEmpty) return const SizedBox.shrink();
+            return _StapleSection(
+              items: items,
+              compact: short,
+              desktop4k: desktop4k,
+              onPick: onPickStaple,
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
+        ),
+        if (basket.isEmpty) _RecentLists(compact: short),
+        if (desktop4k && basket.isEmpty) ...[
+          const SizedBox(height: 28),
+          const _DesktopTipsCard(),
+        ],
+        if (basket.isNotEmpty) ...[
+          SizedBox(height: short ? 10 : 18),
+          Row(
+            children: [
+              Text(
+                'Sua lista (${basket.length})',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: onClearBasket,
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  foregroundColor: AppColors.inkMuted,
+                ),
+                child: const Text('Limpar'),
+              ),
+            ],
+          ),
+          SizedBox(height: short ? 4 : 8),
+          _BasketList(items: basket, compact: short),
+        ],
+      ],
+    );
+  }
+}
+
 class _SearchField extends StatelessWidget {
   const _SearchField({
     required this.controller,
@@ -719,10 +777,11 @@ class _DesktopTipsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
       decoration: BoxDecoration(
         color: AppColors.primarySoft.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -731,20 +790,27 @@ class _DesktopTipsCard extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.lightbulb_outline_rounded,
-                  color: AppColors.primary, size: 26),
+                  color: AppColors.primary, size: 28),
               const SizedBox(width: 10),
-              Text(
-                'Como economizar em Alagoas',
-                style: Theme.of(context).textTheme.titleLarge,
+              Expanded(
+                child: Text(
+                  'Como economizar em Alagoas',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
             '• Toque nos itens rápidos (arroz, feijão, leite…) ou digite sua lista.\n'
             '• Compare preços de vendas recentes (NFC-e) nas lojas perto de você.\n'
             '• Compartilhe a economia com a família e veja o mapa das lojas.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  height: 1.55,
+                  color: AppColors.inkSecondary,
+                ),
           ),
         ],
       ),

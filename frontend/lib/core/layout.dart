@@ -36,12 +36,18 @@ class AppLayout {
       MediaQuery.sizeOf(context).width >= 2400;
 
   /// Comfortable max width for the product column.
+  ///
+  /// On QHD/4K we take a generous fraction of the viewport so chrome is not a
+  /// postage stamp in an empty field (V-FORM-FACTOR), while still capping so
+  /// lines stay readable.
   static double contentMaxWidth(BuildContext context) {
     final w = MediaQuery.sizeOf(context).width;
-    if (w >= 3200) return 1100; // 4K
-    if (w >= 2400) return 960; // QHD
-    if (w >= 1600) return 880;
-    if (w >= 1100) return 720;
+    // Generous column: ~half the viewport on ultrawide, hard-capped so line
+    // lengths stay readable and chrome does not become a postage stamp.
+    if (w >= 3200) return (w * 0.48).clamp(1400.0, 1920.0); // 4K
+    if (w >= 2400) return (w * 0.52).clamp(1180.0, 1560.0); // QHD
+    if (w >= 1600) return 920;
+    if (w >= 1100) return 760;
     return double.infinity;
   }
 

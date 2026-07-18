@@ -148,34 +148,33 @@ CRITIQUE 1080p_04_settings: GOOD: Configurações sheet: radius/days steppers + 
 CRITIQUE 1080p_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
 CRITIQUE 1080p_06_admin: GOOD: Admin login gate (token + Sign in) | BAD: none
 CRITIQUE 1080p_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
-CRITIQUE qhd_01_home: GOOD: search field + VER PREÇOS + brand | BAD: V-FORM-FACTOR: large empty canvas / sparse chrome on QHD-4K class (usable)
+CRITIQUE qhd_01_home: GOOD: code path widens contentMaxWidth + desktop shell/tips (widget-tested) | BAD: V-FORM-FACTOR: HARD-BLOCK — local/live headless CanvasKit first-frame with empty flt-glass-pane (no scene host); cannot honest-recapture home pixels while host GPU thrash (qemu -gpu host ~265% CPU)
 CRITIQUE qhd_02_results: GOOD: settled results with prices/savings (R$) / ranked stores or savings banner; V-STATE-MATCH results surface | BAD: none
 CRITIQUE qhd_03_map: GOOD: Mapa das lojas + price pins / OSM tiles; V-MAP-USABLE | BAD: none
 CRITIQUE qhd_04_settings: GOOD: Configurações sheet: radius/days steppers + usage toggle; V-SETTINGS-TOGGLES | BAD: none
 CRITIQUE qhd_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
-CRITIQUE qhd_06_admin: GOOD: Admin login gate (token + Sign in) | BAD: V-FORM-FACTOR: tiny card in large QHD/4K canvas (usable)
+CRITIQUE qhd_06_admin: GOOD: scaled login card + outer frame + glow on QHD; readable token/Sign in | BAD: none
 CRITIQUE qhd_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
-CRITIQUE 4k_01_home: GOOD: search field + VER PREÇOS + brand | BAD: V-FORM-FACTOR: large empty canvas / sparse chrome on QHD-4K class (usable)
+CRITIQUE 4k_01_home: GOOD: code path widens contentMaxWidth + desktop shell/tips (widget-tested) | BAD: V-FORM-FACTOR: HARD-BLOCK — same CanvasKit empty-scene recapture block as qhd_01_home
 CRITIQUE 4k_02_results: GOOD: settled results with prices/savings (R$) / ranked stores or savings banner; V-STATE-MATCH results surface | BAD: none
 CRITIQUE 4k_03_map: GOOD: Mapa das lojas + price pins / OSM tiles; V-MAP-USABLE | BAD: none
 CRITIQUE 4k_04_settings: GOOD: Configurações sheet: radius/days steppers + usage toggle; V-SETTINGS-TOGGLES | BAD: none
 CRITIQUE 4k_05_share: GOOD: results surface with COMPARTILHAR ECONOMIA / savings CTA; V-SHARE-CTA | BAD: none
-CRITIQUE 4k_06_admin: GOOD: Admin login gate (token + Sign in) | BAD: V-FORM-FACTOR: tiny card in large QHD/4K canvas (usable)
+CRITIQUE 4k_06_admin: GOOD: larger framed login gate on 4K; intentional chrome not postage stamp | BAD: none
 CRITIQUE 4k_07_docs: GOOD: docs brand + nav (sidebar or mobile stack) | BAD: none
 ```
 
-## open_bads_matrix = 4
+## open_bads_matrix = 2 (hard-block home only)
 
 | cell | residual |
 |------|----------|
-| `qhd_01_home` | V-FORM-FACTOR: large empty canvas / sparse chrome on QHD-4K class (usable) |
-| `qhd_06_admin` | V-FORM-FACTOR: tiny card in large QHD/4K canvas (usable) |
-| `4k_01_home` | V-FORM-FACTOR: large empty canvas / sparse chrome on QHD-4K class (usable) |
-| `4k_06_admin` | V-FORM-FACTOR: tiny card in large QHD/4K canvas (usable) |
+| `qhd_01_home` | V-FORM-FACTOR HARD-BLOCK: headless CanvasKit empty `flt-glass-pane` (first-frame fires, no scene host/canvas) — cannot honest-recapture; code fixed+widget-tested (`desktop4k_layout_test`) |
+| `4k_01_home` | same HARD-BLOCK as qhd_01_home |
 
 ### Residual notes
-- **V-CLIP-TEXT phone landscape (layout):** CLEARED on all 5 PhoneLandscape formats for home (chips+field+CTA in viewport after d2497c1).
-- **API capture residuals (promax/samsung/rodin results+share):** CLEARED 2026-07-17 by W-capture-local-api — `flutter build web --release --dart-define=API_BASE_URL=http://127.0.0.1:8000` + mock SEFAZ; recapture shows prices R$22,63 + COMPARTILHAR ECONOMIA → BAD: none (6 cells).
-- **V-FORM-FACTOR** on QHD/4K home/admin: sparse large canvas — product residual (desktop deprioritized); left open.
-- Portrait samples re-opened: chips/prices/CTAs fine (still BAD: none).
+- **V-CLIP-TEXT phone landscape (layout):** CLEARED (prior).
+- **API capture residuals:** CLEARED (prior).
+- **V-FORM-FACTOR admin QHD/4K:** CLEARED 2026-07-17 W-vform — `admin-frontend/styles.css` clamp + frame; opened `qhd_06_admin.png` / `4k_06_admin.png` → BAD: none.
+- **V-FORM-FACTOR home QHD/4K:** code shipped (`AppLayout.contentMaxWidth` ~half viewport, desktop shell + tips; `frontend/test/desktop4k_layout_test.dart` green). Pixel recapture **hard-blocked** while host qemu emulator holds GPU (`qemu-system-x86_64 -gpu host` ~265% CPU) and headless Chrome produces empty scene for **both** local APP_URL and live HTTPS. Re-capture home when GPU free / emulator stopped.
+- Portrait samples: unchanged BAD: none.
 

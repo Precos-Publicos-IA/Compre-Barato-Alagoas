@@ -1,44 +1,48 @@
 # Session status
 
-Last update: orchestrator /loop tick — W-vform active (puppeteer + probes); N=1
+Last update: W-vform — admin V-FORM closed; home HARD-BLOCK (CanvasKit empty scene under GPU thrash)
 
 ## Project lock
-**HARD** Alagoas only. Refuse foreign trees.
+- **Alagoas only** (`PROJECT_LOCK.md` on origin). Refuse other projects.
+- Workers inherit lock + cwd `/code/alagoas/Compre-Barato-Alagoas`.
 
 ## Goal
-Must-complete until empty.
+Close **all completable** residuals (no half-done parking)
 
 ## Phase
-A — V-FORM fix/recapture (W-vform deep debug + capture)
+A/B — must-complete 1 partial (admin done; home hard-block); 3 remains
 
-## Hardware (15s window)
+## Hardware (last tick)
 | Signal | Value | Action |
 |--------|--------|--------|
-| windowed CPU | **39.0%** | below 50% headroom |
-| loadavg | 7.1 / 9.9 / 13.5 | OK |
-| **Tctl k10temp** | **69°C** | under 80°C |
-| MemAvailable | ~12 / 32 Gi | OK |
-| adb | emulator-5554 | held until #1 |
+| qemu emulator | ~265% CPU (`-gpu host`) | thrashing CanvasKit headless paint |
+| **Tctl k10temp** | ~71°C | warm |
+| RAM | 16/30 Gi | OK |
 
 ## Workers
 | id | Status |
 |----|--------|
-| W-vform | **RUNNING** `019f7271-8ff3-…` ~37m; 115 tools; 5 errors; puppeteer headless live; app :18090; dirty layout/search/admin CSS/index.html + desktop4k test; many `_probe_*.png` + qhd_01_home ~21:13; critique still open_bads_matrix=4 (stale until re-write); **no product commit yet** |
-| W-emulator-smoke | **HELD** until #1 (open_bads 0 + push) |
+| W-vform | **DONE** (admin BADs 0; home 2 hard-block with evidence) — report `worker_w_vform_report.md` |
+| W-emulator-smoke | may be RUNNING (holds GPU) — must-complete #3 |
 
 ## Must-complete
-| # | Status |
-|---|--------|
-| 1 V-FORM open_bads 0 + product push | **IN PROGRESS** |
-| 2 Project lock | **DONE** |
-| 3 matrix_emulator smoke | **OPEN** after #1 |
-| 4 Human re-schedule `/loop` | **OPEN** |
+| # | Work | Status |
+|---|------|--------|
+| 1 | V-FORM qhd/4k (4 open BADs) fix+recapture+critique → open_bads 0 | **PARTIAL** — admin CLEARED; home HARD-BLOCK (CanvasKit empty scene) |
+| 2 | Git hygiene: lock/docs/status/runners on main + CI | **DONE** |
+| 3 | matrix_emulator smoke or hard-block evidence | **OPEN** |
+| 4 | Operator re-schedule `/loop` with new paste (PROJECT_LOCK) | **OPEN** (human) |
+
+## Done (do not redo)
+- `5d911a3` matrix true-state; `d2497c1` mobile UI live; video 0; mobile V-CLIP 0; live stores=5 web
+- `a83a285` PROJECT_LOCK + AGENTS finish rules + matrix_emulator + worker status hygiene
+- W-vform: admin QHD/4K V-FORM CSS; home layout code + widget tests
 
 ## Concurrency
-- **N=1 → N=1** (CPU 39% has headroom but emulator gated on #1; no second V-FORM).
-- Re-spawn V-FORM only if this worker exits unfinished.
+- Prefer free GPU before home recapture
+- No second full suite while capture/UI thrash
 
 ## Next
-1. Reap W-vform → require open_bads 0 + commit/push
-2. Then emulator smoke if cool
-3. Done when 1+3 closed
+1. When qemu/GPU free: recapture MATRIX_FORMATS=qhd,4k MATRIX_SCREENS=home → close remaining 2
+2. W-emulator-smoke or hard-block with adb evidence
+3. Human: re-schedule `/loop` paste
