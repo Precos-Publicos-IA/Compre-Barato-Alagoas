@@ -1,43 +1,41 @@
 # Session status
 
-Last update: 2026-07-18 W-pr1 PR1 landed 504eb38
+Last update: 2026-07-18 post-PR3 — W-pr3 DONE `65a7189`
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
 
 ## Goal
-**Search usefulness** — execute improvement plan PR1→PR3 (phone re-eval ≥7/10). Plan: `docs/improvement-plan-search-quality.md`.
+**Search usefulness** — PR1 + PR3 landed. Plan: `docs/improvement-plan-search-quality.md`.
+
+## Operator decision (2026-07-18) — fix known problems, not full-app QA
+**HARD for this cycle:**
+1. **Focus only on the problematic points** (wrong SKU match óleo/ovo, package-class ranking, partial-basket savings honesty, multi-item reliability).
+2. **Functionality over looks.** No full UI matrix / thorough whole-app QA for this work.
+3. **Tests scoped to the fix** only.
 
 ## Phase
-**Active** — Phase A (P0 match done; honest UI next)
+**Active** — Phase A: PR1 + PR3 code done; ship / phone re-eval next
 
 ## Workers
 | ID | Task | Status |
 |----|------|--------|
-| W-pr1 | package-class filters + oil/egg fixtures + pytest | **DONE** `504eb38` — report `.grok/status/worker_w_pr1_match_report.md` |
+| W-pr1 | package-class match + fixtures | **DONE** `504eb38` |
+| W-pr3 | honest partial-basket hero / savings gate | **DONE** `65a7189` |
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1 V-FORM home open_bads 0 | **DONE** `0c38cb6` |
-| 2 Project lock | **DONE** |
-| 3 matrix_emulator smoke | **DONE** `d1a4245` |
-| 4 Human re-schedule `/loop` | **DONE** job `019f75a138ce` every 10m |
-| 5 Deploy + live for `0c38cb6` | **DONE** |
-| 6 Search quality PR1 (match package-class + fixtures) | **DONE** `504eb38` |
-| 7 Search quality PR3 (honest partial-basket UI) | **OPEN** — spawn W-pr3 after PR1 on main |
-| 8 Commit/ship plan + PR1(+PR3) + phone re-eval | **OPEN** — PR1 on main `504eb38`; PR3 + phone remain |
+| 1–5 prior ship | **DONE** |
+| 6 Search quality PR1 | **DONE** `504eb38` |
+| 7 Search quality PR3 (honest partial-basket UI) | **DONE** `65a7189` |
+| 8 Ship PR1+PR3 + phone re-eval of problem basket | **OPEN** |
 
 ## Concurrency
-**N=0** after W-pr1 lands; spawn W-pr3 next (Flutter honesty UI)
+**N=0** — no active workers
 
 ## open_bads_matrix
-**0**
-
-## Live signals (this cycle)
-- PR1 `504eb38`: relevance hard rejects + ranking package class + pytest goldens green (full backend suite)
-- Report: `.grok/status/worker_w_pr1_match_report.md`
-- Branch: `main` ahead of origin by 1 commit (not pushed by worker unless ready)
+**0** — matrix not required this cycle
 
 ## Next focus
-Spawn W-pr3 for honest partial-basket hero (do not start catalog API). Push PR1 when deploy path is desired.
+Orchestrator: commit/push PR3 if needed, deploy, **targeted** phone re-check of óleo/ovo + partial savings hero (not full app QA). Report: `.grok/status/worker_w_pr3_honest_ui_report.md`

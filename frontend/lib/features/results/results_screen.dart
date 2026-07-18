@@ -145,8 +145,10 @@ class _Results extends ConsumerWidget {
     }
 
     final savings = computeSavings(visible);
+    final coverage = computeCoverage(visible);
     final cheapest = savings?.cheapest ?? visible.first;
     final bestTotal = cheapest.total;
+    final showPrimarySavings = shouldShowPrimarySavings(savings, coverage);
 
     final ordered = <StoreResult>[
       cheapest,
@@ -170,8 +172,15 @@ class _Results extends ConsumerWidget {
         padding: const EdgeInsets.only(bottom: 16),
         children: [
           if (status != null) _ProgressBanner(message: status!),
-          if (savings != null && savings.amount > 0)
-            _SavingsBanner(savings: savings, listId: response.listId),
+          // Coverage-first hero: never lead with “economize R$” on thin baskets.
+          if (showPrimarySavings)
+            _SavingsBanner(savings: savings!, listId: response.listId)
+          else if (coverage.total > 0 && !coverage.isComplete)
+            _PartialCoverageBanner(
+              coverage: coverage,
+              cheapestName: cheapest.name,
+              listId: response.listId,
+            ),
           _DisclaimerLine(text: response.dataDisclaimer),
           // On short landscape, skip rewrite/suggestion chrome entirely so the
           // winner card is visible (V-CLIP-TEXT residual).
@@ -577,7 +586,118 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
   }
 }
 
+/// Honest hero when basket coverage is incomplete / below savings threshold.
+/// Copy-only: no big R$ claim so partial results are not sold as full wins.
+class _PartialCoverageBanner extends StatelessWidget {
+  const _PartialCoverageBanner({
+    required this.coverage,
+    required this.cheapestName,
+    required this.listId,
+  });
+  final BasketCoverage coverage;
+  final String cheapestName;
+  final String? listId;
+
+  @override
+  Widget build(BuildContext context) {
+    final short = AppLayout.isShortHeight(context);
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(
+        short ? 10 : 12,
+        short ? 8 : 12,
+        short ? 10 : 12,
+        short ? 2 : 4,
+      ),
+      padding: EdgeInsets.all(short ? 12 : 16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(short ? AppRadii.sm : AppRadii.md),
+        border: Border.all(color: AppColors.outline),
+        boxShadow: appCardShadow(elevation: 0.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.inventory_2_outlined,
+                color: AppColors.primaryDark,
+                size: short ? 22 : 24,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  coverage.partialHeroTitle,
+                  style: TextStyle(
+                    fontSize: short ? 16 : 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.ink,
+                    letterSpacing: -0.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: short ? 4 : 6),
+          Text(
+            coverage.partialHeroSubtitle,
+            style: TextStyle(
+              fontSize: short ? 12 : 13,
+              color: AppColors.inkSecondary,
+              height: 1.3,
+            ),
+          ),
+          if (cheapestName.isNotEmpty) ...[
+            SizedBox(height: short ? 2 : 4),
+            Text(
+              'Melhor parcial: $cheapestName',
+              style: TextStyle(
+                fontSize: short ? 12 : 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryDark,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          // Share without claiming a R$ savings amount (partial basket).
+          if (listId != null) ...[
+            SizedBox(height: short ? 8 : 12),
+            SizedBox(
+              height: short ? 40 : 48,
+              child: Builder(
+                builder: (btnContext) => OutlinedButton.icon(
+                  onPressed: () => shareSavings(
+                    listId!,
+                    0,
+                    context: btnContext,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryDark,
+                    side: const BorderSide(color: AppColors.outline),
+                    textStyle: TextStyle(
+                      fontSize: short ? 13 : 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  icon: Icon(Icons.share_rounded, size: short ? 18 : 20),
+                  label: const Text('COMPARTILHAR BUSCA'),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 /// Savings hero — deliberately big. Dense row on PhoneLandscape.
+/// Only shown when [shouldShowPrimarySavings] is true (coverage gate).
 class _SavingsBanner extends StatelessWidget {
   const _SavingsBanner({required this.savings, required this.listId});
   final SavingsInfo savings;

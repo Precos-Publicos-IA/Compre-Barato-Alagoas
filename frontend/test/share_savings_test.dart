@@ -4,11 +4,17 @@ import 'package:compre_barato_alagoas/features/share/share_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-StoreResult _store(String name, double total, int found) => StoreResult(
+StoreResult _store(
+  String name,
+  double total,
+  int found, {
+  int itemsTotal = 3,
+}) =>
+    StoreResult(
       cnpj: name,
       name: name,
       itemsFound: found,
-      itemsTotal: 3,
+      itemsTotal: itemsTotal,
       total: total,
       items: const [],
       missing: const [],
@@ -86,6 +92,94 @@ void main() {
       final s = computeSavings([_store('A', 10.0, 3), _store('B', 9.0, 2)]);
       expect(s!.amount, 0);
       expect(s.cheapest.name, 'A');
+    });
+  });
+
+  group('BasketCoverage / primary savings gate (PR3 honesty)', () {
+    test('computeCoverage uses max found and basket total', () {
+      final c = computeCoverage([
+        _store('A', 10.0, 4, itemsTotal: 10),
+        _store('B', 12.0, 3, itemsTotal: 10),
+      ]);
+      expect(c.found, 4);
+      expect(c.total, 10);
+      expect(c.fraction, closeTo(0.4, 1e-9));
+      expect(c.isComplete, isFalse);
+      expect(c.allowsPrimarySavings, isFalse);
+    });
+
+    test('full basket allows primary savings', () {
+      final c = computeCoverage([
+        _store('A', 10.0, 10, itemsTotal: 10),
+        _store('B', 15.0, 10, itemsTotal: 10),
+      ]);
+      expect(c.isComplete, isTrue);
+      expect(c.allowsPrimarySavings, isTrue);
+    });
+
+    test('threshold 0.7: 7/10 allows, 6/10 does not', () {
+      final ok = BasketCoverage(found: 7, total: 10);
+      final no = BasketCoverage(found: 6, total: 10);
+      expect(ok.fraction, closeTo(0.7, 1e-9));
+      expect(ok.allowsPrimarySavings, isTrue);
+      expect(no.allowsPrimarySavings, isFalse);
+    });
+
+    test('phone case 4/10 never allows primary economize claim', () {
+      final c = BasketCoverage(found: 4, total: 10);
+      expect(c.allowsPrimarySavings, isFalse);
+      expect(c.partialHeroTitle, 'Encontramos 4 de 10 itens');
+      expect(c.partialHeroSubtitle, contains('Compare só o que tem preço'));
+    });
+
+    test('shouldShowPrimarySavings requires amount > 0 and coverage', () {
+      final storesFull = [
+        _store('A', 10.0, 10, itemsTotal: 10),
+        _store('B', 15.0, 10, itemsTotal: 10),
+      ];
+      final storesPartial = [
+        _store('A', 10.0, 4, itemsTotal: 10),
+        _store('B', 15.64, 4, itemsTotal: 10), // fake R$ 5,64 gap
+      ];
+
+      final fullSav = computeSavings(storesFull)!;
+      final partSav = computeSavings(storesPartial)!;
+      final fullCov = computeCoverage(storesFull);
+      final partCov = computeCoverage(storesPartial);
+
+      expect(fullSav.amount, closeTo(5.0, 1e-9));
+      expect(partSav.amount, closeTo(5.64, 1e-9));
+
+      expect(shouldShowPrimarySavings(fullSav, fullCov), isTrue);
+      // The bug: partial 4/10 with positive delta must NOT show primary hero.
+      expect(shouldShowPrimarySavings(partSav, partCov), isFalse);
+      expect(shouldShowPrimarySavings(null, fullCov), isFalse);
+      expect(
+        shouldShowPrimarySavings(
+          const SavingsInfo(
+            amount: 0,
+            cheapest: StoreResult(
+              cnpj: 'x',
+              name: 'x',
+              itemsFound: 10,
+              itemsTotal: 10,
+              total: 1,
+              items: [],
+              missing: [],
+            ),
+            comparedStores: 1,
+          ),
+          fullCov,
+        ),
+        isFalse,
+      );
+    });
+
+    test('empty store list coverage is zero', () {
+      final c = computeCoverage(const []);
+      expect(c.found, 0);
+      expect(c.total, 0);
+      expect(c.allowsPrimarySavings, isFalse);
     });
   });
 }
