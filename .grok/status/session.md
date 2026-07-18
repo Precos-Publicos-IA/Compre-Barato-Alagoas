@@ -1,48 +1,57 @@
 # Session status
 
-Last update: 2026-07-18 W-ship DONE — PR1+PR3 pushed, deploy green, targeted re-eval
+Last update: 2026-07-18 orchestrator cycle — idle after ship; status hygiene spawn
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
 
 ## Goal
-**Search usefulness** — PR1 + PR3 **shipped to prod**. Plan: `docs/improvement-plan-search-quality.md`.
+**Search usefulness** — PR1 + PR3 **shipped**. Browser re-eval green.
 
-## Operator decision (2026-07-18) — fix known problems, not full-app QA
-**HARD for this cycle:**
-1. **Focus only on the problematic points** (wrong SKU match óleo/ovo, package-class ranking, partial-basket savings honesty, multi-item reliability).
-2. **Functionality over looks.** No full UI matrix / thorough whole-app QA for this work.
-3. **Tests scoped to the fix** only.
+## Operator decisions (2026-07-18)
+1. Fix **known problem points** only — not whole-app QA / matrix.
+2. **Functionality over looks.**
+3. **Browser is enough** for function QA — phone not required.
+4. Tests scoped to the fix.
 
 ## Phase
-**Done (this cycle)** — PR1+PR3 on origin/main, deploy + live-verify green, targeted API re-eval complete
+**Done (checklist)** — idle hold except status commit hygiene
 
 ## Workers
 | ID | Task | Status |
 |----|------|--------|
-| W-pr1 | package-class match + fixtures | **DONE** `504eb38` |
-| W-pr3 | honest partial-basket hero / savings gate | **DONE** `8676303` |
-| W-ship | push + deploy + targeted phone/API re-eval | **DONE** run `29648461645` |
+| W-pr1 | match package-class | **DONE** `504eb38` |
+| W-pr3 | honest partial-basket UI | **DONE** `8676303` |
+| W-ship | push + CI + API re-eval | **DONE** CI `29648461645` |
+| W-status-browser | commit browser re-eval status | **RUNNING** |
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1–5 prior ship | **DONE** |
-| 6 Search quality PR1 | **DONE** `504eb38` |
-| 7 Search quality PR3 (honest partial-basket UI) | **DONE** `8676303` |
-| 8 Ship PR1+PR3 + phone re-eval of problem basket | **DONE** HEAD `ccf898e` · CI **29648461645** success · API: oil/egg class OK (4/5 oil cooking, 0 pasta-egg); Açúcar thin SEFAZ; phone: USER_RESTRICTED after uninstall — APK on `/sdcard/Download/compre-barato-alagoas.apk` |
+| 1–5 prior | **DONE** |
+| 6 PR1 match | **DONE** `504eb38` |
+| 7 PR3 honest UI | **DONE** `8676303` |
+| 8 Ship + function re-eval | **DONE** CI `29648461645` + **browser 11/11** (`.grok/status/worker_w_browser_func_reeval.md`) — phone optional |
 
 ## Concurrency
-**N=0** — no active workers
+**N=1** — status hygiene only (then N=0)
 
 ## open_bads_matrix
-**0** — matrix not required this cycle
+**0** — matrix out of scope
 
 ## Evidence
-- Report: `.grok/status/worker_w_ship_pr1_pr3_report.md`
-- Product: PR1 `504eb38`, PR3 `8676303`, stamp HEAD `ccf898e`
-- Push: `3c4a0a6..ccf898e` → origin/main
+- Ship: `.grok/status/worker_w_ship_pr1_pr3_report.md`
+- Browser: `.grok/status/worker_w_browser_func_reeval.md` · screenshots `e2e/screenshots/func-*.png`
 - CI: https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/actions/runs/29648461645
 
+## Live signals
+- Hardware (15s): CPU **1.7%**; loadavg 0.58 0.54 0.39; MemAvailable ~22.1 GiB; **k10temp Tctl=37.6°C**
+- Git: main==origin for product; local dirty session + untracked browser report (W-status-browser owns)
+
+## Optional residuals (NOT must-complete)
+- Sardines-as-oil on thin catalogs
+- Sugar coverage gaps under SEFAZ web
+- Multi-item latency (PR4 in plan — not opened this cycle)
+
 ## Next focus
-Optional residual (not must-complete #8): sardines-as-oil on thin catalogs; sugar coverage; user-confirm APK install on phone for UI hero screenshot.
+Await W-status-browser commit/push. Then idle N=0. Operator may `scheduler_delete 019f75a138ce` if loop no longer needed.
