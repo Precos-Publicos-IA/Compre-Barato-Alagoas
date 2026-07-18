@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-18 post-PR3 — W-pr3 DONE `65a7189`
+Last update: 2026-07-18 post-PR3 — W-pr3 DONE `8676303`
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
@@ -21,14 +21,14 @@ Last update: 2026-07-18 post-PR3 — W-pr3 DONE `65a7189`
 | ID | Task | Status |
 |----|------|--------|
 | W-pr1 | package-class match + fixtures | **DONE** `504eb38` |
-| W-pr3 | honest partial-basket hero / savings gate | **DONE** `65a7189` |
+| W-pr3 | honest partial-basket hero / savings gate | **DONE** `8676303` |
 
 ## Must-complete
 | # | Status |
 |---|--------|
 | 1–5 prior ship | **DONE** |
 | 6 Search quality PR1 | **DONE** `504eb38` |
-| 7 Search quality PR3 (honest partial-basket UI) | **DONE** `65a7189` |
+| 7 Search quality PR3 (honest partial-basket UI) | **DONE** `8676303` |
 | 8 Ship PR1+PR3 + phone re-eval of problem basket | **OPEN** |
 
 ## Concurrency
@@ -38,4 +38,4 @@ Last update: 2026-07-18 post-PR3 — W-pr3 DONE `65a7189`
 **0** — matrix not required this cycle
 
 ## Next focus
-Orchestrator: commit/push PR3 if needed, deploy, **targeted** phone re-check of óleo/ovo + partial savings hero (not full app QA). Report: `.grok/status/worker_w_pr3_honest_ui_report.md`
+Orchestrator: push PR1+PR3 if desired, deploy, **targeted** phone re-check of óleo/ovo + partial savings hero (not full app QA). Report: `.grok/status/worker_w_pr3_honest_ui_report.md`

@@ -3,7 +3,7 @@
 **Worker:** W-pr3  
 **Date:** 2026-07-18  
 **Plan:** `docs/improvement-plan-search-quality.md` W2.1–W2.5 / PR3  
-**Status:** DONE (committed on `main`)
+**Status:** DONE (committed on `main`) — product `8676303`
 
 ## Problem
 
@@ -48,7 +48,7 @@ Not run (per operator HARD): full UI matrix, `e2e full:local`, whole-app suites.
 |-----------|--------|
 | Partial coverage no longer primary “Você pode economizar até R$…” | **PASS** — `shouldShowPrimarySavings` false for 4/10 even with R$ delta |
 | Full / ≥70% still can show savings | **PASS** — 10/10 and 7/10 allow |
-| Commit on main | **PASS** `65a7189` |
+| Commit on main | **PASS** `8676303` |
 | No PR1 rework / catalog API / matrix | **honored** |
 
 ## Files touched
