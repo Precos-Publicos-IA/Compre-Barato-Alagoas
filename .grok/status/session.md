@@ -1,34 +1,36 @@
 # Session status
 
-Last update: orchestrator /loop tick — idle N=0
+Last update: session closed by operator
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
 
 ## Goal
-**Agent Done** — only human #4 remains.
+**Session closed** — agent checklist complete.
 
 ## Phase
-**Done** (agent-completable)
-
-## Hardware (8s)
-| Signal | Value | Action |
-|--------|--------|--------|
-| windowed CPU | **0.8%** | idle |
-| loadavg | 0.2 / 0.2 / 0.2 | cool |
-| **Tctl k10temp** | **32°C** | cool |
+**Done**
 
 ## Workers
-none active — all prior DONE
+none — session finished
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| 1 V-FORM home open_bads 0 | **DONE** `0c38cb6` |
-| 2 Project lock | **DONE** |
-| 3 matrix_emulator smoke | **DONE** |
-| 4 Human re-schedule `/loop` | **OPEN** (human) — optional: refresh paste with PROJECT_LOCK from `.grok/prompts/orchestrator-loop.md` |
-| 5 Deploy + live for `0c38cb6` | **DONE** |
+| 1 V-FORM home open_bads 0 | **DONE** `0c38cb6` (bottom-bar expand fix + golden stills) |
+| 2 Project lock | **DONE** (workspace + repo) |
+| 3 matrix_emulator smoke | **DONE** `d1a4245` |
+| 4 Human re-schedule `/loop` | **OPTIONAL** — operator can cancel/re-bind paste anytime |
+| 5 Deploy + live for `0c38cb6` | **DONE** CI 29626602645 + live 14/14 |
 
 ## Concurrency
-**N=0 → N=0**. No spawn. open_bads_matrix = **0**.
+**N=0**
+
+## open_bads_matrix
+**0**
+
+## Session summary
+- Project lock: refuse other projects; no half-done parking
+- Honest waitFlutter + Chrome SwiftShader flags (no false CAPTURE_OK)
+- QHD/4K home form-factor: product bug fixed (bottom bar expand)
+- Emulator smoke green; deploy + live verified
