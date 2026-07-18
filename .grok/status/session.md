@@ -23,7 +23,7 @@ Last update: 2026-07-18 — W-catalog-100 DONE (100 shopping-list product names)
 ## Must-complete
 | # | Status |
 |---|--------|
-| A 100-product catalog landed | **DONE** — `backend/tests/fixtures/shopping_list_100.json` (+ `.txt`); see `worker_w_catalog_100_report.md`; commit **PENDING_SHA** |
+| A 100-product catalog landed | **DONE** — `backend/tests/fixtures/shopping_list_100.json` (+ `.txt`); see `worker_w_catalog_100_report.md`; commit **81bed97a09d3d9296aec8589525c5588c2e9ffe7** |
 | B Live API match eval report (all 100) | **OPEN** — after A |
 | C Match improvements + scoped tests for worst failures | **OPEN** — after B |
 | D Ship/push product code + scoped re-eval if code changed | **OPEN** — after C |
