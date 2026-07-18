@@ -23,7 +23,7 @@ A/B — #1 partial (admin done; home hard-block); #3 IN PROGRESS
 ## Workers
 | id | Status |
 |----|--------|
-| W-vform `019f7271-8ff3-…` | **SHIPPED** product `77c58a5` + report; task may still wind down (~47m) — do not re-spawn V-FORM |
+| W-vform `019f7271-8ff3-…` | **DONE** reaped exit 0; shipped `77c58a5`; open_bads=2 hard-block home only |
 | W-emulator-smoke `019f729c-e67a-…` | **STARTED** this tick — owns must-complete #3 |
 
 ## Must-complete
