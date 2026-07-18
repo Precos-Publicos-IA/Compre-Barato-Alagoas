@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException, Request, status
@@ -89,14 +90,59 @@ def get_analytics_id(request: Request) -> str | None:
 # set a private value — a known/static salt would let a Redis dump be re-identified.
 
 
-def _client_id(request: Request, salt: str) -> str:
-    # Honour a proxy header (Caddy sets X-Forwarded-For), else peer address.
+def _client_ip(request: Request) -> str:
+    """Best-effort client IP (proxy-aware). Used only for rate-limit decisions."""
+    # Honour a proxy header (nginx/Caddy sets X-Forwarded-For), else peer address.
     fwd = request.headers.get("x-forwarded-for")
     if fwd:
-        ip = fwd.split(",")[0].strip()
-    else:
-        ip = request.client.host if request.client else "unknown"
+        return fwd.split(",")[0].strip()
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def _client_id(request: Request, salt: str) -> str:
+    ip = _client_ip(request)
     return hashlib.sha256((salt + ip).encode()).hexdigest()[:32]
+
+
+def _parse_whitelist(raw: str) -> list:
+    """Parse comma-separated IPs/CIDRs; skip invalid entries."""
+    out: list = []
+    for part in (raw or "").split(","):
+        entry = part.strip()
+        if not entry:
+            continue
+        try:
+            if "/" in entry:
+                out.append(ipaddress.ip_network(entry, strict=False))
+            else:
+                out.append(ipaddress.ip_address(entry))
+        except ValueError:
+            continue
+    return out
+
+
+def _ip_is_whitelisted(ip: str, settings: Settings) -> bool:
+    """Lab/ops IPs skip the daily search quota (dev + configured prod whitelist)."""
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+
+    # Local/dev: never rate-limit loopback or private LAN (CI, docker, office lab).
+    env = (settings.environment or "").strip().lower()
+    if env not in ("production", "prod"):
+        if addr.is_loopback or addr.is_private or addr.is_link_local:
+            return True
+
+    for entry in _parse_whitelist(settings.ratelimit_whitelist_ips):
+        if isinstance(entry, (ipaddress.IPv4Network, ipaddress.IPv6Network)):
+            if addr in entry:
+                return True
+        elif addr == entry:
+            return True
+    return False
 
 
 async def enforce_rate_limit(
@@ -105,6 +151,8 @@ async def enforce_rate_limit(
     cache: Cache = Depends(get_cache),
 ) -> None:
     if settings.daily_search_limit <= 0:
+        return
+    if _ip_is_whitelisted(_client_ip(request), settings):
         return
     today = datetime.now(timezone.utc).strftime("%Y%m%d")
     key = f"ratelimit:{today}:{_client_id(request, settings.ratelimit_salt)}"

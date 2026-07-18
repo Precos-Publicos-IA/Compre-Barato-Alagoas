@@ -123,6 +123,10 @@ class Settings(BaseSettings):
     # stored raw (LGPD); a known/static salt would let someone who dumps Redis and
     # guesses the salt re-identify buckets, so set a private value in production.
     ratelimit_salt: str = "compre-barato-alagoas/ratelimit/v1"
+    # Comma-separated client IPs or CIDRs that skip the daily search limit (lab/ops
+    # egress). Example: "203.0.113.50,10.0.0.0/8". Never put end-user ranges here.
+    # In non-production environments, loopback + RFC1918 are also skipped automatically.
+    ratelimit_whitelist_ips: str = ""
 
     # --- Admin dashboard ---
     # Bearer token guarding /admin/api/*. Empty => admin API is disabled (401).
