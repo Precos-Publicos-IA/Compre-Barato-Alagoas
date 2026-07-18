@@ -1,52 +1,42 @@
 # Session status
 
-Last update: 2026-07-18 — **F DONE** honest serial 100 (W-F-run)
+Last update: 2026-07-18 W-F-run2 — **F DONE** (honest serial 100)
 
 ## Project lock
 **HARD** Alagoas only.
 
 ## Operator correction
-Old B / “71 missing SEFAZ” **INVALID**. Empty 200s = load/timeout/cache poison + dead official API empty without web fallback.
+Old B “71 missing SEFAZ” **INVALID**.
 
 ## Phase
-**Idle after F** — match-improve backlog open (wrong_class=20, esp. egg bleed)
+**F DONE** — honest serial 100 complete. Ready for wrong_class-driven match improve (not started by this worker).
 
 ## Workers
 | ID | Status |
 |----|--------|
-| W-fix-empty-cache (E) | **DONE** `67c26ca` (+ analytics kwargs in `197628c`) |
-| W-eval-honest script | **DONE** |
-| **W-F-run** | **DONE** — serial 100 complete |
+| W-F-run (stalled) | superseded |
+| **W-F-run2** | **DONE** — CONCURRENCY=1 full 100; artifacts committed |
 
 ## Must-complete
 | # | Status |
 |---|--------|
 | A catalog | **DONE** |
-| B old parallel eval | **INVALID** |
-| C match improve | **DONE** `5853031` era |
+| B old parallel | **INVALID** |
+| C match | **DONE** |
 | D ship C | **DONE** |
-| E empty-cache fix | **DONE** on VPS via `197628c` ship (empty API → web) |
-| **F** honest serial 100 | **DONE** |
+| E empty-cache | **DONE** (+ `197628c` sefaz empty→web fallback) |
+| **F** honest serial 100 | **DONE** — pass **71** / wrong_class **20** / missing_after_retry **9** / upstream_error **0** |
 
-### F summary
-| verdict | n |
-|---------|--:|
-| pass | **71** |
-| wrong_class | **20** |
-| missing_after_retry | **9** |
-| upstream_error | **0** |
-
-- **arroz:** stores=5, pass, top=`ARROZ EMOCOES INTEGRAL 1KG` (coverage ≠ 0)
-- **data_source:** web×100
-- Artifacts: `.grok/status/match_eval_100_honest.json`, `match_eval_100_honest_report.md`, `worker_w_eval_honest_report.md`
-- Unblock commit: `197628c` (CI deploy `29651426298`)
+## F evidence
+- `.grok/status/match_eval_100_honest.json`
+- `.grok/status/match_eval_100_honest_report.md`
+- `.grok/status/worker_w_eval_honest_report.md`
+- `.grok/status/match_eval_100_honest_run_log.txt`
+- **arroz:** pass, stores_found=**5**, data_source=**web**
+- data_sources: web=100 (no 429; no upstream_error)
 
 ## Concurrency
-**N=0** idle. Host was cool during serial run (~13.5 min wall).
-
-## Live signals
-- Prod health after `197628c`: `{"status":"ok"}` (production lean health)
-- Probe arroz: HTTP 200, web, stores=5
+**N=1** completed. Do not re-stampede parallel 100.
 
 ## Next focus
-Spawn match-improve on wrong_class=20 (egg bleed + bakery/cheese) if operator wants; F is closed.
+Match-improve from honest wrong_class (dominant: OVOS BRANCOS cross-query bleed). Not part of F.
