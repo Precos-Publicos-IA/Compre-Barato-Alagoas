@@ -15,8 +15,8 @@ Last update: orchestrator /loop tick — idle N=0
 | Signal | Value | Action |
 |--------|--------|--------|
 | windowed CPU | **1.8%** | idle |
-| loadavg | 0.2 / 0.2 / 0.2 | cool |
-| **Tctl k10temp** | **33°C** | cool |
+| loadavg | 0.3 / 0.3 / 0.2 | cool |
+| **Tctl k10temp** | **32°C** | cool |
 
 ## Workers
 none active — all prior DONE
