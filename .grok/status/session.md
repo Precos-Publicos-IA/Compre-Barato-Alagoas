@@ -1,25 +1,24 @@
 # Session status
 
-Last update: 2026-07-18 — **C DONE** (W-match-improve) `5853031`
+Last update: 2026-07-18 orchestrator idle tick (loop `019f75c59715`) — A–D complete; status hygiene
 
 ## Project lock
 **HARD** Alagoas only.
 
 ## Goal
-**Search matching quality** — A+B+C done; D ship + scoped re-eval next.
-
-## Operator HARD
-Matching/function over looks; API/browser; no full matrix. Orchestrator spawns only.
+**Search matching quality** — unit A–D **complete**.
 
 ## Phase
-**Active** — Phase D ready
+**Idle** — no open must-complete product work
 
 ## Workers
-| ID | Task | Status |
-|----|------|--------|
-| W-catalog-100 | 100 names | **DONE** `81bed97` |
-| W-eval-100 | live eval 100 | **DONE** `f7ef373` |
-| W-match-improve | P0 wrong_class + tests | **DONE** `5853031` |
+| ID | Status |
+|----|--------|
+| W-catalog-100 | **DONE** `81bed97` |
+| W-eval-100 | **DONE** `f7ef373` |
+| W-match-improve | **DONE** `5853031` |
+| W-ship-D | **DONE** CI `29650180694` |
+| W-status-d | **RUNNING** — commit untracked D status artifacts |
 
 ## Must-complete
 | # | Status |
@@ -27,18 +26,20 @@ Matching/function over looks; API/browser; no full matrix. Orchestrator spawns o
 | A catalog | **DONE** `81bed97` |
 | B live eval | **DONE** `f7ef373` |
 | C match improvements | **DONE** `5853031` |
-| D ship + scoped re-eval | **OPEN** — push/deploy + scoped verify |
+| D ship + scoped re-eval | **DONE** CI `29650180694` · offline residual wrong_class **0** · live probe 429 |
 
 ## Concurrency
-**N=1** — next owner: W-ship-D. No live 100 re-eval storm (429). Offline re-score in C report.
+**N=1** hygiene only → then N=0
 
-## C artifacts
-| Path | Role |
-|------|------|
-| `backend/app/services/rag/relevance.py` | P0 intent gates |
-| `backend/app/services/sefaz/web_client.py` | Soft-pass floor |
-| `backend/tests/test_relevance_quality.py` | PR2 goldens |
-| `.grok/status/worker_w_match_improve_report.md` | Human report + offline re-score |
+## Live signals
+- Hardware (15s): CPU **1.8%**; loadavg 0.44 0.52 0.49; MemAvailable ~21.9 GiB; **k10temp Tctl=35.5°C**
+- No active product workers
+
+## Optional residuals (NOT must-complete)
+- SEFAZ empty coverage (produce/hygiene/etc.)
+- Sugar pack-size (30kg)
+- Live re-probe after daily search quota resets
+- Cleanup untracked `eval_shards/`
 
 ## Next focus
-Push `5853031` → watch deploy → minimal live probes under quota (not full 100).
+Idle after status push. Operator may `scheduler_delete 019f75c59715` if loop no longer needed.

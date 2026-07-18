@@ -1,0 +1,11 @@
+{
+  "stopped_429": true,
+  "results": [
+    {
+      "q": "sal",
+      "http": 429,
+      "latency_ms": 584,
+      "body": "{\"detail\":\"Limite diário de buscas atingido. Tente novamente amanhã.\"}"
+    }
+  ]
+}
