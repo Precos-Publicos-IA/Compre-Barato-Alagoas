@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-18 W-pr1 PR1 landed afcb6b4
+Last update: 2026-07-18 W-pr1 PR1 landed 504eb38
 
 ## Project lock
 **HARD** Alagoas only. Refuse foreign projects.
@@ -14,7 +14,7 @@ Last update: 2026-07-18 W-pr1 PR1 landed afcb6b4
 ## Workers
 | ID | Task | Status |
 |----|------|--------|
-| W-pr1 | package-class filters + oil/egg fixtures + pytest | **DONE** `afcb6b4` — report `.grok/status/worker_w_pr1_match_report.md` |
+| W-pr1 | package-class filters + oil/egg fixtures + pytest | **DONE** `504eb38` — report `.grok/status/worker_w_pr1_match_report.md` |
 
 ## Must-complete
 | # | Status |
@@ -24,9 +24,9 @@ Last update: 2026-07-18 W-pr1 PR1 landed afcb6b4
 | 3 matrix_emulator smoke | **DONE** `d1a4245` |
 | 4 Human re-schedule `/loop` | **DONE** job `019f75a138ce` every 10m |
 | 5 Deploy + live for `0c38cb6` | **DONE** |
-| 6 Search quality PR1 (match package-class + fixtures) | **DONE** `afcb6b4` |
+| 6 Search quality PR1 (match package-class + fixtures) | **DONE** `504eb38` |
 | 7 Search quality PR3 (honest partial-basket UI) | **OPEN** — spawn W-pr3 after PR1 on main |
-| 8 Commit/ship plan + PR1(+PR3) + phone re-eval | **OPEN** — PR1 on main `afcb6b4`; PR3 + phone remain |
+| 8 Commit/ship plan + PR1(+PR3) + phone re-eval | **OPEN** — PR1 on main `504eb38`; PR3 + phone remain |
 
 ## Concurrency
 **N=0** after W-pr1 lands; spawn W-pr3 next (Flutter honesty UI)
@@ -35,7 +35,7 @@ Last update: 2026-07-18 W-pr1 PR1 landed afcb6b4
 **0**
 
 ## Live signals (this cycle)
-- PR1 `afcb6b4`: relevance hard rejects + ranking package class + pytest goldens green (full backend suite)
+- PR1 `504eb38`: relevance hard rejects + ranking package class + pytest goldens green (full backend suite)
 - Report: `.grok/status/worker_w_pr1_match_report.md`
 - Branch: `main` ahead of origin by 1 commit (not pushed by worker unless ready)
 

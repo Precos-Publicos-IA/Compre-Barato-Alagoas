@@ -43,4 +43,4 @@ Focused also green: test_relevance_quality.py, test_ranking.py, test_quantity.py
 - PR2 match_score schema (optional follow-on)
 
 ## Commit
-afcb6b4 on main.
+504eb38 on main.
