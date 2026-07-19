@@ -6,7 +6,7 @@ models work for the real HTTP client and the mock client. See manual section 6.1
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class _Camel(BaseModel):
@@ -25,10 +25,18 @@ class Endereco(_Camel):
     numero_imovel: str | None = Field(default=None, alias="numeroImovel")
     bairro: str | None = None
     cep: str | None = None
+    # Official SEFAZ JSON returns codigoIBGE as int; website path uses str.
     codigo_ibge: str | None = Field(default=None, alias="codigoIBGE")
     municipio: str | None = None
     latitude: float | None = None
     longitude: float | None = None
+
+    @field_validator("codigo_ibge", "cep", "numero_imovel", "nome_logradouro", mode="before")
+    @classmethod
+    def _coerce_str_fields(cls, v):
+        if v is None:
+            return None
+        return str(v)
 
 
 class Estabelecimento(_Camel):
@@ -37,6 +45,13 @@ class Estabelecimento(_Camel):
     nome_fantasia: str | None = Field(default=None, alias="nomeFantasia")
     telefone: str | None = None
     endereco: Endereco | None = None
+
+    @field_validator("cnpj", "telefone", mode="before")
+    @classmethod
+    def _coerce_ids(cls, v):
+        if v is None:
+            return None
+        return str(v)
 
 
 class Produto(_Camel):
@@ -49,6 +64,13 @@ class Produto(_Camel):
     unidade_medida: str | None = Field(default=None, alias="unidadeMedida")
     # The manual nests the sale (`venda`) inside `produto` (section 8.1.8).
     venda: Venda | None = None
+
+    @field_validator("codigo", "gtin", "ncm", "unidade_medida", mode="before")
+    @classmethod
+    def _coerce_product_strs(cls, v):
+        if v is None:
+            return None
+        return str(v)
 
 
 class Registro(_Camel):

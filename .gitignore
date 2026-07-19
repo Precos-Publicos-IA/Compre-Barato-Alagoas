@@ -67,3 +67,6 @@ shared-assets/*.xcf
 .grok/status/reviewed_units.txt
 .grok/status/*_unix
 .grok/status/*_start
+
+# --- Generated training datasets (large JSONL from live API) ---
+backend/data/training-datasets/

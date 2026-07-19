@@ -45,8 +45,9 @@ class Settings(BaseSettings):
     # --- Mock flags (the heart of the "build first, get token later" strategy) ---
     use_mock_sefaz: bool = True
     use_mock_llm: bool = True
-    # When True (and mock is False), always scrape the public Economiza *website*
-    # even if an AppToken is configured. Useful for debugging the web path.
+    # When True (and mock is False), force the legacy Economiza *website* scraper.
+    # Production should leave this False and use the official JSON API + AppToken.
+    # The website path is slow and is no longer a live fallback.
     use_web_sefaz: bool = False
 
     # --- SEFAZ Economiza Alagoas API (only used when use_mock_sefaz is False) ---
@@ -60,22 +61,18 @@ class Settings(BaseSettings):
     # 1) admin panel Redis secret (sefaz_token) — see SecretStore
     # 2) SEFAZ_APP_TOKEN_FILE — Docker/host secret file (preferred on VPS)
     # 3) SEFAZ_APP_TOKEN env / .env — legacy bootstrap only
-    # When all empty (and use_web_sefaz is False), factory falls back to website scrape.
+    # Required for live searches when use_web_sefaz is False (no website fallback).
     sefaz_app_token: str = ""
     # Absolute path inside the container/host (e.g. /run/secrets/sefaz_app_token).
     sefaz_app_token_file: str = ""
-    # Per-request httpx timeout for the official JSON API. Keep short so a dead
-    # upstream (TLS/hang) fails fast and RoutingSefazClient can still finish the
-    # website fallback inside nginx/gunicorn budgets (~60–120s).
-    sefaz_timeout_seconds: float = 5.0
+    # Per-request httpx timeout for the official JSON API.
+    sefaz_timeout_seconds: float = 15.0
     # Hard per-item deadline for the whole SEFAZ fetch (all pages). Caps how long a
     # single slow/hung item can hold a worker before it degrades to "not found",
     # independent of the per-request httpx timeout above (issue #219).
-    # Must cover official-API timeout + website fallback (RoutingSefazClient) when
-    # the JSON API is down; web scrape alone is already slow.
     sefaz_item_deadline_seconds: float = 55.0
 
-    # --- Public website scraper (tokenless fallback) ---
+    # --- Legacy website scraper (only when use_web_sefaz=True) ---
     sefaz_web_base_url: str = "https://economizaalagoas.sefaz.al.gov.br"
     sefaz_web_timeout_seconds: float = 45.0
     # Stop streaming category HTML after this many product cards / bytes — the

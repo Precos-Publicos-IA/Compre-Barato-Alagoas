@@ -127,25 +127,27 @@ def build_sefaz_client(
         return MockSefazClient()
 
     from .http_client import HttpSefazClient
-    from .web_client import WebSefazClient
 
-    token_provider = _token_provider(settings, secrets)
-    web = WebSefazClient(
-        base_url=settings.sefaz_web_base_url,
-        timeout=settings.sefaz_web_timeout_seconds,
-        max_cards=settings.sefaz_web_max_cards,
-        max_bytes=settings.sefaz_web_max_bytes,
-        concurrency=settings.sefaz_web_concurrency,
-    )
-
-    # Force website even if a token exists (debug / token broken).
+    # Explicit website-only mode (debug). Off by default — production uses the
+    # official JSON API only; the Economiza HTML scraper is retired for live traffic.
     if settings.use_web_sefaz:
-        return web
+        from .web_client import WebSefazClient
 
-    http = HttpSefazClient(
+        logger.warning(
+            "USE_WEB_SEFAZ=true: using Economiza website scraper "
+            "(slow; not recommended for production)"
+        )
+        return WebSefazClient(
+            base_url=settings.sefaz_web_base_url,
+            timeout=settings.sefaz_web_timeout_seconds,
+            max_cards=settings.sefaz_web_max_cards,
+            max_bytes=settings.sefaz_web_max_bytes,
+            concurrency=settings.sefaz_web_concurrency,
+        )
+
+    # Official SEFAZ JSON API only — no website scrape fallback.
+    return HttpSefazClient(
         base_url=settings.sefaz_base_url,
-        token_provider=token_provider,
+        token_provider=_token_provider(settings, secrets),
         timeout=settings.sefaz_timeout_seconds,
     )
-    # Auto: API when token is present, website otherwise (no token from SEFAZ yet).
-    return RoutingSefazClient(http=http, web=web, token_provider=token_provider)

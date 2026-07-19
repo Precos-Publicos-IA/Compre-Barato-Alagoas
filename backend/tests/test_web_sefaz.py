@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from app.services.sefaz.factory import RoutingSefazClient, build_sefaz_client
+from app.services.sefaz.factory import RoutingSefazClient, build_sefaz_client  # Routing kept for unit tests only
 from app.services.sefaz.web_client import (
     WebSefazClient,
     _filter_relevant,
@@ -66,11 +66,15 @@ def test_factory_forces_web():
     assert client.source_name == "web"
 
 
-def test_factory_routes_without_token():
-    settings = Settings(use_mock_sefaz=False, use_web_sefaz=False, sefaz_app_token="")
+def test_factory_official_api_without_web():
+    """Default live path is the official JSON API only (no website scraper)."""
+    from app.services.sefaz.http_client import HttpSefazClient
+
+    settings = Settings(use_mock_sefaz=False, use_web_sefaz=False, sefaz_app_token="tok")
     client = build_sefaz_client(settings, None)
-    assert isinstance(client, RoutingSefazClient)
-    assert client.cache_namespace == "auto"
+    assert isinstance(client, HttpSefazClient)
+    assert client.source_name == "sefaz"
+    assert client.cache_namespace == "sefaz"
 
 
 def test_factory_mock_unchanged():

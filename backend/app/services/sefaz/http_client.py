@@ -45,7 +45,9 @@ class HttpSefazClient:
         # a slow SEFAZ from exhausting sockets or stalling on connect (issue #225).
         self._client = httpx.AsyncClient(
             timeout=httpx.Timeout(timeout, connect=5.0, pool=5.0),
-            limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+            # Higher pool so bulk/parallel searches (and multi-item baskets) are not
+            # serialized on a tiny connection limit.
+            limits=httpx.Limits(max_connections=64, max_keepalive_connections=32),
             headers={"Content-Type": "application/json"},
         )
 
