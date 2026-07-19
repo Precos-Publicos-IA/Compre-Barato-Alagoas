@@ -213,3 +213,25 @@ async def providers(
     data["use_mock_llm"] = settings.use_mock_llm
     data["llm_model"] = settings.llm_model
     return data
+
+
+@router.post("/training/run", dependencies=[Depends(require_admin)])
+async def run_training(request: Request) -> dict:
+    """Manually trigger the daily catalog-training job (skips the day-lock).
+
+    Lets an operator run training on demand instead of waiting for the scheduler.
+    """
+    from ...services.training.scheduler import run_training_once
+
+    result = await run_training_once(request.app, use_lock=False)
+    if result is None:
+        return {"ran": False, "reason": "no clients configured"}
+    return {
+        "ran": True,
+        "processed_flags": result.processed_flags,
+        "products_updated": result.products_updated,
+        "new_products_added": result.new_products_added,
+        "queries_tested": result.queries_tested,
+        "errors": result.errors,
+        "duration_seconds": round(result.duration_seconds, 2),
+    }

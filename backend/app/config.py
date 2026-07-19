@@ -91,6 +91,22 @@ class Settings(BaseSettings):
     # deterministic mock parser so search still completes (issue #402).
     llm_timeout_seconds: float = 20.0
 
+    # --- Catalog & Training ---
+    # Cheap model for real-time SEFAZ output validation
+    validation_llm_model: str = "claude-haiku-4-5-20251001"
+    # Capable model for daily training job (catalog improvement)
+    training_llm_model: str = "claude-sonnet-5"
+    # Path to the product catalog JSON (auto-improved by training job).
+    # Empty = use the bundled default under app/data/product_catalog.json.
+    product_catalog_path: str = ""
+    # Training flags path (data flagged for daily training). Empty = bundled default.
+    training_flags_path: str = ""
+    # Daily catalog-training scheduler (in-process). Disabled by default; the
+    # worker that wins a Redis day-lock runs the job so multi-worker deploys
+    # don't run it N times.
+    training_scheduler_enabled: bool = False
+    training_interval_hours: int = 24
+
     # --- Search defaults / SEFAZ-imposed limits ---
     default_radius_km: int = 8       # SEFAZ allows 1..15
     default_days: int = 7            # SEFAZ allows 1..10

@@ -34,9 +34,15 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 COPY app ./app
 COPY pyproject.toml README.md ./
+# Ship ONLY the seed product catalog (not the multi-MB training-datasets, which
+# are dev-only). The daily training job rewrites this file at runtime, so /app/data
+# must be writable by the runtime user; when a named volume is mounted there it is
+# seeded from this content and inherits appuser ownership.
+COPY data/product_catalog.json ./data/product_catalog.json
 
-# Non-root runtime user.
-RUN useradd --create-home --uid 10001 appuser
+# Non-root runtime user; owns /app/data so runtime catalog/flag writes succeed.
+RUN useradd --create-home --uid 10001 appuser \
+ && chown -R appuser:appuser /app/data
 USER appuser
 
 EXPOSE 8000

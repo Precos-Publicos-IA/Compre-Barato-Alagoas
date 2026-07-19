@@ -36,6 +36,10 @@ services:
         source: ../secrets/sefaz_app_token
         target: /run/secrets/sefaz_app_token
         read_only: true
+      # Persist the auto-improvable product catalog + training flags across
+      # redeploys. Seeded on first run from the image's /app/data (which is
+      # owned by appuser, so the volume inherits writable ownership).
+      - catalogdata:/app/data
     depends_on:
       postgres:
         condition: service_healthy
@@ -81,3 +85,4 @@ services:
 volumes:
   pgdata:
   redisdata:
+  catalogdata:

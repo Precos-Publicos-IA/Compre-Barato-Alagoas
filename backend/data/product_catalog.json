@@ -1,0 +1,3965 @@
+{
+  "version": 1,
+  "updated_at": "2026-07-19T15:42:14Z",
+  "description": "Auto-improvable product catalog. Updated by daily training job.",
+  "products": [
+    {
+      "id": 1,
+      "slug": "arroz",
+      "display_name": "Arroz",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ARROZ PARB KIARROZ 1KG",
+        "ARROZ  KIARROZ  PARBONIZADO TP 1 1KG",
+        "ARROZ BCO PINDORAMA 1KG T2",
+        "ARROZ BEN. PARBOILIZADO LONGO FINO FD 10X1 - TIPO 1 - PILAO",
+        "ARROZ BRANCO 1KG",
+        "ARROZ BRANCO 1KG C VERDES",
+        "ARROZ BRANCO C. VERDES 1KG",
+        "ARROZ BRANCO CAMPOS VERDES 1KG",
+        "ARROZ BRANCO CAMPOS VERDES TIPO2 1KG (30)",
+        "ARROZ BRANCO CORINGA TIPO 1",
+        "ARROZ BRANCO CORINGA TIPO 1 FD 10X1KG",
+        "ARROZ BRANCO GRINGO TIPO 2 1KG"
+      ],
+      "sefaz_terms_negative": [
+        "ARROZ DOCE",
+        "RAÇÃO",
+        "ARROZ P CAES"
+      ],
+      "search_queries": [
+        "arroz",
+        "arroz tipo 1"
+      ],
+      "brands": [
+        "Campos Verdes",
+        "Coringa",
+        "Emocoes",
+        "Gringo",
+        "Kiarroz",
+        "Mui Nobre",
+        "Pilao",
+        "Pindorama",
+        "Tio Vieira"
+      ],
+      "sizes": [
+        "1 KG",
+        "2 KG",
+        "200 G",
+        "250 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 2,
+      "slug": "feijao",
+      "display_name": "Feijão",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "FEIJAO PREDILETO CARIOCA TP1 1KG",
+        "ACMP FEIJÃO CASEIRO",
+        "FEIJAO CAMPOS VERDES 1KG",
+        "FEIJAO CAMPOS VERDES CARIOCA",
+        "FEIJAO CAMPOS VERDES CARIOCA 1KG",
+        "FEIJAO CARIO. CAMPOS VERDES 1",
+        "FEIJAO CARIO. TIO VIEIA TIPO.1 1KG",
+        "FEIJAO CARIOCA BOM SABOR 1KG",
+        "FEIJAO CARIOCA BOM SABOR TIPO 1 KG",
+        "FEIJAO CARIOCA BOM SABOR- KG",
+        "FEIJAO CARIOCA CAMIL",
+        "FEIJAO CARIOCA CAMPOS VERDES 1KG"
+      ],
+      "sefaz_terms_negative": [
+        "TEMPERO",
+        "CALDO",
+        "FEIJOADA"
+      ],
+      "search_queries": [
+        "feijao",
+        "feijao carioca"
+      ],
+      "brands": [
+        "Bom Sabor",
+        "Camil",
+        "Campos Verdes",
+        "Canaa",
+        "Gostosao",
+        "Irmaos Farias",
+        "Mui Nobre",
+        "Predileto",
+        "Santanejo",
+        "Sertanejo",
+        "Tio Vieira"
+      ],
+      "sizes": [
+        "1 KG",
+        "30 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 3,
+      "slug": "feijao_preto",
+      "display_name": "Feijão preto",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "FEIJAO PREDILETO CARIOCA TP1 1KG",
+        "FEIJAO CAMPOS VERDES 1KG",
+        "FEIJAO CAMPOS VERDES CARIOCA",
+        "FEIJAO CAMPOS VERDES CARIOCA 1KG",
+        "FEIJAO CANAA CARIOCA 1KG",
+        "FEIJAO CARIO. CAMPOS VERDES 1",
+        "FEIJAO CARIO. TIO VIEIA TIPO.1 1KG",
+        "FEIJAO CARIOCA 1KG",
+        "FEIJAO CARIOCA BOM SABOR 1KG",
+        "FEIJAO CARIOCA BOM SABOR TIPO 1 KG",
+        "FEIJAO CARIOCA BOM SABOR- KG",
+        "FEIJAO CARIOCA CAMIL"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "feijao preto",
+        "feijao carioca"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "30 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 4,
+      "slug": "acucar",
+      "display_name": "Açúcar",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ACUCAR CORURIPE CRISTAL 1KG",
+        "ACUCAR CAETE 1KG CRISTAL",
+        "ACUCAR CAETE CRISTAL (1KG)",
+        "ACUCAR CAETE CRISTAL 1KG",
+        "ACUCAR CAETE CRISTAL30X1KG",
+        "ACUCAR CORURIPE",
+        "ACUCAR CORURIPE 1KG",
+        "ACUCAR CORURIPE 1KG CRISTAL",
+        "ACUCAR CORURIPE BRANCO CRISTAL 1KG",
+        "ACUCAR CORURIPE CRISTAL BRANCO 1KG",
+        "ACUCAR CRISTAL",
+        "ACUCAR CRISTAL 1KG"
+      ],
+      "sefaz_terms_negative": [
+        "ZERO AÇÚCAR",
+        "SEM AÇÚCAR",
+        "BALA",
+        "CHICLETE"
+      ],
+      "search_queries": [
+        "acucar",
+        "acucar cristal"
+      ],
+      "brands": [
+        "Caete",
+        "Coruripe",
+        "Itaja",
+        "Pindorama"
+      ],
+      "sizes": [
+        "01 KG",
+        "1 KG",
+        "1 UN",
+        "30 KG",
+        "80 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 5,
+      "slug": "acucar_demerara",
+      "display_name": "Açúcar demerara",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ACUCAR CORURIPE CRISTAL 1KG",
+        "ACUCAR CAETE 1KG CRISTAL",
+        "ACUCAR CAETE CRISTAL (1KG)",
+        "ACUCAR CAETE CRISTAL 1KG",
+        "ACUCAR CAETE CRISTAL30X1KG",
+        "ACUCAR CORURIPE",
+        "ACUCAR CORURIPE 1KG",
+        "ACUCAR CORURIPE 1KG CRISTAL",
+        "ACUCAR CORURIPE BRANCO CRISTAL 1KG",
+        "ACUCAR CRISTAL",
+        "ACUCAR CRISTAL AZUL PISCINA 80G COD 5020",
+        "ACUCAR CRISTAL BELLA 1KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "acucar demerara",
+        "acucar cristal"
+      ],
+      "brands": [],
+      "sizes": [
+        "01 KG",
+        "1 KG",
+        "1 UN",
+        "30 KG",
+        "80 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 6,
+      "slug": "sal",
+      "display_name": "Sal",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "SAL MOIDO CAMPEAO 1KG",
+        "SAL",
+        "SAL  MO DO  IODADO  PONTIGUAR COMUM  1KG",
+        "SAL 5 ESTRELAS MOIDO 1KG",
+        "SAL 5 ESTRELAS MOIDO 30X1KG QTD. 5.00 FD",
+        "SAL ALMIRANTE 1KG",
+        "SAL AMARGO 30G FARMAX",
+        "SAL ATLANTICO",
+        "SAL ATLANTICO MOIDO 1KG",
+        "SAL CAICARA 1KG",
+        "SAL CAICARA MOIDO 30X1KG",
+        "SAL CAICARA PC.1 KG"
+      ],
+      "sefaz_terms_negative": [
+        "SALGADINHO",
+        "SALSICHA",
+        "SALAME"
+      ],
+      "search_queries": [
+        "macarrao barato",
+        "sal"
+      ],
+      "brands": [
+        "Globo",
+        "Refinado"
+      ],
+      "sizes": [
+        "1 KG",
+        "100 G",
+        "2 UN",
+        "25 KG",
+        "30 G",
+        "30 UN",
+        "350 G",
+        "5 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 7,
+      "slug": "farinha_de_trigo",
+      "display_name": "Farinha de trigo",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "FARINHA D.TRIGO FARINA 1KG TIPO 1",
+        "FARINHA DE TRIGO",
+        "FARINHA DE TRIGO  DONA BENTA  C/FERMENTO 1KG",
+        "FARINHA DE TRIGO  MARAT  TRAD.1KG",
+        "FARINHA DE TRIGO BRANDINI 1X1KG",
+        "FARINHA DE TRIGO BRANDINI TRADICIONAL  KG",
+        "FARINHA DE TRIGO D BENTA S FERM",
+        "FARINHA DE TRIGO D. BENTA S. FERMENTO 1K",
+        "FARINHA DE TRIGO D. BENTA S/FERM",
+        "FARINHA DE TRIGO D. BENTA S/FERMENTO 1KG",
+        "FARINHA DE TRIGO D.BENTA TRADIC 1KG",
+        "FARINHA DE TRIGO DIAMANTE PAO 25KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "farinha de trigo",
+        "comprar farinha trigo",
+        "farinha trigo",
+        "farinha trigo barato",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "25 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 8,
+      "slug": "farinha_de_mandioca",
+      "display_name": "Farinha de mandioca",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "FARINHA MUMBUCA MANDIOCA 1KG",
+        "FARINHA 1KG DE MANDIOCA",
+        "FARINHA COMUM MANDIOCA",
+        "FARINHA DE MANDIOCA",
+        "FARINHA DE MANDIOCA  PAI E FILHOS  1KG",
+        "FARINHA DE MANDIOCA 1KG",
+        "FARINHA DE MANDIOCA 1KG MISTURA NORDESTI",
+        "FARINHA DE MANDIOCA AMARELA LOPES FINA 1KG",
+        "FARINHA DE MANDIOCA BOM SABOR 1KG",
+        "FARINHA DE MANDIOCA CAMPOS VERDES 10X1KG",
+        "FARINHA DE MANDIOCA CAMPOS VERDES 1KG",
+        "FARINHA DE MANDIOCA CANAA 1K"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "farinha de mandioca",
+        "comprar farinha mandioca",
+        "farinha mandioca",
+        "farinha mandioca barato",
+        "farinha trigo"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "10 KG",
+        "25 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 9,
+      "slug": "fuba",
+      "display_name": "Fubá",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "BOLO FUBA CREMOSO KG",
+        "BROA DE FUBA MAIOR UNIDADE",
+        "BROA DE FUBA UND",
+        "Bolo De Fuba Un 391",
+        "Broa De Fuba Goiabad",
+        "CORINGA FUBA KI FLOCOS 500G (FD/20)",
+        "FLOCOS DE MILHO FUBA CORINGA 500G",
+        "FUBA  MILHO CORINGA FERRO 1KG",
+        "FUBA CARINGA 500G",
+        "FUBA CORINGA",
+        "FUBA CORINGA 1KG",
+        "FUBA CORINGA 500G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "fuba",
+        "fubá",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "400 G",
+        "450 G",
+        "500 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 10,
+      "slug": "macarrao",
+      "display_name": "Macarrão",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ALIANCA ESPAGUETE MACARRAO",
+        "GALO MACARRAO COMUM ESPAGUETE 1X400G",
+        "MACARRAO ALIANCA",
+        "MACARRAO ALIANCA ESPAGUETE 400G",
+        "MACARRAO ALIANCA ESPAGUETE COMUM 400G",
+        "MACARRAO BONSABOR 400G",
+        "MACARRAO BONSABOR 400g",
+        "MACARRAO BONSABOR ESPAGUETE 400G",
+        "MACARRAO BONSABOR ESPAGUETE COMUM 400G",
+        "MACARRAO BONSABOR SPAGHETTI 400G",
+        "MACARRAO BRANDINI 500G",
+        "MACARRAO BRANDINI COMUM PC.500G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao",
+        "macarrao barato",
+        "macarrao espaguete"
+      ],
+      "brands": [
+        "Vitarella"
+      ],
+      "sizes": [
+        "400 G",
+        "500 G",
+        "74.3 G",
+        "85 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 11,
+      "slug": "macarrao_espaguete",
+      "display_name": "Macarrão espaguete",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ALIANCA ESPAGUETE MACARRAO",
+        "GALO MACARRAO COMUM ESPAGUETE 1X400G",
+        "GALO MACARRAO COMUM ESPAGUETE 400G",
+        "MACA ESPAGUETE PETYAN 400G",
+        "MACA GALO ESPAGUETE COMUM 400G",
+        "MACA PETYAN ESPAGUETE 400G",
+        "MACAR ESPAGUETE BRANDINI 500G",
+        "MACAR ESPAGUETE COMUM 8 GALO 400G",
+        "MACAR ESPAGUETE GALO 8 500G",
+        "MACAR. ESPAGUETE PETYAN 400G",
+        "MACAR.PETYAN ESPAGUETE 400G",
+        "MACAR.SELMI GALO ESPAGUETE 400G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "macarrao espaguete"
+      ],
+      "brands": [],
+      "sizes": [
+        "400 G",
+        "500 G",
+        "74.3 G",
+        "85 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 12,
+      "slug": "aveia",
+      "display_name": "Aveia",
+      "category": "staples",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "+SAB IARA 80G AVEIA TRIGO (ST)",
+        "MUCILON ARROZ AVEIA PRL180G",
+        "AVEIA AD",
+        "AVEIA ALL NUTRI FLOCOS TRAD.170G",
+        "AVEIA ALLNUTRI FLOCOS FINOS 170G",
+        "AVEIA APTI",
+        "AVEIA APTI 150G EN FLOCOS FINOS",
+        "AVEIA APTI EM FLOCOS 150G",
+        "AVEIA APTI EM FLOCOS 150GR",
+        "AVEIA APTI EM FLOCOS 200G",
+        "AVEIA APTI EM FLOCOS FINOS 200G",
+        "AVEIA APTI FLOCOS"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "aveia",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "150 G",
+        "160 G",
+        "165 G",
+        "170 G",
+        "18 G",
+        "180 G",
+        "200 G",
+        "22 G",
+        "230 G",
+        "25 G",
+        "250 G",
+        "400 ML",
+        "450 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 13,
+      "slug": "leite",
+      "display_name": "Leite",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "LEITE L.VIDA NATVILLE INTEGRAL 1L",
+        "BOM LEITE INTEGRAL 1 LITRO",
+        "CR DE LEITE CAMPONESA 200G",
+        "CR DE LEITE DAMARE TP 200G",
+        "CR. DE LEITE PIRACANJUBA TP.",
+        "CR.DE LEITE ITALAC UHT 6X200G",
+        "CREM SABE LEITE TP 200G",
+        "Cr De Leite Piracanj",
+        "Crm De Leite Sabe 20",
+        "FRUTIGUTTI LEITE UHT INTEGRAL CX 12 X 1L",
+        "FRUTIGUTTI LEITE UHT INTEGRAL; CX 12 X 1L",
+        "LEITE BETANIA INTEG."
+      ],
+      "sefaz_terms_negative": [
+        "LEITE CONDENSADO",
+        "LEITE DE COCO",
+        "DOCE DE LEITE",
+        "CREME DE LEITE",
+        "ACHOCOLATADO",
+        "IOGURTE",
+        "LEITE FERMENTADO"
+      ],
+      "search_queries": [
+        "leite",
+        "leite uht"
+      ],
+      "brands": [
+        "Betania",
+        "Camponesa",
+        "Damare",
+        "Frutigutti",
+        "Italac",
+        "Natville",
+        "Ninho",
+        "Parmalat",
+        "Piracanjuba"
+      ],
+      "sizes": [
+        "000 ML",
+        "1 L",
+        "12 UN",
+        "200 G",
+        "200 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 14,
+      "slug": "leite_integral",
+      "display_name": "Leite integral",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "LEITE L.VIDA NATVILLE INTEGRAL 1L",
+        "BOM LEITE INTEGRAL 1 LITRO",
+        "CR DE LEITE DAMARE TP 200G",
+        "CR. DE LEITE PIRACANJUBA TP.",
+        "CR.DE LEITE ITALAC UHT 6X200G",
+        "CREM SABE LEITE TP 200G",
+        "Cr De Leite Piracanj",
+        "Crm De Leite Sabe 20",
+        "FRUTIGUTTI LEITE UHT INTEGRAL CX 12 X 1L",
+        "FRUTIGUTTI LEITE UHT INTEGRAL; CX 12 X 1L",
+        "LEITE BETANIA 1L",
+        "LEITE BETANIA INT 1L"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "leite integral",
+        "leite uht"
+      ],
+      "brands": [],
+      "sizes": [
+        "000 ML",
+        "1 L",
+        "12 UN",
+        "200 G",
+        "200 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 15,
+      "slug": "leite_desnatado",
+      "display_name": "Leite desnatado",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "LEITE L.VIDA NATVILLE INTEGRAL 1L",
+        "BOM LEITE INTEGRAL 1 LITRO",
+        "CR DE LEITE DAMARE TP 200G",
+        "CR. DE LEITE PIRACANJUBA TP.",
+        "CR.DE LEITE ITALAC UHT 6X200G",
+        "CREM SABE LEITE TP 200G",
+        "Cr De Leite Piracanj",
+        "Crm De Leite Sabe 20",
+        "FRUTIGUTTI LEITE UHT INTEGRAL CX 12 X 1L",
+        "FRUTIGUTTI LEITE UHT INTEGRAL; CX 12 X 1L",
+        "LEITE BETANIA 1L",
+        "LEITE BETANIA INTEG."
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "leite desnatado",
+        "leite uht"
+      ],
+      "brands": [],
+      "sizes": [
+        "000 ML",
+        "1 L",
+        "12 UN",
+        "200 G",
+        "200 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 16,
+      "slug": "leite_em_po",
+      "display_name": "Leite em pó",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "LEITE L.VIDA NATVILLE INTEGRAL 1L",
+        "BOM LEITE INTEGRAL 1 LITRO",
+        "CR.DE LEITE ITALAC UHT 6X200G",
+        "FRUTIGUTTI LEITE UHT INTEGRAL 1L",
+        "FRUTIGUTTI LEITE UHT INTEGRAL CX 12 X 1L",
+        "FRUTIGUTTI LEITE UHT INTEGRAL; CX 12 X 1L",
+        "LEITE BETANIA INT 1L",
+        "LEITE BETANIA INTEG.",
+        "LEITE BETANIA INTEGRAL 1L",
+        "LEITE BETANIA INTEGRAL 1LT.",
+        "LEITE BETANIA INTEGRAL TP 1L",
+        "LEITE BETANIA UHT INT 1L"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "leite em po",
+        "leite uht"
+      ],
+      "brands": [],
+      "sizes": [
+        "000 ML",
+        "1 L",
+        "12 UN",
+        "200 G",
+        "200 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 17,
+      "slug": "ovo",
+      "display_name": "Ovo",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "OVOS DE CODORNA C/30",
+        "1/2 DUZIA DE OVOS",
+        "211 OVO LUNA GRANDE 12UN(TRIBUTADO)",
+        "6 OVOS",
+        "ADICIONAL OVOS",
+        "BANDEJA DE OVOS",
+        "BANDEJA DE OVOS COM 12",
+        "BANDEJA OVOS 15 UN",
+        "BATEDOR DE OVOS INOX 28CM",
+        "BDJ. OVOS BRANCO 12UNID",
+        "Bandeja De Ovos C12",
+        "CHICLE OVO DE DINOSSAURO 80G FINI"
+      ],
+      "sefaz_terms_negative": [
+        "MACARRAO C/OVOS",
+        "MASSA COM OVOS"
+      ],
+      "search_queries": [
+        "ovo",
+        "ovos"
+      ],
+      "brands": [],
+      "sizes": [
+        "01 UN",
+        "10 UN",
+        "12 UN",
+        "15 UN",
+        "18 UN",
+        "20 UN",
+        "30 UN",
+        "5 UN",
+        "500 G",
+        "80 G",
+        "90 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 18,
+      "slug": "ovos",
+      "display_name": "Ovos",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "OVOS DE CODORNA C/30",
+        "1/2 DUZIA DE OVOS",
+        "6 OVOS",
+        "BANDEJA DE OVOS",
+        "BANDEJA DE OVOS C/30",
+        "BANDEJA DE OVOS COM 12",
+        "BANDEJA OVOS 15 UN",
+        "BATEDOR DE OVOS INOX 28CM",
+        "BDJ. OVOS BRANCO 12UNID",
+        "Bandeja De Ovos C12",
+        "CHICLE OVOS DINOSSAURO FINI 80G",
+        "CUSCUZ COM OVOS"
+      ],
+      "sefaz_terms_negative": [
+        "MACARRAO C/OVOS",
+        "MASSA COM OVOS"
+      ],
+      "search_queries": [
+        "ovos"
+      ],
+      "brands": [],
+      "sizes": [
+        "01 UN",
+        "10 UN",
+        "12 UN",
+        "15 UN",
+        "18 UN",
+        "20 UN",
+        "30 UN",
+        "5 UN",
+        "500 G",
+        "80 G",
+        "90 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 19,
+      "slug": "manteiga",
+      "display_name": "Manteiga",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "MANTEIGA DA CASA KG",
+        "BAGUETE COM MANTEIGA E OVOS",
+        "BATOM  MANTEIGA DE CACAU MACIEIRA 250",
+        "BATON LABY MANTEIGA CACAU FPS 8 LUXO 3,3G",
+        "BATON MANTEIGA DE CACAU UND",
+        "BOKUS CINEMA MANTEIGA",
+        "CHEETOS ONDA MANTEIGA 37G 56 ELMA CHIPS 37G 56",
+        "COUVE MANTEIGA",
+        "Couve Manteiga Un",
+        "ESPATULA AVULSO PARA MANTEIGA PRETO PRATIKA 1200000422002R",
+        "FILE NA MANTEIGA DE GARRAFA 1P",
+        "KARINTO METAL 50G MANTEIGA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "manteiga"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "10 ML",
+        "100 G",
+        "15 G",
+        "20 UN",
+        "200 G",
+        "230 G",
+        "24 UN",
+        "25 G",
+        "250 G",
+        "3.3 G",
+        "3.4 G",
+        "3.5 G",
+        "30 G",
+        "33 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 20,
+      "slug": "margarina",
+      "display_name": "Margarina",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "MARGARINA DELINE C/SAL 250G",
+        "BALDE DE MARGARINA VAZIO",
+        "MANT.E MARGARINA PURO DO LEITE DUO C SAL",
+        "MARGARINA",
+        "MARGARINA  DELINE 500G",
+        "MARGARINA  PRIMOR  500G",
+        "MARGARINA BECEL AMANT.250G C  SAL",
+        "MARGARINA C SAL PRIMOR 250G",
+        "MARGARINA C/SAL PURO SABOR 500G",
+        "MARGARINA CLAYBOM COM SAL 250G",
+        "MARGARINA CLAYBOM CREMOSA C/SAL PT.250G",
+        "MARGARINA CLAYBOM250G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "margarina"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "15 KG",
+        "200 G",
+        "250 G",
+        "250 KG",
+        "3 KG",
+        "500 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 21,
+      "slug": "queijo",
+      "display_name": "Queijo",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "PAO DE QUEIJO TRAD MARICOTA 300G",
+        "211 JOBIPOS PREMIUM QUEIJO 30G(ST)",
+        "ADC. QUEIJO",
+        "AMENDUPA SNACKS QUEIJO 40G",
+        "AUROGGETS QUEIJO AURORA 275G",
+        "BOLINHO DE QUEIJO",
+        "BOLINHOS DE QUEIJO/ PRA FESTA",
+        "CONG PAO DE QUEIJO COQUETEL 500GR",
+        "CUP NOODLE QUEIJO CHEDDAR",
+        "DELICIA QUEIJO COM GOIABADA 60G",
+        "DORITOS QUEIJO NACHO 55G",
+        "EMPANADO QUEIJO SEARA 100G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "queijo"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1.2 KG",
+        "100 G",
+        "15 G",
+        "150 G",
+        "19 G",
+        "25 G",
+        "27 G",
+        "275 G",
+        "30 G",
+        "300 G",
+        "32 G",
+        "320 G",
+        "35 G",
+        "37 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 22,
+      "slug": "queijo_mussarela",
+      "display_name": "Queijo mussarela",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "AC QUEIJO MUSSARELA EM CUBOS",
+        "AURORA QUEIJO MUSSARELA",
+        "CROISSANT DE MISTO QUEIJO MUSSARELA",
+        "CUP NOODLE QUEIJO CHEDDAR",
+        "FATIA DE QUEIJO MUSSARELA",
+        "FOLHADO QUEIJO MUSSARELA",
+        "IPANEMA QUEIJO MUSSARELA ZERO LACTO150GR",
+        "MINI PAO DE QUEIJO",
+        "MINI PAO DE QUEIJO UNID",
+        "PAO C QUEIJO MANTEIGA/MUSSARELA/COALHO",
+        "PAO C QUEIJO MUSSARELA",
+        "PAO COM QUEIJO COALHO OU MUSSARELA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "queijo mussarela",
+        "queijo"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1.2 KG",
+        "100 G",
+        "130 G",
+        "150 G",
+        "200 G",
+        "24 KG",
+        "300 G",
+        "35 G",
+        "4 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 23,
+      "slug": "requeijao",
+      "display_name": "Requeijão",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "REQUEIJAO TIROLEZ 200G",
+        "211 JOBIPOS PREMIUM REQUEIJAO 30G(ST)",
+        "ADICIONAL DE REQUEIJAO",
+        "ADICIONAL REQUEIJAO",
+        "BIS CLUB REQUEIJAO 1",
+        "BIS.CLUB SOCIAL RECH.REQUEIJAO CLUB SOCIAL",
+        "CHEETOS ASSADO REQUEIJAO 23G",
+        "CHEETOS ONDA REQUEIJAO",
+        "CHEETOS ONDA REQUEIJAO 160G",
+        "CHEETOS ONDA REQUEIJAO 21G",
+        "CHEETOS ONDA REQUEIJAO 21G ELMA CHIPS",
+        "CHEETOS ONDA REQUEIJAO 21G-ELMA CHIPS"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "requeijao",
+        "requeijão"
+      ],
+      "brands": [],
+      "sizes": [
+        "0016 UN",
+        "0405 UN",
+        "1 UN",
+        "1.5 KG",
+        "1.8 KG",
+        "10 UN",
+        "106 G",
+        "13 G",
+        "160 G",
+        "180 G",
+        "190 G",
+        "20 G",
+        "200 G",
+        "21 G",
+        "220 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 24,
+      "slug": "iogurte",
+      "display_name": "Iogurte",
+      "category": "dairy",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "GRF NINHO IOGURTE MACA E BANANA 850G",
+        "2 LITROS DUETTO IOGURTE COM FRUTAS VERMELHAS",
+        "BALA IOGURTE",
+        "BALA IOGURTE PINDORAMA",
+        "BALA IOGURTE PINDORAMA U",
+        "BALA IOGURTE SOBERANA UNIDADE",
+        "BALA MAST IOGURTE/MOR",
+        "BALA PINDORAMA IOGURTE",
+        "BALA PINDORAMA IOGURTE 300G",
+        "BALA UP DATE IOGURTE DE MORANGO",
+        "BALAS IOGURTE 14X500 UNICA",
+        "BALAS IOGURTE 24X300 UNICA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "iogurte",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1.250 KG",
+        "100 G",
+        "150 G",
+        "170 G",
+        "18 G",
+        "180 G",
+        "200 G",
+        "200 ML",
+        "27 G",
+        "30 UN",
+        "300 G",
+        "32 G",
+        "450 G",
+        "500 G",
+        "510 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 25,
+      "slug": "oleo",
+      "display_name": "Óleo",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "OLEO SOJA SOYA 900ML",
+        "DINAMICA N.2 OLEO DE SOJA 900ML",
+        "OLEO  SOJA SOYA 900ML",
+        "OLEO ABC 900 ML",
+        "OLEO ABC 900ML",
+        "OLEO COMPOSTO DE OLIVIA 500ML",
+        "OLEO COMPOSTO DE SOJA E OLIVA DE 500 ML",
+        "OLEO DE SOJA  900ML - SOYA",
+        "OLEO DE SOJA 900ML SOYA",
+        "OLEO DE SOJA ABC PT 900ML.",
+        "OLEO DE SOJA CONCORDIA 900ML (20)",
+        "OLEO DE SOJA GRANOL LATA 900ML"
+      ],
+      "sefaz_terms_negative": [
+        "OLEO DE COCO",
+        "SARDINHA EM OLEO",
+        "CONSERVA"
+      ],
+      "search_queries": [
+        "oleo",
+        "oleo de soja"
+      ],
+      "brands": [
+        "Abc",
+        "Concordia",
+        "Granol",
+        "Liza",
+        "Soya"
+      ],
+      "sizes": [
+        "500 ML",
+        "900 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 26,
+      "slug": "oleo_de_soja",
+      "display_name": "Óleo de soja",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "OLEO SOJA SOYA 900ML",
+        "DINAMICA N.2 OLEO DE SOJA 900ML",
+        "OLEO  SOJA SOYA 900ML",
+        "OLEO ABC 900 ML",
+        "OLEO ABC 900ML",
+        "OLEO COMPOSTO DE OLIVIA 500ML",
+        "OLEO COMPOSTO DE SOJA E OLIVA DE 500 ML",
+        "OLEO DE SOJA  900ML - SOYA",
+        "OLEO DE SOJA 900ML SOYA",
+        "OLEO DE SOJA ABC PT 900ML.",
+        "OLEO DE SOJA CONCORDIA 900ML (20)",
+        "OLEO DE SOJA GRANOL LATA 900ML"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "oleo de soja"
+      ],
+      "brands": [],
+      "sizes": [
+        "500 ML",
+        "900 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 27,
+      "slug": "azeite",
+      "display_name": "Azeite",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "AZEITE VALE FERTIL EX.VIRG 500ML",
+        "AZEITE ANDORINHA 250 ML",
+        "AZEITE ANDORINHA 250ML",
+        "AZEITE ANDORINHA 500ML EXT VIRG",
+        "AZEITE ANDORINHA E.VIRGEM 250ML",
+        "AZEITE ANDORINHA EX VIRGEM VD 250ML",
+        "AZEITE ANDORINHA EXT. VIRGEM",
+        "AZEITE ANDORINHA EXT. VIRGEM 250ML",
+        "AZEITE ANDORINHA EXTRA VIRGEM 250ML VD",
+        "AZEITE ANDORINHA EXTRA VIRGEM 500ML",
+        "AZEITE ANDORINHA PORT 500ML",
+        "AZEITE BORGES EVV CX 12X500ML"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "azeite",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 L",
+        "1 UN",
+        "145 ML",
+        "150 ML",
+        "200 G",
+        "200 ML",
+        "22 G",
+        "220 ML",
+        "250 ML",
+        "300 ML",
+        "400 G",
+        "400 ML",
+        "500 G",
+        "500 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 28,
+      "slug": "vinagre",
+      "display_name": "Vinagre",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "VINAGRE CAMARAO TINTO 750ML",
+        "CBEM SHAMP FEIRA VINAGRE MACA V2 230ML",
+        "CESTA B VINAGRE CONDIMENTADO CAMARAO 750",
+        "COND C VINAGRE SPECIAL TINTO 750ML",
+        "COND C/ VINAGRE TRADICAO 750M",
+        "COND C/VINAGRE CAMARAO 12X750ML",
+        "COND C/VINAGRE LIDER 750ML",
+        "COND C/VINAGRE SPECIAL TINTO",
+        "COND C/VINAGRE SPECIAL TINTO 12X750ML",
+        "COND C/VINAGRE SPECIAL TINTO 1X500ML - (12X500ML)",
+        "COND C/VINAGRE SPECIAL TINTO 500ML",
+        "COND C/VINAGRE SPECIAL TINTO 750ML"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "vinagre"
+      ],
+      "brands": [],
+      "sizes": [
+        "0 ML",
+        "230 ML",
+        "250 G",
+        "250 ML",
+        "300 ML",
+        "450 ML",
+        "500 ML",
+        "750 ML",
+        "900 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 29,
+      "slug": "molho_de_tomate",
+      "display_name": "Molho de tomate",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "211 MOLHO DE TOMATE TRAD. JULIETA SACHET310G(ST)",
+        "FP MOLHO TOMATE SDI KG",
+        "JULIETA MOLHO DE TOMATE PRONTO TRADICIONAL 310G",
+        "MOLHO DE TOMATE",
+        "MOLHO DE TOMATE BOLONHESA 300G",
+        "MOLHO DE TOMATE BOLONHESA PINDORAMA 300G",
+        "MOLHO DE TOMATE BONARE TRAD SCH 300G",
+        "MOLHO DE TOMATE BONARE TRAD. POUCH 300G",
+        "MOLHO DE TOMATE BONATTA TRADICIONAL 300G (24)",
+        "MOLHO DE TOMATE ETTI TRADICIONAL STUP 30",
+        "MOLHO DE TOMATE FUGINI MANGERICAO ST340G",
+        "MOLHO DE TOMATE JULI"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "molho de tomate",
+        "tomate"
+      ],
+      "brands": [],
+      "sizes": [
+        "1.02 KG",
+        "1.06 KG",
+        "1020 KG",
+        "125 G",
+        "240 G",
+        "250 G",
+        "260 G",
+        "300 G",
+        "310 G",
+        "340 G",
+        "40 G",
+        "520 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 30,
+      "slug": "catchup",
+      "display_name": "Catchup",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CATCHUP DUSUL 3,3 KG",
+        "BISNAGA CATCHUP 250ML LUMAR",
+        "BISNAGA CATCHUP MP VIRGEM RALL",
+        "BISNAGA MODELO CATCHUP",
+        "BISNAGUA CATCHUP VERMELHO 250ML",
+        "CATCHUP",
+        "CATCHUP  830G",
+        "CATCHUP  TRADICIONAL GARRAFA 830G",
+        "CATCHUP 100% NORDESTINO TAMBAU 380G",
+        "CATCHUP 190G TAMBAU",
+        "CATCHUP 3. 3KG DUSUL",
+        "CATCHUP 380g - TAMBAU"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "catchup",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "1.150 KG",
+        "1.200 KG",
+        "12 KG",
+        "185 G",
+        "190 G",
+        "2 KG",
+        "200 G",
+        "250 ML",
+        "3 KG",
+        "3.3 KG",
+        "3.300 KG",
+        "3.4 KG",
+        "300 G",
+        "370 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 31,
+      "slug": "maionese",
+      "display_name": "Maionese",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "MAIONESE QUERO SC 1,020KG",
+        "AD. MAIONESE VERDE",
+        "BISNAGA MAIONESE 250ML PLASUTIL - 1X1UND",
+        "BISNAGA MAIONESE MP VIRGEM RALL",
+        "BON SAUCE MAIONESE STANDUP 200G",
+        "EXTRA: SALADA DE MAIONESE",
+        "HELLMANNS MAIONESE SCH 200G",
+        "M. MAIONESE TEMPERADA",
+        "MAIONESE  KISABOR 1KG",
+        "MAIONESE  VIGOR SCH 1KG",
+        "MAIONESE ALHO C ERVAS HEINZ F",
+        "MAIONESE AMELIA/VIGOR LE CHEF"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "maionese"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "1.02 KG",
+        "1.020 KG",
+        "1020 G",
+        "1020 KG",
+        "145 G",
+        "170 G",
+        "196 G",
+        "2 KG",
+        "200 G",
+        "200 ML",
+        "215 G",
+        "250 G",
+        "250 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 32,
+      "slug": "mostarda",
+      "display_name": "Mostarda",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "MOLHO MOSTARDA QUERO 190G",
+        "BISNAGA MODELO MOSTARDA",
+        "BISNAGA MODELO MOSTARDA 200ML - BMMA",
+        "BISNAGA MOSTARDA 250ML AM 1254",
+        "BISNAGA MOSTARDA 250ML LUMAR 886",
+        "BISNAGA MOSTARDA MP VIRGEM RALL",
+        "BISNAGUINHA LISA MOSTARDA 200ML PLASDURAN",
+        "Baby Beef Mostarda E Batata",
+        "CEPERA  210 G MOSTARDA",
+        "FILE MOSTARDA",
+        "KIT BISNAGA CATCHUP MOSTARDA MAIONESE",
+        "LAPISEIRA NOVA ALUNO MOSTARDA 0,9mm"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "mostarda"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "100 UN",
+        "170 G",
+        "180 G",
+        "185 G",
+        "190 G",
+        "190 ML",
+        "200 G",
+        "200 ML",
+        "207 UN",
+        "210 G",
+        "236 ML",
+        "250 G",
+        "250 ML",
+        "255 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 33,
+      "slug": "tempero",
+      "display_name": "Tempero",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "TEMPERO MISTO NORDESTINO 100GR",
+        "BOM PALADAR TEMPERO MINEIRO 15G",
+        "CALDO TEMPERO E CIA GALINHA PO 1,01KG",
+        "CASA DO CHA TEMPERO COMPLETO 50G",
+        "DONA CLARA TEMPERO MISTO 100G",
+        "FAROFA CROC TEMPERO CASEIRO SORA",
+        "FAROFA CROC TEMPERO CASEIRO SORA 12X300G",
+        "GRAO VERDE TEMPERO 100G",
+        "KIT TEMPERO PARCERIA TRADICAOO 1X3",
+        "MAGGI TEMPERO E SABOR TEMPRCAR48(10X5G)BR",
+        "MOLHO TEMPERO CASE AMACIANTE 500ML",
+        "MOLHO TEMPERO CASEIRO COM AMACIANTE DE C"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "tempero"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "1.01 KG",
+        "100 G",
+        "15 G",
+        "19 G",
+        "2 UN",
+        "300 G",
+        "40 G",
+        "49 G",
+        "5 G",
+        "50 G",
+        "500 G",
+        "500 ML",
+        "60 G",
+        "97 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 34,
+      "slug": "alho",
+      "display_name": "Alho",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ALHO",
+        "MOLHO ALHO TIO FERNANDO 150ML",
+        "MOLHO ALHO TIO VIEIRA 150ML",
+        "ALHO  UN",
+        "ALHO 1UN",
+        "ALHO 5 KG",
+        "ALHO 6/6,5 CHINA",
+        "ALHO A GRANEL",
+        "ALHO ALMEIDA UNIDADE",
+        "ALHO C/3UND",
+        "ALHO CABECA",
+        "ALHO CABECA UN"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "alho",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "10 ML",
+        "100 ML",
+        "141 G",
+        "15 G",
+        "150 G",
+        "150 ML",
+        "160 G",
+        "185 G",
+        "2 UN",
+        "200 G",
+        "250 G",
+        "3 UN",
+        "300 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 35,
+      "slug": "cebola",
+      "display_name": "Cebola",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CEBOLA BRANCA KG",
+        "AD. CEBOLA CUBOS",
+        "AMENDOIM DORI PETTIZ CEBOLA/SALSA",
+        "AMENDOIM TORRADO BOTECO CEBOLA 90G DORI",
+        "AMENDUPA AMENDOIM COBERTO CEBOLA E SALSA 150G",
+        "APLIC. CEBOLA FATIA",
+        "APLIC. CEBOLA SANDUICHE",
+        "BATATA CHIPS EXTRA CEBOLA E SALSA 17 g",
+        "BATATA FRITA GULAO CEBOLA E SALSA 30G",
+        "BATATA GULAO CEBOLA/SALSA",
+        "BATATA RUFFLES CEBOLA .33G",
+        "CEBOLA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "cebola",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "100 G",
+        "120 G",
+        "15 G",
+        "150 G",
+        "17 G",
+        "2225 G",
+        "24 G",
+        "27 G",
+        "30 G",
+        "32 G",
+        "33 G",
+        "35 G",
+        "38 G",
+        "40 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 36,
+      "slug": "caldo_de_galinha",
+      "display_name": "Caldo de galinha",
+      "category": "oils",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CALDO ARISCO GALINHA CAI. 114GR",
+        "CALDO 1.01KG GALINHA KITANO",
+        "CALDO 114G MAGGI GALINHA",
+        "CALDO APTI GALINHA 24 X 19G",
+        "CALDO ARISCO 114G GALINHA CAIPIRA",
+        "CALDO ARISCO 19GG GALINHA CAIPIRA",
+        "CALDO ARISCO GALINHA",
+        "CALDO ARISCO GALINHA 114G",
+        "CALDO ARISCO GALINHA 57G",
+        "CALDO ARISCO GALINHA CAIPIRA",
+        "CALDO ARISCO GALINHA CAIPIRA  114G",
+        "CALDO ARISCO GALINHA CAIPIRA 114G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "caldo de galinha",
+        "caldo galinha",
+        "comprar caldo galinha",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "1.01 KG",
+        "1.010 KG",
+        "114 G",
+        "152 G",
+        "19 G",
+        "21 G",
+        "32.5 G",
+        "35 G",
+        "57 G",
+        "63 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 37,
+      "slug": "frango",
+      "display_name": "Frango",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "EMPADA FRANGO UNI",
+        "AD. CRISPY DE FRANGO",
+        "ADICIONAL FRANGO",
+        "ASA DE FRANGO",
+        "BEBEDOURO ROSCA P/FRANGO 2LT",
+        "CABECA DE FRANGO",
+        "CARNE MOIDA DE FRANGO COPACOL 22X400G",
+        "COXA DE FRANGO SADIA 1KG BANDEJA",
+        "COXA S/COXA FRANGO GUIBON KG",
+        "COXINHA DE FRANGO",
+        "COXINHA DE FRANGO MINI",
+        "COXINHA DE FRANGO PCT 500G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "frango"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "100 G",
+        "100 KG",
+        "19 KG",
+        "2 L",
+        "2.016 KG",
+        "20 KG",
+        "30 G",
+        "35 G",
+        "38 G",
+        "4.5 KG",
+        "40 G",
+        "400 G",
+        "500 G",
+        "56 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 38,
+      "slug": "peito_de_frango",
+      "display_name": "Peito de frango",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ASA DE FRANGO",
+        "BISTECA PEITO DE FRANGO KG",
+        "Bandeja de peito de frango.pioneiro500g",
+        "CABECA DE FRANGO",
+        "CARNE DE PEITO DE FRANGO PRE-FRITO NOR 2",
+        "COXINHA DE FRANGO MINI",
+        "EMPADA PEQ FRANGO",
+        "EMPANADO. PEITO DE FRANGO RECH. C/PRES E",
+        "FF SANDUICHE DE PEITO DE PERU COM FRANGO 150GR",
+        "FILE DE PEITO DE FRANGO BAND. JAGUA KG",
+        "FILE DE PEITO DE FRANGO CANCAO 1KG",
+        "FILE DE PEITO DE FRANGO JAGUA BDJ 1KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "peito de frango",
+        "frango"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "100 G",
+        "17 G",
+        "18 KG",
+        "20 KG",
+        "400 G",
+        "5 KG",
+        "500 G",
+        "56 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 39,
+      "slug": "carne_moida",
+      "display_name": "Carne moída",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "\"carne moida",
+        "CARNE MOIDA SUIFRIGO 500GR",
+        "BV CARNE MOIDA DIANTEIRA CONG KG",
+        "CARNE BOV MOIDA",
+        "CARNE BOV MOIDA DE 2",
+        "CARNE BOV. CG MOIDA FORTBOI 500G",
+        "CARNE BOVINA MOIDA FORT BOI 500G",
+        "CARNE BOVINA MOIDA FRESCA KG",
+        "CARNE BOVINA MOIDA K",
+        "CARNE BOVINA MOIDA KG",
+        "CARNE DE FRANGO MOIDA",
+        "CARNE MOIDA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "carne",
+        "carne moida",
+        "carne moída",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "300 G",
+        "400 G",
+        "450 G",
+        "500 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 40,
+      "slug": "carne",
+      "display_name": "Carne",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CARNE MOIDA SUIFRIGO 500GR",
+        "KANINA CARNE E CEREAIS KG",
+        "BOLINHOS DE CARNE /PRA FESTA",
+        "CAN CARNE MED.GRAND.PT PREMIUM",
+        "CARNE BOVINA MOIDA KG",
+        "CARNE BOVINA OSSADA",
+        "CARNE DE HAMBUGUE MISTO JUNDIAI 56G",
+        "CARNE DE HAMBURGUE",
+        "CARNE DE HAMBURGUER SADIA",
+        "CARNE DE HAMBURGUER UNI",
+        "CARNE DE SOJA SUPRES",
+        "CARNE MOIDA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "carne",
+        "carne moida",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 L",
+        "1 UN",
+        "10 UN",
+        "10.1 KG",
+        "19 G",
+        "250 G",
+        "280 G",
+        "36 UN",
+        "40 G",
+        "400 G",
+        "49 G",
+        "500 G",
+        "56 G",
+        "60 G",
+        "63 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 41,
+      "slug": "linguica",
+      "display_name": "Linguiça",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "AD LINGUICA",
+        "BATATA PRINGLES LINGUICA ACEBOLADA 100G",
+        "ESPETINHO DE LINGUICA TOSCANA",
+        "LINGUICA  DEFUMADA",
+        "LINGUICA AVIVAR MISTA TOSCANA KG",
+        "LINGUICA BOVINA CARA PRETA COST 300G PCT",
+        "LINGUICA BRASA TIPO CALABRESA",
+        "LINGUICA BRASA TIPO CALABRESA 400G",
+        "LINGUICA CALABRESA DEF 2,5KG PERDIGAO",
+        "LINGUICA CALABRESA DEF. GROSSA PC C/2,5KG 4025",
+        "LINGUICA CALABRESA FRIELLA 2UN",
+        "LINGUICA CALABRESA MELLORE 600G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "linguica",
+        "linguiça",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "100 G",
+        "2 UN",
+        "2.5 KG",
+        "215 G",
+        "215 KG",
+        "25 KG",
+        "300 G",
+        "400 G",
+        "5 KG",
+        "500 G",
+        "600 G",
+        "63 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 42,
+      "slug": "salsicha",
+      "display_name": "Salsicha",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "+ VINA (SALSICHA)",
+        "SALSICHA AURORA KG",
+        "ADICIONAL DE SALSICHA",
+        "COXINHA,PASTEL,SALSICHA",
+        "CUSCUZ COM SALSICHA",
+        "CUSCUZ COM SALSICHA AO MOLHO",
+        "ENROLADINHO DE SALSICHA",
+        "ENROLADINHO DE SALSICHA 120G",
+        "ENROLADINHO DE SALSICHA FESTA",
+        "ENROLADINHO DE SALSICHA UN",
+        "ENROLADINHO SALSICHA PQ",
+        "ENROLADINHO SALSICHA UN"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "salsicha"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "120 G",
+        "150 G",
+        "180 G",
+        "2.5 KG",
+        "20 KG",
+        "250 G",
+        "3 KG",
+        "300 G",
+        "5 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 43,
+      "slug": "bacon",
+      "display_name": "Bacon",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "LASANHA FGO C/ BACON PERDIGAO 600G",
+        "AD. BACON EM TIRAS",
+        "AD. MAIONESE BACON",
+        "BACON",
+        "BACON DEF. NATURAL DALIA +-3KG",
+        "BACON DEFUMADO KG",
+        "BACON DEFUMADO PERDIGAO",
+        "BACON IMPERATRIZ PALETA KG",
+        "BACON KG",
+        "BACON P DEF GRAN CAMP KG",
+        "BACON PERDIGAO KG",
+        "BATATA OND BACON PRATIC LEVE 20X45G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "bacon",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "120 G",
+        "141 G",
+        "200 G",
+        "250 G",
+        "27 G",
+        "3 KG",
+        "30 G",
+        "35 G",
+        "40 G",
+        "45 G",
+        "460 G",
+        "50 G",
+        "60 G",
+        "600 G",
+        "70 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 44,
+      "slug": "presunto",
+      "display_name": "Presunto",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "PRESUNTO PONTA KG",
+        ". FANDANGOS PRESUNTO 23G",
+        "211 JOBIPOS PREMIUM PRESUNTO 30G(ST)",
+        "AD. PRESUNTO 15 CM",
+        "ADICIONAL DE PRESUNTO",
+        "Adicional de presunto",
+        "BIS CLUB SOCIAL PRESUNTO",
+        "BISCOITOS SOL HITS PRESUNTO 8",
+        "CIGARRETE PRESUNTO /QUEIJO BR MANIA",
+        "CORINGUITOS PRESUNTO",
+        "CP SAND MISTO PRESUNTO E QUEIJO",
+        "EMPANADO RECH. SEARA PRESUNTO E QUEIJO 1"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "presunto"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "10 G",
+        "10 UN",
+        "100 G",
+        "105 G",
+        "15 G",
+        "150 G",
+        "180 G",
+        "200 G",
+        "21 G",
+        "23 G",
+        "25 G",
+        "27 G",
+        "3.55 KG",
+        "30 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 45,
+      "slug": "peixe",
+      "display_name": "Peixe",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "\"PEIXE PALOMBETA",
+        "BISCUIT BUZIO PEIXE I PEIXE II DEISE",
+        "CABECA DE PEIXE kg",
+        "CALD PEIXE",
+        "CALDINHO DE PEIXE",
+        "CALDINHO DE PEIXE COMPLETO",
+        "CALDINHO PEIXE",
+        "CHANIN PEIXE 10.1KG PROMOCIONAL",
+        "CHANIN PEIXE 10KG",
+        "CHANIN PEIXE 1KG",
+        "CHANIN PEIXE 25KG",
+        "CHANIN PEIXE 25KG - 7897907601149"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "peixe"
+      ],
+      "brands": [],
+      "sizes": [
+        "01 KG",
+        "1 KG",
+        "1 UN",
+        "10 KG",
+        "10.1 KG",
+        "15 KG",
+        "20 KG",
+        "25 KG",
+        "250 G",
+        "290 G",
+        "400 G",
+        "8 KG",
+        "85 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 46,
+      "slug": "sardinha",
+      "display_name": "Sardinha",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "PX SARDINHA EVISCERADA KG",
+        "88 SARDINHA RALADA EM OLEO",
+        "PEIXE SARDINHA",
+        "PEIXE SARDINHA CONGELADA",
+        "PEIXE SARDINHA CONGELADA KG",
+        "PEIXE SARDINHA FRESCA EVISCERADA KG",
+        "PEIXE SARDINHA FRESCA KG",
+        "PEIXE SARDINHA INTEIRA",
+        "PEIXE SARDINHA INTEIRA 6/8 KG",
+        "PEIXE SARDINHA INTEIRA KG",
+        "PEIXE SARDINHA KG",
+        "PX SARDINHA EVISC 100/125G SOUSA PESCADOS 15KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "sardinha"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "110 G",
+        "125 G",
+        "140 G",
+        "15 KG",
+        "250 G",
+        "50 UN",
+        "75 G",
+        "8 KG",
+        "80 G",
+        "88 L",
+        "90 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 47,
+      "slug": "atum",
+      "display_name": "Atum",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ATUM AO MOLHO FRISKI",
+        "ATUM BURGUESA HIB",
+        "ATUM COQUEIRO PEDACOS AO NATURAL 170G",
+        "ATUM COQUEIRO PEDACOS OLEO 170G",
+        "ATUM COQUEIRO PEDACOS OLEO 170G(24) COQUEIRO 170G(",
+        "ATUM COQUEIRO PEDACOS OLEO 170G(24) COQUEIRO 170G(24)",
+        "ATUM COQUEIRO RALADO 170G TOMATE",
+        "ATUM COQUEIRO RALADO NATUR.170G",
+        "ATUM COQUEIRO RALADO NATURAL",
+        "ATUM COQUEIRO RALADO OLEO 170G",
+        "ATUM EM PED GDC AO NATURAL 170G",
+        "ATUM EM PEDACOS O. G. C.120G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "atum",
+        "macarrao barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "120 G",
+        "130 G",
+        "14 G",
+        "150 G",
+        "160 G",
+        "170 G",
+        "290 G",
+        "40 G",
+        "85 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 48,
+      "slug": "mortadela",
+      "display_name": "Mortadela",
+      "category": "meat",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "MORTADELA SADIA MISTA 1KG",
+        "ACRESCIMO MORTADELA",
+        "ADC. MORTADELA",
+        "FATIA BOLONHA OU MORTADELA",
+        "MORTADELA",
+        "MORTADELA  TONY FRANGO KG",
+        "MORTADELA AURORA FRANGO 2,5KG (1 PC)",
+        "MORTADELA AURORA MISTA",
+        "MORTADELA AVES NATTO MINI 400G",
+        "MORTADELA BOLOGNA",
+        "MORTADELA BOLOGNA FATIADA AURORA 180G",
+        "MORTADELA CONF AM GR14KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "macarrao barato",
+        "mortadela"
+      ],
+      "brands": [],
+      "sizes": [
+        "0.400 G",
+        "1 KG",
+        "100 G",
+        "13.2 KG",
+        "14 KG",
+        "180 G",
+        "2.5 KG",
+        "200 G",
+        "3.250 KG",
+        "3.5 KG",
+        "380 G",
+        "4.8 KG",
+        "400 G",
+        "500 G",
+        "6 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 49,
+      "slug": "banana",
+      "display_name": "Banana",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "BANANA NANICA KG",
+        "AG. PITU BANANA LATA 12X350ML",
+        "BANANA",
+        "BANANA  PRATA KG",
+        "BANANA ASSADA",
+        "BANANA CATURRA MADURA KG",
+        "BANANA CHIPS",
+        "BANANA COMPRIDA",
+        "BANANA COMPRIDA  UN",
+        "BANANA CUMPRIDA UNID",
+        "BANANA DA TERRA",
+        "BANANA DA TERRA UND"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "banana"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "10 UN",
+        "100 G",
+        "110 G",
+        "15 G",
+        "160 G",
+        "170 G",
+        "180 G",
+        "24 G",
+        "24 UN",
+        "25 G",
+        "28 ML",
+        "3.5 G",
+        "30 UN"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 50,
+      "slug": "tomate",
+      "display_name": "Tomate",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "TOMATE KG",
+        "211 MOLHO DE TOMATE TRAD. JULIETA SACHET310G(ST)",
+        "AD TOMATE / SANDUICHE",
+        "AD. TOMATE",
+        "Add Tomate",
+        "CLUB SOCIAL RECHEADO TOMATE",
+        "EXT TOMATE BETTI TRAD 190G",
+        "EXT TOMATE PALMEIRON TP 3X270G",
+        "EXT TOMATE QUERO TP",
+        "EXT. TOMATE QUERO 320G TP",
+        "EXT.TOMATE QUERO TP 130G",
+        "EXTRATO DE TOMATE COPO"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "tomate"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "1020 KG",
+        "125 G",
+        "130 G",
+        "190 G",
+        "240 G",
+        "265 G",
+        "270 G",
+        "300 G",
+        "310 G",
+        "320 G",
+        "340 G",
+        "75 G",
+        "85 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 51,
+      "slug": "batata",
+      "display_name": "Batata",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "BATATA INGLESA KG",
+        "AC. BATATA FRITA PQ",
+        "ACOMP PURE DE BATATA",
+        "ADICIONAL DE BATATA FRITA",
+        "BATATA CHIPS  ORIGINAL 17G",
+        "BATATA CHIPS EXTRA",
+        "BATATA CHIPS EXTRA CHURRACSCO GRAVATA 17",
+        "BATATA CHIPS GRAVATA CHUR. 17",
+        "BATATA CROY S TRADICIONAL",
+        "BATATA CROY`S ORIGINAL COM 10",
+        "BATATA DOCE",
+        "BATATA DOCE / KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "batata"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "1.5 KG",
+        "100 G",
+        "104 G",
+        "105 G",
+        "140 G",
+        "15 KG",
+        "16 G",
+        "17 G",
+        "18 G",
+        "2 KG",
+        "20 G",
+        "30 G",
+        "32 G",
+        "33 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 52,
+      "slug": "batata_doce",
+      "display_name": "Batata doce",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "BATATA DOCE",
+        "BATATA DOCE / KG",
+        "BATATA DOCE 1 KG",
+        "BATATA DOCE 1KG",
+        "BATATA DOCE 2 KG",
+        "BATATA DOCE AMERICANA",
+        "BATATA DOCE BRANCA",
+        "BATATA DOCE BRANCA KG",
+        "BATATA DOCE CHIPS COM SAL SERTANITOS 50G",
+        "BATATA DOCE IN NA - 1X1KG",
+        "BATATA DOCE KG",
+        "BATATA DOCE PAGUE MENOS KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "batata",
+        "batata doce"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1.5 KG",
+        "100 G",
+        "15 G",
+        "2 KG",
+        "250 ML",
+        "5 KG",
+        "50 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 53,
+      "slug": "cenoura",
+      "display_name": "Cenoura",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CENOURA KG",
+        "ANA MARIA QD+ CENOURA COM CHOCO 35G UN (DP C/16) 1DPX16X35G",
+        "Am Qd Cenoura Com Ch",
+        "BOLINHO ANAMARIA CENOURA",
+        "BOLINHO DONA BENTA CHO.CENOURA 35G",
+        "BOLO DE  CENOURA SEM COBERTURA",
+        "BOLO DE CENOURA CASEIRO",
+        "BOLO DE CENOURA IFAL",
+        "Bolo De Cenoura 9022",
+        "Bolo de Cenoura (fatia)",
+        "CENOURA",
+        "CENOURA / KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "cenoura"
+      ],
+      "brands": [],
+      "sizes": [
+        "0.35 G",
+        "1 KG",
+        "10 G",
+        "100 G",
+        "120 ML",
+        "2 KG",
+        "275 G",
+        "3 L",
+        "35 G",
+        "400 G",
+        "450 G",
+        "50 UN"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 54,
+      "slug": "alface",
+      "display_name": "Alface",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "AD ALFACE/ SANDUICHE",
+        "AD. ALFACE",
+        "ALFACE",
+        "ALFACE AMERICANA IRENE",
+        "ALFACE AMERICANO UND",
+        "ALFACE AMERICANO UNID",
+        "ALFACE CRESPA",
+        "ALFACE CRESPA ARIEL",
+        "ALFACE CRESPA BELA HORTA",
+        "ALFACE CRESPA HIDROPONICA",
+        "ALFACE CRESPA ROXA UND",
+        "ALFACE CRESPA UN"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "alface"
+      ],
+      "brands": [],
+      "sizes": [
+        "0.25 G",
+        "1 UN",
+        "5 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 55,
+      "slug": "limao",
+      "display_name": "Limão",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "BALAO VERDE LIMAO 6,5 LS JOY 50UN",
+        "BOLINHO AMIDULAR IACIL LIMAO",
+        "COLHER NORDPLAST VERDE LIMAO UNIDADE",
+        "DET ABSOLUTO LIMAO 500ML",
+        "DET.LIQ.ABSOLUTO LIMAO",
+        "DET.LIQ.BRISA LIMAO",
+        "DETER MINUANO LIMAO 500ML",
+        "DETERG BRILUX LIMAO 500ML",
+        "DETERG LIMAO 500ML BRISA",
+        "DETERG LIMPOL LIMAO 500ML",
+        "DETERG LIQ ABSOLUTO LIMAO 500ML",
+        "DETERG LIQ INVICTO LIMAO (12X500ML)"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "limao",
+        "limão"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 L",
+        "150 ML",
+        "18 G",
+        "2 L",
+        "2 UN",
+        "20 G",
+        "200 ML",
+        "230 ML",
+        "250 ML",
+        "3 UN",
+        "30 G",
+        "350 L",
+        "350 ML",
+        "5 G",
+        "50 UN"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 56,
+      "slug": "laranja",
+      "display_name": "Laranja",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "BALAO LARANJA 6,5 JOY 50UN",
+        "ADICIONAL LARANJA COPO",
+        "BACIA LARANJA 35L SAMPLAS",
+        "CHOCO LARANJA EMBARE",
+        "DEL VALLE FRUT LARANJA 450ML",
+        "EMBARE  LARANJA 15G",
+        "EMBARE CHOCO C LARANJA UNI",
+        "ENO LARANJA C/2",
+        "EPAREMA LARANJA FLACONETE",
+        "F LARANJA PERA KG",
+        "FANTA LARANJA 2L",
+        "FANTA LARANJA LATA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "laranja"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "1.5 L",
+        "10 UN",
+        "120 G",
+        "14 UN",
+        "15 G",
+        "15 ML",
+        "18 G",
+        "2 KG",
+        "2 L",
+        "2 UN",
+        "20 KG",
+        "200 ML",
+        "220 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 57,
+      "slug": "maca",
+      "display_name": "Maçã",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ALIANCA ESPAGUETE MACARRAO",
+        "GALO MACARRAO COMUM ESPAGUETE 1X400G",
+        "MACA ESPAGUETE PETYAN 400G",
+        "MACA GALO ESPAGUETE COMUM 400G",
+        "MACAR ESPAGUETE BRANDINI 500G",
+        "MACAR ESPAGUETE COMUM 8 GALO 400G",
+        "MACAR ESPAGUETE GALO 8 500G",
+        "MACAR.PETYAN ESPAGUETE 400G",
+        "MACAR.SELMI GALO ESPAGUETE 400G",
+        "MACARR GALO ESPAGUETE AZ 500G",
+        "MACARRAO ALIANCA",
+        "MACARRAO ALIANCA ESPAGUETE 400G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "maca",
+        "macarrao barato",
+        "macarrao espaguete"
+      ],
+      "brands": [],
+      "sizes": [
+        "400 G",
+        "500 G",
+        "74.3 G",
+        "85 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 58,
+      "slug": "mamao",
+      "display_name": "Mamão",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "MAMAO KG",
+        "ACTIVIA MANHA AMAR MAMAO 170G",
+        "BEB LAC MAC/BAN/MAMAO BATALH CX12X900G",
+        "BEB LAC MAMAO M E BANANA 180G",
+        "BEB. LAC. ENGENHO MAMAO, MACA BAN 900G",
+        "DOCE 680G MAMAO EM CALDA 680G",
+        "DOCE DE MAMAO C COCO S DA FAZENDA",
+        "DOCE DE MAMAO C/ COCO POPULAR 680G",
+        "DOCE DE MAMAO C/ COCO SABORES DA FAZENDA 680G",
+        "DOCE DE MAMAO COM CÕCO 500g",
+        "DOCE DE MAMAO EM CALDA 370G",
+        "DOCE DE MAMAO POPULA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "mamao",
+        "mamão"
+      ],
+      "brands": [],
+      "sizes": [
+        "0.20 G",
+        "1 KG",
+        "1 UN",
+        "100 G",
+        "1150 G",
+        "170 G",
+        "18 G",
+        "180 G",
+        "190 ML",
+        "2 G",
+        "200 G",
+        "210 G",
+        "25 G",
+        "370 G",
+        "500 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 59,
+      "slug": "abobora",
+      "display_name": "Abóbora",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ABOBORA",
+        "ABOBORA  LEITE KG",
+        "ABOBORA 1KG",
+        "ABOBORA A GRANEL",
+        "ABOBORA CABOCLO / KG",
+        "ABOBORA GRELHADA COM EMPANADO",
+        "ABOBORA JACARE KG",
+        "ABOBORA JACAREZ - 1X1KG",
+        "ABOBORA JACAREZINHO KG",
+        "ABOBORA JACAREZINHO kg",
+        "ABOBORA JERIMUM KG",
+        "ABOBORA KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "abobora",
+        "abóbora"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1.6 G",
+        "1.8 G",
+        "10 G",
+        "100 G",
+        "18 G",
+        "180 G",
+        "40 UN",
+        "80 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 60,
+      "slug": "chuchu",
+      "display_name": "Chuchu",
+      "category": "produce",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CHUCHU KG",
+        "CHUCHU",
+        "CHUCHU - UN",
+        "CHUCHU 1KG",
+        "CHUCHU IN NATURA - 1X1KG",
+        "CHUCHU PAGUE MENOS KG",
+        "CHUCHU REDINHA kg",
+        "CHUCHU UN",
+        "CHUCHU UN.",
+        "CHUCHU UND",
+        "CHUCHU UNID",
+        "CHUCHU UNID."
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "chuchu"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 61,
+      "slug": "pao",
+      "display_name": "Pão",
+      "category": "bakery",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "FP PAO FRANCES A KG",
+        "IFOOD PAO FRANCES UN - PADARIA",
+        "MINE PAO FRANCES UNID (POSTO)",
+        "MINI PAO FRANCES PADARIA DO BEN 380G",
+        "MINI PAO FRANCES PANCRISTAL CONG 360G",
+        "Misto A C Pao Frances 3228",
+        "PAO FRANCES",
+        "PAO FRANCES (1UNID) IFOOD",
+        "PAO FRANCES 1 KG",
+        "PAO FRANCES 40G",
+        "PAO FRANCES 50G UND",
+        "PAO FRANCES ASSADO KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "pao",
+        "pao frances"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "360 G",
+        "380 G",
+        "40 G",
+        "50 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 62,
+      "slug": "pao_de_forma",
+      "display_name": "Pão de forma",
+      "category": "bakery",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "PAO DE FORMA SKIN TRAD 450G",
+        "FP PAO FRANCES A KG",
+        "IFOOD PAO FRANCES UN - PADARIA",
+        "MINE PAO FRANCES UNID (POSTO)",
+        "MINI PAO FRANCES PADARIA DO BEN 380G",
+        "Misto A C Pao Frances 3228",
+        "P DIPLOMATA FRANGO PAO FORMA S CASCA UN",
+        "PAO BAUDUCCO INTEGRAL 390G",
+        "PAO COM MANTEIGA NA CHAPA  PAO DE FORMA",
+        "PAO DE F VISCONTI TRAD 400GR",
+        "PAO DE FORMA",
+        "PAO DE FORMA  LEITE SKIN"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "pao de forma",
+        "pao forma",
+        "pao frances",
+        "pão forma"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "12 UN",
+        "35 G",
+        "380 G",
+        "390 G",
+        "400 G",
+        "450 G",
+        "50 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 63,
+      "slug": "pao_frances",
+      "display_name": "Pão francês",
+      "category": "bakery",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "FP PAO FRANCES A KG",
+        "IFOOD PAO FRANCES UN - PADARIA",
+        "MINE PAO FRANCES UNID (POSTO)",
+        "MINI PAO FRANCES PADARIA DO BEN 380G",
+        "MINI PAO FRANCES PANCRISTAL CONG 360G",
+        "Misto A C Pao Frances 3228",
+        "PAO FRANCES",
+        "PAO FRANCES (1UNID) IFOOD",
+        "PAO FRANCES 1 KG",
+        "PAO FRANCES 40G",
+        "PAO FRANCES 50G UND",
+        "PAO FRANCES ASSADO KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "pao frances"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 UN",
+        "360 G",
+        "380 G",
+        "40 G",
+        "50 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 64,
+      "slug": "bolo",
+      "display_name": "Bolo",
+      "category": "bakery",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "MIST P/BOLO ITALAC CHOCO 400G",
+        "BOLO",
+        "BOLO 12943",
+        "BOLO ANA MARIA",
+        "BOLO ANA MARIA BAUNILHA 35G BIMBO",
+        "BOLO ANA MARIA NAPOLITANO 45G/42G BIMBO",
+        "BOLO ANA MARIA QD+ DUPLO CHO.35G",
+        "BOLO BACIA VASCOCELOS 350G",
+        "BOLO BAUDUCCO",
+        "BOLO BRASILEIRA",
+        "BOLO C/5",
+        "BOLO CASEIRO"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "bolo"
+      ],
+      "brands": [],
+      "sizes": [
+        "0.55 KG",
+        "0.75 G",
+        "1 UN",
+        "1.5 KG",
+        "100 G",
+        "150 UN",
+        "300 G",
+        "35 G",
+        "350 G",
+        "380 G",
+        "4 UN",
+        "40 G",
+        "400 G",
+        "42 G",
+        "45 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 65,
+      "slug": "biscoito",
+      "display_name": "Biscoito",
+      "category": "bakery",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "BISCOITO SKIN COQUINHO DOCE 300G",
+        "BISCOITO  PAJUCARA DOCE",
+        "BISCOITO AFA 250G CHOCOLATE",
+        "BISCOITO AFA CHOCOLATE",
+        "BISCOITO AFA CHOCOLATE 250G",
+        "BISCOITO AFA CHOCOLATE 28X250G",
+        "BISCOITO AFA MAROTO CHOCOLATE",
+        "BISCOITO AFA NORA 300G DOCE",
+        "BISCOITO AFA NORA DOCE 300G",
+        "BISCOITO AMANTEIGADO CHOC 120G",
+        "BISCOITO AMANTEIGADO CHOCOLATE 120G",
+        "BISCOITO ARCOR TORTU.RECH.CHOCOLATE FLOWPACK 86G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "biscoito"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "100 G",
+        "110 G",
+        "115 G",
+        "120 G",
+        "130 G",
+        "24 G",
+        "250 G",
+        "30 G",
+        "300 G",
+        "32 G",
+        "330 G",
+        "35 G",
+        "37 G",
+        "375 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 66,
+      "slug": "bolacha",
+      "display_name": "Bolacha",
+      "category": "bakery",
+      "image_url": null,
+      "sefaz_terms_positive": [],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "bolacha"
+      ],
+      "brands": [],
+      "sizes": [],
+      "enabled": true
+    },
+    {
+      "id": 67,
+      "slug": "torrada",
+      "display_name": "Torrada",
+      "category": "bakery",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "TORRADA ESPECIAL KG",
+        "ADICIONAL DE TORRADA",
+        "CASTANHA DE CAJU TORRADA ARTESANALMENTE 110 G",
+        "CASTANHA DE CAJU TORRADA DAKA",
+        "EXTRA TORRADA",
+        "FP TORRADA KG",
+        "FP TORRADA TRAD SDI KG",
+        "IFOOD - TORRADA AMANTEIGADA UN",
+        "MINI TORRADA",
+        "PAO TORRADA",
+        "PORCAO DE TORRADA",
+        "SANDUICHE TORRADA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "torrada"
+      ],
+      "brands": [],
+      "sizes": [
+        "10 UN",
+        "110 G",
+        "12.00 UN",
+        "120 G",
+        "142 G",
+        "150 G",
+        "250 G",
+        "284 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 68,
+      "slug": "pao_de_queijo",
+      "display_name": "Pão de queijo",
+      "category": "bakery",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "PAO DE QUEIJO TRAD MARICOTA 300G",
+        "CONG PAO DE QUEIJO COQUETEL 500GR",
+        "FF PAO DE QUEIJO COQUETEL 10PC",
+        "FF PAO DE QUEIJO TRADICIONAL",
+        "FOOD PAO DE QUEIJO ASSADO",
+        "FOOD PAO DE QUEIJO COQUETEL UN",
+        "FP PAO FRANCES A KG",
+        "MINI PAO DE QUEIJO",
+        "MINI PAO DE QUEIJO 5 UNIDADES",
+        "MINI PAO DE QUEIJO G DE OURO UND",
+        "MINI PAO DE QUEIJO PARMESAO DA FAZENDA",
+        "MIST.P PAO DE QUEIJO LOPES 1KG"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "pao de queijo",
+        "pao frances",
+        "queijo"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "15 G",
+        "300 G",
+        "375 G",
+        "380 G",
+        "400 G",
+        "50 G",
+        "500 G",
+        "6940 UN",
+        "800 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 69,
+      "slug": "cafe",
+      "display_name": "Café",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CAFE MOIDO MARATA 250G",
+        "CAFE  MARATA  250G",
+        "CAFE 3 CORACOES CAPSULA ESPRESSO SUPREMO C 10",
+        "CAFE 3 CORACOES TRAD",
+        "CAFE 3 CORACOES TRADICIONAL 250G",
+        "CAFE 3C TRAD STD S 250G",
+        "CAFE 3CORACOES GOURMET 250G CERRADO",
+        "CAFE 3CORACOES TRAD 250G",
+        "CAFE AFA 200G",
+        "CAFE AFA 200G TORRADO E MOIDO",
+        "CAFE AFA TORRADO E M",
+        "CAFE AFA TORRADO E MOIDO"
+      ],
+      "sefaz_terms_negative": [
+        "CAPPUCCINO",
+        "CARAMELO",
+        "BALA DE CAFÉ"
+      ],
+      "search_queries": [
+        "cafe",
+        "cafe torrado"
+      ],
+      "brands": [
+        "3 Coracoes",
+        "Afa",
+        "Fort",
+        "Kimimo",
+        "Marata",
+        "Pilao"
+      ],
+      "sizes": [
+        "1 UN",
+        "100 G",
+        "194 G",
+        "200 G",
+        "250 G",
+        "500 G",
+        "8 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 70,
+      "slug": "cafe_soluvel",
+      "display_name": "Café solúvel",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CAFE MOIDO MARATA 250G",
+        "CAFE  MARATA  250G",
+        "CAFE 3 CORACOES CAPSULA ESPRESSO SUPREMO C 10",
+        "CAFE 3 CORACOES TRAD",
+        "CAFE 3 CORACOES TRADICIONAL 250G",
+        "CAFE 3C TRAD STD S 250G",
+        "CAFE 3CORACOES GOURMET 250G CERRADO",
+        "CAFE 3CORACOES TRAD 250G",
+        "CAFE AFA 200G",
+        "CAFE AFA 200G TORRADO E MOIDO",
+        "CAFE AFA TORRADO E M",
+        "CAFE AFA TORRADO E MOIDO 200G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "cafe soluvel",
+        "cafe torrado"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "100 G",
+        "200 G",
+        "250 G",
+        "8 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 71,
+      "slug": "agua",
+      "display_name": "Água",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "24X1LT AGUA DESTILA",
+        "ADAPTADOR AGUA CUR 25X3/4 - KRONA",
+        "AGUA 20L",
+        "AGUA 500ML S/GAS",
+        "AGUA BI-DESTILADA INJ 10ML",
+        "AGUA BRILUX BCA 1L",
+        "AGUA C/GAS 500L",
+        "AGUA COM GAS 500L CRYSTAL",
+        "AGUA COM GAS ELEVE 510 ML",
+        "AGUA CRISTAL SG 500ML",
+        "AGUA CRYSTAL 500 ML S/GAS",
+        "AGUA CRYSTAL GARRAFA 500ML SEM GAS"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "agua",
+        "agua sanitaria",
+        "água"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 L",
+        "1 UN",
+        "1.5 L",
+        "10 ML",
+        "10.00 UN",
+        "100 ML",
+        "1000 L",
+        "1000 ML",
+        "12 UN",
+        "15 L",
+        "1500 ML",
+        "2 L",
+        "20 L",
+        "20 UN",
+        "200 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 72,
+      "slug": "refrigerante",
+      "display_name": "Refrigerante",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CANUDOS P/ REFRIGERANTE BIO C/ 80",
+        "H2 0H - Refrigerante de Limão 1,5L",
+        "REFRIGERANTE",
+        "REFRIGERANTE  GOOB GUARANA 230ML",
+        "REFRIGERANTE  POP 2L COLA",
+        "REFRIGERANTE  POP 2L GUARANA",
+        "REFRIGERANTE  POP COLA 2L 6X2L QTD. 2.00",
+        "REFRIGERANTE  POP GUARANA 200ML 12X200ML",
+        "REFRIGERANTE  POP GUARANA 2L",
+        "REFRIGERANTE  POP LARANJA 200ML",
+        "REFRIGERANTE  POP LARANJA 2L",
+        "REFRIGERANTE + POP COLA POPULAR - 200ML"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "refrigerante"
+      ],
+      "brands": [
+        "Coca Cola",
+        "Fanta",
+        "Guarana",
+        "Pepsi"
+      ],
+      "sizes": [
+        "1 L",
+        "1.5 L",
+        "12 UN",
+        "2 L",
+        "200 ML",
+        "220 ML",
+        "230 ML",
+        "237 ML",
+        "250 ML",
+        "350 L",
+        "350 ML",
+        "5 L",
+        "500 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 73,
+      "slug": "coca_cola",
+      "display_name": "Coca cola",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "GARRAFA COCA COLA VIDRO 1L RET(ATUALIZA",
+        "COCA-COLA ZERO LATA 350ML",
+        "CARMED COCA COLA LABIAL VERMELHO 10G",
+        "COCA COLA 0 1 LITRO",
+        "COCA COLA 1 L",
+        "COCA COLA 1,5L",
+        "COCA COLA 1LS",
+        "COCA COLA 1LT LS (VIDRO)",
+        "COCA COLA 200L CACULINHA",
+        "COCA COLA 200ML",
+        "COCA COLA 2L RETORNALVEL",
+        "COCA COLA 2L RETORNAVEL"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "coca cola"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 L",
+        "1 UN",
+        "1.5 L",
+        "10 G",
+        "2 L",
+        "2.5 L",
+        "200 L",
+        "200 ML",
+        "220 ML",
+        "290 ML",
+        "310 ML",
+        "350 ML",
+        "5 L"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 74,
+      "slug": "suco",
+      "display_name": "Suco",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "SUCO TAMPICO TP F.CITRICAS 200ML",
+        "ADIC SUCO C LEITE",
+        "CAIXA DE SUCO PINDORAMA 15UND",
+        "COLHER P/SUCO RECIFE 30CM ORIGINAL SL0503",
+        "FARDO DE SUCO DE LARANJA PINDORAMA C 12 UNID",
+        "GARRAFA DESC.P SUCO QUADR.C TP 1L CRIST",
+        "GARRAFA PARA SUCO C  TP QUAD CRIST 500ML",
+        "GARRAFA PARA SUCO C/ TP 500ML G3550 GALV",
+        "GARRAFA PARA SUCO C/ TP QUAD 300ML CRIS",
+        "GARRAFA PARA SUCO C/TP 500ML G3530 GAL",
+        "MARATA SUCO ACEROLA 25G",
+        "MARATA SUCO/PO LIMAO 25G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "suco"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 L",
+        "1 UN",
+        "1.5 L",
+        "1000 ML",
+        "12 UN",
+        "15 G",
+        "15 UN",
+        "150 ML",
+        "18 G",
+        "180 ML",
+        "2 L",
+        "20 G",
+        "200 ML",
+        "220 ML",
+        "25 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 75,
+      "slug": "cerveja",
+      "display_name": "Cerveja",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "cerveja"
+      ],
+      "brands": [],
+      "sizes": [],
+      "enabled": true
+    },
+    {
+      "id": 76,
+      "slug": "cha",
+      "display_name": "Chá",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "LIMP C&P CHA BRANCO 1L",
+        "AKABE CHA 500 ML",
+        "BIC CASA DO CHA 40G",
+        "BOLDO CASA DO CHA 10G",
+        "BULE DE CHA",
+        "CASA DO CHA SAL ROSA 100G",
+        "CHA  KISABOR  HORTELA 15G",
+        "CHA ,CONDIMENTOS,CANELA",
+        "CHA ALECRIM GRANEL KG",
+        "CHA BOLDO",
+        "CHA BOLDO BOM D MAIS",
+        "CHA BOLDO DO CHILE 10 UND"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "cha",
+        "chá"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 G",
+        "1 L",
+        "1 UN",
+        "1.6 G",
+        "1.8 L",
+        "10 G",
+        "10 UN",
+        "100 G",
+        "100 ML",
+        "15 G",
+        "15 UN",
+        "1750 ML",
+        "18 G",
+        "2 L",
+        "20 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 77,
+      "slug": "achocolatado",
+      "display_name": "Achocolatado",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "achocolatado"
+      ],
+      "brands": [],
+      "sizes": [],
+      "enabled": true
+    },
+    {
+      "id": 78,
+      "slug": "agua_de_coco",
+      "display_name": "Água de coco",
+      "category": "beverages",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "SAB EVEN AGUA DE COCO 85G",
+        "AGUA BRILUX BCA 1L",
+        "AGUA COCO BOM 2L - 1X2L",
+        "AGUA COCO INT CAMPO LARGO 900ML",
+        "AGUA COCO JUQ.TP 200ml",
+        "AGUA COCO KI DELICIA300ML",
+        "AGUA COCO KIDELICIA 300ML",
+        "AGUA COCO MAIS MARACUJA 200ML",
+        "AGUA COCO SOCOCO 200ML MAIS UVA - 1X200ML",
+        "AGUA COCO SOCOCO FRUTAS VERMELHAS 200ML",
+        "AGUA COCO SOCOCO MAIS F VERM 200ML",
+        "AGUA COCO SOCOCO TP 200ML TANGERINA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "agua de coco",
+        "agua",
+        "agua sanitaria"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 L",
+        "1.8 L",
+        "2 L",
+        "200 ML",
+        "250 ML",
+        "27.9 G",
+        "279 G",
+        "30 G",
+        "300 ML",
+        "330 ML",
+        "400 ML",
+        "430 G",
+        "480 ML",
+        "500 ML",
+        "510 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 79,
+      "slug": "salgadinho",
+      "display_name": "Salgadinho",
+      "category": "snacks",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "FANDANGOS SALGADINHO",
+        "IFOOD - SALGADINHO QUEIJO UN",
+        "P SALGADINHO BACON KG",
+        "PRATINHO DE SALGADINHO",
+        "PT SALGADINHO",
+        "SALGADINHO",
+        "SALGADINHO BELIVE PRESUNTO MILHO E QUINO",
+        "SALGADINHO BELLOS PAES KG",
+        "SALGADINHO BRAZITOS RED CHILLI 30X30G",
+        "SALGADINHO CHEETOS BOLA 34G",
+        "SALGADINHO CHEETOS LUA PARMESAO 34G",
+        "SALGADINHO CHURRASCO POPCROC 30G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "salgadinho"
+      ],
+      "brands": [],
+      "sizes": [
+        "100 G",
+        "104 G",
+        "13 G",
+        "130 G",
+        "15 G",
+        "150 G",
+        "220 G",
+        "27 G",
+        "30 G",
+        "300 G",
+        "32 G",
+        "34 G",
+        "35 G",
+        "37 G",
+        "38 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 80,
+      "slug": "pipoca",
+      "display_name": "Pipoca",
+      "category": "snacks",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "MILHO PIPOCA TURQUESA",
+        "MILHO DE PIPOCA 500G",
+        "MILHO DE PIPOCA CORINGA 500G",
+        "MILHO DE PIPOCA DONA CLARA 400G",
+        "MILHO DE PIPOCA GRAO VERDE",
+        "MILHO DE PIPOCA GRAO VERDE PCT 500G",
+        "MILHO DE PIPOCA MARATA 500GR",
+        "MILHO DE PIPOCA MUI NOBRE 500G",
+        "MILHO DE PIPOCA MUI NOBRE TP1 500G",
+        "MILHO DE PIPOCA PREDILETO 500G",
+        "MILHO DE PIPOCA PREMIUM TURQUESA TP-1 30",
+        "MILHO DE PIPOCA SANTA CLARA"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "pipoca"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "10 G",
+        "100 G",
+        "100 UN",
+        "14 G",
+        "15 G",
+        "20 UN",
+        "30 G",
+        "40 G",
+        "400 G",
+        "45 G",
+        "50 UN",
+        "500 G",
+        "500 UN",
+        "65 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 81,
+      "slug": "chocolate",
+      "display_name": "Chocolate",
+      "category": "snacks",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CAFE L'OR CAPPUCCINO CHOCOLATE UN",
+        "ACHOC.ITALAC CHOCOLATE 200ML",
+        "ACHOC.SABE CHOCOLATE 1L",
+        "ACHOCOLATADO DAMARE KIDS CHOCOLATE",
+        "ACHOCOLATADO PIRAKIDS 200ML CHOCOLATE TP",
+        "BALA BUTTER TOFFEES CHOCOLATE 90G",
+        "BALA CARAMELO CHOCOLATE",
+        "BALA CHOCOLATE",
+        "BALA TOFFEE CHOCOLATE",
+        "BATOM GAROTO CHOCOLATE BRANCO",
+        "BATON CHOCOLATE AO LEITE",
+        "BATON CHOCOLATE BRANCO ( 30UN X16G )"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "chocolate"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 KG",
+        "1 L",
+        "1 UN",
+        "110 G",
+        "112 G",
+        "12 UN",
+        "120 G",
+        "125 UN",
+        "130 G",
+        "16 G",
+        "18 G",
+        "200 ML",
+        "21.5 G",
+        "250 G",
+        "26 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 82,
+      "slug": "amendoim",
+      "display_name": "Amendoim",
+      "category": "snacks",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "AMENDOIM JAPONES AMENDUPA 400G",
+        "ADC AMENDOIM",
+        "AMENDOIM",
+        "AMENDOIM  GRELHADITOS S/ PELE SALGADO24G",
+        "AMENDOIM  SANT HELENA MENDORATO24G",
+        "AMENDOIM 070 GR QDIVERTE COLORIDO 70 GRS CXA.C/30X1 UND",
+        "AMENDOIM 150G JAPONES QLIGA SALGADO",
+        "AMENDOIM AMAFIL S CASCA 500G",
+        "AMENDOIM BRANCO RUNNER 250G",
+        "AMENDOIM CLARO AMAFIL 500G",
+        "AMENDOIM COLORIDO CONF",
+        "AMENDOIM COLORIDO KUKY 70G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "amendoim"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "1.500 KG",
+        "100 G",
+        "120 G",
+        "15 G",
+        "150 G",
+        "20 G",
+        "200 G",
+        "24 G",
+        "250 G",
+        "27 G",
+        "30 G",
+        "40 G",
+        "400 G",
+        "45 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 83,
+      "slug": "batata_chips",
+      "display_name": "Batata chips",
+      "category": "snacks",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ACOMP PURE DE BATATA",
+        "BARULHINHO CHIPS BATATA DOCE 50G",
+        "BATATA AMAVITA CHIPS CHURRASCO",
+        "BATATA CHIPS",
+        "BATATA CHIPS  ORIGINAL 17G",
+        "BATATA CHIPS 17g CEBOLA E SALSA",
+        "BATATA CHIPS CAST. PIANCO 30G",
+        "BATATA CHIPS CEBOLITOS 21G",
+        "BATATA CHIPS CHEETOS 21G ONDA REQUEIJAO",
+        "BATATA CHIPS CROCCHIPS NATURAL 40G 12X40G QTD. 1.00 CX",
+        "BATATA CHIPS CX C/20/17 G",
+        "BATATA CHIPS DO REI"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "batata chips",
+        "batata",
+        "batata doce"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "1.5 KG",
+        "100 G",
+        "104 G",
+        "115 G",
+        "16 G",
+        "17 G",
+        "183 G",
+        "2 KG",
+        "20 G",
+        "21 G",
+        "210 G",
+        "30 G",
+        "32 G",
+        "33 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 84,
+      "slug": "barra_de_cereal",
+      "display_name": "Barra de cereal",
+      "category": "snacks",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "BARRA CEREAL CORPO&SABOR 25G FRUTAS LIGH - 36.05",
+        "BARRA CEREAL CORPO&SABOR 25G MAC UVA - 36.05",
+        "BARRA CEREAL GRANOF. MORANG/CHOCO 20G",
+        "BARRA CEREAL GRANOFIBRA BAN/AV/MEL 20G",
+        "BARRA CEREAL GRANOFIBRA BANANA E MEL 20G",
+        "BARRA CEREAL GRANOFIBRA BRIGADEIRO 20G",
+        "BARRA CEREAL GRANOFIBRA BRIGADEIRO 24X20G",
+        "BARRA CEREAL GRANOFIBRA BROWNIE 20G",
+        "BARRA CEREAL GRANOFIBRA COCO CHOC.20G",
+        "BARRA CEREAL GRANOFIBRA COCO/",
+        "BARRA CEREAL KOBBER CASTANHA CHOC 18G",
+        "BARRA CEREAL MORANGO CHOCOLATE CLASSIC KOBBER 20G"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "barra de cereal",
+        "barra cereal",
+        "barra cereal barato",
+        "comprar barra cereal"
+      ],
+      "brands": [],
+      "sizes": [
+        "18 G",
+        "20 G",
+        "22 G",
+        "24 G",
+        "25 G",
+        "30 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 85,
+      "slug": "sabao_em_po",
+      "display_name": "Sabão em pó",
+      "category": "cleaning",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "6 PORTA SABAO EM PO DE PLASTICO CAPUCCINO",
+        "SABAO EM PO",
+        "SABAO EM PO ABSOLUTO",
+        "SABAO EM PO ABSOLUTO 400G",
+        "SABAO EM PO ABSOLUTO 500G",
+        "SABAO EM PO ABSOLUTO COCO 400G",
+        "SABAO EM PO ABSOLUTO S.PLAST 400G",
+        "SABAO EM PO ABSOLUTO TRAD 500G",
+        "SABAO EM PO ABSOLUTO TRDICIONAL 400G",
+        "SABAO EM PO ACTION 800G LAVANDA",
+        "SABAO EM PO ALA 1,6KG LAVANDA - 1X1,6KG",
+        "SABAO EM PO ALA 400G"
+      ],
+      "sefaz_terms_negative": [
+        "SABONETE",
+        "SABAO LIQUIDO"
+      ],
+      "search_queries": [
+        "sabao em po",
+        "sabão em pó"
+      ],
+      "brands": [
+        "Brilhante",
+        "Omo",
+        "Tixan",
+        "Ype"
+      ],
+      "sizes": [
+        "1 KG",
+        "1.6 KG",
+        "4 KG",
+        "400 G",
+        "500 G",
+        "6 KG",
+        "800 G",
+        "800 KG"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 86,
+      "slug": "detergente",
+      "display_name": "Detergente",
+      "category": "cleaning",
+      "image_url": null,
+      "sefaz_terms_positive": [],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "detergente"
+      ],
+      "brands": [],
+      "sizes": [],
+      "enabled": true
+    },
+    {
+      "id": 87,
+      "slug": "agua_sanitaria",
+      "display_name": "Água sanitária",
+      "category": "cleaning",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "AGUA SANITARIA CLORITO 1L",
+        "AGUA SANITARIA",
+        "AGUA SANITARIA - 5LT VALENCI",
+        "AGUA SANITARIA 1L LIMPO+ - 1X1L",
+        "AGUA SANITARIA AQUAPLUS (1LT) -7898592800329",
+        "AGUA SANITARIA AQUAPLUS 1L",
+        "AGUA SANITARIA BEM TE VI 12X1L",
+        "AGUA SANITARIA BEM-T",
+        "AGUA SANITARIA BRILUX BRANCA L1000 P900ML",
+        "AGUA SANITARIA BRILUX LV2LPG1,8L",
+        "AGUA SANITARIA CLORITO",
+        "AGUA SANITARIA CLORITO 1 LITRO"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "agua sanitaria",
+        "água sanitária"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 L",
+        "1.8 L",
+        "10.00 UN",
+        "1000 ML",
+        "2 L",
+        "5 L",
+        "900 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 88,
+      "slug": "amaciante",
+      "display_name": "Amaciante",
+      "category": "cleaning",
+      "image_url": null,
+      "sefaz_terms_positive": [],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "amaciante"
+      ],
+      "brands": [],
+      "sizes": [],
+      "enabled": true
+    },
+    {
+      "id": 89,
+      "slug": "desinfetante",
+      "display_name": "Desinfetante",
+      "category": "cleaning",
+      "image_url": null,
+      "sefaz_terms_positive": [],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "desinfetante"
+      ],
+      "brands": [],
+      "sizes": [],
+      "enabled": true
+    },
+    {
+      "id": 90,
+      "slug": "esponja",
+      "display_name": "Esponja",
+      "category": "cleaning",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ESPONJA BRILHUS MULTIUSO",
+        "ABRASIVO ESPONJA ALKLIN DUPLA FACE UND CXA.C/60X1 UND 789775",
+        "BOB ESPONJA BATAVINHO BDJ",
+        "CABELO MAGICO BOB ESPONJA MINI",
+        "ESPONJA  JEITOSA MULTIUSO 1UN",
+        "ESPONJA ALKIN",
+        "ESPONJA ALKIN DUPLA FACE UND",
+        "ESPONJA ALKLIN",
+        "ESPONJA ALKLIN DUPLA FACE",
+        "ESPONJA ALKLIN UND",
+        "ESPONJA ASSOLAN C/8",
+        "ESPONJA ASSOLAN C/8UND."
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "esponja"
+      ],
+      "brands": [],
+      "sizes": [
+        "01 UN",
+        "062 UN",
+        "1 UN",
+        "12 UN",
+        "1556 UN",
+        "3 UN",
+        "4 UN",
+        "451 UN",
+        "60 UN",
+        "600 ML",
+        "7772 UN",
+        "8 UN"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 91,
+      "slug": "papel_toalha",
+      "display_name": "Papel toalha",
+      "category": "cleaning",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "PAPEL TOALHA MALU FD 2R 50F",
+        "COPO PAPEL TOALHA SORELA C/110",
+        "PAPEL TOALHA  MALU 50FLS",
+        "PAPEL TOALHA 100FLS MALU",
+        "PAPEL TOALHA 2/ROLO ABSOLUTO",
+        "PAPEL TOALHA 2UND 100FLS FAMILIAR",
+        "PAPEL TOALHA 50FLS FAMILIA 02X50",
+        "PAPEL TOALHA 6303",
+        "PAPEL TOALHA AURORA 100UND",
+        "PAPEL TOALHA BONAMESA 100FLS",
+        "PAPEL TOALHA BONAMESA 50F FOLHA DUPLA - 1X1UN",
+        "PAPEL TOALHA CAPRICE"
+      ],
+      "sefaz_terms_negative": [
+        "PAPEL HIGIENICO"
+      ],
+      "search_queries": [
+        "papel toalha"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 UN",
+        "100 UN",
+        "1000 UN",
+        "120 UN",
+        "2 UN",
+        "50 UN",
+        "55 UN",
+        "60 UN"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 92,
+      "slug": "saco_de_lixo",
+      "display_name": "Saco de lixo",
+      "category": "cleaning",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "1467 SACO LIXO 100L ALMOF ECONOMICO",
+        "SACO BRILHUS LIXO 100L 5UN",
+        "SACO BRILHUS LIXO 30L",
+        "SACO BRILHUS LIXO ALMOF.30L 1X10UN",
+        "SACO BRILHUS LIXO ALMOFADA 100L 5UN",
+        "SACO BRILHUS LIXO ALMOFADA 15L",
+        "SACO DE LIXO 100L",
+        "SACO DE LIXO 100LT AZULZINHO",
+        "SACO DE LIXO 60L M3 BRANCO INF",
+        "SACO DE LIXO ARASIL 100L C/ 5UN",
+        "SACO DE LIXO AZUL ARASA 50L",
+        "SACO DE LIXO IMPLAST AZUL ROLO 15L C/60"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "saco de lixo",
+        "comprar saco lixo",
+        "saco lixo",
+        "saco lixo barato"
+      ],
+      "brands": [],
+      "sizes": [
+        "10 UN",
+        "100 L",
+        "100 UN",
+        "100200 L",
+        "110 L",
+        "15 L",
+        "20 KG",
+        "20 L",
+        "20 UN",
+        "200 L",
+        "25 UN",
+        "30 L",
+        "30 UN",
+        "304 UN",
+        "40 L"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 93,
+      "slug": "sabonete",
+      "display_name": "Sabonete",
+      "category": "hygiene",
+      "image_url": null,
+      "sefaz_terms_positive": [],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "sabonete"
+      ],
+      "brands": [],
+      "sizes": [],
+      "enabled": true
+    },
+    {
+      "id": 94,
+      "slug": "shampoo",
+      "display_name": "Shampoo",
+      "category": "hygiene",
+      "image_url": null,
+      "sefaz_terms_positive": [],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "shampoo"
+      ],
+      "brands": [],
+      "sizes": [],
+      "enabled": true
+    },
+    {
+      "id": 95,
+      "slug": "creme_dental",
+      "display_name": "Creme dental",
+      "category": "hygiene",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "CR DENTAL ANTICARIES ORAL-B 70G",
+        "CR DENTAL COLG MAX PROT ANT 180G",
+        "CR DENTAL COLG MAXIMA PROT ANTI CARIES 5",
+        "CR DENTAL COLG TOTAL 12 CARVAO ATIVADO 1",
+        "CR DENTAL COLG TOTAL CARVAO ATICADO 9OG",
+        "CR DENTAL COLG. TOTAL PREVENC. ANTI-TAR 90",
+        "CR DENTAL COLGATE 50G",
+        "CR DENTAL COLGATE LUMINOUS WHITE C COR 7",
+        "CR DENTAL COLGATE MAX PROT ANTICARIE 120",
+        "CR DENTAL COLGATE MAX PROT ANTICARIES 90",
+        "CR DENTAL COLGATE MENTA REFRESC 180G",
+        "CR DENTAL COLGATE WHITENING 90G*"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "creme dental"
+      ],
+      "brands": [
+        "Close Up",
+        "Colgate",
+        "Oral-B",
+        "Sensodyne",
+        "Sorriso"
+      ],
+      "sizes": [
+        "100 UN",
+        "12 G",
+        "120 G",
+        "140 G",
+        "150 G",
+        "180 G",
+        "50 G",
+        "70 G",
+        "90 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 96,
+      "slug": "papel_higienico",
+      "display_name": "Papel higiênico",
+      "category": "hygiene",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "PAPEL HIG FAMILIAR F.DUPL 30MT 4UN NEUTR",
+        "PAPEL HIGIENICO 30M MILI FOLHA DUPLA NEUTRO",
+        "PAPEL HIGIENICO 6248",
+        "PAPEL HIGIENICO BIANCO C/04 60",
+        "PAPEL HIGIENICO BIANCO C/12",
+        "PAPEL HIGIENICO BIANCO MILI 60 M",
+        "PAPEL HIGIENICO CAPRICE 30MTRS",
+        "PAPEL HIGIENICO COTTON FOLHA DUPLA NEUTRO",
+        "PAPEL HIGIENICO DANY 30M 4ROLOS",
+        "PAPEL HIGIENICO DANY NEUTRO 10CM.",
+        "PAPEL HIGIENICO DANY NEUTRO 4X30M",
+        "PAPEL HIGIENICO FAMILIAR 20M"
+      ],
+      "sefaz_terms_negative": [
+        "PAPEL TOALHA"
+      ],
+      "search_queries": [
+        "papel higienico",
+        "papel higiênico"
+      ],
+      "brands": [],
+      "sizes": [
+        "12 UN",
+        "4 UN",
+        "8 UN"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 97,
+      "slug": "desodorante",
+      "display_name": "Desodorante",
+      "category": "hygiene",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "000340Locao Hidratante Desodorante Corporal Strax 240ml",
+        "DESODORANTE",
+        "DESODORANTE ABOVE AEROSOL ONE LAVANDA 150ML",
+        "DESODORANTE ABOVE WOMEN SPORT ENERGY",
+        "DESODORANTE AER DOVE ORIGINAL",
+        "DESODORANTE AER NIVEA DRY FOR MEN 150ML",
+        "DESODORANTE AER REXONA POWDER 150ML",
+        "DESODORANTE AER.AMBIENTE GLADE L.INFAN 20%DES",
+        "DESODORANTE AER.MONANGE DRY SEM PERFUME",
+        "DESODORANTE AERO ABOVE CLASSIC WOMEN 150",
+        "DESODORANTE AEROSOL DOVE",
+        "DESODORANTE AEROSOL DOVE ORIGINAL 150ML"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "desodorante"
+      ],
+      "brands": [],
+      "sizes": [
+        "055 G",
+        "100 ML",
+        "116 G",
+        "150 G",
+        "150 ML",
+        "152 ML",
+        "200 ML",
+        "240 G",
+        "240 ML",
+        "250 ML",
+        "30 ML",
+        "50 ML",
+        "55 G",
+        "80 ML",
+        "87 G"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 98,
+      "slug": "condicionador",
+      "display_name": "Condicionador",
+      "category": "hygiene",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "ANI+ CONDICIONADOR PARA PETS 280ML",
+        "CONDICIONADOR",
+        "CONDICIONADOR  XUXINHA  SONO TRANQUILO BARUEL 210M",
+        "CONDICIONADOR 12 ERVAS 400ML",
+        "CONDICIONADOR 1L",
+        "CONDICIONADOR 300ML TURBO 10",
+        "CONDICIONADOR 325ML SEDA CERAMIDAS",
+        "CONDICIONADOR 5 L CEREJA AVELA",
+        "CONDICIONADOR BABOSA + OLEOS SEDA 325ML",
+        "CONDICIONADOR BABOSA E QUIABO NATURY 500ML KOSNATTUS",
+        "CONDICIONADOR CAVALO FORTE 300ML",
+        "CONDICIONADOR CAVALO PRETO BEL CORPUS 380ML"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "condicionador"
+      ],
+      "brands": [],
+      "sizes": [
+        "1 L",
+        "1.2 KG",
+        "1030 ML",
+        "120 ML",
+        "175 ML",
+        "2.5 KG",
+        "2.5 L",
+        "200 ML",
+        "210 ML",
+        "220 ML",
+        "250 ML",
+        "260 ML",
+        "280 ML",
+        "300 ML",
+        "325 ML"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 99,
+      "slug": "fralda",
+      "display_name": "Fralda",
+      "category": "baby",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "2004800#96190000# FRALDA DESC.PUFFY BABY XG 1/24UN",
+        "FRALDA HUGGIES ROUP SUP HIP M 72UN",
+        "FITA ADESIVA P/ FRALDA AZUL 19 X 20M",
+        "FITA ADESIVA P/FRALDA ROSA 19X20M",
+        "FITA CREMER P/ FRALDA ROSA",
+        "FITA P FRALDA ADELBRAS AZUL",
+        "FITA P FRALDA CREMER AZUL",
+        "FITA P/FRALDA AZUL",
+        "FITA P/FRALDA ROSA",
+        "FITA PARA FRALDA AZUL",
+        "FITA PARA FRALDA CREMER BRANCA 20M 1UND",
+        "FITA PARA FRALDA CREMER ROSA 20M 1UND"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "fralda"
+      ],
+      "brands": [],
+      "sizes": [
+        "05 UN",
+        "1 UN",
+        "10 UN",
+        "12 UN",
+        "121.8 G",
+        "14 UN",
+        "16 UN",
+        "18 UN",
+        "20 UN",
+        "22 UN",
+        "24 UN",
+        "28 UN",
+        "30 UN",
+        "32 UN",
+        "34 UN"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 100,
+      "slug": "racao",
+      "display_name": "Ração",
+      "category": "pet",
+      "image_url": null,
+      "sefaz_terms_positive": [
+        "RACAO TUTTICANIS ECON KG",
+        "211 RACAO TUTTICATIS 30 PROT MIX 1X25KG(ST)",
+        "IRCA RACAO PINTOS KG",
+        "MILHO RACAO KG",
+        "RACAO",
+        "RACAO ADULTO TUTTICANIS ECON",
+        "RACAO ALPISTE T VIEIRA 20X500GR",
+        "RACAO BOI PESADO 18  40KG",
+        "RACAO BRODDY 25KG",
+        "RACAO CACHORRO SABOROSSO KG",
+        "RACAO CALOPSITA E AGAPORNIS",
+        "RACAO CANARIO"
+      ],
+      "sefaz_terms_negative": [],
+      "search_queries": [
+        "racao",
+        "ração"
+      ],
+      "brands": [],
+      "sizes": [
+        "100 G",
+        "100 UN",
+        "14 KG",
+        "15 KG",
+        "20 KG",
+        "200 G",
+        "25 KG",
+        "250 G",
+        "40 G",
+        "40 KG",
+        "5 KG",
+        "500 G",
+        "85 G",
+        "85 UN",
+        "900 G"
+      ],
+      "enabled": true
+    }
+  ]
+}

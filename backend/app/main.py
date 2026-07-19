@@ -33,9 +33,13 @@ _ALLOWED_HEADERS = [
 from .analytics import Analytics
 from .cache import Cache
 from .config import get_settings
+from .services.catalog.manager import get_catalog
 from .services.llm.factory import build_llm_client
+from .services.llm.validation_client import build_validation_llm
 from .services.secrets import SecretStore
 from .services.sefaz.factory import build_sefaz_client
+from .services.training.flags import get_flag_store
+from .services.training.scheduler import start_training_scheduler
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
@@ -77,9 +81,19 @@ async def lifespan(app: FastAPI):
     )
     app.state.sefaz = build_sefaz_client(settings, app.state.secrets)
     app.state.llm = build_llm_client(settings)
+
+    # Catalog subsystem: prime singletons from config paths (empty = bundled
+    # default), build the validation/training LLM, and start the daily scheduler.
+    app.state.catalog = get_catalog(settings.product_catalog_path or None)
+    app.state.flag_store = get_flag_store(settings.training_flags_path or None)
+    app.state.validation_llm = build_validation_llm(settings)
+    app.state.training_scheduler = start_training_scheduler(app)
     try:
         yield
     finally:
+        sched = getattr(app.state, "training_scheduler", None)
+        if sched is not None:
+            await sched.stop()
         await app.state.cache.aclose()
         await app.state.sefaz.aclose()
 
@@ -121,10 +135,11 @@ def create_app() -> FastAPI:
             TrustedHostMiddleware, allowed_hosts=settings.allowed_host_list
         )
 
-    from .api.routes import admin, device, feedback, health, search, suggestions
+    from .api.routes import admin, catalog, device, feedback, health, search, suggestions
 
     app.include_router(health.router)
     app.include_router(search.router)
+    app.include_router(catalog.router)
     app.include_router(suggestions.router)
     app.include_router(device.router)
     app.include_router(feedback.router)

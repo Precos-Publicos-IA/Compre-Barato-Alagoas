@@ -72,3 +72,10 @@ shared-assets/*.xcf
 backend/data/training-datasets/collect.log
 backend/data/training-datasets/*.plan.json
 backend/data/training-datasets/*.partial.jsonl
+
+# --- Catalog runtime state (written by search hot-path + training job) ---
+# The seed product_catalog.json IS tracked; these are per-deploy runtime files
+# that live on the catalogdata volume, not in git.
+backend/data/training_flags.json
+backend/data/product_requests.json
+backend/data/*.tmp

@@ -40,6 +40,20 @@ def get_secrets(request: Request) -> SecretStore:
     return request.app.state.secrets
 
 
+def get_catalog_dep(request: Request):
+    """The primed catalog singleton (path from config)."""
+    return request.app.state.catalog
+
+
+def get_flag_store_dep(request: Request):
+    return request.app.state.flag_store
+
+
+def get_validation_llm(request: Request):
+    """The catalog validation/training LLM, or None in mock/no-key mode."""
+    return getattr(request.app.state, "validation_llm", None)
+
+
 # Pseudo-anonymous device identity: the client sends a high-entropy opaque token
 # (generated once, kept in the device's secure storage) as a bearer credential.
 # Treated like a password — never logged.
