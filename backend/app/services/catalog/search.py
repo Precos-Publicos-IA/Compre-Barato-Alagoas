@@ -160,9 +160,12 @@ async def run_catalog_search(
                 offers = [o for r in resp.conteudo if (o := normalize_offer(r)) is not None]
                 return pid, offers, True
 
+        # Run this product's queries concurrently (bounded by the shared
+        # semaphore). Serial would multiply the ~30-50s live-SEFAZ latency per
+        # query and blow the proxy timeout (nginx 504).
         registros: list = []
-        for query in queries:
-            registros.extend(await _run_one_query(query))
+        for rows in await asyncio.gather(*[_run_one_query(q) for q in queries]):
+            registros.extend(rows)
 
         # Cache the merged result at the product level for future nearby searches.
         if geo_cache and registros:
