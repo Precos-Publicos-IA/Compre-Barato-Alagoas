@@ -1,0 +1,37 @@
+{
+  "created_at": "2026-07-19T11:20:29.270440+00:00",
+  "api_base": "https://alagoas.precospublicos.ia.br",
+  "target": 10000,
+  "unique_success_ids": 10000,
+  "jsonl_lines": 10000,
+  "http_200_with_response": 10000,
+  "out": "backend/data/training-datasets/alagoas_search_10k.jsonl",
+  "fixture": "/code/alagoas/Compre-Barato-Alagoas/backend/tests/fixtures/shopping_list_100.json",
+  "radius_km": 8,
+  "days": 7,
+  "seed": 42,
+  "concurrency": 12,
+  "anchors": 40,
+  "data_sources": {
+    "web": 14,
+    "sefaz": 9986
+  },
+  "top_places": {
+    "Maceió - Centro": 250,
+    "Maceió - Ponta Verde": 250,
+    "Maceió - Farol": 250,
+    "Maceió - Tabuleiro": 250,
+    "Satuba": 250,
+    "Maceió - Jatiúca": 250,
+    "Maceió - Cruz das Almas": 250,
+    "Maceió - Benedito Bentes": 250,
+    "Rio Largo": 250,
+    "Santa Luzia do Norte": 250,
+    "Marechal Deodoro": 250,
+    "Arapiraca": 250,
+    "Barra de São Miguel": 250,
+    "Coqueiro Seco": 250,
+    "Pão de Açúcar": 250
+  },
+  "reached_target": true
+}

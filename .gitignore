@@ -68,5 +68,7 @@ shared-assets/*.xcf
 .grok/status/*_unix
 .grok/status/*_start
 
-# --- Generated training datasets (large JSONL from live API) ---
-backend/data/training-datasets/
+# --- Training datasets: keep JSONL/manifest/README; ignore logs/temp ---
+backend/data/training-datasets/collect.log
+backend/data/training-datasets/*.plan.json
+backend/data/training-datasets/*.partial.jsonl
