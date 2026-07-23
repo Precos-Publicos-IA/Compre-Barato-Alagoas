@@ -4,6 +4,7 @@
 |-------|--------|
 | **Worker** | W-m2-label |
 | **When (UTC)** | 2026-07-23 |
+| **Ship SHA** | `56ff4a509a70145e7c95b28d3c165f0754c16b1d` (`56ff4a5`) |
 | **Plan** | `docs/self-improving-matching-plan.md` Phase 2 |
 | **Testing policy** | Backend/function first — pytest only; no UI matrix |
 | **Prior** | M0+M1 `5a16961` / tip was `4274a20` |
@@ -57,5 +58,5 @@ pytest tests/test_labeler.py tests/test_outcome_log.py tests/test_intent_heads.p
 ## Git
 
 ```text
-(see commit after push)
+56ff4a5 feat(match): Phase 2 auto_label (head-safe outcome labels)
 ```
