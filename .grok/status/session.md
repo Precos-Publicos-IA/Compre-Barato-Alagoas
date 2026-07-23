@@ -1,56 +1,55 @@
 # Session status
 
-Last update: 2026-07-23T20:15Z W-b2-verify — staple warm/fetch smoke **HARD_BLOCKED** (evidence closed; SLO not green)
+Last update: 2026-07-23T20:10Z W-b2-resmoke — B2-verify **DONE** (warm SLO pass post `9dd136b`)
 
 ## Project lock
 **HARD** Alagoas only.
 
 ## Goal
-Self-improving matching MVP complete; staple fetch **HARD_BLOCKED** with agent accent fix pending deploy + re-probe.
+Matching MVP M0–M4 shipped; B2 fetch hard-block **cleared** post accent-fold deploy; advance Phase 5 lexicon.
 
 ## Testing policy
-Backend/function only for matching — no full UI matrix.
+Backend/function only for matching — no full UI matrix. Live smoke serial CONCURRENCY=1 only.
 
 ## Phase
-**MVP measure loop DONE** — **B2-verify HARD_BLOCKED** (live fetch); next: deploy accent/staple fix + re-smoke; optional P5 lexicon
+**MVP measure loop DONE** (M0–M4). **B2-verify DONE** (warm staple SLO pass after resmoke). **M5 lexicon ACTIVE**.
 
 ## Must-complete
 | # | Status |
 |---|--------|
 | A–K prior | **DONE** |
-| **M0** | **DONE** `5a16961` |
-| **M1** | **DONE** `5a16961` |
-| **M2** | **DONE** `56ff4a5` |
-| **M3** | **DONE** `cf851c3` / `3ae1f52` |
-| **M4** | **DONE** `cc2807f` — report `worker_w_m4_measure_report.md` |
-| **B2-verify** | **HARD_BLOCKED** — live REGRESSED (pass1 found 0.14 / fail 0.86; pass2 found 0.29 / fail 0.43 + 502s). Reason: SEFAZ ~55s empties + accent miss (`feijão`≠`feijao` cache) + prewarm insufficient for accented/singular terms. Wiring `PREWARM_STAPLES` OK. Evidence: `worker_w_b2_verify_report.md`, `worker_w_b2_verify_probes.json`, `worker_w_b2_verify_accent_cmp.json`. Fix `9dd136b` needs **deploy + re-smoke** — **not** SLO DONE |
+| **M0–M4** | **DONE** (M4 `cc2807f`) |
+| **B2-verify** | **DONE** — W-b2-resmoke post-deploy: found **6/7**, fetch_fail **1/7** both passes; accent pairs 5/5 OK. Residual: **`leite` pure SEFAZ** (~55s). Artifacts `worker_w_b2_resmoke_*` |
+| **M5** lexicon mining | **IN_PROGRESS** W-m5-lexicon (5-S1…5-S7) |
 | Matching plan doc | **DONE** in `5a16961` |
-
-## MVP-S1–S5
-**CLOSED** (M0–M4 definitions met on main).
 
 ## Workers
 | ID | Task |
 |----|------|
 | W-m0…M4 | **DONE** |
-| W-b2-verify | **HARD_BLOCKED** (ticket closed with evidence; warm fetch SLO not met) — report `worker_w_b2_verify_report.md` |
-| Loop-spawned duplicates (if any) | ignore if work already on main; do not re-open M3/M4/B2 verify suite |
+| W-b2-verify | **HARD_BLOCKED** closed pre-deploy — report `worker_w_b2_verify_report.md` |
+| W-b2-resmoke | **DONE** — `worker_w_b2_resmoke_report.md` + `worker_w_b2_resmoke_probes.json`; verdict **DONE_SLO_PASS** |
+| W-m5-lexicon | **ACTIVE** Phase 5 mine_match_lexicon + opt-in load |
 
-## Open / next (spawn only if not already owned)
-1. **Deploy** tip including `9dd136b` accent-fold + staple rewrite; confirm `PREWARM_STAPLES` prewarm
-2. **Re-run** 7-staple serial smoke (CONCURRENCY=1, Maceió); if `leite` still ~55s → pure SEFAZ
-3. **Post-deploy** `match_live_smoke.py` serial (when SEFAZ healthy) — M4 path
-4. Optional **P5** lexicon miner when prioritized
+## Hardware (this cycle)
+- Windowed CPU busy ~**3.1%** / 12s; loadavg ~0.38; **k10temp Tctl=46°C**; MemAvail ~21 GiB
+- Headroom for 2 workers (1 live I/O serial + 1 code)
+
+## Deploy note
+- CI success for `9dd136b` accent-fold (~19:59Z); live health ok
+- Live probes show `match_rules_version=2026-07-23-head-v1` + staple rewrites (`feijao carioca`, `ovos`, …) — VPS git SHA not host-proven
+
+## B2 resmoke numbers (vs prior HARD_BLOCK)
+| pass | prior found / fail | resmoke found / fail |
+|------|--------------------|----------------------|
+| pass1 | 0.14 / 0.86 | **0.86 / 0.14** |
+| pass2 | 0.29 / 0.43 (+2×502) | **0.86 / 0.14** (0×502) |
+| residual | accent/singular + SEFAZ | **leite only** (SEFAZ after `leite uht` rewrite) |
 
 ## Residual
-- **B2 fetch hard-block** until post-deploy re-probe (match track separate from fetch)
-- Head weak tops (queijo snack, peito sopa, alho molho)
-- Offline 10 “regressed good→bad” under stricter head (documented M4)
-- Honest-100 re-eval; intermittent live **502** under serial staple load
-- Plan P6 Flutter feedback wire, P7 model scorer
+- **`leite`** SEFAZ ~55s empty (external; not re-HARD_BLOCK of accent ship)
+- Head weak tops; honest-100; offline residual 10 good→stricter
+- P6 feedback wire; P7 model scorer after M5
 
 ## Loop note
-10m loop must re-read **git tip + report files on disk** before re-spawning M3/M4/B2. Status lag caused duplicate spawns — B2-verify is **HARD_BLOCKED with evidence**, not an open implement ticket; do not re-run 55s×N suite unless deploying re-verify.
-
-## Hardware note
-Prefer windowed CPU + k10temp; do not over-spawn when must-complete empty.
+Do **not** re-spawn M3/M4. B2 agent-owned fetch residual is closed; do not re-run full B2 HARD_BLOCK suite without new regression evidence.

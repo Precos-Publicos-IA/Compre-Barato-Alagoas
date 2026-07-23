@@ -1,0 +1,832 @@
+{
+  "task": "W-b2-resmoke",
+  "evaluated_at": "2026-07-23T20:08:13.831270+00:00",
+  "base": "https://alagoas.precospublicos.ia.br",
+  "geo": {
+    "latitude": -9.6633,
+    "longitude": -35.7089,
+    "radius_km": 8,
+    "days": 7
+  },
+  "concurrency": 1,
+  "timeout_s": 120.0,
+  "terms": [
+    "arroz",
+    "feijão",
+    "leite",
+    "óleo",
+    "ovo",
+    "café",
+    "açúcar"
+  ],
+  "deploy_context": {
+    "agent_fix_sha": "9dd136b",
+    "note": "Do not claim VPS git SHA without proof; infer post-fix via match_rules_version + rewrite behavior",
+    "health": {
+      "http": 200,
+      "body": "{\"status\":\"ok\"}",
+      "ok": true
+    },
+    "prewarm_default": "PREWARM_STAPLES=1",
+    "method_choice": "Two serial passes (pass1 then pass2 warm) even if deploy prewarm ran — documents cold-ish user path and warm path. Accent pairs after pass2."
+  },
+  "prior_hard_block": {
+    "source": ".grok/status/worker_w_b2_verify_probes.json",
+    "pass1": {
+      "found_rate": 0.1429,
+      "fetch_fail_rate": 0.8571,
+      "approx_55s_empties": 6
+    },
+    "pass2": {
+      "found_rate": 0.2857,
+      "fetch_fail_rate": 0.4286,
+      "approx_55s_empties": 3,
+      "http_502": 2
+    },
+    "overall_eval_staple": {
+      "found_rate": 0.4286,
+      "fetch_fail_rate": 0.5714
+    }
+  },
+  "pass1": {
+    "summary": {
+      "pass": "1_initial",
+      "n": 7,
+      "http_200": 7,
+      "http_502": 0,
+      "found_n": 6,
+      "found_rate": 0.8571,
+      "fetch_fail_n": 1,
+      "fetch_fail_rate": 0.1429,
+      "empty_fetch_fail_n": 1,
+      "approx_55s_empties": 1,
+      "p50_latency_found_ms": 343.7,
+      "p50_latency_all_ms": 353.3,
+      "p95_latency_all_ms": 55250.4,
+      "mean_latency_all_ms": 8265.3,
+      "queries_found": [
+        "arroz",
+        "feijão",
+        "óleo",
+        "ovo",
+        "café",
+        "açúcar"
+      ],
+      "queries_fetch_failed": [
+        "leite"
+      ],
+      "queries_empty": [
+        "leite"
+      ],
+      "match_rules_versions_seen": [
+        "2026-07-23-head-v1"
+      ]
+    },
+    "probes": [
+      {
+        "query": "arroz",
+        "http": 200,
+        "latency_ms": 770.6,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "arroz",
+            "original": "arroz",
+            "search_term": "arroz tipo 1"
+          }
+        ],
+        "rewrite_search_term": "arroz tipo 1",
+        "top_description": "Arroz Shari Und",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:05:55.130242+00:00"
+      },
+      {
+        "query": "feijão",
+        "http": 200,
+        "latency_ms": 353.3,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "feijão",
+            "original": "feijão",
+            "search_term": "feijao carioca"
+          }
+        ],
+        "rewrite_search_term": "feijao carioca",
+        "top_description": "FEIJAO CARIOCA SPECIAL TP1 1KG",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:05:56.233666+00:00"
+      },
+      {
+        "query": "leite",
+        "http": 200,
+        "latency_ms": 55250.4,
+        "error": null,
+        "stores": 0,
+        "match_rate": 0.0,
+        "data_source": "web",
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [
+          "leite"
+        ],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "leite",
+            "original": "leite",
+            "search_term": "leite uht"
+          }
+        ],
+        "rewrite_search_term": "leite uht",
+        "top_description": null,
+        "approx_55s_empty": true,
+        "found": false,
+        "ts": "2026-07-23T20:06:52.234278+00:00"
+      },
+      {
+        "query": "óleo",
+        "http": 200,
+        "latency_ms": 279.6,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "óleo",
+            "original": "óleo",
+            "search_term": "oleo de soja"
+          }
+        ],
+        "rewrite_search_term": "oleo de soja",
+        "top_description": "OLEO DE SOJA SOYA 900ML",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:06:53.264000+00:00"
+      },
+      {
+        "query": "ovo",
+        "http": 200,
+        "latency_ms": 343.7,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "ovo",
+            "original": "ovo",
+            "search_term": "ovos"
+          }
+        ],
+        "rewrite_search_term": "ovos",
+        "top_description": "OVOS EXTRA STA MARIA LUNA UN",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:06:54.357841+00:00"
+      },
+      {
+        "query": "café",
+        "http": 200,
+        "latency_ms": 531.8,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "café",
+            "original": "café",
+            "search_term": "cafe torrado"
+          }
+        ],
+        "rewrite_search_term": "cafe torrado",
+        "top_description": "CAFE GOURMET",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:06:55.639734+00:00"
+      },
+      {
+        "query": "açúcar",
+        "http": 200,
+        "latency_ms": 327.5,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "açúcar",
+            "original": "açúcar",
+            "search_term": "acucar cristal"
+          }
+        ],
+        "rewrite_search_term": "acucar cristal",
+        "top_description": "ACUCAR PINDORAMA 1KG",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:06:56.717347+00:00"
+      }
+    ],
+    "verdict_vs_prior": "IMPROVED"
+  },
+  "pass2": {
+    "summary": {
+      "pass": "2_warm",
+      "n": 7,
+      "http_200": 7,
+      "http_502": 0,
+      "found_n": 6,
+      "found_rate": 0.8571,
+      "fetch_fail_n": 1,
+      "fetch_fail_rate": 0.1429,
+      "empty_fetch_fail_n": 1,
+      "approx_55s_empties": 1,
+      "p50_latency_found_ms": 332.5,
+      "p50_latency_all_ms": 339.7,
+      "p95_latency_all_ms": 55248.7,
+      "mean_latency_all_ms": 8194.0,
+      "queries_found": [
+        "arroz",
+        "feijão",
+        "óleo",
+        "ovo",
+        "café",
+        "açúcar"
+      ],
+      "queries_fetch_failed": [
+        "leite"
+      ],
+      "queries_empty": [
+        "leite"
+      ],
+      "match_rules_versions_seen": [
+        "2026-07-23-head-v1"
+      ]
+    },
+    "probes": [
+      {
+        "query": "arroz",
+        "http": 200,
+        "latency_ms": 299.9,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "arroz",
+            "original": "arroz",
+            "search_term": "arroz tipo 1"
+          }
+        ],
+        "rewrite_search_term": "arroz tipo 1",
+        "top_description": "Arroz Shari Und",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:07:00.767492+00:00"
+      },
+      {
+        "query": "feijão",
+        "http": 200,
+        "latency_ms": 339.7,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "feijão",
+            "original": "feijão",
+            "search_term": "feijao carioca"
+          }
+        ],
+        "rewrite_search_term": "feijao carioca",
+        "top_description": "FEIJAO CARIOCA SPECIAL TP1 1KG",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:07:01.857324+00:00"
+      },
+      {
+        "query": "leite",
+        "http": 200,
+        "latency_ms": 55248.7,
+        "error": null,
+        "stores": 0,
+        "match_rate": 0.0,
+        "data_source": "web",
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [
+          "leite"
+        ],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "leite",
+            "original": "leite",
+            "search_term": "leite uht"
+          }
+        ],
+        "rewrite_search_term": "leite uht",
+        "top_description": null,
+        "approx_55s_empty": true,
+        "found": false,
+        "ts": "2026-07-23T20:07:57.856195+00:00"
+      },
+      {
+        "query": "óleo",
+        "http": 200,
+        "latency_ms": 296.2,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "óleo",
+            "original": "óleo",
+            "search_term": "oleo de soja"
+          }
+        ],
+        "rewrite_search_term": "oleo de soja",
+        "top_description": "OLEO DE SOJA SOYA 900ML",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:07:58.902605+00:00"
+      },
+      {
+        "query": "ovo",
+        "http": 200,
+        "latency_ms": 353.4,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "ovo",
+            "original": "ovo",
+            "search_term": "ovos"
+          }
+        ],
+        "rewrite_search_term": "ovos",
+        "top_description": "OVOS EXTRA STA MARIA LUNA UN",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:00.006195+00:00"
+      },
+      {
+        "query": "café",
+        "http": 200,
+        "latency_ms": 487.5,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "café",
+            "original": "café",
+            "search_term": "cafe torrado"
+          }
+        ],
+        "rewrite_search_term": "cafe torrado",
+        "top_description": "CAFE GOURMET",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:01.243874+00:00"
+      },
+      {
+        "query": "açúcar",
+        "http": 200,
+        "latency_ms": 332.5,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "açúcar",
+            "original": "açúcar",
+            "search_term": "acucar cristal"
+          }
+        ],
+        "rewrite_search_term": "acucar cristal",
+        "top_description": "ACUCAR PINDORAMA 1KG",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:02.326507+00:00"
+      }
+    ],
+    "verdict_vs_prior": "IMPROVED"
+  },
+  "accent_pairs": {
+    "summary": {
+      "pass": "accent_pairs",
+      "n": 10,
+      "http_200": 10,
+      "http_502": 0,
+      "found_n": 10,
+      "found_rate": 1.0,
+      "fetch_fail_n": 0,
+      "fetch_fail_rate": 0.0,
+      "empty_fetch_fail_n": 0,
+      "approx_55s_empties": 0,
+      "p50_latency_found_ms": 324.4,
+      "p50_latency_all_ms": 324.4,
+      "p95_latency_all_ms": 366.6,
+      "mean_latency_all_ms": 325.3,
+      "queries_found": [
+        "feijão",
+        "feijao",
+        "ovo",
+        "ovos",
+        "óleo",
+        "oleo",
+        "café",
+        "cafe",
+        "açúcar",
+        "acucar"
+      ],
+      "queries_fetch_failed": [],
+      "queries_empty": [],
+      "match_rules_versions_seen": [
+        "2026-07-23-head-v1"
+      ]
+    },
+    "probes": [
+      {
+        "query": "feijão",
+        "http": 200,
+        "latency_ms": 327.2,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "feijão",
+            "original": "feijão",
+            "search_term": "feijao carioca"
+          }
+        ],
+        "rewrite_search_term": "feijao carioca",
+        "top_description": "FEIJAO CARIOCA SPECIAL TP1 1KG",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:03.403954+00:00"
+      },
+      {
+        "query": "feijao",
+        "http": 200,
+        "latency_ms": 312.9,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "feijao",
+            "original": "feijao",
+            "search_term": "feijao carioca"
+          }
+        ],
+        "rewrite_search_term": "feijao carioca",
+        "top_description": "FEIJAO CARIOCA SPECIAL TP1 1KG",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:04.466967+00:00"
+      },
+      {
+        "query": "ovo",
+        "http": 200,
+        "latency_ms": 362.3,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "ovo",
+            "original": "ovo",
+            "search_term": "ovos"
+          }
+        ],
+        "rewrite_search_term": "ovos",
+        "top_description": "OVOS EXTRA STA MARIA LUNA UN",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:05.579429+00:00"
+      },
+      {
+        "query": "ovos",
+        "http": 200,
+        "latency_ms": 324.4,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [],
+        "rewrite_search_term": null,
+        "top_description": "OVOS EXTRA STA MARIA LUNA UN",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:06.653995+00:00"
+      },
+      {
+        "query": "óleo",
+        "http": 200,
+        "latency_ms": 277.4,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "óleo",
+            "original": "óleo",
+            "search_term": "oleo de soja"
+          }
+        ],
+        "rewrite_search_term": "oleo de soja",
+        "top_description": "OLEO DE SOJA SOYA 900ML",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:07.681517+00:00"
+      },
+      {
+        "query": "oleo",
+        "http": 200,
+        "latency_ms": 267.7,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "oleo",
+            "original": "oleo",
+            "search_term": "oleo de soja"
+          }
+        ],
+        "rewrite_search_term": "oleo de soja",
+        "top_description": "OLEO DE SOJA SOYA 900ML",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:08.699338+00:00"
+      },
+      {
+        "query": "café",
+        "http": 200,
+        "latency_ms": 365.8,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "café",
+            "original": "café",
+            "search_term": "cafe torrado"
+          }
+        ],
+        "rewrite_search_term": "cafe torrado",
+        "top_description": "CAFE GOURMET",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:09.815422+00:00"
+      },
+      {
+        "query": "cafe",
+        "http": 200,
+        "latency_ms": 366.6,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "cafe",
+            "original": "cafe",
+            "search_term": "cafe torrado"
+          }
+        ],
+        "rewrite_search_term": "cafe torrado",
+        "top_description": "CAFE GOURMET",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:10.932129+00:00"
+      },
+      {
+        "query": "açúcar",
+        "http": 200,
+        "latency_ms": 319.6,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "açúcar",
+            "original": "açúcar",
+            "search_term": "acucar cristal"
+          }
+        ],
+        "rewrite_search_term": "acucar cristal",
+        "top_description": "ACUCAR PINDORAMA 1KG",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:12.001822+00:00"
+      },
+      {
+        "query": "acucar",
+        "http": 200,
+        "latency_ms": 328.8,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "match_rules_version": "2026-07-23-head-v1",
+        "search_rewrites": [
+          {
+            "label": "acucar",
+            "original": "acucar",
+            "search_term": "acucar cristal"
+          }
+        ],
+        "rewrite_search_term": "acucar cristal",
+        "top_description": "ACUCAR PINDORAMA 1KG",
+        "approx_55s_empty": false,
+        "found": true,
+        "ts": "2026-07-23T20:08:13.080740+00:00"
+      }
+    ],
+    "comparisons": [
+      {
+        "accented": "feijão",
+        "ascii_or_alt": "feijao",
+        "accented_found": true,
+        "ascii_found": true,
+        "accented_fail": 0,
+        "ascii_fail": 0,
+        "accented_ms": 327.2,
+        "ascii_ms": 312.9,
+        "accented_stores": 5,
+        "ascii_stores": 5,
+        "accented_top": "FEIJAO CARIOCA SPECIAL TP1 1KG",
+        "ascii_top": "FEIJAO CARIOCA SPECIAL TP1 1KG",
+        "accented_rewrite": "feijao carioca",
+        "ascii_rewrite": "feijao carioca",
+        "parity_found": true,
+        "parity_both_found": true
+      },
+      {
+        "accented": "ovo",
+        "ascii_or_alt": "ovos",
+        "accented_found": true,
+        "ascii_found": true,
+        "accented_fail": 0,
+        "ascii_fail": 0,
+        "accented_ms": 362.3,
+        "ascii_ms": 324.4,
+        "accented_stores": 5,
+        "ascii_stores": 5,
+        "accented_top": "OVOS EXTRA STA MARIA LUNA UN",
+        "ascii_top": "OVOS EXTRA STA MARIA LUNA UN",
+        "accented_rewrite": "ovos",
+        "ascii_rewrite": null,
+        "parity_found": true,
+        "parity_both_found": true
+      },
+      {
+        "accented": "óleo",
+        "ascii_or_alt": "oleo",
+        "accented_found": true,
+        "ascii_found": true,
+        "accented_fail": 0,
+        "ascii_fail": 0,
+        "accented_ms": 277.4,
+        "ascii_ms": 267.7,
+        "accented_stores": 5,
+        "ascii_stores": 5,
+        "accented_top": "OLEO DE SOJA SOYA 900ML",
+        "ascii_top": "OLEO DE SOJA SOYA 900ML",
+        "accented_rewrite": "oleo de soja",
+        "ascii_rewrite": "oleo de soja",
+        "parity_found": true,
+        "parity_both_found": true
+      },
+      {
+        "accented": "café",
+        "ascii_or_alt": "cafe",
+        "accented_found": true,
+        "ascii_found": true,
+        "accented_fail": 0,
+        "ascii_fail": 0,
+        "accented_ms": 365.8,
+        "ascii_ms": 366.6,
+        "accented_stores": 5,
+        "ascii_stores": 5,
+        "accented_top": "CAFE GOURMET",
+        "ascii_top": "CAFE GOURMET",
+        "accented_rewrite": "cafe torrado",
+        "ascii_rewrite": "cafe torrado",
+        "parity_found": true,
+        "parity_both_found": true
+      },
+      {
+        "accented": "açúcar",
+        "ascii_or_alt": "acucar",
+        "accented_found": true,
+        "ascii_found": true,
+        "accented_fail": 0,
+        "ascii_fail": 0,
+        "accented_ms": 319.6,
+        "ascii_ms": 328.8,
+        "accented_stores": 5,
+        "ascii_stores": 5,
+        "accented_top": "ACUCAR PINDORAMA 1KG",
+        "ascii_top": "ACUCAR PINDORAMA 1KG",
+        "accented_rewrite": "acucar cristal",
+        "ascii_rewrite": "acucar cristal",
+        "parity_found": true,
+        "parity_both_found": true
+      }
+    ]
+  },
+  "verdict": "DONE_SLO_PASS",
+  "warm_slo_pass": true
+}
