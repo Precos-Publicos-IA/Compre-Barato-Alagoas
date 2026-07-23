@@ -23,6 +23,10 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Literal
 
+# Version of the matching/head rules used for metrics + outcome logs.
+# Bump when intent/relevance hard-gate semantics change in a ship-visible way.
+MATCH_RULES_VERSION = "2026-07-23-head-v1"
+
 _TOKEN_RE = re.compile(r"[a-z0-9]+", re.I)
 
 # Function words kept for ``X de Y`` parsing; stripped from content sets.

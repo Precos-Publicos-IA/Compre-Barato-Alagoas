@@ -27,6 +27,8 @@ from .llm.base import LLMClient, LLMUsage
 from .llm.orchestrator import SearchOrchestrator
 from .llm.pricing import cost_usd
 from .normalization.matcher import NormalizedOffer, normalize_offer
+from .rag.intent import MATCH_RULES_VERSION
+from .rag.outcome_log import log_search_item_outcomes
 from .rag.store import RAGStore
 from .ranking import build_store_results
 from .sefaz.base import SefazClient
@@ -271,6 +273,7 @@ async def run_search(
                             search_rewrites=rewrites,
                             items_completed=ev.get("items_completed"),
                             status_message=ev.get("message"),
+                            match_rules_version=MATCH_RULES_VERSION,
                         ),
                         partial=True,
                     ),
@@ -382,6 +385,7 @@ async def run_search(
         status_message="Pronto",
         items_fetch_failed=len(fetch_failed),
         fetch_failed_labels=fetch_failed,
+        match_rules_version=MATCH_RULES_VERSION,
     )
 
     if batch is not None:
@@ -438,6 +442,22 @@ async def run_search(
     # Include verifier suggestions so the app can show "Did you mean..."
     # or pre-fill better terms for poor users who type vaguely.
     metrics.suggested_refinements = suggested_refinements
+
+    # Matching outcome log (JSONL) — no-op unless MATCH_OUTCOME_LOG_PATH is set.
+    # Item-level rows; never includes device_token / secrets. Failures are non-fatal.
+    try:
+        log_search_item_outcomes(
+            items=unique_items,
+            offers_by_item=offers_by_item,
+            stores_found=len(stores),
+            data_source=sefaz.source_name,
+            fetch_failed_labels=fetch_failed,
+            latency_ms=(time.perf_counter() - t_start) * 1000,
+            list_id=list_id,
+            analytics_id=analytics_id,
+        )
+    except Exception:  # noqa: BLE001 — never break search on logging
+        logger.exception("match outcome log failed")
 
     return SearchResponse(
         origin=Origin(latitude=lat, longitude=lon),

@@ -121,6 +121,10 @@ class SearchMetrics(BaseModel):
     # so clients/evals do not treat upstream outages as missing products.
     items_fetch_failed: int = 0
     fetch_failed_labels: list[str] = Field(default_factory=list)
+    # Matching-rules version for learning-loop baselines (self-improving matching plan).
+    # Default matches ``MATCH_RULES_VERSION`` in ``app.services.rag.intent``; search
+    # paths pass the constant explicitly so metrics stay in lockstep with code.
+    match_rules_version: str = "2026-07-23-head-v1"
 
 
 class Origin(BaseModel):

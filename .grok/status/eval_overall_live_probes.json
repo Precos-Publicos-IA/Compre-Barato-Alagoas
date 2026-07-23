@@ -1,0 +1,1499 @@
+{
+  "summary": {
+    "evaluated_at": "2026-07-23T19:14:43.674048+00:00",
+    "started_at": "2026-07-23T18:58:05.168350+00:00",
+    "base": "https://alagoas.precospublicos.ia.br",
+    "geo": {
+      "latitude": -9.6658,
+      "longitude": -35.735,
+      "radius_km": 10,
+      "days_default": 3
+    },
+    "concurrency": 1,
+    "timeout_s": 110,
+    "n_probes": 19,
+    "partial": false,
+    "stopped_429": false,
+    "stores_gt0": 14,
+    "http_200": 19,
+    "http_non_200": 0,
+    "http_429": 0,
+    "fetch_failed_any": 4,
+    "match_rate_gt0": 14,
+    "approx_55s_empties": 4,
+    "latency_ms": {
+      "p50": 36594.7,
+      "p95": 55714.5,
+      "mean": 35059.0,
+      "min": 710.7,
+      "max": 55814.2,
+      "n": 19
+    },
+    "quality_tags": {
+      "arroz": "good_top",
+      "feijão": "empty_fetch_failed",
+      "leite": "weak_top",
+      "óleo": "empty_fetch_failed",
+      "ovo": "good_top",
+      "banana": "good_top",
+      "peito de frango": "weak_top",
+      "farinha de trigo": "good_top",
+      "pão": "good_top",
+      "queijo": "weak_top",
+      "papel higiênico": "good_top",
+      "salsicha": "good_top",
+      "sabão em pó": "good_top",
+      "sal": "good_top",
+      "detergente": "empty_no_data",
+      "café": "empty_fetch_failed",
+      "açúcar": "empty_fetch_failed",
+      "alho": "weak_top",
+      "arroz+feijão+leite": "multi"
+    },
+    "soft_asserts": {
+      "queijo_not_pao_de_queijo": true,
+      "queijo_is_real_cheese": false,
+      "peito_not_pastel_or_ovos": true,
+      "peito_is_meat_cut": false,
+      "papel_not_toalha": true
+    },
+    "infra": {
+      "health": "/health 200 ok",
+      "app_shell": "200",
+      "suggestions": "200",
+      "docs": "https://docs.alagoas.precospublicos.ia.br 200",
+      "admin": "https://admin.alagoas.precospublicos.ia.br 200",
+      "note": "bare docs.precospublicos.ia.br / admin.precospublicos.ia.br are NXDOMAIN; alagoas-prefixed hosts work"
+    },
+    "git_tip": "bc5964f",
+    "product_shas": {
+      "head_match_wait": "12b2c97",
+      "desugar": "3112eb7",
+      "staple_b2": "9ec6775",
+      "tip": "bc5964f"
+    }
+  },
+  "probes": [
+    {
+      "query": "arroz",
+      "items": [
+        "arroz"
+      ],
+      "http": 200,
+      "latency_ms": 55814.2,
+      "error": null,
+      "ts": "2026-07-23T18:59:00.982900+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "Arroz Shari Und",
+      "top_descriptions": [
+        "Arroz Shari Und",
+        "FIBRA ARROZ CORINGA - PEQ 12X200G",
+        "ARROZ V NOVA PARB OF3",
+        "ARROZ PARBOLIZADO RAMPINELLI",
+        "CMB1 ARROZ BRANCO 150G"
+      ],
+      "search_rewrites": [
+        {
+          "label": "arroz",
+          "original": "arroz",
+          "search_term": "arroz tipo 1"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.78,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "ALL COOK INDUSTRIA E COMERCIO LTDA",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "arroz",
+          "found": "True",
+          "description": "Arroz Shari Und",
+          "gtin": "None",
+          "price": "0.1",
+          "unit_price": "0.1",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "0.1",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "feijão",
+      "items": [
+        "feijão"
+      ],
+      "http": 200,
+      "latency_ms": 55692.9,
+      "error": null,
+      "ts": "2026-07-23T19:00:54.871773+00:00",
+      "notes": "retried_days7 stores 0->0",
+      "stores": 0,
+      "match_rate": 0.0,
+      "data_source": "web",
+      "items_fetch_failed": 1,
+      "fetch_failed_labels": [
+        "feijão"
+      ],
+      "top_description": null,
+      "top_descriptions": [],
+      "search_rewrites": [
+        {
+          "label": "feijão",
+          "original": "feijão",
+          "search_term": "feijao carioca"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.0,
+      "_sample_store": null,
+      "retried_days7": true
+    },
+    {
+      "query": "leite",
+      "items": [
+        "leite"
+      ],
+      "http": 200,
+      "latency_ms": 54680.9,
+      "error": null,
+      "ts": "2026-07-23T19:01:51.053614+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "COCADA LEITE",
+      "top_descriptions": [
+        "COCADA LEITE",
+        "CMB5 ADICIONAL LEITE GUIA",
+        "LEITE 50ML",
+        "KAKAUZINHO AO LEITE"
+      ],
+      "search_rewrites": [
+        {
+          "label": "leite",
+          "original": "leite",
+          "search_term": "leite uht"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.447,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "COMERCIAL GUIGA LTDA",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "leite",
+          "found": "True",
+          "description": "COCADA LEITE",
+          "gtin": "None",
+          "price": "0.5",
+          "unit_price": "0.5",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "0.5",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "óleo",
+      "items": [
+        "óleo"
+      ],
+      "http": 200,
+      "latency_ms": 55693.7,
+      "error": null,
+      "ts": "2026-07-23T19:03:44.945130+00:00",
+      "notes": "retried_days7 stores 0->0",
+      "stores": 0,
+      "match_rate": 0.0,
+      "data_source": "web",
+      "items_fetch_failed": 1,
+      "fetch_failed_labels": [
+        "óleo"
+      ],
+      "top_description": null,
+      "top_descriptions": [],
+      "search_rewrites": [
+        {
+          "label": "óleo",
+          "original": "óleo",
+          "search_term": "oleo de soja"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.0,
+      "_sample_store": null,
+      "retried_days7": true
+    },
+    {
+      "query": "ovo",
+      "items": [
+        "ovo"
+      ],
+      "http": 200,
+      "latency_ms": 784.6,
+      "error": null,
+      "ts": "2026-07-23T19:03:47.230978+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "OVOS EXTRA STA MARIA LUNA UN",
+      "top_descriptions": [
+        "OVOS EXTRA STA MARIA LUNA UN",
+        "OVOS",
+        "OVOS EXTRA LUNA",
+        "OVOS UND"
+      ],
+      "search_rewrites": [
+        {
+          "label": "ovo",
+          "original": "ovo",
+          "search_term": "ovos"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.323,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "MERCEARIA E PANIFICACAO TRYGOLLAR",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "ovo",
+          "found": "True",
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "gtin": "None",
+          "price": "0.5",
+          "unit_price": "0.5",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "0.5",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "banana",
+      "items": [
+        "banana"
+      ],
+      "http": 200,
+      "latency_ms": 710.7,
+      "error": null,
+      "ts": "2026-07-23T19:03:49.442846+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "BANANA PROMOCAO",
+      "top_descriptions": [
+        "BANANA PROMOCAO",
+        "Banana - unidade",
+        "BANANA",
+        "BANANA PRATA UND",
+        "BANANA PRATA UN"
+      ],
+      "search_rewrites": [],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.061,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "DANIEL HORTFRUT",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "banana",
+          "found": "True",
+          "description": "BANANA PROMOCAO",
+          "gtin": "7890000003407",
+          "price": "0.25",
+          "unit_price": "0.25",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "0.25",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "peito de frango",
+      "items": [
+        "peito de frango"
+      ],
+      "http": 200,
+      "latency_ms": 36594.7,
+      "error": null,
+      "ts": "2026-07-23T19:04:27.538832+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "SOPA VONO PEITO FRANGO C QUEIJO 17G",
+      "top_descriptions": [
+        "SOPA VONO PEITO FRANGO C QUEIJO 17G",
+        "COMBO PEITO DE FRANGO NA CHAPA",
+        "PEITO DE FRANGO DEF",
+        "NUGGETS SADIA PEITO FRANGO 300G"
+      ],
+      "search_rewrites": [
+        {
+          "label": "peito de frango",
+          "original": "peito de frango",
+          "search_term": "peito frango"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.231,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "SUPERMERCADO PRECO BOM",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "peito de frango",
+          "found": "True",
+          "description": "SOPA VONO PEITO FRANGO C QUEIJO 17G",
+          "gtin": "7891132007523",
+          "price": "2.99",
+          "unit_price": "175.8824",
+          "base_unit": "kg",
+          "quantity": "17.0",
+          "unit": "g",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-20",
+          "quantity_parsed": "True",
+          "requested_quantity": "1",
+          "line_total": "2.99",
+          "package_label": "17 g"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "farinha de trigo",
+      "items": [
+        "farinha de trigo"
+      ],
+      "http": 200,
+      "latency_ms": 36333.9,
+      "error": null,
+      "ts": "2026-07-23T19:05:05.374022+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "FARINHA TRIGO TIA MARA C FERM 1kg",
+      "top_descriptions": [
+        "FARINHA TRIGO TIA MARA C FERM 1kg",
+        "FARINHA TRIGO FARINA",
+        "FARINHA DE TRIGO FARINA TRAD 1KG"
+      ],
+      "search_rewrites": [
+        {
+          "label": "farinha de trigo",
+          "original": "farinha de trigo",
+          "search_term": "farinha trigo"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.854,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "MIX MATEUS",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "farinha de trigo",
+          "found": "True",
+          "description": "FARINHA TRIGO TIA MARA C FERM 1kg",
+          "gtin": "7898617581967",
+          "price": "2.77",
+          "unit_price": "2.77",
+          "base_unit": "kg",
+          "quantity": "1.0",
+          "unit": "kg",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "True",
+          "requested_quantity": "1",
+          "line_total": "2.77",
+          "package_label": "1 kg"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "pão",
+      "items": [
+        "pão"
+      ],
+      "http": 200,
+      "latency_ms": 54177.1,
+      "error": null,
+      "ts": "2026-07-23T19:06:57.744996+00:00",
+      "notes": "retried_days7 stores 0->5",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "PAO SORTIDO",
+      "top_descriptions": [
+        "PAO SORTIDO",
+        "PAO ESTRELA UN",
+        "PAO FRANCES",
+        "PAO BRIOCHE UND"
+      ],
+      "search_rewrites": [
+        {
+          "label": "pão",
+          "original": "pão",
+          "search_term": "pao frances"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.479,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "S DE S E SILVA JUNIOR  LTDA",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "pão",
+          "found": "True",
+          "description": "PAO SORTIDO",
+          "gtin": "None",
+          "price": "0.33",
+          "unit_price": "0.33",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "0.33",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": true
+    },
+    {
+      "query": "queijo",
+      "items": [
+        "queijo"
+      ],
+      "http": 200,
+      "latency_ms": 723.7,
+      "error": null,
+      "ts": "2026-07-23T19:06:59.970362+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "SALG POPCROC QUEIJO 15G",
+      "top_descriptions": [
+        "SALG POPCROC QUEIJO 15G",
+        "SALG BOLITOS QUEIJO KARINTO 13G",
+        "SALG GALINHA QUEIJO POPCROC 15G",
+        "PAO QUEIJO MINEIRO UN",
+        "KARINTO METAL 16G QUEIJO"
+      ],
+      "search_rewrites": [],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.868,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "LATICINIO ALEGRIA",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "queijo",
+          "found": "True",
+          "description": "SALG POPCROC QUEIJO 15G",
+          "gtin": "None",
+          "price": "0.5",
+          "unit_price": "33.3333",
+          "base_unit": "kg",
+          "quantity": "15.0",
+          "unit": "g",
+          "unidade_medida": "PC",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "True",
+          "requested_quantity": "1",
+          "line_total": "0.5",
+          "package_label": "15 g"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "papel higiênico",
+      "items": [
+        "papel higiênico"
+      ],
+      "http": 200,
+      "latency_ms": 36212.1,
+      "error": null,
+      "ts": "2026-07-23T19:07:37.683954+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "PAPEL HIGIENICO PIMPO LAVANDA",
+      "top_descriptions": [
+        "PAPEL HIGIENICO PIMPO LAVANDA",
+        "PAPEL HIGIENICO PIMP",
+        "PAPEL HIGIENICO PIMPO NEUTRO",
+        "PAPEL HIGIENICO FAMILIAR SOFT 30METROS",
+        "PAPEL HIGIENICO FAMILIAR"
+      ],
+      "search_rewrites": [
+        {
+          "label": "papel higiênico",
+          "original": "papel higiênico",
+          "search_term": "papel higienico"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.028,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "MERCADINHO SANTA CLARA",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "papel higiênico",
+          "found": "True",
+          "description": "PAPEL HIGIENICO PIMPO LAVANDA",
+          "gtin": "None",
+          "price": "2.7",
+          "unit_price": "2.7",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "2.7",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "salsicha",
+      "items": [
+        "salsicha"
+      ],
+      "http": 200,
+      "latency_ms": 18846.2,
+      "error": null,
+      "ts": "2026-07-23T19:07:58.031842+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "SALSICHA PERDIGÃO",
+      "top_descriptions": [
+        "SALSICHA PERDIGÃO",
+        "SALSICHA KG",
+        "ENROLADINHO SALSICHA PQ",
+        "GUIA SALSICHA MOLHO"
+      ],
+      "search_rewrites": [],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.59,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "GOMES & ALMEIDA MERCEARIA",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "salsicha",
+          "found": "True",
+          "description": "SALSICHA PERDIGÃO",
+          "gtin": "None",
+          "price": "1.0",
+          "unit_price": "1.0",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "1.0",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "sabão em pó",
+      "items": [
+        "sabão em pó"
+      ],
+      "http": 200,
+      "latency_ms": 38181.5,
+      "error": null,
+      "ts": "2026-07-23T19:08:37.715065+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "SABAO EM PO SONHO",
+      "top_descriptions": [
+        "SABAO EM PO SONHO",
+        "SABAO EM PO BEM TE VI OLEOS ESSENCIAIS 400",
+        "SABAO EM PO BEM TI VE 400G",
+        "SABAO EM PO BEM TE VI",
+        "SABAO EM PO SONHO MULTIACAO 400G"
+      ],
+      "search_rewrites": [
+        {
+          "label": "sabão em pó",
+          "original": "sabão em pó",
+          "search_term": "sabao em po"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.655,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "PANIFICACAO FLOR DO BAIRRO",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "sabão em pó",
+          "found": "True",
+          "description": "SABAO EM PO SONHO",
+          "gtin": "7896013101512",
+          "price": "3.19",
+          "unit_price": "3.19",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "3.19",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "sal",
+      "items": [
+        "sal"
+      ],
+      "http": 200,
+      "latency_ms": 19757.3,
+      "error": null,
+      "ts": "2026-07-23T19:08:58.974301+00:00",
+      "notes": "",
+      "stores": 1,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "SAL KG GRANEL - KG",
+      "top_descriptions": [
+        "SAL KG GRANEL - KG"
+      ],
+      "search_rewrites": [],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 1.0,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "BIG ALIMENTOS",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "sal",
+          "found": "True",
+          "description": "SAL KG GRANEL - KG",
+          "gtin": "None",
+          "price": "0.55",
+          "unit_price": "0.55",
+          "base_unit": "kg",
+          "quantity": "1.0",
+          "unit": "kg",
+          "unidade_medida": "KG",
+          "sale_date": "2026-07-20",
+          "quantity_parsed": "True",
+          "requested_quantity": "1",
+          "line_total": "0.55",
+          "package_label": "1 kg"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "detergente",
+      "items": [
+        "detergente"
+      ],
+      "http": 200,
+      "latency_ms": 19819.6,
+      "error": null,
+      "ts": "2026-07-23T19:09:42.174000+00:00",
+      "notes": "retried_days7 stores 0->0",
+      "stores": 0,
+      "match_rate": 0.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": null,
+      "top_descriptions": [],
+      "search_rewrites": [],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.0,
+      "_sample_store": null,
+      "retried_days7": true
+    },
+    {
+      "query": "café",
+      "items": [
+        "café"
+      ],
+      "http": 200,
+      "latency_ms": 55697.9,
+      "error": null,
+      "ts": "2026-07-23T19:11:36.070731+00:00",
+      "notes": "retried_days7 stores 0->0",
+      "stores": 0,
+      "match_rate": 0.0,
+      "data_source": "web",
+      "items_fetch_failed": 1,
+      "fetch_failed_labels": [
+        "café"
+      ],
+      "top_description": null,
+      "top_descriptions": [],
+      "search_rewrites": [
+        {
+          "label": "café",
+          "original": "café",
+          "search_term": "cafe torrado"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.0,
+      "_sample_store": null,
+      "retried_days7": true
+    },
+    {
+      "query": "açúcar",
+      "items": [
+        "açúcar"
+      ],
+      "http": 200,
+      "latency_ms": 55703.4,
+      "error": null,
+      "ts": "2026-07-23T19:13:29.973247+00:00",
+      "notes": "retried_days7 stores 0->0",
+      "stores": 0,
+      "match_rate": 0.0,
+      "data_source": "web",
+      "items_fetch_failed": 1,
+      "fetch_failed_labels": [
+        "açúcar"
+      ],
+      "top_description": null,
+      "top_descriptions": [],
+      "search_rewrites": [
+        {
+          "label": "açúcar",
+          "original": "açúcar",
+          "search_term": "acucar cristal"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.0,
+      "_sample_store": null,
+      "retried_days7": true
+    },
+    {
+      "query": "alho",
+      "items": [
+        "alho"
+      ],
+      "http": 200,
+      "latency_ms": 16783.1,
+      "error": null,
+      "ts": "2026-07-23T19:13:48.258278+00:00",
+      "notes": "",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "MOLHO EXTRA ALHO",
+      "top_descriptions": [
+        "MOLHO EXTRA ALHO",
+        "ALHO"
+      ],
+      "search_rewrites": [],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 1,
+      "items_requested": 1,
+      "quantity_parse_rate": 0.568,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "Cuca Pop",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "alho",
+          "found": "True",
+          "description": "MOLHO EXTRA ALHO",
+          "gtin": "None",
+          "price": "0.7",
+          "unit_price": "0.7",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "0.7",
+          "package_label": "None"
+        }
+      },
+      "retried_days7": false
+    },
+    {
+      "query": "arroz+feijão+leite",
+      "items": [
+        "arroz",
+        "feijão",
+        "leite"
+      ],
+      "http": 200,
+      "latency_ms": 53913.6,
+      "error": null,
+      "ts": "2026-07-23T19:14:43.673900+00:00",
+      "notes": "multi_basket",
+      "stores": 5,
+      "match_rate": 1.0,
+      "data_source": "web",
+      "items_fetch_failed": 0,
+      "fetch_failed_labels": [],
+      "top_description": "ARROZ MARIANO P.T.1",
+      "top_descriptions": [
+        "ARROZ MARIANO P.T.1",
+        "FEIJAO PRETO EU KERO",
+        "LEITE COCO FREDAO",
+        "ARROZ PARB URBANO 1kg",
+        "FEIJAO CARIOCA PREDILETO TIPO 1 1kg",
+        "LEITE EM PO CPLA INTEGRAL 200G",
+        "ARROZ PARBOLIZADO RAMPINELLI",
+        "FEIJAO KI-SABOR 1KG"
+      ],
+      "search_rewrites": [
+        {
+          "label": "arroz",
+          "original": "arroz",
+          "search_term": "arroz tipo 1"
+        },
+        {
+          "label": "feijão",
+          "original": "feijão",
+          "search_term": "feijao carioca"
+        },
+        {
+          "label": "leite",
+          "original": "leite",
+          "search_term": "leite uht"
+        }
+      ],
+      "status_message": "Pronto",
+      "partial": false,
+      "items_completed": 3,
+      "items_requested": 3,
+      "quantity_parse_rate": 0.683,
+      "_sample_store": {
+        "keys": [
+          "cnpj",
+          "name",
+          "latitude",
+          "longitude",
+          "address",
+          "bairro",
+          "distance_km",
+          "items_found",
+          "items_total",
+          "total",
+          "items",
+          "missing",
+          "rank_reason",
+          "is_favorite"
+        ],
+        "name": "ATACADAO S.A.",
+        "first_list_key": "items",
+        "first_item_keys": [
+          "query",
+          "found",
+          "description",
+          "gtin",
+          "price",
+          "unit_price",
+          "base_unit",
+          "quantity",
+          "unit",
+          "unidade_medida",
+          "sale_date",
+          "quantity_parsed",
+          "requested_quantity",
+          "line_total",
+          "package_label",
+          "is_best_match"
+        ],
+        "first_item_snip": {
+          "query": "arroz",
+          "found": "True",
+          "description": "ARROZ MARIANO P.T.1",
+          "gtin": "7896384100053",
+          "price": "3.49",
+          "unit_price": "3.49",
+          "base_unit": "un",
+          "quantity": "1.0",
+          "unit": "un",
+          "unidade_medida": "UN",
+          "sale_date": "2026-07-22",
+          "quantity_parsed": "False",
+          "requested_quantity": "1",
+          "line_total": "3.49",
+          "package_label": "None"
+        }
+      },
+      "is_multi": true
+    }
+  ]
+}

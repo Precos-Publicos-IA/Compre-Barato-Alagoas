@@ -23,6 +23,8 @@ from dataclasses import dataclass, field
 
 from ...config import Settings
 from ...schemas.search import Origin, SearchMetrics, SearchResponse, SearchRewrite, StoreResult
+from ..rag.intent import MATCH_RULES_VERSION
+from ..rag.outcome_log import log_search_item_outcomes
 from ..normalization.matcher import NormalizedOffer, normalize_offer
 from ..ranking import build_store_results
 from ..sefaz.base import SefazClient
@@ -103,6 +105,7 @@ async def run_catalog_search(
                 stores_found=0,
                 match_rate=0.0,
                 quantity_parse_rate=0.0,
+                match_rules_version=MATCH_RULES_VERSION,
             ),
         )
 
@@ -419,7 +422,28 @@ async def run_catalog_search(
         search_rewrites=rewrites,
         items_completed=len(item_queries),
         status_message="Pronto",
+        match_rules_version=MATCH_RULES_VERSION,
     )
+
+    # Outcome log (same sink as free-text search). No-op unless env path set.
+    try:
+        log_items = [
+            {
+                "label": label,
+                "search_term": (
+                    ", ".join(search_terms_used.get(pid) or []) or label
+                ),
+            }
+            for pid, label in product_labels.items()
+        ]
+        log_search_item_outcomes(
+            items=log_items,
+            offers_by_item=offers_by_label,
+            stores_found=len(stores),
+            data_source=sefaz.source_name,
+        )
+    except Exception:  # noqa: BLE001 — never break search on logging
+        logger.exception("catalog match outcome log failed")
 
     return SearchResponse(
         origin=Origin(latitude=lat, longitude=lon),
