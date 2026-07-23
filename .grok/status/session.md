@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-23T22:30Z W-m3-learn — M3 DONE (see ship SHA in worker report)
+Last update: 2026-07-23T22:30Z W-m3-learn — M3 DONE `cf851c3`
 
 ## Project lock
 **HARD** Alagoas only.
@@ -23,7 +23,7 @@ Self-improving matching MVP (`docs/self-improving-matching-plan.md` P0–P4) + s
 | **M0** match_rules_version + baseline | **DONE** `5a16961` W-m0-m1 |
 | **M1** outcome log | **DONE** `5a16961` W-m0-m1 |
 | **M2** auto_label | **DONE** `56ff4a5` W-m2-label — report `worker_w_m2_label_report.md` |
-| **M3** learn_policy v2 | **DONE** W-m3-learn — report `worker_w_m3_learn_report.md` |
+| **M3** learn_policy v2 | **DONE** `cf851c3` W-m3-learn — report `worker_w_m3_learn_report.md` |
 | **M4** offline rescore + live smoke scripts | **QUEUED** after M3 |
 | **B2-verify** staple warm/fetch smoke | **QUEUED** W-b2-verify |
 | Commit `docs/self-improving-matching-plan.md` | **DONE** in `5a16961` |
@@ -33,7 +33,7 @@ Self-improving matching MVP (`docs/self-improving-matching-plan.md` P0–P4) + s
 |----|------|
 | W-m0-m1 | **DONE** `5a16961` — report `worker_w_m0_m1_report.md` |
 | W-m2-label | **DONE** `56ff4a5` — Phase 2 auto_label; report `worker_w_m2_label_report.md` |
-| W-m3-learn | **DONE** — Phase 3 learn_policy; report `worker_w_m3_learn_report.md` |
+| W-m3-learn | **DONE** `cf851c3` — Phase 3 learn_policy; report `worker_w_m3_learn_report.md` |
 | W-b2-verify | API serial staple smoke; prewarm evidence |
 
 ## Residual

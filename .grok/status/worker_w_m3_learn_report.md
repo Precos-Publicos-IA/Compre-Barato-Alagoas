@@ -3,6 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Worker** | W-m3-learn |
+| **Ship SHA** | `cf851c34f0709a95582970fd35756c1d53124a2c` (`cf851c3`) |
 | **When (UTC)** | 2026-07-23 |
 | **Plan** | `docs/self-improving-matching-plan.md` Phase 3 |
 | **Testing policy** | Backend/function first — pytest only; no UI matrix |
@@ -79,4 +80,4 @@ app/services/llm/verifier.py     → on_search_item_result only (no await rag.re
 
 ## Git
 
-(ship SHA filled after commit)
+`cf851c34f0709a95582970fd35756c1d53124a2c` (`cf851c3`)
