@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-23T19:52Z W-b2-verify HARD_BLOCK + agent fix
+Last update: 2026-07-23T20:00Z W-m4-measure — M4 DONE (Phase 4 offline rescore + live smoke)
 
 ## Project lock
 **HARD** Alagoas only.
@@ -14,7 +14,7 @@ Self-improving matching MVP (`docs/self-improving-matching-plan.md` P0–P4) + s
 **Optional only if path touches Flutter:** minimal `flutter test` for that file — never full viewport suite.
 
 ## Phase
-**Active** — M0+M1+M2+M3 shipped; **B2-verify DONE HARD_BLOCK**; next **M4** + deploy B2 accent/staple rewrite fix
+**Active** — M0–M4 matching MVP measure **DONE**; **B2-verify DONE HARD_BLOCK**; next deploy B2 accent/staple rewrite fix + optional post-deploy live smoke
 
 ## Must-complete
 | # | Status |
@@ -24,7 +24,7 @@ Self-improving matching MVP (`docs/self-improving-matching-plan.md` P0–P4) + s
 | **M1** outcome log | **DONE** `5a16961` W-m0-m1 |
 | **M2** auto_label | **DONE** `56ff4a5` W-m2-label — report `worker_w_m2_label_report.md` |
 | **M3** learn_policy v2 | **DONE** `3ae1f52` (feature `cf851c3`) W-m3-learn — report `worker_w_m3_learn_report.md` |
-| **M4** offline rescore + live smoke scripts | **QUEUED** next |
+| **M4** offline rescore + live smoke scripts | **DONE** (see report SHA) |
 | **B2-verify** staple warm/fetch smoke | **DONE — HARD_BLOCK SEFAZ** (live REGRESSED vs baseline; accent/ovo agent fix in tree, needs deploy) — report `worker_w_b2_verify_report.md` |
 | Commit `docs/self-improving-matching-plan.md` | **DONE** in `5a16961` |
 
@@ -35,7 +35,7 @@ Self-improving matching MVP (`docs/self-improving-matching-plan.md` P0–P4) + s
 | W-m2-label | **DONE** `56ff4a5` — Phase 2 auto_label; report `worker_w_m2_label_report.md` |
 | W-m3-learn | **DONE** `3ae1f52` — Phase 3 learn_policy v2; report `worker_w_m3_learn_report.md` |
 | W-b2-verify | **DONE** HARD_BLOCK live SEFAZ; accent cache + staple static rewrite fix; report `worker_w_b2_verify_report.md` |
-| W-m4-measure | **ACTIVE** Phase 4 offline rescore + live smoke scripts |
+| W-m4-measure | **DONE** Phase 4 — report `worker_w_m4_measure_report.md` |
 
 ## Residual
 - Head weak tops; honest-100; plan P5–P7 later
@@ -43,5 +43,9 @@ Self-improving matching MVP (`docs/self-improving-matching-plan.md` P0–P4) + s
 - Intermittent live **502** under serial staple load (gateway)
 
 ## Next focus
-- Spawn/finish **M4** (offline rescore + serial live smoke scripts)
+- M4 DONE — post-deploy: `PYTHONPATH=backend python3 backend/scripts/match_live_smoke.py` when SEFAZ healthy
 - Deploy B2 agent fix + VPS prewarm; re-run 7-staple serial smoke
+- Plan P5 lexicon miner / P6 Flutter feedback when prioritized
+
+## Matching MVP (M0–M4)
+M0–M4 **DONE** — observe → label → learn → measure scripts. MVP-S1–S5 base loop closed per `docs/self-improving-matching-plan.md`.

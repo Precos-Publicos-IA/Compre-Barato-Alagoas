@@ -1,0 +1,4877 @@
+{
+  "meta": {
+    "mode": "offline_rescore_match",
+    "phase": "4",
+    "input": "/code/alagoas/Compre-Barato-Alagoas/.grok/status/match_eval_100_honest.json",
+    "evaluated_at": "2026-07-23T19:51:58.386864+00:00",
+    "min_keep_score": 0.35,
+    "schema": {
+      "n": "queries rescored (with tops)",
+      "still_bad": "live-bad rows whose top1 is still hard-reject/bad (not emptied)",
+      "now_empty_or_reject": "live-bad rows whose all tops would be filtered (improvement)",
+      "regressed_good_to_bad": "live-good rows whose top1 is now bad/empty offline"
+    },
+    "source_meta": {
+      "api_base": "https://alagoas.precospublicos.ia.br",
+      "fixture": "/code/alagoas/Compre-Barato-Alagoas/backend/tests/fixtures/shopping_list_100.json",
+      "fixture_commit_hint": "81bed97",
+      "latitude": -9.6658,
+      "longitude": -35.735,
+      "radius_km": 8,
+      "days": 7,
+      "concurrency": 1,
+      "max_concurrency": 2,
+      "timeout_s": 150.0,
+      "retry_backoff_s": 3.0,
+      "retry_on": "empty_stores_or_match_rate_0",
+      "methodology": "honest_serial_low_concurrency",
+      "evaluated_at": "2026-07-18T16:28:44.310715+00:00",
+      "worker": "W-eval-honest",
+      "invalidates_prior": "f7ef373"
+    }
+  },
+  "summary": {
+    "n": 91,
+    "still_bad": 0,
+    "now_empty_or_reject": 20,
+    "regressed_good_to_bad": 10,
+    "n_live_bad": 20,
+    "n_live_good": 71,
+    "good_to_good": 61,
+    "bad_to_empty": 20,
+    "bad_to_still_bad": 0,
+    "transitions": {
+      "good→good": 55,
+      "bad→now_empty_or_reject": 20,
+      "good→weak": 6,
+      "good→still_bad": 8,
+      "good→now_empty_or_reject": 2
+    },
+    "by_offline_verdict": {
+      "good": 55,
+      "now_empty_or_reject": 22,
+      "weak": 6,
+      "still_bad": 8
+    },
+    "by_live_verdict": {
+      "pass": 71,
+      "wrong_class": 20
+    },
+    "poison_pairs_n": 8,
+    "poison_pairs_all_ok": true,
+    "poison_pairs_failed": 0
+  },
+  "poison_pair_checks": [
+    {
+      "query": "queijo",
+      "description": "PAO DE QUEIJO CONGELADO 1KG",
+      "expect": "reject_or_empty",
+      "ok": true,
+      "score_now": 0.04,
+      "alignment_verdict": "reject",
+      "auto_label": "bad",
+      "hard_reject": true,
+      "would_keep": false
+    },
+    {
+      "query": "peito de frango",
+      "description": "OVOS BRANCOS UND",
+      "expect": "reject_or_empty",
+      "ok": true,
+      "score_now": 0.04,
+      "alignment_verdict": "reject",
+      "auto_label": "bad",
+      "hard_reject": true,
+      "would_keep": false
+    },
+    {
+      "query": "peito de frango",
+      "description": "PASTEL DE FRANGO",
+      "expect": "reject_or_empty",
+      "ok": true,
+      "score_now": 0.04,
+      "alignment_verdict": "reject",
+      "auto_label": "bad",
+      "hard_reject": true,
+      "would_keep": false
+    },
+    {
+      "query": "frango",
+      "description": "PASTEL DE FRANGO",
+      "expect": "reject_or_empty",
+      "ok": true,
+      "score_now": 0.04,
+      "alignment_verdict": "reject",
+      "auto_label": "bad",
+      "hard_reject": true,
+      "would_keep": false
+    },
+    {
+      "query": "ovo",
+      "description": "MACARRAO COM OVOS 500G",
+      "expect": "reject_or_empty",
+      "ok": true,
+      "score_now": 0.04,
+      "alignment_verdict": "reject",
+      "auto_label": "bad",
+      "hard_reject": true,
+      "would_keep": false
+    },
+    {
+      "query": "queijo",
+      "description": "QUEIJO MUSSARELA KG",
+      "expect": "keep_good",
+      "ok": true,
+      "score_now": 0.5,
+      "alignment_verdict": "ok",
+      "auto_label": "good",
+      "hard_reject": false,
+      "would_keep": true
+    },
+    {
+      "query": "peito de frango",
+      "description": "PEITO DE FRANGO KG",
+      "expect": "keep_good",
+      "ok": true,
+      "score_now": 0.5,
+      "alignment_verdict": "ok",
+      "auto_label": "good",
+      "hard_reject": false,
+      "would_keep": true
+    },
+    {
+      "query": "arroz",
+      "description": "ARROZ BRANCO 1KG",
+      "expect": "keep_good",
+      "ok": true,
+      "score_now": 0.92,
+      "alignment_verdict": "ok",
+      "auto_label": "good",
+      "hard_reject": false,
+      "would_keep": true
+    }
+  ],
+  "results": [
+    {
+      "id": 1,
+      "query": "arroz",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.92,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "ARROZ EMOCOES INTEGRAL 1KG",
+          "score_now": 0.92,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "FIBRA ARROZ CORINGA - PEQ 12X200G",
+          "score_now": 0.57,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ARROZ BRANCO 1KG",
+          "score_now": 0.92,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PORCAO DE ARROZ 250ML",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "ARROZ TIO VIEIRA BRANCO 1KG",
+          "score_now": 0.92,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "query": "feijão",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.92,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "FEIJAO PT T1 1KG OF3",
+          "score_now": 0.92,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "FEIJAO URB PRET 1K OF3",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "FEIJAO KI-SABOR 1KG",
+          "score_now": 0.92,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ACMP FEIJÃO CASEIRO",
+          "score_now": 0.57,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CMB1 FEIJAO VERDE 150G",
+          "score_now": 0.57,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "query": "feijão preto",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.845,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "FEIJAO PT T1 1KG OF3",
+          "score_now": 0.845,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "FEIJAO URB PRET 1K OF3",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "FEIJAO KI-SABOR 1KG",
+          "score_now": 0.845,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ACMP FEIJÃO CASEIRO",
+          "score_now": 0.495,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CMB1 FEIJAO VERDE 150G",
+          "score_now": 0.495,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "query": "açúcar",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.92,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "ACUCAR CRISTAL ESPECIAL FORMOSO 30KG",
+          "score_now": 0.92,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "Acucar Cristal Corur",
+          "score_now": 0.92,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ACUCAR CRISTAL VERDE LIMAO MIX - 80G",
+          "score_now": 0.72,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ACUCAR CRISTAL ITAJA 1KG",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ACUCAR ITAJA CRISTAL 1KG",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "query": "açúcar demerara",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.845,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "ACUCAR CRISTAL ESPECIAL FORMOSO 30KG",
+          "score_now": 0.845,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "Acucar Cristal Corur",
+          "score_now": 0.845,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ACUCAR CRISTAL VERDE LIMAO MIX - 80G",
+          "score_now": 0.645,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ACUCAR CRISTAL ITAJA 1KG",
+          "score_now": 0.945,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ACUCAR ITAJA CRISTAL 1KG",
+          "score_now": 0.945,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "query": "farinha de trigo",
+      "category": "staples",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "query": "farinha de mandioca",
+      "category": "staples",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "query": "fubá",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 3,
+      "n_kept": 3,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "FUBA CORINGA 500G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "FUBA DE MILHO - CORINGA 10X500G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "FUBA CORINGA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "query": "macarrão",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.7,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MACARRAO INSTANTANEO",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MACARRAO INSTAN TRELOSO 75G CARNE",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MACARRAO RENATA EXPRESS INST GAL CAIP 85",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MACARRAO VITARELLA TRELOSO LAMEN TOMATE",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MACARRAO VITARELLA LAMEN LEGUMES 85G",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "query": "macarrão espaguete",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.625,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MACARRAO INSTANTANEO",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MACARRAO INSTAN TRELOSO 75G CARNE",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MACARRAO RENATA EXPRESS INST GAL CAIP 85",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MACARRAO VITARELLA TRELOSO LAMEN TOMATE",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MACARRAO VITARELLA LAMEN LEGUMES 85G",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "query": "aveia",
+      "category": "staples",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "PACOQUITA ZERO C AVEIA COD 840069 OBJETI",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "AVEIA SAO BR 165g UN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PACOQUITA C AVEIA DIET 18 GR SANTA HELEN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PACOQUITA C AVEIA DIET 22 GR SANTA HELEN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PACOCA C/ AVEIA ZERO PACOQUITA 18G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "query": "leite",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.57,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "COCADA LEITE",
+          "score_now": 0.57,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CMB9 ADICIONAL LEITE GUIA",
+          "score_now": 0.45,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LEITE 50ML",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PINGOP DE LEITE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "KAKAUZINHO AO LEITE",
+          "score_now": 0.45,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "query": "leite integral",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "weak",
+      "transition": "good→weak",
+      "n_tops": 5,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "weak",
+      "top1_score_now": 0.495,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "COCADA LEITE",
+          "score_now": 0.495,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CMB9 ADICIONAL LEITE GUIA",
+          "score_now": 0.375,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LEITE 50ML",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PINGOP DE LEITE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "KAKAUZINHO AO LEITE",
+          "score_now": 0.375,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "query": "leite desnatado",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "weak",
+      "transition": "good→weak",
+      "n_tops": 5,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "weak",
+      "top1_score_now": 0.495,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "COCADA LEITE",
+          "score_now": 0.495,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CMB9 ADICIONAL LEITE GUIA",
+          "score_now": 0.375,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LEITE 50ML",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PINGOP DE LEITE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "KAKAUZINHO AO LEITE",
+          "score_now": 0.375,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "query": "leite em pó",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "weak",
+      "transition": "good→weak",
+      "n_tops": 5,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "weak",
+      "top1_score_now": 0.47,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "COCADA LEITE",
+          "score_now": 0.47,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CMB9 ADICIONAL LEITE GUIA",
+          "score_now": 0.35,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LEITE 50ML",
+          "score_now": 0.6,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PINGOP DE LEITE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "KAKAUZINHO AO LEITE",
+          "score_now": 0.35,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "query": "ovo",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.7,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OVOS EXTRA LUNA",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OVOS UND",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "query": "ovos",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.7,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OVOS EXTRA LUNA",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OVOS UND",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "query": "manteiga",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "still_bad",
+      "transition": "good→still_bad",
+      "n_tops": 5,
+      "n_kept": 2,
+      "emptied_all_tops": false,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "PIPOCA CORINGA SABOR MANTEIGA FD 10X20X15G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PIPOCA CORINGA S.MANTEIGA 15G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PIPOCA CORINGA SABOR MANTEIGA PC.30G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "COUVE MANTEIGA UND",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PIPOCA CORINGA SABOR MANTEIGA 30G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "query": "margarina",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MARGARINA PRIMOR 250G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "Pao C Margarina Un",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MARGARINA PURO SABOR 250G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MARGARINA DELICATA CREMOSA C/SAL 250G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "query": "queijo",
+      "category": "dairy",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "query": "queijo mussarela",
+      "category": "dairy",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "query": "requeijão",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "still_bad",
+      "transition": "good→still_bad",
+      "n_tops": 4,
+      "n_kept": 3,
+      "emptied_all_tops": false,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "SALG SNAKS GRATICIA 27G REQUEIJAO",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "SALGAD. FOFITOS REQUEIJAO 30G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SALG. KIGAROT REQUEIJAO 27G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CHEETOS ONDA REQUEIJAO - 23GR",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "query": "iogurte",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "BALAS IOGURTE 14X500 UNICA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BALA IOGURTE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARAMELO IOGURTE UND",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BALA AZEDINHA IOGURTE MORANGO (MASTIG)",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BALA IOGURTE SOBERANA UNIDADE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "query": "óleo",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 1.0,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "OLEO DE SOJA SOYA 900ML",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OLEO DE SOJA SINHA 5",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OLEO SOJA LIZA",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OLEO DE SOJA SINHA 500 ML",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "query": "óleo de soja",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 1.0,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "OLEO DE SOJA SOYA 900ML",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OLEO DE SOJA SINHA 5",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OLEO SOJA LIZA",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "OLEO DE SOJA SINHA 500 ML",
+          "score_now": 1.0,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "query": "azeite",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 2,
+      "n_kept": 2,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "Mol Azeite ALC",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "AZEITE TRUFADO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "query": "vinagre",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "Vinagre Palmeiron 25",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "VINAGRE DE ALCOOL PA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "VINAGRE TIO ARMENIO 500ML",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "VINAGRE DE ALCOOL PALMEIRON 2",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "query": "molho de tomate",
+      "category": "oils",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "query": "catchup",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CATCHUP PALMEIRON TP 24 X 300 G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CATCHUP TAMBAU 190G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CATCHUP BONARE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CATCHUP PALMEIROM TP 300G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "query": "maionese",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "Maionese Separada",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MAIONESE KISABOR SCH 200G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MAIONESE QUERO 200G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "Maionese",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MAIONESE PREDILECTA 200G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "query": "mostarda",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MOSTARDA HELLMANNS SACHET 168 7G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MOLHO MOSTARDA E MEL",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MOSTARDA DAJUDA SCH 200G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MOSTARDA UN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "query": "tempero",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "TEMPERO SAZON SAC.5G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "TEMPERO SAZON DIVERSOS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "TEMPERO SAZON UN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SAZON TEMPERO SABOR CARNES 60G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "TEMPERO SAZON UND..",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "query": "alho",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "weak",
+      "transition": "good→weak",
+      "n_tops": 2,
+      "n_kept": 1,
+      "emptied_all_tops": false,
+      "top1_auto_label": "weak",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MOLHO EXTRA ALHO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "TORRADA SPECIAL DE ALHO 250G NOVO",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "query": "cebola",
+      "category": "oils",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 2,
+      "n_kept": 1,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "APLIC. CEBOLA SANDUICHE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SALG POPCROC MET CEBOLA 15G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "query": "caldo de galinha",
+      "category": "oils",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "query": "frango",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 3,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CF. PEITO FRANGO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ASA DE FRANGO",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "mini frango unidade",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "HAMBURGUER BOVINO/FRANGO - 56G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "query": "peito de frango",
+      "category": "meat",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "query": "carne moída",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CARNE MOIDA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARNE MOIDA FORTBOI 500G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARNE MOIDA CONG BOV MIRANDA 500G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARNE MOIDA PURISSIMA 500GR",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARNE MOIDA RBFOODS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "query": "carne",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CARNE MOIDA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARNE MOIDA FORTBOI 500G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARNE MOIDA CONG BOV MIRANDA 500G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARNE MOIDA PURISSIMA 500GR",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARNE MOIDA RBFOODS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "query": "linguiça",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "LINGUICA DEFUMADA GROSSA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LINGUICA DEFUMADA KG",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LINGUICA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MIOJO LINGUICA CALABRESA C/PIMENTA 60G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LINGUICA CALABRESA PERDIGAO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "query": "salsicha",
+      "category": "meat",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 2,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "Pipoca Bokus sal 30g",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PIPOCA BOKUS SAL 10G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "query": "bacon",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "weak",
+      "transition": "good→weak",
+      "n_tops": 2,
+      "n_kept": 1,
+      "emptied_all_tops": false,
+      "top1_auto_label": "weak",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MOLHO EXTRA BACON",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SALG SNACKS TRIGO BACON AMENDUPA - 50GR",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "query": "presunto",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "still_bad",
+      "transition": "good→still_bad",
+      "n_tops": 3,
+      "n_kept": 1,
+      "emptied_all_tops": false,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "SALG MILHO FLITS SABOR PRESUNTO 28GR",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "SALG SNAKS GRATICIA 27G PRESUNTO",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "SALG JUMBITOS 27G PRESUNTO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "query": "peixe",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 3,
+      "n_kept": 2,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "PEIXE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "RACA KITEKAT PEIXE ADULTO SC 70G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "WHISKAS  SH 85G AD PEIXE AO MOLHO 1",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "query": "sardinha",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "SARDINHA 88 OLEO 125G 50UN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SARDINHA GOMES DA COSTA TOMATE 125G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SARDINHA COQUEIRO 125G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SARDINHA RALADA 88 110G EM OLEO COMEST",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SARDINHA PALMEIRA OLEO 125G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "query": "atum",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "still_bad",
+      "transition": "good→still_bad",
+      "n_tops": 2,
+      "n_kept": 1,
+      "emptied_all_tops": false,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "WHISKAS  SH 85G AD ATUM 1",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "RACA WHISKAS ATUM ADULTO SC 85G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "query": "mortadela",
+      "category": "meat",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MORTADELA KG",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MORTADELA FRANGO PERDIGAO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MORTADELA DE FRANGO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MORTADELA SADIA MISTA 400G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "Pao C  Mortadela",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "query": "banana",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 3,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "BANANA PROMOCAO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "NEGO BOM UNIBOM BANANA UNID",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "BANANA NANICA UN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BANANA PRATA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "query": "tomate",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "weak",
+      "transition": "good→weak",
+      "n_tops": 5,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "weak",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MOLHO TOMATE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "Add Tomate",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MOLHO TOMATE SCH JULIETA 310G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MAC INST NISSIN TRELOSO 75G TOMATE - 19.5",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "TOMATE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "query": "batata",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "BATATA FRITAS 300G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BATATA INGLESA DE SEGUNDA KG",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BATATA FRITA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PAO DE BATATA UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "BATATA DOCE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "query": "batata doce",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 3,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "BATATA DOCE DE SEGUNDA KG",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BATATA DOCE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "COXINHA DE BATATA DOCE - FRANGO CREMOSO",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "BATATA DOCE ROXA REDINHA kg",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "query": "cenoura",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "still_bad",
+      "transition": "good→still_bad",
+      "n_tops": 3,
+      "n_kept": 2,
+      "emptied_all_tops": false,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "PAO DE CENOURA 25G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "Molhos cenoura",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MOLHO EXTRA CENOURA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "query": "alface",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "ALFACE CRESPA UND",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ALFACE VERDE IN NATURA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "AD. ALFACE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ALFACE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "query": "limão",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "still_bad",
+      "transition": "good→still_bad",
+      "n_tops": 4,
+      "n_kept": 3,
+      "emptied_all_tops": false,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "SUCO DE LIMAO CORTESIA",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "LIMAO UN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "REFR.PO MID LIMAO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LIMAO UNI",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "query": "laranja",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "still_bad",
+      "transition": "good→still_bad",
+      "n_tops": 4,
+      "n_kept": 3,
+      "emptied_all_tops": false,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "SUCO DE LARANJA CORTESIA",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "LARANJA PERA UNIDADE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "LARANJA PERA UN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "EMBARE CHOCO C LARANJA UNI",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "query": "maçã",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 3,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MACA GRANEL",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BANANA MACA UND",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BANANA MACA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BDJ BOM LEITE BANANA E MACA 540G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "query": "mamão",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 2,
+      "n_kept": 2,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "MAMAO FORMOSA 80G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "POLPA MAMAO EMB",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "query": "abóbora",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "good→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "PLUTONITA CABECA DE ABOBORA C/42 UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "CHICL ARCOR PLUTONITA CABECA ABOBORA",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "CHICLE ARCOR PLUTONITA CABECA ABOBORA 180G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "CHICLE ARCOR PLUTONITA CABECA ABOBORA",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "query": "chuchu",
+      "category": "produce",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 2,
+      "n_kept": 2,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CHUCHU DE SEGUNDA KG",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CHUCHU REDINHA kg",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "query": "pão",
+      "category": "bakery",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "query": "pão de forma",
+      "category": "bakery",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "query": "pão francês",
+      "category": "bakery",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "query": "bolo",
+      "category": "bakery",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "BOLO CHOCO CAPUCCINO COFFEE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BOLO ROMEU E JULIETA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BOLO BAUDUCCO MORG 40G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BOLO ANA MARIA BAUNILHA 35G BIMBO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BOLO CASEIRO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "query": "biscoito",
+      "category": "bakery",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "BISCOITO TRELOSO RECHEADO CHOCOLATE VITARELLA (CAIXA C/ 40 X 37G)",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BISCOITO WAFER CHOCOLATE MAROTO AFA - 26 GR",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BISCOITO REC FUTURINHOS CAPRICCHE 32G CHOC",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BISCOITO WAFER CHOCOLATE MAROTO 26G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "query": "torrada",
+      "category": "bakery",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "TORRADA SPECIAL DE ALHO 250G NOVO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "TORRADA KG",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "TORRADA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "TORRADA BAUDUCCO TRADICIONAL 142G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "TORRADA CASEIRA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "query": "pão de queijo",
+      "category": "bakery",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "query": "café",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.7,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CAFE P",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CAFE",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CAFE TAM: 80 ML",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "GUIA CAFE XICARA",
+          "score_now": 0.57,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CAFE COADO",
+          "score_now": 0.7,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "query": "café solúvel",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.625,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CAFE P",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CAFE",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CAFE TAM: 80 ML",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "GUIA CAFE XICARA",
+          "score_now": 0.495,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CAFE COADO",
+          "score_now": 0.625,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "query": "água",
+      "category": "beverages",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "query": "refrigerante",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "REFRIGERANTE PEPSI ZERO (COMPRA)",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "REFRIGERANTE +POP COLA 200ML",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "REFRIGERANTE + POP LIMAO POPULAR - 200ML",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "REFRIGERANTE +POP COLA 200ML ZERO - 200ML",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "query": "coca cola",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "COCA COLA ZERO CORTESIA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "REFRIG COCA COLA ZERO 220ML",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "REF COCA COLA ZERO 6",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "COCA COLA LT",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "REFRI COCA COLA ZERO - EV",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "query": "suco",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "SUCO ACEROLA JARRA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PROMOCAO SUCO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SUCO DE LARANJA CORTESIA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SUCO FRUIT SABOR UVA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "SUCO MARATA LARANJA EM PO 30G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "query": "chá",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 2,
+      "n_kept": 2,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CHA DRINK T 300ML LI",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "NESTEA CHA GELADO 340ML SABOR LIMAO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "query": "água de coco",
+      "category": "beverages",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "query": "salgadinho",
+      "category": "snacks",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 2,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "Pipoca Bokus sal 30g",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PIPOCA BOKUS SAL 10G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "query": "pipoca",
+      "category": "snacks",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "PIPOCA CORINGA SABOR MANTEIGA FD 10X20X15G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PIPOCA BONI SALG 15G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "weak",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PIPOCA BETTI 15G SAL",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PIPOCA CORINGA S.MANTEIGA 15G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PIPOCA FOFINHA AMANTEGADA 10G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "query": "chocolate",
+      "category": "snacks",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CARAMELO LEITE/CHOCOLATE 660G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARAMELO LEITE CHOCOLATE",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "MOUSSE DE CHOCOLATE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "CONFEITO EMBARE CHOCOLATE COM LARANJA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CARAMELO LEITE CHOCOLATE UND",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "query": "amendoim",
+      "category": "snacks",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "still_bad",
+      "transition": "good→still_bad",
+      "n_tops": 5,
+      "n_kept": 1,
+      "emptied_all_tops": false,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "DOCE DE AMENDOIM SANTA HELENA PACOQUITA 15G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PACOGUITA DOCE DE AMENDOIM SANTA HELENA",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PACOCA DE AMENDOIM TUBITOS 15G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "DOCE DE AMENDOIM PACOKINHA 15G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "AMENDOIM S.HELENA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "query": "batata chips",
+      "category": "snacks",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "BATATA SOL CHIPS BACON 60G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BATATA RUFFLES PIM MEX 65G ELMA CHIPS M",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BATATA GRAVATA CHIPS CEB S 17G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BATATA OK CHIPS CEBO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "BATATA ELMA CHIPS RUFFLES SAL 30G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "query": "barra de cereal",
+      "category": "snacks",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "query": "sabão em pó",
+      "category": "cleaning",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 3,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "COCADA LEITE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "LEITE 50ML",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "LEITE CONDENSADO 30G",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "query": "água sanitária",
+      "category": "cleaning",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "query": "esponja",
+      "category": "cleaning",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "ESPONJA BRILHUS MULTIUSO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ESPONJA BRILHUS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ESPONJA FINA BRILHUS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ESPONJA BRILHUS FINA BETTANIN",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "ESPONJA MULTIUSO BRILHUS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "query": "papel toalha",
+      "category": "cleaning",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "PAPEL TOALHA MALU 2 ROLOS 100FOLHAS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PAPEL TOALHA MALU 50F 2RL",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PAPEL TOALHA PICCOLA 2 ROLOS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PAPEL TOALHA CAPRICE BRANCA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "PAPEL TOALHA MALU 2R",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "query": "saco de lixo",
+      "category": "cleaning",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 4,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "OVOS",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "query": "creme dental",
+      "category": "hygiene",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "good→now_empty_or_reject",
+      "n_tops": 1,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "reject",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "CRE.DENTAL ORAL-B 3D",
+          "score_now": 0.04,
+          "alignment_verdict": "reject",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "query": "papel higiênico",
+      "category": "hygiene",
+      "live_verdict": "wrong_class",
+      "live_bucket": "bad",
+      "offline_verdict": "now_empty_or_reject",
+      "transition": "bad→now_empty_or_reject",
+      "n_tops": 5,
+      "n_kept": 0,
+      "emptied_all_tops": true,
+      "top1_auto_label": "bad",
+      "top1_score_now": 0.04,
+      "top1_alignment": "ok",
+      "top1_hard_reject": true,
+      "top1_goodish": false,
+      "scored_tops": [
+        {
+          "description": "PAPEL TOALHA MALU 2 ROLOS 100FOLHAS",
+          "score_now": 0.04,
+          "alignment_verdict": "ok",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PAPEL TOALHA MALU 50F 2RL",
+          "score_now": 0.04,
+          "alignment_verdict": "ok",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PAPEL TOALHA PICCOLA 2 ROLOS",
+          "score_now": 0.04,
+          "alignment_verdict": "ok",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PAPEL TOALHA MILI  C/ 2 ROLOS",
+          "score_now": 0.04,
+          "alignment_verdict": "ok",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        },
+        {
+          "description": "PAPEL TOALHA MILI 2 UND",
+          "score_now": 0.04,
+          "alignment_verdict": "ok",
+          "auto_label": "bad",
+          "hard_reject": true,
+          "would_keep": false
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "query": "desodorante",
+      "category": "hygiene",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "DESODORANTE ROLON REXONA BAMB",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "DESODORANTE NIVEA INV.CLEAR R",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "DESODORANTE INTIMUS 100ML FESHION VANILHA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "DESODORANTE ANTITRANSPIRANTE SUAVE INVISIBLE 200ML",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "DESODORANTE INTIMUS BARBATIMAO 100ML FESHION",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "query": "condicionador",
+      "category": "hygiene",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "CONDICIONADOR CAVALO PRETO BEL CORPUS 380ML",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CONDICIONADOR 5 L CEREJA AVELA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CONDICIONADOR DARLING BRILHO E LEVEZA 350 ml",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "CONDICIONADOR OX NUTRICAO 200ML",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "query": "fralda",
+      "category": "baby",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 4,
+      "n_kept": 4,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "FRALDA DESC. PUFFYS",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "FRALDA CAPRICHO M C/ 8",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "HAMBURGUER MATURATTA 180G FRALDA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "HAMBURGUER FRALDA MATURATTA 180G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "query": "ração",
+      "category": "pet",
+      "live_verdict": "pass",
+      "live_bucket": "good",
+      "offline_verdict": "good",
+      "transition": "good→good",
+      "n_tops": 5,
+      "n_kept": 5,
+      "emptied_all_tops": false,
+      "top1_auto_label": "good",
+      "top1_score_now": 0.5,
+      "top1_alignment": "ok",
+      "top1_hard_reject": false,
+      "top1_goodish": true,
+      "scored_tops": [
+        {
+          "description": "RACAO",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "RACAO TETRA COLORBITS 1G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "RACAO PARA PASSAR CANTO NATURAL VITA AMARELA CANARIO BELGA 100G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "RACAO CANTO VITAMINA",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        },
+        {
+          "description": "RACAO CANTO NATURAL VIT AMARELA 100G",
+          "score_now": 0.5,
+          "alignment_verdict": "ok",
+          "auto_label": "good",
+          "hard_reject": false,
+          "would_keep": true
+        }
+      ]
+    }
+  ]
+}

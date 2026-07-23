@@ -1,0 +1,2460 @@
+{
+  "meta": {
+    "kind": "match_offline_tops_fixture",
+    "source": ".grok/status/match_eval_100_honest.json",
+    "source_evaluated_at": "2026-07-18T16:28:44.310715+00:00",
+    "n_queries": 91,
+    "note": "Compact tops-only fixture for offline_rescore_match.py (no network). Descriptions only; live_verdict from honest eval.",
+    "created_at": "2026-07-23T19:49:28.485095+00:00"
+  },
+  "poison_pairs": [
+    {
+      "query": "queijo",
+      "description": "PAO DE QUEIJO CONGELADO 1KG",
+      "expect": "reject_or_empty"
+    },
+    {
+      "query": "peito de frango",
+      "description": "OVOS BRANCOS UND",
+      "expect": "reject_or_empty"
+    },
+    {
+      "query": "peito de frango",
+      "description": "PASTEL DE FRANGO",
+      "expect": "reject_or_empty"
+    },
+    {
+      "query": "frango",
+      "description": "PASTEL DE FRANGO",
+      "expect": "reject_or_empty"
+    },
+    {
+      "query": "ovo",
+      "description": "MACARRAO COM OVOS 500G",
+      "expect": "reject_or_empty"
+    },
+    {
+      "query": "queijo",
+      "description": "QUEIJO MUSSARELA KG",
+      "expect": "keep_good"
+    },
+    {
+      "query": "peito de frango",
+      "description": "PEITO DE FRANGO KG",
+      "expect": "keep_good"
+    },
+    {
+      "query": "arroz",
+      "description": "ARROZ BRANCO 1KG",
+      "expect": "keep_good"
+    }
+  ],
+  "results": [
+    {
+      "id": 1,
+      "query": "arroz",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "ARROZ EMOCOES INTEGRAL 1KG",
+          "wrong_class": false
+        },
+        {
+          "description": "FIBRA ARROZ CORINGA - PEQ 12X200G",
+          "wrong_class": false
+        },
+        {
+          "description": "ARROZ BRANCO 1KG",
+          "wrong_class": false
+        },
+        {
+          "description": "PORCAO DE ARROZ 250ML",
+          "wrong_class": false
+        },
+        {
+          "description": "ARROZ TIO VIEIRA BRANCO 1KG",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "query": "feijão",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "FEIJAO PT T1 1KG OF3",
+          "wrong_class": false
+        },
+        {
+          "description": "FEIJAO URB PRET 1K OF3",
+          "wrong_class": false
+        },
+        {
+          "description": "FEIJAO KI-SABOR 1KG",
+          "wrong_class": false
+        },
+        {
+          "description": "ACMP FEIJÃO CASEIRO",
+          "wrong_class": false
+        },
+        {
+          "description": "CMB1 FEIJAO VERDE 150G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "query": "feijão preto",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "FEIJAO PT T1 1KG OF3",
+          "wrong_class": false
+        },
+        {
+          "description": "FEIJAO URB PRET 1K OF3",
+          "wrong_class": false
+        },
+        {
+          "description": "FEIJAO KI-SABOR 1KG",
+          "wrong_class": false
+        },
+        {
+          "description": "ACMP FEIJÃO CASEIRO",
+          "wrong_class": false
+        },
+        {
+          "description": "CMB1 FEIJAO VERDE 150G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "query": "açúcar",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "ACUCAR CRISTAL ESPECIAL FORMOSO 30KG",
+          "wrong_class": false
+        },
+        {
+          "description": "Acucar Cristal Corur",
+          "wrong_class": false
+        },
+        {
+          "description": "ACUCAR CRISTAL VERDE LIMAO MIX - 80G",
+          "wrong_class": false
+        },
+        {
+          "description": "ACUCAR CRISTAL ITAJA 1KG",
+          "wrong_class": false
+        },
+        {
+          "description": "ACUCAR ITAJA CRISTAL 1KG",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "query": "açúcar demerara",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "ACUCAR CRISTAL ESPECIAL FORMOSO 30KG",
+          "wrong_class": false
+        },
+        {
+          "description": "Acucar Cristal Corur",
+          "wrong_class": false
+        },
+        {
+          "description": "ACUCAR CRISTAL VERDE LIMAO MIX - 80G",
+          "wrong_class": false
+        },
+        {
+          "description": "ACUCAR CRISTAL ITAJA 1KG",
+          "wrong_class": false
+        },
+        {
+          "description": "ACUCAR ITAJA CRISTAL 1KG",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "query": "farinha de trigo",
+      "category": "staples",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "query": "farinha de mandioca",
+      "category": "staples",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "query": "fubá",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "FUBA CORINGA 500G",
+          "wrong_class": false
+        },
+        {
+          "description": "FUBA DE MILHO - CORINGA 10X500G",
+          "wrong_class": false
+        },
+        {
+          "description": "FUBA CORINGA",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "query": "macarrão",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MACARRAO INSTANTANEO",
+          "wrong_class": false
+        },
+        {
+          "description": "MACARRAO INSTAN TRELOSO 75G CARNE",
+          "wrong_class": false
+        },
+        {
+          "description": "MACARRAO RENATA EXPRESS INST GAL CAIP 85",
+          "wrong_class": false
+        },
+        {
+          "description": "MACARRAO VITARELLA TRELOSO LAMEN TOMATE",
+          "wrong_class": false
+        },
+        {
+          "description": "MACARRAO VITARELLA LAMEN LEGUMES 85G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "query": "macarrão espaguete",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MACARRAO INSTANTANEO",
+          "wrong_class": false
+        },
+        {
+          "description": "MACARRAO INSTAN TRELOSO 75G CARNE",
+          "wrong_class": false
+        },
+        {
+          "description": "MACARRAO RENATA EXPRESS INST GAL CAIP 85",
+          "wrong_class": false
+        },
+        {
+          "description": "MACARRAO VITARELLA TRELOSO LAMEN TOMATE",
+          "wrong_class": false
+        },
+        {
+          "description": "MACARRAO VITARELLA LAMEN LEGUMES 85G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "query": "aveia",
+      "category": "staples",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "PACOQUITA ZERO C AVEIA COD 840069 OBJETI",
+          "wrong_class": false
+        },
+        {
+          "description": "AVEIA SAO BR 165g UN",
+          "wrong_class": false
+        },
+        {
+          "description": "PACOQUITA C AVEIA DIET 18 GR SANTA HELEN",
+          "wrong_class": false
+        },
+        {
+          "description": "PACOQUITA C AVEIA DIET 22 GR SANTA HELEN",
+          "wrong_class": false
+        },
+        {
+          "description": "PACOCA C/ AVEIA ZERO PACOQUITA 18G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "query": "leite",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "COCADA LEITE",
+          "wrong_class": false
+        },
+        {
+          "description": "CMB9 ADICIONAL LEITE GUIA",
+          "wrong_class": false
+        },
+        {
+          "description": "LEITE 50ML",
+          "wrong_class": false
+        },
+        {
+          "description": "PINGOP DE LEITE",
+          "wrong_class": false
+        },
+        {
+          "description": "KAKAUZINHO AO LEITE",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "query": "leite integral",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "COCADA LEITE",
+          "wrong_class": false
+        },
+        {
+          "description": "CMB9 ADICIONAL LEITE GUIA",
+          "wrong_class": false
+        },
+        {
+          "description": "LEITE 50ML",
+          "wrong_class": false
+        },
+        {
+          "description": "PINGOP DE LEITE",
+          "wrong_class": false
+        },
+        {
+          "description": "KAKAUZINHO AO LEITE",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "query": "leite desnatado",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "COCADA LEITE",
+          "wrong_class": false
+        },
+        {
+          "description": "CMB9 ADICIONAL LEITE GUIA",
+          "wrong_class": false
+        },
+        {
+          "description": "LEITE 50ML",
+          "wrong_class": false
+        },
+        {
+          "description": "PINGOP DE LEITE",
+          "wrong_class": false
+        },
+        {
+          "description": "KAKAUZINHO AO LEITE",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "query": "leite em pó",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "COCADA LEITE",
+          "wrong_class": false
+        },
+        {
+          "description": "CMB9 ADICIONAL LEITE GUIA",
+          "wrong_class": false
+        },
+        {
+          "description": "LEITE 50ML",
+          "wrong_class": false
+        },
+        {
+          "description": "PINGOP DE LEITE",
+          "wrong_class": false
+        },
+        {
+          "description": "KAKAUZINHO AO LEITE",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "query": "ovo",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": false
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": false
+        },
+        {
+          "description": "OVOS EXTRA LUNA",
+          "wrong_class": false
+        },
+        {
+          "description": "OVOS UND",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "query": "ovos",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": false
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": false
+        },
+        {
+          "description": "OVOS EXTRA LUNA",
+          "wrong_class": false
+        },
+        {
+          "description": "OVOS UND",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "query": "manteiga",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "PIPOCA CORINGA SABOR MANTEIGA FD 10X20X15G",
+          "wrong_class": false
+        },
+        {
+          "description": "PIPOCA CORINGA S.MANTEIGA 15G",
+          "wrong_class": false
+        },
+        {
+          "description": "PIPOCA CORINGA SABOR MANTEIGA PC.30G",
+          "wrong_class": false
+        },
+        {
+          "description": "COUVE MANTEIGA UND",
+          "wrong_class": false
+        },
+        {
+          "description": "PIPOCA CORINGA SABOR MANTEIGA 30G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "query": "margarina",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MARGARINA PRIMOR 250G",
+          "wrong_class": false
+        },
+        {
+          "description": "Pao C Margarina Un",
+          "wrong_class": false
+        },
+        {
+          "description": "MARGARINA PURO SABOR 250G",
+          "wrong_class": false
+        },
+        {
+          "description": "MARGARINA DELICATA CREMOSA C/SAL 250G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "query": "queijo",
+      "category": "dairy",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "query": "queijo mussarela",
+      "category": "dairy",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "query": "requeijão",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "SALG SNAKS GRATICIA 27G REQUEIJAO",
+          "wrong_class": false
+        },
+        {
+          "description": "SALGAD. FOFITOS REQUEIJAO 30G",
+          "wrong_class": false
+        },
+        {
+          "description": "SALG. KIGAROT REQUEIJAO 27G",
+          "wrong_class": false
+        },
+        {
+          "description": "CHEETOS ONDA REQUEIJAO - 23GR",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "query": "iogurte",
+      "category": "dairy",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "BALAS IOGURTE 14X500 UNICA",
+          "wrong_class": false
+        },
+        {
+          "description": "BALA IOGURTE",
+          "wrong_class": false
+        },
+        {
+          "description": "CARAMELO IOGURTE UND",
+          "wrong_class": false
+        },
+        {
+          "description": "BALA AZEDINHA IOGURTE MORANGO (MASTIG)",
+          "wrong_class": false
+        },
+        {
+          "description": "BALA IOGURTE SOBERANA UNIDADE",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "query": "óleo",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "OLEO DE SOJA SOYA 900ML",
+          "wrong_class": false
+        },
+        {
+          "description": "OLEO DE SOJA SINHA 5",
+          "wrong_class": false
+        },
+        {
+          "description": "OLEO SOJA LIZA",
+          "wrong_class": false
+        },
+        {
+          "description": "OLEO DE SOJA SINHA 500 ML",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "query": "óleo de soja",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "OLEO DE SOJA SOYA 900ML",
+          "wrong_class": false
+        },
+        {
+          "description": "OLEO DE SOJA SINHA 5",
+          "wrong_class": false
+        },
+        {
+          "description": "OLEO SOJA LIZA",
+          "wrong_class": false
+        },
+        {
+          "description": "OLEO DE SOJA SINHA 500 ML",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "query": "azeite",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "Mol Azeite ALC",
+          "wrong_class": false
+        },
+        {
+          "description": "AZEITE TRUFADO",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "query": "vinagre",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "Vinagre Palmeiron 25",
+          "wrong_class": false
+        },
+        {
+          "description": "VINAGRE DE ALCOOL PA",
+          "wrong_class": false
+        },
+        {
+          "description": "VINAGRE TIO ARMENIO 500ML",
+          "wrong_class": false
+        },
+        {
+          "description": "VINAGRE DE ALCOOL PALMEIRON 2",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "query": "molho de tomate",
+      "category": "oils",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "query": "catchup",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CATCHUP PALMEIRON TP 24 X 300 G",
+          "wrong_class": false
+        },
+        {
+          "description": "CATCHUP TAMBAU 190G",
+          "wrong_class": false
+        },
+        {
+          "description": "CATCHUP BONARE",
+          "wrong_class": false
+        },
+        {
+          "description": "CATCHUP PALMEIROM TP 300G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "query": "maionese",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "Maionese Separada",
+          "wrong_class": false
+        },
+        {
+          "description": "MAIONESE KISABOR SCH 200G",
+          "wrong_class": false
+        },
+        {
+          "description": "MAIONESE QUERO 200G",
+          "wrong_class": false
+        },
+        {
+          "description": "Maionese",
+          "wrong_class": false
+        },
+        {
+          "description": "MAIONESE PREDILECTA 200G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "query": "mostarda",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MOSTARDA HELLMANNS SACHET 168 7G",
+          "wrong_class": false
+        },
+        {
+          "description": "MOLHO MOSTARDA E MEL",
+          "wrong_class": false
+        },
+        {
+          "description": "MOSTARDA DAJUDA SCH 200G",
+          "wrong_class": false
+        },
+        {
+          "description": "MOSTARDA UN",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "query": "tempero",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "TEMPERO SAZON SAC.5G",
+          "wrong_class": false
+        },
+        {
+          "description": "TEMPERO SAZON DIVERSOS",
+          "wrong_class": false
+        },
+        {
+          "description": "TEMPERO SAZON UN",
+          "wrong_class": false
+        },
+        {
+          "description": "SAZON TEMPERO SABOR CARNES 60G",
+          "wrong_class": false
+        },
+        {
+          "description": "TEMPERO SAZON UND..",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "query": "alho",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MOLHO EXTRA ALHO",
+          "wrong_class": false
+        },
+        {
+          "description": "TORRADA SPECIAL DE ALHO 250G NOVO",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "query": "cebola",
+      "category": "oils",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "APLIC. CEBOLA SANDUICHE",
+          "wrong_class": false
+        },
+        {
+          "description": "SALG POPCROC MET CEBOLA 15G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "query": "caldo de galinha",
+      "category": "oils",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "query": "frango",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CF. PEITO FRANGO",
+          "wrong_class": false
+        },
+        {
+          "description": "ASA DE FRANGO",
+          "wrong_class": false
+        },
+        {
+          "description": "mini frango unidade",
+          "wrong_class": false
+        },
+        {
+          "description": "HAMBURGUER BOVINO/FRANGO - 56G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "query": "peito de frango",
+      "category": "meat",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "query": "carne moída",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CARNE MOIDA",
+          "wrong_class": false
+        },
+        {
+          "description": "CARNE MOIDA FORTBOI 500G",
+          "wrong_class": false
+        },
+        {
+          "description": "CARNE MOIDA CONG BOV MIRANDA 500G",
+          "wrong_class": false
+        },
+        {
+          "description": "CARNE MOIDA PURISSIMA 500GR",
+          "wrong_class": false
+        },
+        {
+          "description": "CARNE MOIDA RBFOODS",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "query": "carne",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CARNE MOIDA",
+          "wrong_class": false
+        },
+        {
+          "description": "CARNE MOIDA FORTBOI 500G",
+          "wrong_class": false
+        },
+        {
+          "description": "CARNE MOIDA CONG BOV MIRANDA 500G",
+          "wrong_class": false
+        },
+        {
+          "description": "CARNE MOIDA PURISSIMA 500GR",
+          "wrong_class": false
+        },
+        {
+          "description": "CARNE MOIDA RBFOODS",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "query": "linguiça",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "LINGUICA DEFUMADA GROSSA",
+          "wrong_class": false
+        },
+        {
+          "description": "LINGUICA DEFUMADA KG",
+          "wrong_class": false
+        },
+        {
+          "description": "LINGUICA",
+          "wrong_class": false
+        },
+        {
+          "description": "MIOJO LINGUICA CALABRESA C/PIMENTA 60G",
+          "wrong_class": false
+        },
+        {
+          "description": "LINGUICA CALABRESA PERDIGAO",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "query": "salsicha",
+      "category": "meat",
+      "live_verdict": "wrong_class",
+      "stores_found": 2,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "Pipoca Bokus sal 30g",
+          "wrong_class": true
+        },
+        {
+          "description": "PIPOCA BOKUS SAL 10G",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "query": "bacon",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MOLHO EXTRA BACON",
+          "wrong_class": false
+        },
+        {
+          "description": "SALG SNACKS TRIGO BACON AMENDUPA - 50GR",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "query": "presunto",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "SALG MILHO FLITS SABOR PRESUNTO 28GR",
+          "wrong_class": false
+        },
+        {
+          "description": "SALG SNAKS GRATICIA 27G PRESUNTO",
+          "wrong_class": false
+        },
+        {
+          "description": "SALG JUMBITOS 27G PRESUNTO",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "query": "peixe",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "PEIXE",
+          "wrong_class": false
+        },
+        {
+          "description": "RACA KITEKAT PEIXE ADULTO SC 70G",
+          "wrong_class": false
+        },
+        {
+          "description": "WHISKAS  SH 85G AD PEIXE AO MOLHO 1",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "query": "sardinha",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "SARDINHA 88 OLEO 125G 50UN",
+          "wrong_class": false
+        },
+        {
+          "description": "SARDINHA GOMES DA COSTA TOMATE 125G",
+          "wrong_class": false
+        },
+        {
+          "description": "SARDINHA COQUEIRO 125G",
+          "wrong_class": false
+        },
+        {
+          "description": "SARDINHA RALADA 88 110G EM OLEO COMEST",
+          "wrong_class": false
+        },
+        {
+          "description": "SARDINHA PALMEIRA OLEO 125G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "query": "atum",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "WHISKAS  SH 85G AD ATUM 1",
+          "wrong_class": false
+        },
+        {
+          "description": "RACA WHISKAS ATUM ADULTO SC 85G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "query": "mortadela",
+      "category": "meat",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MORTADELA KG",
+          "wrong_class": false
+        },
+        {
+          "description": "MORTADELA FRANGO PERDIGAO",
+          "wrong_class": false
+        },
+        {
+          "description": "MORTADELA DE FRANGO",
+          "wrong_class": false
+        },
+        {
+          "description": "MORTADELA SADIA MISTA 400G",
+          "wrong_class": false
+        },
+        {
+          "description": "Pao C  Mortadela",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "query": "banana",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "BANANA PROMOCAO",
+          "wrong_class": false
+        },
+        {
+          "description": "NEGO BOM UNIBOM BANANA UNID",
+          "wrong_class": false
+        },
+        {
+          "description": "BANANA NANICA UN",
+          "wrong_class": false
+        },
+        {
+          "description": "BANANA PRATA",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "query": "tomate",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MOLHO TOMATE",
+          "wrong_class": false
+        },
+        {
+          "description": "Add Tomate",
+          "wrong_class": false
+        },
+        {
+          "description": "MOLHO TOMATE SCH JULIETA 310G",
+          "wrong_class": false
+        },
+        {
+          "description": "MAC INST NISSIN TRELOSO 75G TOMATE - 19.5",
+          "wrong_class": false
+        },
+        {
+          "description": "TOMATE",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "query": "batata",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "BATATA FRITAS 300G",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA INGLESA DE SEGUNDA KG",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA FRITA",
+          "wrong_class": false
+        },
+        {
+          "description": "PAO DE BATATA UND",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA DOCE",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "query": "batata doce",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "BATATA DOCE DE SEGUNDA KG",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA DOCE",
+          "wrong_class": false
+        },
+        {
+          "description": "COXINHA DE BATATA DOCE - FRANGO CREMOSO",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA DOCE ROXA REDINHA kg",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "query": "cenoura",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "PAO DE CENOURA 25G",
+          "wrong_class": false
+        },
+        {
+          "description": "Molhos cenoura",
+          "wrong_class": false
+        },
+        {
+          "description": "MOLHO EXTRA CENOURA",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "query": "alface",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "ALFACE CRESPA UND",
+          "wrong_class": false
+        },
+        {
+          "description": "ALFACE VERDE IN NATURA",
+          "wrong_class": false
+        },
+        {
+          "description": "AD. ALFACE",
+          "wrong_class": false
+        },
+        {
+          "description": "ALFACE",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "query": "limão",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "SUCO DE LIMAO CORTESIA",
+          "wrong_class": false
+        },
+        {
+          "description": "LIMAO UN",
+          "wrong_class": false
+        },
+        {
+          "description": "REFR.PO MID LIMAO",
+          "wrong_class": false
+        },
+        {
+          "description": "LIMAO UNI",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "query": "laranja",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "SUCO DE LARANJA CORTESIA",
+          "wrong_class": false
+        },
+        {
+          "description": "LARANJA PERA UNIDADE",
+          "wrong_class": false
+        },
+        {
+          "description": "LARANJA PERA UN",
+          "wrong_class": false
+        },
+        {
+          "description": "EMBARE CHOCO C LARANJA UNI",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "query": "maçã",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MACA GRANEL",
+          "wrong_class": false
+        },
+        {
+          "description": "BANANA MACA UND",
+          "wrong_class": false
+        },
+        {
+          "description": "BANANA MACA",
+          "wrong_class": false
+        },
+        {
+          "description": "BDJ BOM LEITE BANANA E MACA 540G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "query": "mamão",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "MAMAO FORMOSA 80G",
+          "wrong_class": false
+        },
+        {
+          "description": "POLPA MAMAO EMB",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "query": "abóbora",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "PLUTONITA CABECA DE ABOBORA C/42 UN",
+          "wrong_class": false
+        },
+        {
+          "description": "CHICL ARCOR PLUTONITA CABECA ABOBORA",
+          "wrong_class": false
+        },
+        {
+          "description": "CHICLE ARCOR PLUTONITA CABECA ABOBORA 180G",
+          "wrong_class": false
+        },
+        {
+          "description": "CHICLE ARCOR PLUTONITA CABECA ABOBORA",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "query": "chuchu",
+      "category": "produce",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CHUCHU DE SEGUNDA KG",
+          "wrong_class": false
+        },
+        {
+          "description": "CHUCHU REDINHA kg",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "query": "pão",
+      "category": "bakery",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "query": "pão de forma",
+      "category": "bakery",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "query": "pão francês",
+      "category": "bakery",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "query": "bolo",
+      "category": "bakery",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "BOLO CHOCO CAPUCCINO COFFEE",
+          "wrong_class": false
+        },
+        {
+          "description": "BOLO ROMEU E JULIETA",
+          "wrong_class": false
+        },
+        {
+          "description": "BOLO BAUDUCCO MORG 40G",
+          "wrong_class": false
+        },
+        {
+          "description": "BOLO ANA MARIA BAUNILHA 35G BIMBO",
+          "wrong_class": false
+        },
+        {
+          "description": "BOLO CASEIRO",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "query": "biscoito",
+      "category": "bakery",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "BISCOITO TRELOSO RECHEADO CHOCOLATE VITARELLA (CAIXA C/ 40 X 37G)",
+          "wrong_class": false
+        },
+        {
+          "description": "BISCOITO WAFER CHOCOLATE MAROTO AFA - 26 GR",
+          "wrong_class": false
+        },
+        {
+          "description": "BISCOITO REC FUTURINHOS CAPRICCHE 32G CHOC",
+          "wrong_class": false
+        },
+        {
+          "description": "BISCOITO WAFER CHOCOLATE MAROTO 26G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "query": "torrada",
+      "category": "bakery",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "TORRADA SPECIAL DE ALHO 250G NOVO",
+          "wrong_class": false
+        },
+        {
+          "description": "TORRADA KG",
+          "wrong_class": false
+        },
+        {
+          "description": "TORRADA",
+          "wrong_class": false
+        },
+        {
+          "description": "TORRADA BAUDUCCO TRADICIONAL 142G",
+          "wrong_class": false
+        },
+        {
+          "description": "TORRADA CASEIRA",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "query": "pão de queijo",
+      "category": "bakery",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "query": "café",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CAFE P",
+          "wrong_class": false
+        },
+        {
+          "description": "CAFE",
+          "wrong_class": false
+        },
+        {
+          "description": "CAFE TAM: 80 ML",
+          "wrong_class": false
+        },
+        {
+          "description": "GUIA CAFE XICARA",
+          "wrong_class": false
+        },
+        {
+          "description": "CAFE COADO",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "query": "café solúvel",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CAFE P",
+          "wrong_class": false
+        },
+        {
+          "description": "CAFE",
+          "wrong_class": false
+        },
+        {
+          "description": "CAFE TAM: 80 ML",
+          "wrong_class": false
+        },
+        {
+          "description": "GUIA CAFE XICARA",
+          "wrong_class": false
+        },
+        {
+          "description": "CAFE COADO",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "query": "água",
+      "category": "beverages",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "query": "refrigerante",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "REFRIGERANTE PEPSI ZERO (COMPRA)",
+          "wrong_class": false
+        },
+        {
+          "description": "REFRIGERANTE +POP COLA 200ML",
+          "wrong_class": false
+        },
+        {
+          "description": "REFRIGERANTE + POP LIMAO POPULAR - 200ML",
+          "wrong_class": false
+        },
+        {
+          "description": "REFRIGERANTE +POP COLA 200ML ZERO - 200ML",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "query": "coca cola",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "COCA COLA ZERO CORTESIA",
+          "wrong_class": false
+        },
+        {
+          "description": "REFRIG COCA COLA ZERO 220ML",
+          "wrong_class": false
+        },
+        {
+          "description": "REF COCA COLA ZERO 6",
+          "wrong_class": false
+        },
+        {
+          "description": "COCA COLA LT",
+          "wrong_class": false
+        },
+        {
+          "description": "REFRI COCA COLA ZERO - EV",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "query": "suco",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "SUCO ACEROLA JARRA",
+          "wrong_class": false
+        },
+        {
+          "description": "PROMOCAO SUCO",
+          "wrong_class": false
+        },
+        {
+          "description": "SUCO DE LARANJA CORTESIA",
+          "wrong_class": false
+        },
+        {
+          "description": "SUCO FRUIT SABOR UVA",
+          "wrong_class": false
+        },
+        {
+          "description": "SUCO MARATA LARANJA EM PO 30G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "query": "chá",
+      "category": "beverages",
+      "live_verdict": "pass",
+      "stores_found": 2,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CHA DRINK T 300ML LI",
+          "wrong_class": false
+        },
+        {
+          "description": "NESTEA CHA GELADO 340ML SABOR LIMAO",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "query": "água de coco",
+      "category": "beverages",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "query": "salgadinho",
+      "category": "snacks",
+      "live_verdict": "wrong_class",
+      "stores_found": 2,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "Pipoca Bokus sal 30g",
+          "wrong_class": true
+        },
+        {
+          "description": "PIPOCA BOKUS SAL 10G",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "query": "pipoca",
+      "category": "snacks",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "PIPOCA CORINGA SABOR MANTEIGA FD 10X20X15G",
+          "wrong_class": false
+        },
+        {
+          "description": "PIPOCA BONI SALG 15G",
+          "wrong_class": false
+        },
+        {
+          "description": "PIPOCA BETTI 15G SAL",
+          "wrong_class": false
+        },
+        {
+          "description": "PIPOCA CORINGA S.MANTEIGA 15G",
+          "wrong_class": false
+        },
+        {
+          "description": "PIPOCA FOFINHA AMANTEGADA 10G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "query": "chocolate",
+      "category": "snacks",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CARAMELO LEITE/CHOCOLATE 660G",
+          "wrong_class": false
+        },
+        {
+          "description": "CARAMELO LEITE CHOCOLATE",
+          "wrong_class": false
+        },
+        {
+          "description": "MOUSSE DE CHOCOLATE",
+          "wrong_class": false
+        },
+        {
+          "description": "CONFEITO EMBARE CHOCOLATE COM LARANJA",
+          "wrong_class": false
+        },
+        {
+          "description": "CARAMELO LEITE CHOCOLATE UND",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "query": "amendoim",
+      "category": "snacks",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "DOCE DE AMENDOIM SANTA HELENA PACOQUITA 15G",
+          "wrong_class": false
+        },
+        {
+          "description": "PACOGUITA DOCE DE AMENDOIM SANTA HELENA",
+          "wrong_class": false
+        },
+        {
+          "description": "PACOCA DE AMENDOIM TUBITOS 15G",
+          "wrong_class": false
+        },
+        {
+          "description": "DOCE DE AMENDOIM PACOKINHA 15G",
+          "wrong_class": false
+        },
+        {
+          "description": "AMENDOIM S.HELENA",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "query": "batata chips",
+      "category": "snacks",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "BATATA SOL CHIPS BACON 60G",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA RUFFLES PIM MEX 65G ELMA CHIPS M",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA GRAVATA CHIPS CEB S 17G",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA OK CHIPS CEBO",
+          "wrong_class": false
+        },
+        {
+          "description": "BATATA ELMA CHIPS RUFFLES SAL 30G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "query": "barra de cereal",
+      "category": "snacks",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "query": "sabão em pó",
+      "category": "cleaning",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "COCADA LEITE",
+          "wrong_class": true
+        },
+        {
+          "description": "LEITE 50ML",
+          "wrong_class": true
+        },
+        {
+          "description": "LEITE CONDENSADO 30G",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "query": "água sanitária",
+      "category": "cleaning",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "query": "esponja",
+      "category": "cleaning",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "ESPONJA BRILHUS MULTIUSO",
+          "wrong_class": false
+        },
+        {
+          "description": "ESPONJA BRILHUS",
+          "wrong_class": false
+        },
+        {
+          "description": "ESPONJA FINA BRILHUS",
+          "wrong_class": false
+        },
+        {
+          "description": "ESPONJA BRILHUS FINA BETTANIN",
+          "wrong_class": false
+        },
+        {
+          "description": "ESPONJA MULTIUSO BRILHUS",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "query": "papel toalha",
+      "category": "cleaning",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "PAPEL TOALHA MALU 2 ROLOS 100FOLHAS",
+          "wrong_class": false
+        },
+        {
+          "description": "PAPEL TOALHA MALU 50F 2RL",
+          "wrong_class": false
+        },
+        {
+          "description": "PAPEL TOALHA PICCOLA 2 ROLOS",
+          "wrong_class": false
+        },
+        {
+          "description": "PAPEL TOALHA CAPRICE BRANCA",
+          "wrong_class": false
+        },
+        {
+          "description": "PAPEL TOALHA MALU 2R",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "query": "saco de lixo",
+      "category": "cleaning",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "OVOS BRANCOS UND",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS EXTRA STA MARIA LUNA UN",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS BRANCO - UNIDADE",
+          "wrong_class": true
+        },
+        {
+          "description": "OVOS",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "query": "creme dental",
+      "category": "hygiene",
+      "live_verdict": "pass",
+      "stores_found": 1,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CRE.DENTAL ORAL-B 3D",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "query": "papel higiênico",
+      "category": "hygiene",
+      "live_verdict": "wrong_class",
+      "stores_found": 5,
+      "wrong_class": true,
+      "top_lines": [
+        {
+          "description": "PAPEL TOALHA MALU 2 ROLOS 100FOLHAS",
+          "wrong_class": true
+        },
+        {
+          "description": "PAPEL TOALHA MALU 50F 2RL",
+          "wrong_class": true
+        },
+        {
+          "description": "PAPEL TOALHA PICCOLA 2 ROLOS",
+          "wrong_class": true
+        },
+        {
+          "description": "PAPEL TOALHA MILI  C/ 2 ROLOS",
+          "wrong_class": true
+        },
+        {
+          "description": "PAPEL TOALHA MILI 2 UND",
+          "wrong_class": true
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "query": "desodorante",
+      "category": "hygiene",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "DESODORANTE ROLON REXONA BAMB",
+          "wrong_class": false
+        },
+        {
+          "description": "DESODORANTE NIVEA INV.CLEAR R",
+          "wrong_class": false
+        },
+        {
+          "description": "DESODORANTE INTIMUS 100ML FESHION VANILHA",
+          "wrong_class": false
+        },
+        {
+          "description": "DESODORANTE ANTITRANSPIRANTE SUAVE INVISIBLE 200ML",
+          "wrong_class": false
+        },
+        {
+          "description": "DESODORANTE INTIMUS BARBATIMAO 100ML FESHION",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "query": "condicionador",
+      "category": "hygiene",
+      "live_verdict": "pass",
+      "stores_found": 4,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "CONDICIONADOR CAVALO PRETO BEL CORPUS 380ML",
+          "wrong_class": false
+        },
+        {
+          "description": "CONDICIONADOR 5 L CEREJA AVELA",
+          "wrong_class": false
+        },
+        {
+          "description": "CONDICIONADOR DARLING BRILHO E LEVEZA 350 ml",
+          "wrong_class": false
+        },
+        {
+          "description": "CONDICIONADOR OX NUTRICAO 200ML",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "query": "fralda",
+      "category": "baby",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "FRALDA DESC. PUFFYS",
+          "wrong_class": false
+        },
+        {
+          "description": "FRALDA CAPRICHO M C/ 8",
+          "wrong_class": false
+        },
+        {
+          "description": "HAMBURGUER MATURATTA 180G FRALDA",
+          "wrong_class": false
+        },
+        {
+          "description": "HAMBURGUER FRALDA MATURATTA 180G",
+          "wrong_class": false
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "query": "ração",
+      "category": "pet",
+      "live_verdict": "pass",
+      "stores_found": 5,
+      "wrong_class": false,
+      "top_lines": [
+        {
+          "description": "RACAO",
+          "wrong_class": false
+        },
+        {
+          "description": "RACAO TETRA COLORBITS 1G",
+          "wrong_class": false
+        },
+        {
+          "description": "RACAO PARA PASSAR CANTO NATURAL VITA AMARELA CANARIO BELGA 100G",
+          "wrong_class": false
+        },
+        {
+          "description": "RACAO CANTO VITAMINA",
+          "wrong_class": false
+        },
+        {
+          "description": "RACAO CANTO NATURAL VIT AMARELA 100G",
+          "wrong_class": false
+        }
+      ]
+    }
+  ]
+}
