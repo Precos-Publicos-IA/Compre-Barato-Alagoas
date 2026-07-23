@@ -1,45 +1,38 @@
 # Session status
 
-Last update: 2026-07-18 **H DONE** — `efca61d` deployed + scoped smoke PASS
+Last update: 2026-07-23T19:10Z W-b2-staple — staple prewarm + fetch_failed UI `d44e088`
 
 ## Project lock
 **HARD** Alagoas only.
 
 ## Goal
-Honest match quality: F measured; G fixed RAG poison; H shipped and smoked.
+Finish ship of wait UX + head matching; improve staple fetch reliability.
 
 ## Phase
-**Idle** — mission complete for A–H must-complete chain.
-
-## Workers
-| ID | Status |
-|----|--------|
-| F honest eval | **DONE** |
-| G improve | **DONE** `efca61d` |
-| **W-H-ship** | **DONE** CI `29652301027` + smoke 7/7 |
+**Active** — drain K3 → post-deploy re-probe (K5); B2 code complete
 
 ## Must-complete
 | # | Status |
 |---|--------|
-| A–E | **DONE** |
-| F honest 100 | **DONE** pass=71 wrong=20 missing=9 found=91 |
-| G RAG/class bleed fix | **DONE** `efca61d` |
-| **H** ship G + smoke | **DONE** — deploy green + scoped live smoke PASS |
+| A–J prior | **DONE** |
+| **K1** head-aligned matching | **pushed** `12b2c97` |
+| **K2** search wait UI | **pushed** `12b2c97` (+ `3112eb7` desugar) |
+| **K3** deploy green + close ship | **IN PROGRESS** W-k3-finish (CI run 30033723864) |
+| **K4** offline head validate | **DONE** SHIP_OK |
+| **K5** post-deploy 8-query head re-smoke | **QUEUED** after K3 deploy success |
+| **B2** staple fetch reliability (prewarm / fail-soft) | **DONE** `d44e088` — report `worker_w_b2_staple_report.md` |
 
-## H evidence
-- Product on main: `efca61d`
-- CI/deploy: **success** https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas/actions/runs/29652301027
-- Docs stamp run: success `29652307667` (`4ac9505`)
-- Redis: flushed 99 `rag:effective_for:*` → 0 (SSH)
-- Smoke: peito de frango, farinha de trigo, pão, queijo, papel higiênico, salsicha, sabão em pó → **7/7 PASS** (no OVOS BRANCOS top; higiênico≠toalha; no rewrite to ovos/sal/leite)
-- Artifacts: `.grok/status/h_ship_live_smoke.json`, `worker_w_h_ship_report.md`
+## Workers
+| ID | Task |
+|----|------|
+| W-k3-finish | Watch CI → confirm deploy → post-deploy probes → session K3/K5 |
+| W-b2-staple | **DONE** expanded prewarm + post-deploy hook + Flutter fetch_failed |
 
-## Root cause fixed in G (live verified in H)
-RAG cross-class rewrites (peito→ovos, salsicha→sal, sabão→leite, higiênico→toalha) blocked; prod Redis poison ZSETs cleared.
-
-## Residual (not must-complete)
-- 9 true SEFAZ `missing_after_retry` data gaps from F (sal, bolacha, cerveja, achocolatado, detergente, amaciante, desinfetante, sabonete, shampoo)
-- Soft: `queijo` can still top `PAO DE QUEIJO` (not egg bleed)
+## Residual
+- I: docs/admin DNS if live-verify still red
+- Full honest 100 re-eval after K5
+- Head residuals (molho/sequence, frango cuts, snack-flavor)
+- B2 live warm p95 probe after next backend deploy (prewarm runs in remote-update)
 
 ## Next focus
-Idle unless user opens new work. Do **not** start full 100 re-eval without explicit ask.
+Drain K3+K5; B2 code done — verify warm path post-deploy.

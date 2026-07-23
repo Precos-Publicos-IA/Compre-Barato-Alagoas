@@ -80,7 +80,11 @@ Deploy details when there is code:
   never on the server — no build cache piles up on the shared host;
 - ship over SSH: image via `docker save | docker load` (no registry), statics via `rsync`;
 - before touching the host there is a **disk check** (aborts if < ~2 GB free);
-  `deploy/remote-update.sh` brings the stack up, removes old images **for this app only**, and runs a health check.
+  `deploy/remote-update.sh` brings the stack up, removes old images **for this app only**,
+  runs a health check, then **best-effort staple prewarm**
+  (`deploy/prewarm-staples.sh` → `POST /api/v1/search` for arroz/feijão/leite/… in
+  single-item batches so SEFAZ is not stampeded). Set `PREWARM_STAPLES=0` to skip;
+  `PREWARM_STRICT=1` to fail the update on warm errors.
 - `workflow_dispatch` (Run workflow) forces a full deploy — useful for redeploy/rollback.
 
 Configure repository *secrets* once (nothing host-specific is committed):

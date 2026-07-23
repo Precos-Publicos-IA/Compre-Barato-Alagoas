@@ -53,9 +53,35 @@ void main() {
     expect(store.items.first.unitPrice, 4.98);
     expect(store.missing, ['leite']);
     expect(resp.metrics.matchRate, 0.5);
+    // Backend may omit fetch_failed fields — default to clean success.
+    expect(resp.metrics.itemsFetchFailed, 0);
+    expect(resp.metrics.fetchFailedLabels, isEmpty);
+    expect(resp.metrics.hasFetchFailures, isFalse);
     // requested_quantity / line_total default when the backend omits them.
     expect(store.items.first.requestedQuantity, 1);
     expect(store.items.first.lineTotal, isNull);
+  });
+
+  test('SearchMetrics parses items_fetch_failed vs true empty', () {
+    final withFail = SearchMetrics.fromJson({
+      'items_requested': 3,
+      'stores_found': 1,
+      'match_rate': 0.66,
+      'quantity_parse_rate': 1.0,
+      'items_fetch_failed': 1,
+      'fetch_failed_labels': ['feijao'],
+    });
+    expect(withFail.itemsFetchFailed, 1);
+    expect(withFail.fetchFailedLabels, ['feijao']);
+    expect(withFail.hasFetchFailures, isTrue);
+
+    final clean = SearchMetrics.fromJson({
+      'items_requested': 1,
+      'stores_found': 0,
+      'match_rate': 0.0,
+      'quantity_parse_rate': 0.0,
+    });
+    expect(clean.hasFetchFailures, isFalse);
   });
 
   test('ItemOffer parses requested_quantity and line_total', () {

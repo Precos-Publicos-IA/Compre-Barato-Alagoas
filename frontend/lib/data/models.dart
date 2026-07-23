@@ -154,6 +154,10 @@ class SearchMetrics {
   final int? itemsCompleted;
   final String? statusMessage;
 
+  /// Upstream SEFAZ timeout/error (not true empty catalog). Distinct from store.missing.
+  final int itemsFetchFailed;
+  final List<String> fetchFailedLabels;
+
   const SearchMetrics({
     required this.itemsRequested,
     required this.storesFound,
@@ -163,7 +167,12 @@ class SearchMetrics {
     this.searchRewrites = const [],
     this.itemsCompleted,
     this.statusMessage,
+    this.itemsFetchFailed = 0,
+    this.fetchFailedLabels = const [],
   });
+
+  bool get hasFetchFailures =>
+      itemsFetchFailed > 0 || fetchFailedLabels.isNotEmpty;
 
   factory SearchMetrics.fromJson(Map<String, dynamic> j) => SearchMetrics(
         itemsRequested: j['items_requested'] as int,
@@ -178,6 +187,10 @@ class SearchMetrics {
             .toList(),
         itemsCompleted: (j['items_completed'] as num?)?.toInt(),
         statusMessage: j['status_message'] as String?,
+        itemsFetchFailed: (j['items_fetch_failed'] as num?)?.toInt() ?? 0,
+        fetchFailedLabels: (j['fetch_failed_labels'] as List<dynamic>? ?? [])
+            .map((e) => e as String)
+            .toList(),
       );
 }
 

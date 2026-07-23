@@ -86,6 +86,24 @@ class ResultsScreen extends ConsumerWidget {
                   itemCount: basket.length,
                 );
               }
+              if (r.metrics.hasFetchFailures) {
+                final labels = r.metrics.fetchFailedLabels;
+                final detail = labels.isEmpty
+                    ? 'A consulta de preços falhou.'
+                    : (labels.length == 1
+                        ? 'Falha ao consultar: ${labels.first}.'
+                        : 'Falha ao consultar: ${labels.take(4).join(", ")}'
+                            '${labels.length > 4 ? "…" : ""}.');
+                return _Message(
+                  icon: Icons.cloud_off_rounded,
+                  text: 'Consulta instável — não é que o produto não exista.\n'
+                      '$detail\n'
+                      'Toque em tentar de novo em instantes.',
+                  actionLabel: 'Tentar de novo',
+                  onAction: () =>
+                      ref.read(searchControllerProvider.notifier).run(basket),
+                );
+              }
               return const _Message(
                 icon: Icons.sentiment_dissatisfied_rounded,
                 text: 'Nenhuma loja encontrada por perto.\n'
@@ -183,6 +201,7 @@ class _Results extends ConsumerWidget {
 
     final rewrites = response.metrics.searchRewrites;
     final suggestions = response.metrics.suggestedRefinements;
+    final fetchFailed = response.metrics.fetchFailedLabels;
 
     // PhoneLandscape: hide secondary banners so first store stays above fold.
     final short = AppLayout.isShortHeight(context);
@@ -200,6 +219,9 @@ class _Results extends ConsumerWidget {
               wait: wait,
               itemCount: items.length,
             ),
+          // Upstream fail ≠ product missing — show before savings so users retry.
+          if (!response.partial && response.metrics.hasFetchFailures)
+            _FetchFailedBanner(labels: fetchFailed),
           // Coverage-first hero: never lead with “economize R$” on thin baskets.
           if (showPrimarySavings)
             _SavingsBanner(savings: savings!, listId: response.listId)
@@ -620,6 +642,64 @@ class _SuggestionsBanner extends StatelessWidget {
           for (final s in suggestions.take(4))
             Text('• $s',
                 style: const TextStyle(fontSize: 13, color: AppColors.inkSecondary)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Upstream SEFAZ timeout/error — not the same as store.missing (true no data).
+class _FetchFailedBanner extends StatelessWidget {
+  const _FetchFailedBanner({required this.labels});
+  final List<String> labels;
+
+  @override
+  Widget build(BuildContext context) {
+    final detail = labels.isEmpty
+        ? 'Alguns itens não puderam ser consultados agora.'
+        : (labels.length == 1
+            ? 'Não consultamos: ${labels.first}.'
+            : 'Não consultamos: ${labels.take(5).join(", ")}'
+                '${labels.length > 5 ? "…" : ""}.');
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.dangerSoft,
+        borderRadius: BorderRadius.circular(AppRadii.sm),
+        border: Border.all(color: AppColors.danger.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.cloud_off_rounded, color: AppColors.danger, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Consulta instável',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: AppColors.danger,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$detail Puxe para atualizar — isso não significa que o '
+                  'produto não exista nas lojas.',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    height: 1.35,
+                    color: AppColors.inkSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

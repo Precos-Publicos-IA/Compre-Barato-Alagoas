@@ -280,8 +280,10 @@ jobs:
           fi
 
           if [ "$restart" = "true" ]; then
-            echo "==> Restart stack via remote-update.sh (disk pre-check + health check)"
-            $SSH "$H" "API_IMAGE='$image_tag' DEPLOY_DIR='$DEPLOY_DIR' bash '$DEPLOY_DIR/deploy/remote-update.sh'"
+            echo "==> Restart stack via remote-update.sh (disk pre-check + health check + staple prewarm)"
+            # remote-update.sh runs deploy/prewarm-staples.sh after /health (best-effort).
+            # PREWARM_STAPLES=0 skips; leave default on so warm Redis covers arroz/leite.
+            $SSH "$H" "API_IMAGE='$image_tag' DEPLOY_DIR='$DEPLOY_DIR' PREWARM_STAPLES=1 bash '$DEPLOY_DIR/deploy/remote-update.sh'"
           else
             echo "==> Static-only change → no full stack restart (API recreated above if token synced)."
           fi

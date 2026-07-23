@@ -79,9 +79,43 @@ docker images 'compre-barato-alagoas-api' --format '{{.Repository}}:{{.Tag}}' \
 docker image prune -f >/dev/null 2>&1 || true
 
 echo "==> Health check"
+healthy=false
 for i in 1 2 3 4 5 6; do
-  if curl -fsS http://127.0.0.1:8000/health; then echo; echo "==> Healthy."; exit 0; fi
+  if curl -fsS http://127.0.0.1:8000/health; then
+    echo
+    echo "==> Healthy."
+    healthy=true
+    break
+  fi
   echo "   …waiting for API ($i/6)"; sleep 5
 done
-echo "ABORT: API did not become healthy." >&2
-exit 1
+if [ "$healthy" != "true" ]; then
+  echo "ABORT: API did not become healthy." >&2
+  exit 1
+fi
+
+# Best-effort staple term-cache warm so first user hits for arroz/feijão/leite
+# are Redis hits, not cold SEFAZ (items_fetch_failed after ~55s). Non-fatal:
+# PREWARM_STAPLES=0 skips; PREWARM_STRICT=1 makes failures fail the deploy.
+if [ "${PREWARM_STAPLES:-1}" = "1" ]; then
+  PREWARM_SCRIPT="$DEPLOY_DIR/deploy/prewarm-staples.sh"
+  if [ -x "$PREWARM_SCRIPT" ] || [ -f "$PREWARM_SCRIPT" ]; then
+    echo "==> Post-health staple prewarm (best-effort)"
+    # Bound wall time so a hung SEFAZ cannot block the rest of CI forever.
+    # Default list is ~20 terms × ~1.5s delay ≈ ~30–90s when API is warm.
+    set +e
+    API_BASE="${API_BASE:-http://127.0.0.1:8000}" \
+      PREWARM_STRICT="${PREWARM_STRICT:-0}" \
+      bash "$PREWARM_SCRIPT"
+    prewarm_rc=$?
+    set -e
+    if [ "$prewarm_rc" -ne 0 ]; then
+      echo "==> Staple prewarm exited $prewarm_rc (continuing; set PREWARM_STRICT=1 to fail)"
+    fi
+  else
+    echo "==> No prewarm-staples.sh at $PREWARM_SCRIPT — skip"
+  fi
+else
+  echo "==> PREWARM_STAPLES=0 — skip staple prewarm"
+fi
+exit 0
