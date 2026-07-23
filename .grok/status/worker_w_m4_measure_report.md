@@ -3,6 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Worker** | W-m4-measure |
+| **Ship SHA** | `cc2807fd97e890cce8b46189260fd79e2a8541e4` (`cc2807f`) |
 | **When (UTC)** | 2026-07-23 |
 | **Plan** | `docs/self-improving-matching-plan.md` Phase 4 |
 | **Prior** | M0–M3 DONE (`5a16961` / `56ff4a5` / `3ae1f52`) |

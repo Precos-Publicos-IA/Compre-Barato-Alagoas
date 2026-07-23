@@ -24,7 +24,7 @@ Self-improving matching MVP (`docs/self-improving-matching-plan.md` P0–P4) + s
 | **M1** outcome log | **DONE** `5a16961` W-m0-m1 |
 | **M2** auto_label | **DONE** `56ff4a5` W-m2-label — report `worker_w_m2_label_report.md` |
 | **M3** learn_policy v2 | **DONE** `3ae1f52` (feature `cf851c3`) W-m3-learn — report `worker_w_m3_learn_report.md` |
-| **M4** offline rescore + live smoke scripts | **DONE** (see report SHA) |
+| **M4** offline rescore + live smoke scripts | **DONE** `cc2807f` W-m4-measure — report `worker_w_m4_measure_report.md` |
 | **B2-verify** staple warm/fetch smoke | **DONE — HARD_BLOCK SEFAZ** (live REGRESSED vs baseline; accent/ovo agent fix in tree, needs deploy) — report `worker_w_b2_verify_report.md` |
 | Commit `docs/self-improving-matching-plan.md` | **DONE** in `5a16961` |
 
