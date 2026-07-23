@@ -22,7 +22,7 @@ Popular staples (arroz, feijão, leite, …) often paid full cold SEFAZ cost und
 
 ## SHA
 
-`d44e088` (commit on main; push follows)
+`9ec6775` (pushed to `main`)
 
 ## How to verify
 

@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-23T19:10Z W-b2-staple — staple prewarm + fetch_failed UI `d44e088`
+Last update: 2026-07-23T19:12Z W-b2-staple — staple prewarm + fetch_failed UI `9ec6775`
 
 ## Project lock
 **HARD** Alagoas only.
@@ -20,7 +20,7 @@ Finish ship of wait UX + head matching; improve staple fetch reliability.
 | **K3** deploy green + close ship | **IN PROGRESS** W-k3-finish (CI run 30033723864) |
 | **K4** offline head validate | **DONE** SHIP_OK |
 | **K5** post-deploy 8-query head re-smoke | **QUEUED** after K3 deploy success |
-| **B2** staple fetch reliability (prewarm / fail-soft) | **DONE** `d44e088` — report `worker_w_b2_staple_report.md` |
+| **B2** staple fetch reliability (prewarm / fail-soft) | **DONE** `9ec6775` — report `worker_w_b2_staple_report.md` |
 
 ## Workers
 | ID | Task |
