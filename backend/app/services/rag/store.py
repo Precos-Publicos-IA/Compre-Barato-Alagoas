@@ -193,6 +193,45 @@ class RAGStore:
         except Exception:  # pragma: no cover
             logger.exception("RAGStore.record_miss failed")
 
+    async def demote(
+        self,
+        user_term: str,
+        effective_search_term: str,
+        *,
+        amount: float = 10.0,
+        remove: bool = False,
+    ) -> None:
+        """Demote or remove a learned rewrite for ``user_term``.
+
+        Used by learn_policy on ``wrong_item`` feedback and bad auto-labels.
+        When ``remove`` is True (or score falls to ≤0 after demote), the member
+        is dropped from the effective zset and hash.
+        """
+        if not user_term or not effective_search_term:
+            return
+        u, e = _norm(user_term), _norm(effective_search_term)
+        zkey = f"rag:effective_for:{u}"
+        hkey = f"rag:user_to_term:{u}"
+        try:
+            if remove:
+                pipe = self.redis.pipeline()
+                pipe.zrem(zkey, e)
+                pipe.hdel(hkey, e)
+                pipe.srem(f"rag:users_for_effective:{e}", u)
+                await pipe.execute()
+                return
+            new_score = await self.redis.zincrby(zkey, -abs(float(amount)), e)
+            if new_score is not None and float(new_score) <= 0:
+                pipe = self.redis.pipeline()
+                pipe.zrem(zkey, e)
+                pipe.hdel(hkey, e)
+                pipe.srem(f"rag:users_for_effective:{e}", u)
+                await pipe.execute()
+            else:
+                await self.redis.expire(zkey, self.mapping_ttl)
+        except Exception:  # pragma: no cover
+            logger.exception("RAGStore.demote failed")
+
     async def lookup_effective_terms(self, user_term: str, limit: int = 3) -> list[str]:
         u = _norm(user_term)
         if not u:
