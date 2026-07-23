@@ -126,6 +126,18 @@ def expand_synonyms(toks: set[str]) -> set[str]:
     for group in _SYN_GROUPS:
         if out & group:
             out |= group
+    # Optional reviewed lexicon groups (MATCH_LEXICON_PATH). Never raw miner
+    # synonym_candidates — only promoted_synonym_groups after human review.
+    try:
+        from .lexicon import lexicon_promoted_syn_groups, maybe_autoload
+
+        maybe_autoload()
+        for group in lexicon_promoted_syn_groups():
+            if out & group:
+                out |= group
+    except Exception:
+        # Lexicon is optional; never break core matching on load errors.
+        pass
     # Hypernym: child implies parent (mussarela → queijo), not the reverse alone.
     for child, parent in _HYPERNYM_TO_PARENT.items():
         if child in out:

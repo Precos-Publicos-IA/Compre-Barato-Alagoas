@@ -1,0 +1,3206 @@
+{
+  "schema_version": 1,
+  "version": "v1",
+  "generated_at": "2026-07-23T20:09:32Z",
+  "source": {
+    "paths": [
+      "backend/data/training-datasets/alagoas_search_10k.jsonl"
+    ],
+    "kind": "jsonl_training_or_outcomes",
+    "n_files": 1
+  },
+  "heads": [
+    {
+      "token": "leite",
+      "count": 2132,
+      "as_query": 660,
+      "as_desc": 1472
+    },
+    {
+      "token": "pao",
+      "count": 1966,
+      "as_query": 728,
+      "as_desc": 1238
+    },
+    {
+      "token": "agua",
+      "count": 1685,
+      "as_query": 546,
+      "as_desc": 1139
+    },
+    {
+      "token": "batata",
+      "count": 1343,
+      "as_query": 448,
+      "as_desc": 895
+    },
+    {
+      "token": "macarrao",
+      "count": 1312,
+      "as_query": 390,
+      "as_desc": 922
+    },
+    {
+      "token": "feijao",
+      "count": 1306,
+      "as_query": 390,
+      "as_desc": 916
+    },
+    {
+      "token": "comprar",
+      "count": 1269,
+      "as_query": 1269,
+      "as_desc": 0
+    },
+    {
+      "token": "acucar",
+      "count": 1241,
+      "as_query": 390,
+      "as_desc": 851
+    },
+    {
+      "token": "cafe",
+      "count": 1224,
+      "as_query": 364,
+      "as_desc": 860
+    },
+    {
+      "token": "oleo",
+      "count": 1211,
+      "as_query": 405,
+      "as_desc": 806
+    },
+    {
+      "token": "papel",
+      "count": 1022,
+      "as_query": 308,
+      "as_desc": 714
+    },
+    {
+      "token": "farinha",
+      "count": 926,
+      "as_query": 330,
+      "as_desc": 596
+    },
+    {
+      "token": "molho",
+      "count": 865,
+      "as_query": 154,
+      "as_desc": 711
+    },
+    {
+      "token": "ovos",
+      "count": 851,
+      "as_query": 180,
+      "as_desc": 671
+    },
+    {
+      "token": "salgadinho",
+      "count": 802,
+      "as_query": 168,
+      "as_desc": 634
+    },
+    {
+      "token": "carne",
+      "count": 727,
+      "as_query": 336,
+      "as_desc": 391
+    },
+    {
+      "token": "salg",
+      "count": 712,
+      "as_query": 0,
+      "as_desc": 712
+    },
+    {
+      "token": "sal",
+      "count": 668,
+      "as_query": 180,
+      "as_desc": 488
+    },
+    {
+      "token": "racao",
+      "count": 625,
+      "as_query": 196,
+      "as_desc": 429
+    },
+    {
+      "token": "linguica",
+      "count": 618,
+      "as_query": 196,
+      "as_desc": 422
+    },
+    {
+      "token": "refrigerante",
+      "count": 614,
+      "as_query": 168,
+      "as_desc": 446
+    },
+    {
+      "token": "arroz",
+      "count": 601,
+      "as_query": 180,
+      "as_desc": 421
+    },
+    {
+      "token": "suco",
+      "count": 585,
+      "as_query": 168,
+      "as_desc": 417
+    },
+    {
+      "token": "queijo",
+      "count": 584,
+      "as_query": 330,
+      "as_desc": 254
+    },
+    {
+      "token": "pipoca",
+      "count": 581,
+      "as_query": 168,
+      "as_desc": 413
+    },
+    {
+      "token": "fuba",
+      "count": 559,
+      "as_query": 210,
+      "as_desc": 349
+    },
+    {
+      "token": "fralda",
+      "count": 553,
+      "as_query": 168,
+      "as_desc": 385
+    },
+    {
+      "token": "esponja",
+      "count": 540,
+      "as_query": 168,
+      "as_desc": 372
+    },
+    {
+      "token": "sabao",
+      "count": 536,
+      "as_query": 168,
+      "as_desc": 368
+    },
+    {
+      "token": "vinagre",
+      "count": 532,
+      "as_query": 168,
+      "as_desc": 364
+    },
+    {
+      "token": "margarina",
+      "count": 526,
+      "as_query": 180,
+      "as_desc": 346
+    },
+    {
+      "token": "maionese",
+      "count": 524,
+      "as_query": 168,
+      "as_desc": 356
+    },
+    {
+      "token": "biscoito",
+      "count": 513,
+      "as_query": 168,
+      "as_desc": 345
+    },
+    {
+      "token": "catchup",
+      "count": 511,
+      "as_query": 168,
+      "as_desc": 343
+    },
+    {
+      "token": "mortadela",
+      "count": 511,
+      "as_query": 168,
+      "as_desc": 343
+    },
+    {
+      "token": "saco",
+      "count": 511,
+      "as_query": 154,
+      "as_desc": 357
+    },
+    {
+      "token": "tempero",
+      "count": 508,
+      "as_query": 168,
+      "as_desc": 340
+    },
+    {
+      "token": "azeite",
+      "count": 488,
+      "as_query": 173,
+      "as_desc": 315
+    },
+    {
+      "token": "desodorante",
+      "count": 471,
+      "as_query": 168,
+      "as_desc": 303
+    },
+    {
+      "token": "sardinha",
+      "count": 470,
+      "as_query": 168,
+      "as_desc": 302
+    },
+    {
+      "token": "amendoim",
+      "count": 466,
+      "as_query": 168,
+      "as_desc": 298
+    },
+    {
+      "token": "torrada",
+      "count": 460,
+      "as_query": 168,
+      "as_desc": 292
+    },
+    {
+      "token": "condicionador",
+      "count": 424,
+      "as_query": 168,
+      "as_desc": 256
+    },
+    {
+      "token": "caldo",
+      "count": 422,
+      "as_query": 154,
+      "as_desc": 268
+    },
+    {
+      "token": "abobora",
+      "count": 418,
+      "as_query": 196,
+      "as_desc": 222
+    },
+    {
+      "token": "salsicha",
+      "count": 412,
+      "as_query": 168,
+      "as_desc": 244
+    },
+    {
+      "token": "chuchu",
+      "count": 410,
+      "as_query": 168,
+      "as_desc": 242
+    },
+    {
+      "token": "banana",
+      "count": 404,
+      "as_query": 168,
+      "as_desc": 236
+    },
+    {
+      "token": "mamao",
+      "count": 401,
+      "as_query": 196,
+      "as_desc": 205
+    },
+    {
+      "token": "cha",
+      "count": 390,
+      "as_query": 196,
+      "as_desc": 194
+    },
+    {
+      "token": "manteiga",
+      "count": 389,
+      "as_query": 180,
+      "as_desc": 209
+    },
+    {
+      "token": "aveia",
+      "count": 386,
+      "as_query": 180,
+      "as_desc": 206
+    },
+    {
+      "token": "mostarda",
+      "count": 377,
+      "as_query": 168,
+      "as_desc": 209
+    },
+    {
+      "token": "limao",
+      "count": 377,
+      "as_query": 196,
+      "as_desc": 181
+    },
+    {
+      "token": "peixe",
+      "count": 374,
+      "as_query": 168,
+      "as_desc": 206
+    },
+    {
+      "token": "alho",
+      "count": 371,
+      "as_query": 168,
+      "as_desc": 203
+    },
+    {
+      "token": "iogurte",
+      "count": 365,
+      "as_query": 180,
+      "as_desc": 185
+    },
+    {
+      "token": "alface",
+      "count": 350,
+      "as_query": 168,
+      "as_desc": 182
+    },
+    {
+      "token": "coca",
+      "count": 332,
+      "as_query": 140,
+      "as_desc": 192
+    },
+    {
+      "token": "barra",
+      "count": 332,
+      "as_query": 154,
+      "as_desc": 178
+    },
+    {
+      "token": "laranja",
+      "count": 326,
+      "as_query": 168,
+      "as_desc": 158
+    },
+    {
+      "token": "peito",
+      "count": 321,
+      "as_query": 154,
+      "as_desc": 167
+    },
+    {
+      "token": "bolo",
+      "count": 321,
+      "as_query": 168,
+      "as_desc": 153
+    },
+    {
+      "token": "requeijao",
+      "count": 320,
+      "as_query": 210,
+      "as_desc": 110
+    },
+    {
+      "token": "cenoura",
+      "count": 320,
+      "as_query": 168,
+      "as_desc": 152
+    },
+    {
+      "token": "ovo",
+      "count": 298,
+      "as_query": 180,
+      "as_desc": 118
+    },
+    {
+      "token": "chocolate",
+      "count": 265,
+      "as_query": 168,
+      "as_desc": 97
+    },
+    {
+      "token": "tomate",
+      "count": 235,
+      "as_query": 168,
+      "as_desc": 67
+    },
+    {
+      "token": "maca",
+      "count": 233,
+      "as_query": 196,
+      "as_desc": 37
+    },
+    {
+      "token": "atum",
+      "count": 229,
+      "as_query": 168,
+      "as_desc": 61
+    },
+    {
+      "token": "frango",
+      "count": 225,
+      "as_query": 168,
+      "as_desc": 57
+    },
+    {
+      "token": "presunto",
+      "count": 214,
+      "as_query": 168,
+      "as_desc": 46
+    },
+    {
+      "token": "cebola",
+      "count": 201,
+      "as_query": 168,
+      "as_desc": 33
+    },
+    {
+      "token": "bacon",
+      "count": 189,
+      "as_query": 168,
+      "as_desc": 21
+    },
+    {
+      "token": "sab",
+      "count": 184,
+      "as_query": 0,
+      "as_desc": 184
+    },
+    {
+      "token": "achocolatado",
+      "count": 174,
+      "as_query": 168,
+      "as_desc": 6
+    },
+    {
+      "token": "bolacha",
+      "count": 168,
+      "as_query": 168,
+      "as_desc": 0
+    },
+    {
+      "token": "cerveja",
+      "count": 168,
+      "as_query": 168,
+      "as_desc": 0
+    },
+    {
+      "token": "detergente",
+      "count": 168,
+      "as_query": 168,
+      "as_desc": 0
+    },
+    {
+      "token": "amaciante",
+      "count": 168,
+      "as_query": 168,
+      "as_desc": 0
+    },
+    {
+      "token": "desinfetante",
+      "count": 168,
+      "as_query": 168,
+      "as_desc": 0
+    },
+    {
+      "token": "sabonete",
+      "count": 168,
+      "as_query": 168,
+      "as_desc": 0
+    },
+    {
+      "token": "shampoo",
+      "count": 168,
+      "as_query": 168,
+      "as_desc": 0
+    },
+    {
+      "token": "milho",
+      "count": 149,
+      "as_query": 0,
+      "as_desc": 149
+    },
+    {
+      "token": "creme",
+      "count": 140,
+      "as_query": 140,
+      "as_desc": 0
+    },
+    {
+      "token": "mac",
+      "count": 129,
+      "as_query": 0,
+      "as_desc": 129
+    },
+    {
+      "token": "lixa",
+      "count": 124,
+      "as_query": 0,
+      "as_desc": 124
+    },
+    {
+      "token": "friskies",
+      "count": 119,
+      "as_query": 0,
+      "as_desc": 119
+    },
+    {
+      "token": "doce",
+      "count": 114,
+      "as_query": 0,
+      "as_desc": 114
+    },
+    {
+      "token": "hamburguer",
+      "count": 112,
+      "as_query": 0,
+      "as_desc": 112
+    },
+    {
+      "token": "bala",
+      "count": 110,
+      "as_query": 0,
+      "as_desc": 110
+    },
+    {
+      "token": "gomes",
+      "count": 107,
+      "as_query": 0,
+      "as_desc": 107
+    },
+    {
+      "token": "fandangos",
+      "count": 104,
+      "as_query": 0,
+      "as_desc": 104
+    },
+    {
+      "token": "cheetos",
+      "count": 101,
+      "as_query": 0,
+      "as_desc": 101
+    },
+    {
+      "token": "caramelo",
+      "count": 95,
+      "as_query": 0,
+      "as_desc": 95
+    },
+    {
+      "token": "macar",
+      "count": 93,
+      "as_query": 0,
+      "as_desc": 93
+    },
+    {
+      "token": "miojo",
+      "count": 90,
+      "as_query": 0,
+      "as_desc": 90
+    },
+    {
+      "token": "semente",
+      "count": 85,
+      "as_query": 0,
+      "as_desc": 85
+    },
+    {
+      "token": "mist",
+      "count": 85,
+      "as_query": 0,
+      "as_desc": 85
+    },
+    {
+      "token": "resfriliv",
+      "count": 80,
+      "as_query": 0,
+      "as_desc": 80
+    },
+    {
+      "token": "pacoquita",
+      "count": 77,
+      "as_query": 0,
+      "as_desc": 77
+    },
+    {
+      "token": "maggi",
+      "count": 72,
+      "as_query": 0,
+      "as_desc": 72
+    },
+    {
+      "token": "toalha",
+      "count": 69,
+      "as_query": 0,
+      "as_desc": 69
+    },
+    {
+      "token": "sabor",
+      "count": 69,
+      "as_query": 0,
+      "as_desc": 69
+    },
+    {
+      "token": "porcao",
+      "count": 68,
+      "as_query": 0,
+      "as_desc": 68
+    },
+    {
+      "token": "whiskas",
+      "count": 68,
+      "as_query": 0,
+      "as_desc": 68
+    },
+    {
+      "token": "bisc",
+      "count": 67,
+      "as_query": 0,
+      "as_desc": 67
+    },
+    {
+      "token": "enroladinho",
+      "count": 66,
+      "as_query": 0,
+      "as_desc": 66
+    },
+    {
+      "token": "empanado",
+      "count": 65,
+      "as_query": 0,
+      "as_desc": 65
+    },
+    {
+      "token": "file",
+      "count": 65,
+      "as_query": 0,
+      "as_desc": 65
+    },
+    {
+      "token": "bisnaga",
+      "count": 64,
+      "as_query": 0,
+      "as_desc": 64
+    },
+    {
+      "token": "cond",
+      "count": 63,
+      "as_query": 0,
+      "as_desc": 63
+    },
+    {
+      "token": "mistura",
+      "count": 61,
+      "as_query": 0,
+      "as_desc": 61
+    },
+    {
+      "token": "refri",
+      "count": 60,
+      "as_query": 0,
+      "as_desc": 60
+    },
+    {
+      "token": "pate",
+      "count": 57,
+      "as_query": 0,
+      "as_desc": 57
+    },
+    {
+      "token": "fita",
+      "count": 56,
+      "as_query": 0,
+      "as_desc": 56
+    },
+    {
+      "token": "chicle",
+      "count": 55,
+      "as_query": 0,
+      "as_desc": 55
+    },
+    {
+      "token": "polpa",
+      "count": 54,
+      "as_query": 0,
+      "as_desc": 54
+    },
+    {
+      "token": "padaria",
+      "count": 53,
+      "as_query": 0,
+      "as_desc": 53
+    },
+    {
+      "token": "extrato",
+      "count": 51,
+      "as_query": 0,
+      "as_desc": 51
+    },
+    {
+      "token": "colher",
+      "count": 51,
+      "as_query": 0,
+      "as_desc": 51
+    },
+    {
+      "token": "trofeu",
+      "count": 50,
+      "as_query": 0,
+      "as_desc": 50
+    },
+    {
+      "token": "refrig",
+      "count": 46,
+      "as_query": 0,
+      "as_desc": 46
+    },
+    {
+      "token": "tang",
+      "count": 46,
+      "as_query": 0,
+      "as_desc": 46
+    },
+    {
+      "token": "mini",
+      "count": 45,
+      "as_query": 0,
+      "as_desc": 45
+    },
+    {
+      "token": "flor",
+      "count": 45,
+      "as_query": 0,
+      "as_desc": 45
+    },
+    {
+      "token": "chips",
+      "count": 45,
+      "as_query": 0,
+      "as_desc": 45
+    },
+    {
+      "token": "picole",
+      "count": 44,
+      "as_query": 0,
+      "as_desc": 44
+    },
+    {
+      "token": "ifood",
+      "count": 43,
+      "as_query": 0,
+      "as_desc": 43
+    },
+    {
+      "token": "crm",
+      "count": 42,
+      "as_query": 0,
+      "as_desc": 42
+    },
+    {
+      "token": "refr",
+      "count": 42,
+      "as_query": 0,
+      "as_desc": 42
+    },
+    {
+      "token": "torcida",
+      "count": 41,
+      "as_query": 0,
+      "as_desc": 41
+    },
+    {
+      "token": "adicional",
+      "count": 41,
+      "as_query": 0,
+      "as_desc": 41
+    },
+    {
+      "token": "crem",
+      "count": 38,
+      "as_query": 0,
+      "as_desc": 38
+    },
+    {
+      "token": "coxinha",
+      "count": 38,
+      "as_query": 0,
+      "as_desc": 38
+    },
+    {
+      "token": "frutigutti",
+      "count": 37,
+      "as_query": 0,
+      "as_desc": 37
+    },
+    {
+      "token": "aplic",
+      "count": 37,
+      "as_query": 0,
+      "as_desc": 37
+    },
+    {
+      "token": "fatia",
+      "count": 35,
+      "as_query": 0,
+      "as_desc": 35
+    },
+    {
+      "token": "kit",
+      "count": 35,
+      "as_query": 0,
+      "as_desc": 35
+    },
+    {
+      "token": "deterg",
+      "count": 35,
+      "as_query": 0,
+      "as_desc": 35
+    },
+    {
+      "token": "sementes",
+      "count": 34,
+      "as_query": 0,
+      "as_desc": 34
+    },
+    {
+      "token": "gula",
+      "count": 33,
+      "as_query": 0,
+      "as_desc": 33
+    },
+    {
+      "token": "salgad",
+      "count": 32,
+      "as_query": 0,
+      "as_desc": 32
+    },
+    {
+      "token": "turma",
+      "count": 31,
+      "as_query": 0,
+      "as_desc": 31
+    },
+    {
+      "token": "ninho",
+      "count": 30,
+      "as_query": 0,
+      "as_desc": 30
+    },
+    {
+      "token": "figado",
+      "count": 30,
+      "as_query": 0,
+      "as_desc": 30
+    },
+    {
+      "token": "cabeca",
+      "count": 29,
+      "as_query": 0,
+      "as_desc": 29
+    },
+    {
+      "token": "iog",
+      "count": 29,
+      "as_query": 0,
+      "as_desc": 29
+    },
+    {
+      "token": "emb",
+      "count": 29,
+      "as_query": 0,
+      "as_desc": 29
+    },
+    {
+      "token": "vasilhame",
+      "count": 29,
+      "as_query": 0,
+      "as_desc": 29
+    },
+    {
+      "token": "farofa",
+      "count": 28,
+      "as_query": 0,
+      "as_desc": 28
+    },
+    {
+      "token": "nissin",
+      "count": 28,
+      "as_query": 0,
+      "as_desc": 28
+    },
+    {
+      "token": "limp",
+      "count": 28,
+      "as_query": 0,
+      "as_desc": 28
+    },
+    {
+      "token": "moida",
+      "count": 27,
+      "as_query": 0,
+      "as_desc": 27
+    },
+    {
+      "token": "mucilon",
+      "count": 27,
+      "as_query": 0,
+      "as_desc": 27
+    },
+    {
+      "token": "chicl",
+      "count": 27,
+      "as_query": 0,
+      "as_desc": 27
+    },
+    {
+      "token": "sonrisal",
+      "count": 25,
+      "as_query": 0,
+      "as_desc": 25
+    },
+    {
+      "token": "puro",
+      "count": 25,
+      "as_query": 0,
+      "as_desc": 25
+    },
+    {
+      "token": "gulao",
+      "count": 24,
+      "as_query": 0,
+      "as_desc": 24
+    },
+    {
+      "token": "combo",
+      "count": 24,
+      "as_query": 0,
+      "as_desc": 24
+    },
+    {
+      "token": "vitarella",
+      "count": 24,
+      "as_query": 0,
+      "as_desc": 24
+    },
+    {
+      "token": "nestle",
+      "count": 24,
+      "as_query": 0,
+      "as_desc": 24
+    },
+    {
+      "token": "nego",
+      "count": 24,
+      "as_query": 0,
+      "as_desc": 24
+    },
+    {
+      "token": "gomets",
+      "count": 23,
+      "as_query": 0,
+      "as_desc": 23
+    },
+    {
+      "token": "bono",
+      "count": 23,
+      "as_query": 0,
+      "as_desc": 23
+    },
+    {
+      "token": "embare",
+      "count": 23,
+      "as_query": 0,
+      "as_desc": 23
+    },
+    {
+      "token": "yokitos",
+      "count": 23,
+      "as_query": 0,
+      "as_desc": 23
+    },
+    {
+      "token": "asa",
+      "count": 23,
+      "as_query": 0,
+      "as_desc": 23
+    },
+    {
+      "token": "shupinho",
+      "count": 22,
+      "as_query": 0,
+      "as_desc": 22
+    },
+    {
+      "token": "sch",
+      "count": 22,
+      "as_query": 0,
+      "as_desc": 22
+    },
+    {
+      "token": "botao",
+      "count": 22,
+      "as_query": 0,
+      "as_desc": 22
+    },
+    {
+      "token": "morango",
+      "count": 21,
+      "as_query": 0,
+      "as_desc": 21
+    },
+    {
+      "token": "steak",
+      "count": 21,
+      "as_query": 0,
+      "as_desc": 21
+    },
+    {
+      "token": "mordedor",
+      "count": 21,
+      "as_query": 0,
+      "as_desc": 21
+    },
+    {
+      "token": "club",
+      "count": 21,
+      "as_query": 0,
+      "as_desc": 21
+    },
+    {
+      "token": "embalagem",
+      "count": 21,
+      "as_query": 0,
+      "as_desc": 21
+    },
+    {
+      "token": "misto",
+      "count": 20,
+      "as_query": 0,
+      "as_desc": 20
+    },
+    {
+      "token": "hamb",
+      "count": 20,
+      "as_query": 0,
+      "as_desc": 20
+    },
+    {
+      "token": "sopa",
+      "count": 20,
+      "as_query": 0,
+      "as_desc": 20
+    },
+    {
+      "token": "acuc",
+      "count": 20,
+      "as_query": 0,
+      "as_desc": 20
+    },
+    {
+      "token": "banda",
+      "count": 20,
+      "as_query": 0,
+      "as_desc": 20
+    },
+    {
+      "token": "salada",
+      "count": 19,
+      "as_query": 0,
+      "as_desc": 19
+    },
+    {
+      "token": "mista",
+      "count": 19,
+      "as_query": 0,
+      "as_desc": 19
+    },
+    {
+      "token": "muda",
+      "count": 19,
+      "as_query": 0,
+      "as_desc": 19
+    },
+    {
+      "token": "bolinho",
+      "count": 19,
+      "as_query": 0,
+      "as_desc": 19
+    },
+    {
+      "token": "beb",
+      "count": 19,
+      "as_query": 0,
+      "as_desc": 19
+    },
+    {
+      "token": "spish",
+      "count": 19,
+      "as_query": 0,
+      "as_desc": 19
+    },
+    {
+      "token": "cup",
+      "count": 19,
+      "as_query": 0,
+      "as_desc": 19
+    },
+    {
+      "token": "plutonita",
+      "count": 19,
+      "as_query": 0,
+      "as_desc": 19
+    },
+    {
+      "token": "jumbitos",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "balas",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "capsula",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "mol",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "lanche",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "ref",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "wafer",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "pacoca",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "copo",
+      "count": 18,
+      "as_query": 0,
+      "as_desc": 18
+    },
+    {
+      "token": "bom",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "jujuba",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "garrafa",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "empada",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "reizinho",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "lasanha",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "frisco",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "pastel",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "marata",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "risole",
+      "count": 17,
+      "as_query": 0,
+      "as_desc": 17
+    },
+    {
+      "token": "chanin",
+      "count": 16,
+      "as_query": 0,
+      "as_desc": 16
+    },
+    {
+      "token": "ext",
+      "count": 16,
+      "as_query": 0,
+      "as_desc": 16
+    },
+    {
+      "token": "biscuit",
+      "count": 16,
+      "as_query": 0,
+      "as_desc": 16
+    },
+    {
+      "token": "vina",
+      "count": 15,
+      "as_query": 0,
+      "as_desc": 15
+    },
+    {
+      "token": "mix",
+      "count": 15,
+      "as_query": 0,
+      "as_desc": 15
+    },
+    {
+      "token": "val",
+      "count": 15,
+      "as_query": 0,
+      "as_desc": 15
+    },
+    {
+      "token": "cereal",
+      "count": 15,
+      "as_query": 0,
+      "as_desc": 15
+    },
+    {
+      "token": "torta",
+      "count": 15,
+      "as_query": 0,
+      "as_desc": 15
+    },
+    {
+      "token": "acrescimo",
+      "count": 15,
+      "as_query": 0,
+      "as_desc": 15
+    },
+    {
+      "token": "det",
+      "count": 14,
+      "as_query": 0,
+      "as_desc": 14
+    },
+    {
+      "token": "sabon",
+      "count": 14,
+      "as_query": 0,
+      "as_desc": 14
+    },
+    {
+      "token": "add",
+      "count": 14,
+      "as_query": 0,
+      "as_desc": 14
+    },
+    {
+      "token": "raca",
+      "count": 13,
+      "as_query": 0,
+      "as_desc": 13
+    },
+    {
+      "token": "macarr",
+      "count": 13,
+      "as_query": 0,
+      "as_desc": 13
+    },
+    {
+      "token": "barrinha",
+      "count": 13,
+      "as_query": 0,
+      "as_desc": 13
+    },
+    {
+      "token": "paozinho",
+      "count": 13,
+      "as_query": 0,
+      "as_desc": 13
+    },
+    {
+      "token": "sem",
+      "count": 13,
+      "as_query": 0,
+      "as_desc": 13
+    },
+    {
+      "token": "mine",
+      "count": 13,
+      "as_query": 0,
+      "as_desc": 13
+    },
+    {
+      "token": "super",
+      "count": 13,
+      "as_query": 0,
+      "as_desc": 13
+    },
+    {
+      "token": "mussarela",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "composto",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "casa",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "gel",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "caete",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "salgadinhos",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "fio",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "sinha",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "sazon",
+      "count": 12,
+      "as_query": 0,
+      "as_desc": 12
+    },
+    {
+      "token": "feij",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "cuscuz",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "sardinhas",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "sanduiche",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "sensacoes",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "adc",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "gelatina",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "d32r",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "luva",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "achoc",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "natville",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "rac",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "triturador",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "refres",
+      "count": 11,
+      "as_query": 0,
+      "as_desc": 11
+    },
+    {
+      "token": "amendupa",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "frutos",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "recheado",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "docigoma",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "lamen",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "poder",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "pizza",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "lava",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "diploko",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "abridor",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "rosquinha",
+      "count": 10,
+      "as_query": 0,
+      "as_desc": 10
+    },
+    {
+      "token": "base",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "hits",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "hot",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "micanga",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "palito",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "rosa",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "zero",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "tubes",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "granulada",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "yopro",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "rapadura",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "popcroc",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "reizitos",
+      "count": 9,
+      "as_query": 0,
+      "as_desc": 9
+    },
+    {
+      "token": "couve",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "cremosa",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "natural",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "ampola",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "rolete",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "espetinho",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "coringa",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "esm",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "suporte",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "tapa",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "sache",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "acuca",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "fini",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "grao",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "rolo",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "coqueiro",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "limpador",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "preserv",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "sol",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "knorr",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "molico",
+      "count": 8,
+      "as_query": 0,
+      "as_desc": 8
+    },
+    {
+      "token": "alianca",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "soya",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "primor",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "jobipos",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "tapioca",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "bolinhos",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "supino",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "flv",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "tnt",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "negresco",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "topo",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "sabo",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "porta",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "galo",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "baton",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "legumes",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "caldinho",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "niguiri",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "pratic",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "balao",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "bebi",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "fermento",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "sacos",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "chokito",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "aberta",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "beef",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "resfenol",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "mastigaveis",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "cabo",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "embal",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "pedigree",
+      "count": 7,
+      "as_query": 0,
+      "as_desc": 7
+    },
+    {
+      "token": "fibra",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "renata",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "kro",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "comp",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "espremedor",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "empadinhas",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "escondidinho",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "max",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "gastrol",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "kapo",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "pure",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "tramontina",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "sorvete",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "mammamia",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "mort",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "lulitos",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "jobibos",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "neston",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "jogo",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "forminha",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "drops",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "snacks",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "boldo",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "italiano",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "sonho",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "elma",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "even",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "soja",
+      "count": 6,
+      "as_query": 0,
+      "as_desc": 6
+    },
+    {
+      "token": "acmp",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "broa",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "karinto",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "retraco",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "quero",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "pasta",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "baunilha",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "eno",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "massa",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "special",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "grelhaditos",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "perf",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "grd",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "chambinho",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "bon",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "gosto",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "tony",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "sococo",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "lanch",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "marg",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "cream",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "coringuitos",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "salgado",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "fruta",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "porcoes",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "bdj",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "meu",
+      "count": 5,
+      "as_query": 0,
+      "as_desc": 5
+    },
+    {
+      "token": "batedor",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "filezinho",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "enrroladinho",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "olho",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "ral",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "feltrin",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "sumo",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "strepsils",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "seringa",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "vit",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "branco",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "eleve",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "canudos",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "louro",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "ducream",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "seivas",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "galinha",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "pequena",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "croissant",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "toscana",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "esfirra",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "churu",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "cubos",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "palitinhos",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "pirakids",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "crokissimo",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "hidratante",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "pop",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "hidraplex",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "pres",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "torrao",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "ratic",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "stilgrip",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "multiuso",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "torrone",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "locao",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "acafrao",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "lobits",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "tabua",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "tinta",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "folhas",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "pururuca",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "eparema",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "iorgute",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "display",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "blusa",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "bisnaguinha",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "crispy",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "pele",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "form",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "activia",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "treloso",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "ovisco",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "peneira",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "mayara",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "coxa",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "extra",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "cre",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "couro",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "essencia",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "castanha",
+      "count": 4,
+      "as_query": 0,
+      "as_desc": 4
+    },
+    {
+      "token": "flocos",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "supreme",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "bmc",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "pippos",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "frskies",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "cocada",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "tortinha",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "marca",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "danone",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "laminado",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "minhoto",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "cesta",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "hellmanns",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "amassador",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "popcrop",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "pimentinha",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "torfeu",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "cald",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "pirao",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "isca",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "solare",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "pim",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "verdura",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "shot",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "forma",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "sobremesa",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "refrisliv",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "akabe",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "xicara",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "bebida",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "dori",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "perfume",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "bis",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "brasileira",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "picanha",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "abrasivo",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "refresco",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "popshow",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "pega",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "cioccolato",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "alma",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "mandioca",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "espatula",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "carpaccio",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "polidor",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "cartolina",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "choc",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "nat",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "ruffles",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "frita",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "polimax",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "ind",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "del",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "schin",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "cola",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "adic",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "bisnagua",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    },
+    {
+      "token": "plastico",
+      "count": 3,
+      "as_query": 0,
+      "as_desc": 3
+    }
+  ],
+  "synonym_candidates": [
+    {
+      "a": "ovo",
+      "b": "ovos",
+      "heads_compatible": true,
+      "co_success": 713
+    },
+    {
+      "a": "acuc",
+      "b": "acucar",
+      "heads_compatible": true,
+      "co_success": 36
+    },
+    {
+      "a": "maca",
+      "b": "macar",
+      "heads_compatible": true,
+      "co_success": 32
+    },
+    {
+      "a": "mussarela",
+      "b": "queijo",
+      "heads_compatible": true,
+      "co_success": 20
+    },
+    {
+      "a": "feij",
+      "b": "feijao",
+      "heads_compatible": true,
+      "co_success": 18
+    },
+    {
+      "a": "acuca",
+      "b": "acucar",
+      "heads_compatible": true,
+      "co_success": 15
+    },
+    {
+      "a": "macarr",
+      "b": "macarrao",
+      "heads_compatible": true,
+      "co_success": 9
+    },
+    {
+      "a": "maca",
+      "b": "macarr",
+      "heads_compatible": true,
+      "co_success": 6
+    },
+    {
+      "a": "crem",
+      "b": "creme",
+      "heads_compatible": true,
+      "co_success": 4
+    }
+  ],
+  "brand_skip_hints": [
+    {
+      "token": "salg",
+      "as_desc_first": 718
+    },
+    {
+      "token": "sab",
+      "as_desc_first": 318
+    },
+    {
+      "token": "milho",
+      "as_desc_first": 150
+    },
+    {
+      "token": "mac",
+      "as_desc_first": 129
+    },
+    {
+      "token": "hamburguer",
+      "as_desc_first": 125
+    },
+    {
+      "token": "lixa",
+      "as_desc_first": 124
+    },
+    {
+      "token": "friskies",
+      "as_desc_first": 123
+    },
+    {
+      "token": "mini",
+      "as_desc_first": 115
+    },
+    {
+      "token": "chicle",
+      "as_desc_first": 115
+    },
+    {
+      "token": "bala",
+      "as_desc_first": 114
+    },
+    {
+      "token": "fandangos",
+      "as_desc_first": 104
+    },
+    {
+      "token": "cheetos",
+      "as_desc_first": 101
+    },
+    {
+      "token": "miojo",
+      "as_desc_first": 97
+    },
+    {
+      "token": "macar",
+      "as_desc_first": 96
+    },
+    {
+      "token": "caramelo",
+      "as_desc_first": 95
+    },
+    {
+      "token": "mist",
+      "as_desc_first": 89
+    },
+    {
+      "token": "semente",
+      "as_desc_first": 87
+    },
+    {
+      "token": "pacoquita",
+      "as_desc_first": 86
+    },
+    {
+      "token": "resfriliv",
+      "as_desc_first": 80
+    },
+    {
+      "token": "pate",
+      "as_desc_first": 75
+    },
+    {
+      "token": "maggi",
+      "as_desc_first": 74
+    },
+    {
+      "token": "toalha",
+      "as_desc_first": 70
+    },
+    {
+      "token": "file",
+      "as_desc_first": 69
+    },
+    {
+      "token": "porcao",
+      "as_desc_first": 68
+    },
+    {
+      "token": "polpa",
+      "as_desc_first": 68
+    },
+    {
+      "token": "bisc",
+      "as_desc_first": 68
+    },
+    {
+      "token": "empanado",
+      "as_desc_first": 66
+    },
+    {
+      "token": "whiskas",
+      "as_desc_first": 66
+    },
+    {
+      "token": "mistura",
+      "as_desc_first": 65
+    },
+    {
+      "token": "bisnaga",
+      "as_desc_first": 64
+    },
+    {
+      "token": "doce",
+      "as_desc_first": 64
+    }
+  ],
+  "promoted_synonym_groups": [],
+  "meta": {
+    "n_records": 10000,
+    "n_usable": 8863,
+    "n_skipped_fetch": 3,
+    "n_skipped_empty": 1134,
+    "min_head_count": 3,
+    "min_co_success": 2,
+    "note": "synonym_candidates are NOT production synonyms. Promote via reviewed promoted_synonym_groups only."
+  }
+}
