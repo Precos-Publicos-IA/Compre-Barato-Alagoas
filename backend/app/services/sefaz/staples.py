@@ -126,6 +126,44 @@ def unique_fetch_terms(terms: list[str] | None = None) -> list[str]:
     return out
 
 
+def _strip_accents(s: str) -> str:
+    import unicodedata
+
+    nk = unicodedata.normalize("NFKD", s)
+    return "".join(c for c in nk if not unicodedata.combining(c))
+
+
+def _fold_term(s: str) -> str:
+    """casefold + strip accents for staple map keys."""
+    return _strip_accents(s.strip()).casefold()
+
+
+def staple_effective_term(user_term: str) -> str | None:
+    """Best static SEFAZ rewrite for a user staple label (no Redis required).
+
+    Used as cold-start fallback when RAG zsets are empty so prewarm of
+    ``feijao`` / ``ovos`` still helps accented or singular user queries after
+    the requester rewrites them to the shared effective term.
+    """
+    if not user_term or not str(user_term).strip():
+        return None
+    # Lazy map: folded user label -> (weight, effective)
+    global _STAPLE_EFFECTIVE_BY_USER  # noqa: PLW0603 — module cache
+    if _STAPLE_EFFECTIVE_BY_USER is None:
+        m: dict[str, tuple[int, str]] = {}
+        for user, effective, weight in STAPLE_RAG_MAPPINGS:
+            k = _fold_term(user)
+            prev = m.get(k)
+            if prev is None or weight > prev[0]:
+                m[k] = (weight, effective)
+        _STAPLE_EFFECTIVE_BY_USER = m
+    hit = _STAPLE_EFFECTIVE_BY_USER.get(_fold_term(user_term))
+    return hit[1] if hit else None
+
+
+_STAPLE_EFFECTIVE_BY_USER: dict[str, tuple[int, str]] | None = None
+
+
 CORE_STAPLE_FETCH_SET = frozenset(
     {
         "arroz",

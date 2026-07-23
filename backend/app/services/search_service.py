@@ -11,6 +11,7 @@ import asyncio
 import hashlib
 import logging
 import time
+import unicodedata
 
 from fastapi import BackgroundTasks
 
@@ -37,11 +38,20 @@ from .sefaz.models import PesquisaResponse
 logger = logging.getLogger(__name__)
 
 
+def _fold_cache_term(term: str) -> str:
+    """Lower + strip accents so prewarm ``feijao`` hits user ``feijão``."""
+    nk = unicodedata.normalize("NFKD", (term or "").strip())
+    bare = "".join(c for c in nk if not unicodedata.combining(c))
+    return bare.casefold()
+
+
 def _cache_key(
     term: str, lat: float, lon: float, radius: int, days: int, source: str = ""
 ) -> str:
     # Include data source so mock / API / web results never share a cache slot.
-    raw = f"{term.lower()}|{lat:.4f}|{lon:.4f}|{radius}|{days}|{source}"
+    # Accent-fold so Brazilian Portuguese variants share one SEFAZ cache slot
+    # (deploy prewarm uses unaccented STAPLE_FETCH_TERMS; users type accents).
+    raw = f"{_fold_cache_term(term)}|{lat:.4f}|{lon:.4f}|{radius}|{days}|{source}"
     digest = hashlib.sha256(raw.encode()).hexdigest()[:16]
     return f"sefaz:search:{digest}"
 

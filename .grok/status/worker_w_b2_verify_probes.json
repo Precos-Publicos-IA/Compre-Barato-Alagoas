@@ -1,0 +1,551 @@
+{
+  "task": "W-b2-verify",
+  "evaluated_at": "2026-07-23T19:44:31.450144+00:00",
+  "base": "https://alagoas.precospublicos.ia.br",
+  "geo": {
+    "latitude": -9.6633,
+    "longitude": -35.7089,
+    "radius_km": 8,
+    "days": 7
+  },
+  "concurrency": 1,
+  "timeout_s": 120,
+  "terms": [
+    "arroz",
+    "feijão",
+    "leite",
+    "óleo",
+    "ovo",
+    "café",
+    "açúcar"
+  ],
+  "prewarm_wiring": {
+    "confirmed": true,
+    "script": "deploy/prewarm-staples.sh",
+    "hook": "deploy/remote-update.sh PREWARM_STAPLES default=1",
+    "ship_sha": "9ec6775",
+    "health_live": "ok"
+  },
+  "baseline_overall_eval": {
+    "source": ".grok/status/eval_overall_live_probes.json",
+    "staple_found_rate": 0.4286,
+    "staple_fetch_fail_rate": 0.5714,
+    "p50_ms_all_19": 36594.7,
+    "tags": {
+      "arroz": "good_top",
+      "feijão": "empty_fetch_failed",
+      "leite": "weak_top",
+      "óleo": "empty_fetch_failed",
+      "ovo": "good_top",
+      "café": "empty_fetch_failed",
+      "açúcar": "empty_fetch_failed"
+    }
+  },
+  "pass1": {
+    "summary": {
+      "pass": "1_initial",
+      "n": 7,
+      "http_200": 7,
+      "found_n": 1,
+      "found_rate": 0.1429,
+      "fetch_fail_n": 6,
+      "fetch_fail_rate": 0.8571,
+      "empty_fetch_fail_n": 6,
+      "approx_55s_empties": 6,
+      "p50_latency_found_ms": 795.1,
+      "p50_latency_all_ms": 55702.1,
+      "p95_latency_all_ms": 55709.2,
+      "mean_latency_all_ms": 47858.3,
+      "queries_found": [
+        "arroz"
+      ],
+      "queries_fetch_failed": [
+        "feijão",
+        "leite",
+        "óleo",
+        "ovo",
+        "café",
+        "açúcar"
+      ],
+      "queries_empty": [
+        "feijão",
+        "leite",
+        "óleo",
+        "ovo",
+        "café",
+        "açúcar"
+      ]
+    },
+    "probes": [
+      {
+        "query": "arroz",
+        "http": 200,
+        "latency_ms": 795.1,
+        "error": null,
+        "stores": 5,
+        "match_rate": null,
+        "data_source": null,
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "top_description": "Arroz Shari Und",
+        "ts": "2026-07-23T19:34:06Z",
+        "notes": "from_killed_run"
+      },
+      {
+        "query": "feijão",
+        "http": 200,
+        "latency_ms": 55689.6,
+        "error": null,
+        "stores": 0,
+        "match_rate": null,
+        "data_source": null,
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [],
+        "top_description": null,
+        "ts": "2026-07-23T19:35:03Z",
+        "notes": "from_killed_run"
+      },
+      {
+        "query": "leite",
+        "http": 200,
+        "latency_ms": 55706.3,
+        "error": null,
+        "stores": 0,
+        "match_rate": null,
+        "data_source": null,
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [],
+        "top_description": null,
+        "ts": "2026-07-23T19:36:00Z",
+        "notes": "from_killed_run"
+      },
+      {
+        "query": "óleo",
+        "http": 200,
+        "latency_ms": 55698.8,
+        "error": null,
+        "stores": 0,
+        "match_rate": null,
+        "data_source": null,
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [],
+        "top_description": null,
+        "ts": "2026-07-23T19:36:57Z",
+        "notes": "from_killed_run"
+      },
+      {
+        "query": "ovo",
+        "http": 200,
+        "latency_ms": 55710.4,
+        "error": null,
+        "stores": 0,
+        "match_rate": null,
+        "data_source": null,
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [],
+        "top_description": null,
+        "ts": "2026-07-23T19:37:54Z",
+        "notes": "from_killed_run"
+      },
+      {
+        "query": "café",
+        "http": 200,
+        "latency_ms": 55702.1,
+        "error": null,
+        "stores": 0,
+        "match_rate": null,
+        "data_source": null,
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [],
+        "top_description": null,
+        "ts": "2026-07-23T19:38:51Z",
+        "notes": "from_killed_run"
+      },
+      {
+        "query": "açúcar",
+        "http": 200,
+        "latency_ms": 55705.8,
+        "error": null,
+        "stores": 0,
+        "match_rate": 0.0,
+        "data_source": "web",
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [
+          "açúcar"
+        ],
+        "top_description": null,
+        "ts": "2026-07-23T19:40:41.399146+00:00"
+      }
+    ],
+    "verdict_vs_baseline": "REGRESSED"
+  },
+  "pass2": {
+    "summary": {
+      "pass": "2_warm",
+      "n": 7,
+      "http_200": 5,
+      "found_n": 2,
+      "found_rate": 0.2857,
+      "fetch_fail_n": 3,
+      "fetch_fail_rate": 0.4286,
+      "empty_fetch_fail_n": 3,
+      "approx_55s_empties": 3,
+      "p50_latency_found_ms": 27279.4,
+      "p50_latency_all_ms": 53771.5,
+      "p95_latency_all_ms": 55716.8,
+      "mean_latency_all_ms": 31864.1,
+      "queries_found": [
+        "arroz",
+        "açúcar"
+      ],
+      "queries_fetch_failed": [
+        "óleo",
+        "ovo",
+        "café"
+      ],
+      "queries_empty": [
+        "feijão",
+        "leite",
+        "óleo",
+        "ovo",
+        "café"
+      ]
+    },
+    "probes": [
+      {
+        "query": "arroz",
+        "http": 200,
+        "latency_ms": 787.2,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "top_description": "Arroz Shari Und",
+        "ts": "2026-07-23T19:40:42.186493+00:00"
+      },
+      {
+        "query": "feijão",
+        "http": 502,
+        "latency_ms": 679.1,
+        "error": "HTTP Error 502: Bad Gateway",
+        "stores": 0,
+        "match_rate": null,
+        "data_source": null,
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "top_description": null,
+        "ts": "2026-07-23T19:40:43.866112+00:00"
+      },
+      {
+        "query": "leite",
+        "http": 502,
+        "latency_ms": 675.6,
+        "error": "HTTP Error 502: Bad Gateway",
+        "stores": 0,
+        "match_rate": null,
+        "data_source": null,
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "top_description": null,
+        "ts": "2026-07-23T19:40:45.541916+00:00"
+      },
+      {
+        "query": "óleo",
+        "http": 200,
+        "latency_ms": 55720.6,
+        "error": null,
+        "stores": 0,
+        "match_rate": 0.0,
+        "data_source": "web",
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [
+          "óleo"
+        ],
+        "top_description": null,
+        "ts": "2026-07-23T19:41:42.262770+00:00"
+      },
+      {
+        "query": "ovo",
+        "http": 200,
+        "latency_ms": 55706.8,
+        "error": null,
+        "stores": 0,
+        "match_rate": 0.0,
+        "data_source": "web",
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [
+          "ovo"
+        ],
+        "top_description": null,
+        "ts": "2026-07-23T19:42:38.969833+00:00"
+      },
+      {
+        "query": "café",
+        "http": 200,
+        "latency_ms": 55707.9,
+        "error": null,
+        "stores": 0,
+        "match_rate": 0.0,
+        "data_source": "web",
+        "items_fetch_failed": 1,
+        "fetch_failed_labels": [
+          "café"
+        ],
+        "top_description": null,
+        "ts": "2026-07-23T19:43:35.678038+00:00"
+      },
+      {
+        "query": "açúcar",
+        "http": 200,
+        "latency_ms": 53771.5,
+        "error": null,
+        "stores": 5,
+        "match_rate": 1.0,
+        "data_source": "web",
+        "items_fetch_failed": 0,
+        "fetch_failed_labels": [],
+        "top_description": "ACUCAR PINDORAMA 1KG",
+        "ts": "2026-07-23T19:44:30.449866+00:00"
+      }
+    ],
+    "verdict_vs_baseline": "REGRESSED"
+  },
+  "verdict": "HARD_BLOCK",
+  "accent_comparison": {
+    "ts": "2026-07-23T19:49:46.481824+00:00",
+    "rows": [
+      {
+        "q": "feijão",
+        "http": 200,
+        "ms": 55712.1,
+        "stores": 0,
+        "fail": 1,
+        "labels": [
+          "feijão"
+        ],
+        "src": null,
+        "match_rate": 0.0,
+        "top": null,
+        "err": null
+      },
+      {
+        "q": "feijao",
+        "http": 200,
+        "ms": 53986.4,
+        "stores": 5,
+        "fail": 0,
+        "labels": [],
+        "src": null,
+        "match_rate": 1.0,
+        "top": "FEIJAO CARIOCA SPECIAL TP1 1KG",
+        "err": null
+      },
+      {
+        "q": "óleo",
+        "http": 200,
+        "ms": 734.9,
+        "stores": 5,
+        "fail": 0,
+        "labels": [],
+        "src": null,
+        "match_rate": 1.0,
+        "top": "OLEO DE SOJA SOYA 900ML",
+        "err": null
+      },
+      {
+        "q": "oleo",
+        "http": 200,
+        "ms": 736.0,
+        "stores": 5,
+        "fail": 0,
+        "labels": [],
+        "src": null,
+        "match_rate": 1.0,
+        "top": "OLEO DE SOJA SOYA 900ML",
+        "err": null
+      },
+      {
+        "q": "ovo",
+        "http": 200,
+        "ms": 55699.3,
+        "stores": 0,
+        "fail": 1,
+        "labels": [
+          "ovo"
+        ],
+        "src": null,
+        "match_rate": 0.0,
+        "top": null,
+        "err": null
+      },
+      {
+        "q": "ovos",
+        "http": 200,
+        "ms": 53490.9,
+        "stores": 5,
+        "fail": 0,
+        "labels": [],
+        "src": null,
+        "match_rate": 1.0,
+        "top": "OVOS EXTRA STA MARIA LUNA UN",
+        "err": null
+      },
+      {
+        "q": "café",
+        "http": 200,
+        "ms": 900.9,
+        "stores": 5,
+        "fail": 0,
+        "labels": [],
+        "src": null,
+        "match_rate": 1.0,
+        "top": "CAFE GOURMET",
+        "err": null
+      },
+      {
+        "q": "cafe",
+        "http": 200,
+        "ms": 822.9,
+        "stores": 5,
+        "fail": 0,
+        "labels": [],
+        "src": null,
+        "match_rate": 1.0,
+        "top": "CAFE GOURMET",
+        "err": null
+      },
+      {
+        "q": "açúcar",
+        "http": 200,
+        "ms": 815.7,
+        "stores": 5,
+        "fail": 0,
+        "labels": [],
+        "src": null,
+        "match_rate": 1.0,
+        "top": "ACUCAR PINDORAMA 1KG",
+        "err": null
+      },
+      {
+        "q": "acucar",
+        "http": 200,
+        "ms": 788.5,
+        "stores": 5,
+        "fail": 0,
+        "labels": [],
+        "src": null,
+        "match_rate": 1.0,
+        "top": "ACUCAR PINDORAMA 1KG",
+        "err": null
+      },
+      {
+        "q": "leite",
+        "http": 200,
+        "ms": 55699.4,
+        "stores": 0,
+        "fail": 1,
+        "labels": [
+          "leite"
+        ],
+        "src": null,
+        "match_rate": 0.0,
+        "top": null,
+        "err": null
+      }
+    ]
+  },
+  "agent_fix": {
+    "sha_pending": true,
+    "changes": [
+      "search_service._cache_key accent-folds terms (feijão≡feijao)",
+      "requester: staple_effective_term cold-start rewrite (ovo→ovos, feijão→feijao carioca) without Redis RAG",
+      "staples.staple_effective_term from STAPLE_RAG_MAPPINGS"
+    ],
+    "tests": "pytest tests/test_prewarm_staples.py tests/test_empty_cache.py tests/test_rag_agents.py tests/test_llm_mock.py -q → 37 passed"
+  },
+  "phase8_metrics": {
+    "pass1_initial": {
+      "pass": "1_initial",
+      "n": 7,
+      "http_200": 7,
+      "found_n": 1,
+      "found_rate": 0.1429,
+      "fetch_fail_n": 6,
+      "fetch_fail_rate": 0.8571,
+      "empty_fetch_fail_n": 6,
+      "approx_55s_empties": 6,
+      "p50_latency_found_ms": 795.1,
+      "p50_latency_all_ms": 55702.1,
+      "p95_latency_all_ms": 55709.2,
+      "mean_latency_all_ms": 47858.3,
+      "queries_found": [
+        "arroz"
+      ],
+      "queries_fetch_failed": [
+        "feijão",
+        "leite",
+        "óleo",
+        "ovo",
+        "café",
+        "açúcar"
+      ],
+      "queries_empty": [
+        "feijão",
+        "leite",
+        "óleo",
+        "ovo",
+        "café",
+        "açúcar"
+      ]
+    },
+    "pass2_warm": {
+      "pass": "2_warm",
+      "n": 7,
+      "http_200": 5,
+      "found_n": 2,
+      "found_rate": 0.2857,
+      "fetch_fail_n": 3,
+      "fetch_fail_rate": 0.4286,
+      "empty_fetch_fail_n": 3,
+      "approx_55s_empties": 3,
+      "p50_latency_found_ms": 27279.4,
+      "p50_latency_all_ms": 53771.5,
+      "p95_latency_all_ms": 55716.8,
+      "mean_latency_all_ms": 31864.1,
+      "queries_found": [
+        "arroz",
+        "açúcar"
+      ],
+      "queries_fetch_failed": [
+        "óleo",
+        "ovo",
+        "café"
+      ],
+      "queries_empty": [
+        "feijão",
+        "leite",
+        "óleo",
+        "ovo",
+        "café"
+      ]
+    },
+    "baseline_staple_subset": {
+      "source": ".grok/status/eval_overall_live_probes.json",
+      "staple_found_rate": 0.4286,
+      "staple_fetch_fail_rate": 0.5714,
+      "p50_ms_all_19": 36594.7,
+      "tags": {
+        "arroz": "good_top",
+        "feijão": "empty_fetch_failed",
+        "leite": "weak_top",
+        "óleo": "empty_fetch_failed",
+        "ovo": "good_top",
+        "café": "empty_fetch_failed",
+        "açúcar": "empty_fetch_failed"
+      }
+    }
+  },
+  "verdict_detail": "Live accented staple probes still ~55s items_fetch_failed for majority; worse found_rate than overall-eval baseline (1/7 vs 3/7 pass1). SEFAZ upstream flaky (also intermittent 502). Prewarm wiring present but warm path incomplete for accented/singular labels until agent fix deploys."
+}

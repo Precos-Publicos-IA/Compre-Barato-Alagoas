@@ -1,0 +1,143 @@
+{
+  "ts": "2026-07-23T19:49:46.481824+00:00",
+  "rows": [
+    {
+      "q": "feijão",
+      "http": 200,
+      "ms": 55712.1,
+      "stores": 0,
+      "fail": 1,
+      "labels": [
+        "feijão"
+      ],
+      "src": null,
+      "match_rate": 0.0,
+      "top": null,
+      "err": null
+    },
+    {
+      "q": "feijao",
+      "http": 200,
+      "ms": 53986.4,
+      "stores": 5,
+      "fail": 0,
+      "labels": [],
+      "src": null,
+      "match_rate": 1.0,
+      "top": "FEIJAO CARIOCA SPECIAL TP1 1KG",
+      "err": null
+    },
+    {
+      "q": "óleo",
+      "http": 200,
+      "ms": 734.9,
+      "stores": 5,
+      "fail": 0,
+      "labels": [],
+      "src": null,
+      "match_rate": 1.0,
+      "top": "OLEO DE SOJA SOYA 900ML",
+      "err": null
+    },
+    {
+      "q": "oleo",
+      "http": 200,
+      "ms": 736.0,
+      "stores": 5,
+      "fail": 0,
+      "labels": [],
+      "src": null,
+      "match_rate": 1.0,
+      "top": "OLEO DE SOJA SOYA 900ML",
+      "err": null
+    },
+    {
+      "q": "ovo",
+      "http": 200,
+      "ms": 55699.3,
+      "stores": 0,
+      "fail": 1,
+      "labels": [
+        "ovo"
+      ],
+      "src": null,
+      "match_rate": 0.0,
+      "top": null,
+      "err": null
+    },
+    {
+      "q": "ovos",
+      "http": 200,
+      "ms": 53490.9,
+      "stores": 5,
+      "fail": 0,
+      "labels": [],
+      "src": null,
+      "match_rate": 1.0,
+      "top": "OVOS EXTRA STA MARIA LUNA UN",
+      "err": null
+    },
+    {
+      "q": "café",
+      "http": 200,
+      "ms": 900.9,
+      "stores": 5,
+      "fail": 0,
+      "labels": [],
+      "src": null,
+      "match_rate": 1.0,
+      "top": "CAFE GOURMET",
+      "err": null
+    },
+    {
+      "q": "cafe",
+      "http": 200,
+      "ms": 822.9,
+      "stores": 5,
+      "fail": 0,
+      "labels": [],
+      "src": null,
+      "match_rate": 1.0,
+      "top": "CAFE GOURMET",
+      "err": null
+    },
+    {
+      "q": "açúcar",
+      "http": 200,
+      "ms": 815.7,
+      "stores": 5,
+      "fail": 0,
+      "labels": [],
+      "src": null,
+      "match_rate": 1.0,
+      "top": "ACUCAR PINDORAMA 1KG",
+      "err": null
+    },
+    {
+      "q": "acucar",
+      "http": 200,
+      "ms": 788.5,
+      "stores": 5,
+      "fail": 0,
+      "labels": [],
+      "src": null,
+      "match_rate": 1.0,
+      "top": "ACUCAR PINDORAMA 1KG",
+      "err": null
+    },
+    {
+      "q": "leite",
+      "http": 200,
+      "ms": 55699.4,
+      "stores": 0,
+      "fail": 1,
+      "labels": [
+        "leite"
+      ],
+      "src": null,
+      "match_rate": 0.0,
+      "top": null,
+      "err": null
+    }
+  ]
+}

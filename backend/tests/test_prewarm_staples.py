@@ -10,8 +10,10 @@ from app.services.sefaz.staples import (
     CORE_STAPLE_FETCH_SET,
     STAPLE_FETCH_TERMS,
     STAPLE_RAG_MAPPINGS,
+    staple_effective_term,
     unique_fetch_terms,
 )
+from app.services.search_service import _cache_key, _fold_cache_term
 
 
 def test_staple_rag_mappings_well_formed():
@@ -48,6 +50,51 @@ def test_unique_fetch_terms_dedupes_case():
     # Default list has no internal case-dups.
     base = unique_fetch_terms(STAPLE_FETCH_TERMS)
     assert len(base) == len(STAPLE_FETCH_TERMS)
+
+
+def test_staple_effective_term_cold_start():
+    """Static map must rewrite common accented/singular staples without Redis."""
+    assert staple_effective_term("ovo") == "ovos"
+    assert staple_effective_term("feijão") == "feijao carioca"
+    assert staple_effective_term("FEIJAO") == "feijao carioca"
+    assert staple_effective_term("óleo") == "oleo de soja"
+    assert staple_effective_term("café") == "cafe torrado"
+    assert staple_effective_term("açúcar") == "acucar cristal"
+    assert staple_effective_term("leite") == "leite uht"
+    assert staple_effective_term("") is None
+    assert staple_effective_term("xyz-not-a-staple-qqq") is None
+
+
+def test_cache_key_folds_accents():
+    """Prewarm unaccented terms must share slots with accented user queries."""
+    assert _fold_cache_term("Feijão") == _fold_cache_term("feijao")
+    assert _fold_cache_term("açúcar") == _fold_cache_term("acucar")
+    a = _cache_key("feijão", -9.6633, -35.7089, 8, 7, source="web")
+    b = _cache_key("feijao", -9.6633, -35.7089, 8, 7, source="web")
+    assert a == b
+    c = _cache_key("óleo", -9.6633, -35.7089, 8, 7, source="web")
+    d = _cache_key("oleo", -9.6633, -35.7089, 8, 7, source="web")
+    assert c == d
+    # Different sources still isolate.
+    assert _cache_key("oleo", -9.6633, -35.7089, 8, 7, source="web") != _cache_key(
+        "oleo", -9.6633, -35.7089, 8, 7, source="mock"
+    )
+
+
+@pytest.mark.asyncio
+async def test_requester_staple_fallback_without_rag():
+    """ovo→ovos etc. must apply even when Redis RAG is empty / rag=None."""
+    from app.services.llm.mock_client import MockLLMClient
+    from app.services.llm.requester import BasicRequester
+
+    req = BasicRequester(inner=MockLLMClient())
+    result = await req.refine_and_parse(["ovo", "feijão", "óleo"], rag=None)
+    by_label = {i.label.casefold(): i.search_term.casefold() for i in result.items}
+    # Labels may be normalized by mock parser; match on search_term content.
+    terms = {i.search_term.casefold() for i in result.items}
+    assert any("ovos" in t for t in terms), terms
+    assert any("feijao" in t for t in terms), terms
+    assert any("oleo" in t for t in terms), terms
 
 
 def test_prewarm_script_exists_and_imports_shared_list():

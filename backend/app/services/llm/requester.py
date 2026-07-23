@@ -15,6 +15,7 @@ from typing import Protocol
 
 from .base import LLMClient, ParsedItem, ParseResult
 from ..rag.store import RAGStore, filter_compatible_terms, rewrite_compatible
+from ..sefaz.staples import staple_effective_term
 
 logger = logging.getLogger(__name__)
 
@@ -47,49 +48,71 @@ class BasicRequester:
             rag = RAGStore(redis=cache.redis)
 
         base = await self.inner.parse_list(raw_items)
-        if rag is None:
-            return base
 
         refined: list[ParsedItem] = []
         rag_hits = 0
+        staple_hits = 0
         for item in base.items:
             label = item.label or item.raw or ""
-            candidates = await rag.lookup_effective_terms(label, limit=4)
-            if not candidates:
-                candidates = await rag.find_similar_effective_terms(
-                    label, limit=4, min_overlap=1
-                )
-            # Also try the raw search_term as a key (still class-filtered).
-            if not candidates and item.search_term != item.label:
-                candidates = await rag.lookup_effective_terms(
-                    item.search_term, limit=4
-                )
-                # Only keep rewrites still compatible with the *user label*.
+            candidates: list[str] = []
+            if rag is not None:
+                candidates = await rag.lookup_effective_terms(label, limit=4)
+                if not candidates:
+                    candidates = await rag.find_similar_effective_terms(
+                        label, limit=4, min_overlap=1
+                    )
+                # Also try the raw search_term as a key (still class-filtered).
+                if not candidates and item.search_term != item.label:
+                    candidates = await rag.lookup_effective_terms(
+                        item.search_term, limit=4
+                    )
+                    # Only keep rewrites still compatible with the *user label*.
+                    candidates = filter_compatible_terms(label, candidates)
+
                 candidates = filter_compatible_terms(label, candidates)
 
-            candidates = filter_compatible_terms(label, candidates)
+            best: str | None = None
+            source = ""
             if candidates:
                 best = candidates[0]
-                if (
-                    best
-                    and best != (item.search_term or "").lower()
-                    and rewrite_compatible(label, best)
-                ):
+                source = "RAG"
+            else:
+                # Cold-start: static staple map (ovo→ovos, feijão→feijao carioca)
+                # so prewarm + shared cache work before Redis RAG is seeded.
+                static = staple_effective_term(label) or staple_effective_term(
+                    item.search_term or ""
+                )
+                if static and rewrite_compatible(label, static):
+                    best = static
+                    source = "staple"
+
+            if (
+                best
+                and best.casefold() != (item.search_term or "").casefold()
+                and rewrite_compatible(label, best)
+            ):
+                if source == "RAG":
                     rag_hits += 1
-                    logger.debug(
-                        "requester: refined %r -> %r (RAG)", item.search_term, best
+                else:
+                    staple_hits += 1
+                logger.debug(
+                    "requester: refined %r -> %r (%s)", item.search_term, best, source
+                )
+                refined.append(
+                    ParsedItem(
+                        raw=item.raw,
+                        label=item.label,
+                        search_term=best,
+                        quantity=item.quantity,
                     )
-                    refined.append(
-                        ParsedItem(
-                            raw=item.raw,
-                            label=item.label,
-                            search_term=best,
-                            quantity=item.quantity,
-                        )
-                    )
-                    continue
+                )
+                continue
             refined.append(item)
 
         if rag_hits:
             logger.info("requester: RAG rewrote %d/%d items", rag_hits, len(refined))
+        if staple_hits:
+            logger.info(
+                "requester: staple map rewrote %d/%d items", staple_hits, len(refined)
+            )
         return ParseResult(items=refined, usage=base.usage)
