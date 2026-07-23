@@ -763,7 +763,7 @@ Phase ship SHAs (filled as phases land):
 
 | Phase | SHA | Notes |
 |-------|-----|-------|
-| 0+1 (M0/M1) | *(set on commit)* | version plumbing + outcome log |
+| 0+1 (M0/M1) | `5a16961` | version plumbing + outcome log |
 | 2 | | auto_label |
 | 3 | | learn_policy |
 | 4 | | offline rescore + live smoke |
