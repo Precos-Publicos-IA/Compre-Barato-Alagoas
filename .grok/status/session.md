@@ -1,51 +1,56 @@
 # Session status
 
-Last update: 2026-07-23T20:00Z W-m4-measure — M4 DONE (Phase 4 offline rescore + live smoke)
+Last update: 2026-07-23T20:15Z W-b2-verify — staple warm/fetch smoke **HARD_BLOCKED** (evidence closed; SLO not green)
 
 ## Project lock
 **HARD** Alagoas only.
 
 ## Goal
-Self-improving matching MVP (`docs/self-improving-matching-plan.md` P0–P4) + staple fetch verification.
+Self-improving matching MVP complete; staple fetch **HARD_BLOCKED** with agent accent fix pending deploy + re-probe.
 
-## Testing policy (session override)
-**Not UI-focused.** Skip full `ui-viewport-qa` matrix / Flutter web matrix / A4–A7 visual ship path for matching work.
-**Required:** backend pytest, API/function e2e (TestClient, scripts against local mock and/or live smoke serial), learn_policy/outcome_log unit tests.
-**Optional only if path touches Flutter:** minimal `flutter test` for that file — never full viewport suite.
+## Testing policy
+Backend/function only for matching — no full UI matrix.
 
 ## Phase
-**Active** — M0–M4 matching MVP measure **DONE**; **B2-verify DONE HARD_BLOCK**; next deploy B2 accent/staple rewrite fix + optional post-deploy live smoke
+**MVP measure loop DONE** — **B2-verify HARD_BLOCKED** (live fetch); next: deploy accent/staple fix + re-smoke; optional P5 lexicon
 
 ## Must-complete
 | # | Status |
 |---|--------|
 | A–K prior | **DONE** |
-| **M0** match_rules_version + baseline | **DONE** `5a16961` W-m0-m1 |
-| **M1** outcome log | **DONE** `5a16961` W-m0-m1 |
-| **M2** auto_label | **DONE** `56ff4a5` W-m2-label — report `worker_w_m2_label_report.md` |
-| **M3** learn_policy v2 | **DONE** `3ae1f52` (feature `cf851c3`) W-m3-learn — report `worker_w_m3_learn_report.md` |
-| **M4** offline rescore + live smoke scripts | **DONE** `cc2807f` W-m4-measure — report `worker_w_m4_measure_report.md` |
-| **B2-verify** staple warm/fetch smoke | **DONE — HARD_BLOCK SEFAZ** (live REGRESSED vs baseline; accent/ovo agent fix in tree, needs deploy) — report `worker_w_b2_verify_report.md` |
-| Commit `docs/self-improving-matching-plan.md` | **DONE** in `5a16961` |
+| **M0** | **DONE** `5a16961` |
+| **M1** | **DONE** `5a16961` |
+| **M2** | **DONE** `56ff4a5` |
+| **M3** | **DONE** `cf851c3` / `3ae1f52` |
+| **M4** | **DONE** `cc2807f` — report `worker_w_m4_measure_report.md` |
+| **B2-verify** | **HARD_BLOCKED** — live REGRESSED (pass1 found 0.14 / fail 0.86; pass2 found 0.29 / fail 0.43 + 502s). Reason: SEFAZ ~55s empties + accent miss (`feijão`≠`feijao` cache) + prewarm insufficient for accented/singular terms. Wiring `PREWARM_STAPLES` OK. Evidence: `worker_w_b2_verify_report.md`, `worker_w_b2_verify_probes.json`, `worker_w_b2_verify_accent_cmp.json`. Fix `9dd136b` needs **deploy + re-smoke** — **not** SLO DONE |
+| Matching plan doc | **DONE** in `5a16961` |
+
+## MVP-S1–S5
+**CLOSED** (M0–M4 definitions met on main).
 
 ## Workers
 | ID | Task |
 |----|------|
-| W-m0-m1 | **DONE** `5a16961` — report `worker_w_m0_m1_report.md` |
-| W-m2-label | **DONE** `56ff4a5` — Phase 2 auto_label; report `worker_w_m2_label_report.md` |
-| W-m3-learn | **DONE** `3ae1f52` — Phase 3 learn_policy v2; report `worker_w_m3_learn_report.md` |
-| W-b2-verify | **DONE** HARD_BLOCK live SEFAZ; accent cache + staple static rewrite fix; report `worker_w_b2_verify_report.md` |
-| W-m4-measure | **DONE** Phase 4 — report `worker_w_m4_measure_report.md` |
+| W-m0…M4 | **DONE** |
+| W-b2-verify | **HARD_BLOCKED** (ticket closed with evidence; warm fetch SLO not met) — report `worker_w_b2_verify_report.md` |
+| Loop-spawned duplicates (if any) | ignore if work already on main; do not re-open M3/M4/B2 verify suite |
+
+## Open / next (spawn only if not already owned)
+1. **Deploy** tip including `9dd136b` accent-fold + staple rewrite; confirm `PREWARM_STAPLES` prewarm
+2. **Re-run** 7-staple serial smoke (CONCURRENCY=1, Maceió); if `leite` still ~55s → pure SEFAZ
+3. **Post-deploy** `match_live_smoke.py` serial (when SEFAZ healthy) — M4 path
+4. Optional **P5** lexicon miner when prioritized
 
 ## Residual
-- Head weak tops; honest-100; plan P5–P7 later
-- **B2 hard-block:** re-probe after deploy of accent/staple rewrite; if `leite` still ~55s fail → SEFAZ only
-- Intermittent live **502** under serial staple load (gateway)
+- **B2 fetch hard-block** until post-deploy re-probe (match track separate from fetch)
+- Head weak tops (queijo snack, peito sopa, alho molho)
+- Offline 10 “regressed good→bad” under stricter head (documented M4)
+- Honest-100 re-eval; intermittent live **502** under serial staple load
+- Plan P6 Flutter feedback wire, P7 model scorer
 
-## Next focus
-- M4 DONE — post-deploy: `PYTHONPATH=backend python3 backend/scripts/match_live_smoke.py` when SEFAZ healthy
-- Deploy B2 agent fix + VPS prewarm; re-run 7-staple serial smoke
-- Plan P5 lexicon miner / P6 Flutter feedback when prioritized
+## Loop note
+10m loop must re-read **git tip + report files on disk** before re-spawning M3/M4/B2. Status lag caused duplicate spawns — B2-verify is **HARD_BLOCKED with evidence**, not an open implement ticket; do not re-run 55s×N suite unless deploying re-verify.
 
-## Matching MVP (M0–M4)
-M0–M4 **DONE** — observe → label → learn → measure scripts. MVP-S1–S5 base loop closed per `docs/self-improving-matching-plan.md`.
+## Hardware note
+Prefer windowed CPU + k10temp; do not over-spawn when must-complete empty.
