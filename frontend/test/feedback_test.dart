@@ -116,11 +116,21 @@ class _FakeApi extends ApiClient {
     required String kind,
     bool? helpful,
     String? item,
+    String? query,
+    String? description,
     String? note,
     String? listId,
     String? deviceToken,
   }) async {
-    feedback.add({'kind': kind, 'helpful': helpful, 'list_id': listId});
+    feedback.add({
+      'kind': kind,
+      'helpful': helpful,
+      'item': item,
+      'query': query,
+      'description': description,
+      'note': note,
+      'list_id': listId,
+    });
     return feedbackSucceeds;
   }
 }
@@ -183,5 +193,54 @@ void main() {
     expect(api.feedback.first['helpful'], true);
     expect(api.feedback.first['list_id'], 'abc123');
     expect(find.text('Obrigado pelo feedback!'), findsOneWidget);
+  });
+
+  testWidgets('wrong_item report sends query + product description (6-S3)',
+      (tester) async {
+    final api = _FakeApi();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        apiClientProvider.overrideWithValue(api),
+        locationServiceProvider.overrideWithValue(_FakeLocation()),
+      ],
+      child: const MaterialApp(home: SearchScreen()),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.textContaining('Arroz').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('VER PREÇOS'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Reportar item errado'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('Reportar item errado'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Reportar item errado'));
+    await tester.pumpAndSettle();
+
+    // Pick the basket item in the dropdown (label from suggestion/basket).
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    // The sheet lists basket labels; FakeApi seeds "Arroz" from suggestion tap.
+    await tester.tap(find.text('Arroz').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('ENVIAR'));
+    await tester.pumpAndSettle();
+
+    expect(api.feedback, hasLength(1));
+    final fb = api.feedback.first;
+    expect(fb['kind'], 'wrong_item');
+    expect(fb['query'], isNotNull);
+    expect((fb['query'] as String).isNotEmpty, isTrue);
+    expect(fb['item'], fb['query']);
+    // FakeApi search returns description = query.toUpperCase() → ARROZ.
+    expect(fb['description'], isNotNull);
+    expect((fb['description'] as String).isNotEmpty, isTrue);
+    expect(fb['list_id'], 'abc123');
   });
 }

@@ -28,7 +28,22 @@ class FeedbackRequest(BaseModel):
         None, description="Thumbs up/down for a results screen (kind='helpful')."
     )
     item: str | None = Field(
-        None, max_length=120, description="Item the feedback refers to, if any."
+        None,
+        max_length=120,
+        description="Legacy user query/label for the line (alias of query).",
+    )
+    query: str | None = Field(
+        None,
+        max_length=120,
+        description="User query/label for the reported line (preferred over item).",
+    )
+    description: str | None = Field(
+        None,
+        max_length=500,
+        description=(
+            "Offending product description from search results "
+            "(used by learn_policy for wrong_item demotion)."
+        ),
     )
     note: str | None = Field(
         None, max_length=500, description="Optional free-text note from the user."
@@ -37,10 +52,29 @@ class FeedbackRequest(BaseModel):
         None, max_length=64, description="The searched list this refers to, if any."
     )
 
-    @field_validator("item", "note")
+    @field_validator("item", "query", "description", "note")
     @classmethod
     def _sanitize_text(cls, v: str | None) -> str | None:
         return _strip_control_chars(v)
+
+    def resolved_query(self) -> str | None:
+        """User label for the line: prefer ``query``, fall back to legacy ``item``."""
+        for candidate in (self.query, self.item):
+            if candidate and candidate.strip():
+                return candidate.strip()
+        return None
+
+    def resolved_description(self) -> str | None:
+        """Product description for learn_policy: prefer ``description``.
+
+        Older clients only sent free-text in ``note``; fall back so demotion still
+        has a signal when description is absent.
+        """
+        if self.description and self.description.strip():
+            return self.description.strip()
+        if self.note and self.note.strip():
+            return self.note.strip()
+        return None
 
 
 class FeedbackAck(BaseModel):

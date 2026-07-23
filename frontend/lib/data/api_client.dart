@@ -240,16 +240,31 @@ class ApiClient {
   /// Sends user feedback on results (👍/👎 or "item errado"). Best-effort and
   /// anonymous by default; a device token is sent only if the caller passes one
   /// (consented devices). Never throws on the UI path — returns false on failure.
+  ///
+  /// For `wrong_item`, pass [query] (user label) and [description] (offending
+  /// product line from results) so learn_policy can demote the mapping.
   Future<bool> submitFeedback({
     required String kind,
     bool? helpful,
     String? item,
+    String? query,
+    String? description,
     String? note,
     String? listId,
     String? deviceToken,
   }) async {
     try {
       final uri = Uri.parse('$_baseUrl/api/v1/feedback');
+      // Prefer explicit query; keep legacy item for older servers / analytics.
+      final qRaw = (query ?? item)?.trim();
+      final qOrNull = (qRaw != null && qRaw.isNotEmpty) ? qRaw : null;
+      final itemOrNull = () {
+        final t = item?.trim();
+        if (t != null && t.isNotEmpty) return t;
+        return qOrNull;
+      }();
+      final dRaw = description?.trim();
+      final dOrNull = (dRaw != null && dRaw.isNotEmpty) ? dRaw : null;
       final resp = await _client.post(
         uri,
         headers: {
@@ -259,7 +274,9 @@ class ApiClient {
         body: jsonEncode({
           'kind': kind,
           'helpful': ?helpful,
-          'item': ?item,
+          'item': ?itemOrNull,
+          'query': ?qOrNull,
+          'description': ?dOrNull,
           'note': ?note,
           'list_id': ?listId,
         }),

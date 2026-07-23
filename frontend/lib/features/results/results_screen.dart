@@ -11,6 +11,7 @@ import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../map/map_screen.dart';
 import '../share/share_service.dart';
+import 'feedback_payload.dart';
 import 'savings.dart';
 import 'search_wait_copy.dart';
 import 'store_card.dart';
@@ -244,7 +245,15 @@ class _Results extends ConsumerWidget {
               deltaFromBest: store.total - bestTotal,
             ),
           if (!response.partial)
-            _FeedbackCard(listId: response.listId, items: items),
+            _FeedbackCard(
+              listId: response.listId,
+              items: items,
+              // Cheapest-first order so the primary product line wins (6-S3).
+              itemDescriptions: itemDescriptionsFromResults(
+                ordered,
+                preferredQueries: items,
+              ),
+            ),
         ],
       ),
     );
@@ -707,8 +716,14 @@ class _FetchFailedBanner extends StatelessWidget {
 }
 
 class _FeedbackCard extends ConsumerStatefulWidget {
-  const _FeedbackCard({required this.listId, required this.items});
+  const _FeedbackCard({
+    required this.listId,
+    required this.items,
+    this.itemDescriptions = const {},
+  });
   final String? listId;
+  /// query/label → non-empty product description from results (for wrong_item).
+  final Map<String, String> itemDescriptions;
   final List<String> items;
 
   @override
@@ -751,7 +766,11 @@ class _FeedbackCardState extends ConsumerState<_FeedbackCard> {
     final sent = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _ReportSheet(items: widget.items, listId: widget.listId),
+      builder: (_) => _ReportSheet(
+        items: widget.items,
+        listId: widget.listId,
+        itemDescriptions: widget.itemDescriptions,
+      ),
     );
     if (sent == true && mounted) setState(() => _done = true);
   }
@@ -820,9 +839,14 @@ class _FeedbackCardState extends ConsumerState<_FeedbackCard> {
 }
 
 class _ReportSheet extends ConsumerStatefulWidget {
-  const _ReportSheet({required this.items, required this.listId});
+  const _ReportSheet({
+    required this.items,
+    required this.listId,
+    this.itemDescriptions = const {},
+  });
   final List<String> items;
   final String? listId;
+  final Map<String, String> itemDescriptions;
 
   @override
   ConsumerState<_ReportSheet> createState() => _ReportSheetState();
@@ -842,10 +866,23 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
   Future<void> _submit() async {
     if (_sending) return;
     setState(() => _sending = true);
+    final query = (_item ?? '').trim();
+    // Prefer product description from results; note is free-text only.
+    final productDesc = query.isEmpty
+        ? null
+        : (widget.itemDescriptions[query] ??
+                widget.itemDescriptions[_item] ??
+                '')
+            .trim();
+    final note = _note.text.trim();
     final ok = await ref.read(apiClientProvider).submitFeedback(
           kind: 'wrong_item',
-          item: _item,
-          note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+          item: query.isEmpty ? null : query,
+          query: query.isEmpty ? null : query,
+          description: (productDesc != null && productDesc.isNotEmpty)
+              ? productDesc
+              : null,
+          note: note.isEmpty ? null : note,
           listId: widget.listId,
         );
     if (!mounted) return;

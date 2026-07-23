@@ -5,7 +5,8 @@ never required. Feedback is stored Redis-native via Analytics and surfaced on th
 admin dashboard so we can spot patterns in bad AI normalization.
 
 ``wrong_item`` also goes through ``learn_policy.on_user_feedback`` so RAG
-mappings are demoted (Phase 3) — analytics alone is not enough.
+mappings are demoted (Phase 3 / Phase 6) — analytics alone is not enough.
+Device tokens are never written into the outcome log or learn path.
 """
 
 from __future__ import annotations
@@ -37,23 +38,29 @@ async def submit_feedback(
     cache: Cache = Depends(get_cache),
     device_token: str | None = Depends(get_device_token),
 ) -> FeedbackAck:
-    del device_token  # reserved for future per-device feedback correlation
+    # Intentionally discarded: never pass into analytics stream, learn_policy,
+    # or outcome log (privacy — 6-S6 / existing LGPD rules).
+    del device_token
+
+    query = body.resolved_query()
+    description = body.resolved_description()
+
     await analytics.record_feedback(
         kind=body.kind,
         helpful=body.helpful,
-        item=body.item,
+        item=query or body.item,
         note=body.note,
         list_id=body.list_id,
     )
     # Production RAG mutations for wrong_item go through learn_policy only.
-    query = (body.item or "").strip()
+    # Best-effort: learn Redis failures must not fail the ACK (6-S5).
     if body.kind == "wrong_item" and query:
         try:
             await on_user_feedback(
                 cache.rag_store(),
                 kind=body.kind,
                 query=query,
-                description=body.note,
+                description=description,
                 list_id=body.list_id,
             )
         except Exception:  # pragma: no cover — never fail the ACK on learn
