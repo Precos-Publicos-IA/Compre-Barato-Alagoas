@@ -2,7 +2,7 @@
 
 **Worker:** W-m6-feedback  
 **Date:** 2026-07-23  
-**Feature commit subject:** `feat(match): wire wrong_item feedback into learn_policy`  
+**Feature commit:** `acf0944` — `feat(match): wire wrong_item feedback into learn_policy`
 **Scope:** backend feedback schema/route + Flutter wrong_item payload + tests  
 **Out of scope:** Phase 7, admin 6.3, full UI matrix, B2 resmoke
 
@@ -53,4 +53,4 @@ cd frontend && flutter test test/feedback_payload_test.dart test/feedback_test.d
 - Admin 6.3 optional counts not shipped.
 
 ## Status
-**M6 DONE** on `main` (feature commit message above). Session SHA recorded after this report is committed.
+**M6 DONE** at `acf0944` on `main`; session records the same feature SHA.

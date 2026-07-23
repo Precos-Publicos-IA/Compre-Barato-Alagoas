@@ -1,6 +1,6 @@
 # Session status
 
-Last update: 2026-07-23 orchestrator/W-m6-feedback — M6 DONE (SHA in follow-up status commit)
+Last update: 2026-07-23 orchestrator/W-m6-feedback — M6 DONE at `acf0944`
 
 ## Project lock
 **HARD** Alagoas only.
@@ -21,7 +21,7 @@ Backend/function only for matching — no full UI matrix. Minimal Flutter test o
 | **M0–M4** | **DONE** (M4 `cc2807f`) |
 | **B2-verify** | **DONE** — resmoke found 6/7 fail 1/7; residual `leite` SEFAZ only — reports `worker_w_b2_resmoke_*` |
 | **M5** lexicon | **DONE** `4d591ea` — report `worker_w_m5_lexicon_report.md` |
-| **M6** feedback wire-through | **DONE** — report `worker_w_m6_feedback_report.md` (feature commit subject below) |
+| **M6** feedback wire-through | **DONE** `acf0944` — report `worker_w_m6_feedback_report.md` |
 | Matching plan doc | **DONE** in `5a16961` |
 
 ## Workers
@@ -29,7 +29,7 @@ Backend/function only for matching — no full UI matrix. Minimal Flutter test o
 |----|------|
 | W-m0…M5 | **DONE** |
 | W-b2-resmoke | **DONE** `e7fd355` |
-| W-m6-feedback | **DONE** Phase 6 wrong_item → learn_policy + Flutter description payload |
+| W-m6-feedback | **DONE** `acf0944` Phase 6 wrong_item → learn_policy + Flutter description payload |
 
 ## Residual
 - `leite` SEFAZ ~55s (external)
