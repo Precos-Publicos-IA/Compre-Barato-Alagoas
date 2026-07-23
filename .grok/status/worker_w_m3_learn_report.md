@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Worker** | W-m3-learn |
-| **Ship SHA** | (see Git section — tip after wrong_item multi-target demote) |
+| **Ship SHA** | `3ae1f52f7a8441a8ec950818be7c25653413cd0e` (`3ae1f52`) |
 | **Feature SHA** | `cf851c34f0709a95582970fd35756c1d53124a2c` (`cf851c3`) learn_policy v2 |
 | **When (UTC)** | 2026-07-23 |
 | **Plan** | `docs/self-improving-matching-plan.md` Phase 3 |
@@ -85,7 +85,7 @@ app/services/llm/verifier.py     → on_search_item_result only (no await rag.re
 ```text
 cf851c3 feat(match): Phase 3 learn_policy v2 (single door for RAG mutations)
 5080229 test(match): API wrong_item demote + M3 report SHA
-<tip>    fix(match): wrong_item clears all rewrites when term unknown
+3ae1f52 fix(match): wrong_item clears all rewrites when term unknown
 ```
 
-Primary feature: `cf851c3`. Tip SHA filled after commit/push.
+Primary feature: `cf851c3`. Tip (3-S9 green + API demote): `3ae1f52`.
