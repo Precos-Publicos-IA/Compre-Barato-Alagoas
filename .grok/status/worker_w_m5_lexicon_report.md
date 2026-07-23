@@ -2,6 +2,8 @@
 
 **Worker:** W-m5-lexicon  
 **Date:** 2026-07-23  
+**Commit:** `4d591ea`
+
 **Commit intent:** `feat(match): lexicon mining from outcomes + 10k`  
 **Plan:** `docs/self-improving-matching-plan.md` §Phase 5
 
