@@ -1,20 +1,13 @@
 """Deterministic grocery relevance scoring (zero LLM cost).
 
-Key idea: for staples, the product word must appear as a *primary* token near
-the start of the NFC-e description. Containing "leite" inside a cookie name is
-not a milk hit.
+Key idea: product **head** must align between user intent and NFC-e line.
+Token overlap alone is not identity (``queijo`` ≠ ``pão de queijo``).
+See ``rag/intent.py`` for the structural spine.
 
-PR1 (search quality): package-class priors for staples, hard rejects for
-off-intent oil (coco/tiny) and pasta-as-egg (MAC/MACARR), so ranking cannot
-crown sachets or macarrão "c/ovos" as the shopping answer.
-
-PR2 / match-eval-100 P0: stop egg cross-bleed for non-egg queries; reject
-sal-as-snack, óleo saturado / fish-in-oil, tempero-para-feijão, zero-açúcar
-candy, and café caramel/spice mixes.
-
-PR3 / honest match_eval_100: ignore cross-class RAG search_term poison
-(peito→ovos); reject papel toalha for papel higiênico; require primary
-product token for salsicha / salgadinho / sabão.
+Legacy layers still apply after the head gate:
+- staples primary-token priors and package-class cues
+- PR1 oil/egg package rejects
+- PR2/PR3 noise and residual hard rejects (eggs, sal snacks, …)
 """
 
 from __future__ import annotations
@@ -25,6 +18,7 @@ from dataclasses import dataclass
 
 from ..normalization.matcher import NormalizedOffer
 from ..normalization.quantity import extract_quantity
+from .intent import alignment_verdict
 from .store import rewrite_compatible
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+", re.I)
@@ -732,6 +726,12 @@ def score_description(user_label: str, search_term: str, description: str) -> fl
     )
     if hard is not None:
         return hard
+
+    # Systemic head alignment (label-primary). Reject modifier pollution and
+    # clear head mismatches before bag-of-tokens scoring can rescue them.
+    align = alignment_verdict(label or intent, desc)
+    if align == "reject":
+        return 0.04
 
     overlap = content & desc_toks
     if not overlap:

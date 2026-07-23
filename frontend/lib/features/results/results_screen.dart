@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +12,7 @@ import '../../data/providers.dart';
 import '../map/map_screen.dart';
 import '../share/share_service.dart';
 import 'savings.dart';
+import 'search_wait_copy.dart';
 import 'store_card.dart';
 
 class ResultsScreen extends ConsumerWidget {
@@ -48,7 +52,11 @@ class ResultsScreen extends ConsumerWidget {
       body: AppLayout.constrainContent(
         context: context,
         child: result.when(
-          loading: () => _LoadingProgress(status: status),
+          loading: () => _LoadingProgress(
+            status: status,
+            wait: ref.watch(searchWaitSessionProvider),
+            itemCount: basket.length,
+          ),
           error: (e, _) => _Message(
             icon: Icons.error_outline_rounded,
             text: e.toString(),
@@ -58,14 +66,26 @@ class ResultsScreen extends ConsumerWidget {
           ),
           data: (r) {
             if (r == null) {
-              if (busy) return _LoadingProgress(status: status);
+              if (busy) {
+                return _LoadingProgress(
+                  status: status,
+                  wait: ref.watch(searchWaitSessionProvider),
+                  itemCount: basket.length,
+                );
+              }
               return const _Message(
                 icon: Icons.search_rounded,
                 text: 'Faça uma busca.',
               );
             }
             if (r.stores.isEmpty) {
-              if (busy) return _LoadingProgress(status: status);
+              if (busy) {
+                return _LoadingProgress(
+                  status: status,
+                  wait: ref.watch(searchWaitSessionProvider),
+                  itemCount: basket.length,
+                );
+              }
               return const _Message(
                 icon: Icons.sentiment_dissatisfied_rounded,
                 text: 'Nenhuma loja encontrada por perto.\n'
@@ -78,6 +98,7 @@ class ResultsScreen extends ConsumerWidget {
               response: r,
               items: basket,
               status: busy ? status : null,
+              wait: busy ? ref.watch(searchWaitSessionProvider) : null,
             );
           },
         ),
@@ -123,10 +144,12 @@ class _Results extends ConsumerWidget {
     required this.response,
     required this.items,
     this.status,
+    this.wait,
   });
   final SearchResponse response;
   final List<String> items;
   final String? status;
+  final SearchWaitSession? wait;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -171,7 +194,12 @@ class _Results extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 16),
         children: [
-          if (status != null) _ProgressBanner(message: status!),
+          if (status != null || wait != null)
+            _ProgressBanner(
+              message: status,
+              wait: wait,
+              itemCount: items.length,
+            ),
           // Coverage-first hero: never lead with “economize R$” on thin baskets.
           if (showPrimarySavings)
             _SavingsBanner(savings: savings!, listId: response.listId)
@@ -201,15 +229,56 @@ class _Results extends ConsumerWidget {
   }
 }
 
-class _LoadingProgress extends StatelessWidget {
-  const _LoadingProgress({this.status});
+/// Full-screen wait while SEFAZ/web prices are gathered (often minutes).
+class _LoadingProgress extends StatefulWidget {
+  const _LoadingProgress({
+    this.status,
+    this.wait,
+    this.itemCount = 1,
+  });
   final String? status;
+  final SearchWaitSession? wait;
+  final int itemCount;
+
+  @override
+  State<_LoadingProgress> createState() => _LoadingProgressState();
+}
+
+class _LoadingProgressState extends State<_LoadingProgress> {
+  Timer? _timer;
+  int _phraseIndex = 0;
+
+  int get _etaMinutes =>
+      widget.wait?.etaMinutes ?? estimateSearchEtaMinutes(widget.itemCount);
+
+  bool get _canNotify => widget.wait?.notifyPromise ?? true;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(kSearchWaitPhrasePeriod, (_) {
+      if (!mounted) return;
+      setState(() => _phraseIndex++);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final phrase = searchWaitPhraseAt(_phraseIndex);
+    final serverStatus = widget.status?.trim();
+    final showServer = serverStatus != null &&
+        serverStatus.isNotEmpty &&
+        serverStatus != phrase;
+
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -224,16 +293,52 @@ class _LoadingProgress extends StatelessWidget {
               child: const CircularProgressIndicator(strokeWidth: 3),
             ),
             const SizedBox(height: 20),
-            Text(
-              status ?? 'Buscando preços…',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              child: Text(
+                phrase,
+                key: ValueKey<int>(_phraseIndex),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.ink,
+                    ),
+              ),
             ),
-            const SizedBox(height: 8),
+            if (showServer) ...[
+              const SizedBox(height: 6),
+              Text(
+                serverStatus,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.inkSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+            const SizedBox(height: 14),
+            Text(
+              searchWaitExplainer(etaMinutes: _etaMinutes),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.inkSecondary,
+                    height: 1.4,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            _EtaChip(etaMinutes: _etaMinutes),
+            const SizedBox(height: 14),
+            _NotifyPromiseCard(
+              etaMinutes: _etaMinutes,
+              canNotify: _canNotify,
+            ),
+            const SizedBox(height: 12),
             Text(
               'Os primeiros resultados aparecem assim que cada item for encontrado.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.inkMuted,
+                  ),
             ),
           ],
         ),
@@ -242,12 +347,132 @@ class _LoadingProgress extends StatelessWidget {
   }
 }
 
-class _ProgressBanner extends StatelessWidget {
-  const _ProgressBanner({required this.message});
-  final String message;
+class _EtaChip extends StatelessWidget {
+  const _EtaChip({required this.etaMinutes});
+  final int etaMinutes;
 
   @override
   Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.accentSoft,
+        borderRadius: BorderRadius.circular(AppRadii.pill),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.schedule_rounded, size: 18, color: AppColors.ink),
+          const SizedBox(width: 8),
+          Text(
+            'Tempo estimado: ~$etaMinutes min',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: AppColors.ink,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NotifyPromiseCard extends StatelessWidget {
+  const _NotifyPromiseCard({
+    required this.etaMinutes,
+    required this.canNotify,
+  });
+  final int etaMinutes;
+  final bool canNotify;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: AppColors.outline),
+        boxShadow: appCardShadow(elevation: 0.35),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            canNotify
+                ? Icons.notifications_active_outlined
+                : Icons.notifications_none_rounded,
+            color: AppColors.primaryDark,
+            size: 22,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              searchWaitNotifyLine(
+                etaMinutes: etaMinutes,
+                canNotify: canNotify,
+                isWeb: kIsWeb,
+              ),
+              style: const TextStyle(
+                fontSize: 13.5,
+                height: 1.35,
+                color: AppColors.inkSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgressBanner extends StatefulWidget {
+  const _ProgressBanner({
+    this.message,
+    this.wait,
+    this.itemCount = 1,
+  });
+  final String? message;
+  final SearchWaitSession? wait;
+  final int itemCount;
+
+  @override
+  State<_ProgressBanner> createState() => _ProgressBannerState();
+}
+
+class _ProgressBannerState extends State<_ProgressBanner> {
+  Timer? _timer;
+  int _phraseIndex = 0;
+
+  int get _etaMinutes =>
+      widget.wait?.etaMinutes ?? estimateSearchEtaMinutes(widget.itemCount);
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(kSearchWaitPhrasePeriod, (_) {
+      if (!mounted) return;
+      setState(() => _phraseIndex++);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final phrase = searchWaitPhraseAt(_phraseIndex);
+    final server = widget.message?.trim();
+    final line = (server != null && server.isNotEmpty) ? server : phrase;
+    final canNotify = widget.wait?.notifyPromise ?? true;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -256,22 +481,44 @@ class _ProgressBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.sm),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(strokeWidth: 2.2),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primaryDark,
+          Row(
+            children: [
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2.2),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 280),
+                  child: Text(
+                    line,
+                    key: ValueKey<String>(line),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primaryDark,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            canNotify
+                ? 'Ainda reunindo dados · ~$_etaMinutes min · '
+                    'avisamos por notificação ao terminar'
+                : 'Ainda reunindo dados · tempo estimado ~$_etaMinutes min',
+            style: const TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.inkSecondary,
+              height: 1.3,
             ),
           ),
         ],

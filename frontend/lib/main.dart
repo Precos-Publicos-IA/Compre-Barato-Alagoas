@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme.dart';
 import 'data/providers.dart';
 import 'data/recent_lists.dart';
+import 'data/search_notifications.dart';
 import 'features/results/results_screen.dart';
 import 'features/search/search_screen.dart';
 import 'features/share/share_service.dart';
@@ -21,6 +22,9 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  // Best-effort: prepare local notifications for long search completion pings.
+  // ignore: unawaited_futures
+  SearchNotifications.instance.ensureInitialized();
   runApp(const ProviderScope(child: CompreBaratoApp()));
 }
 

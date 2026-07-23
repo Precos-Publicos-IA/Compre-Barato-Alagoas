@@ -30,6 +30,8 @@ dependencies:
   # Secure storage (Android Keystore) for the pseudo-anonymous device token —
   # it's a bearer credential, so it must not sit in plain shared_preferences.
   flutter_secure_storage: ^9.2.0
+  # Local notification when a long price search finishes (Android/iOS).
+  flutter_local_notifications: ^18.0.1
 
 dev_dependencies:
   flutter_test:

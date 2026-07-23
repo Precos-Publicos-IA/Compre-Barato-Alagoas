@@ -4,8 +4,9 @@ Wraps Redis so agents depend on a narrow interface (not the whole Cache).
 Stores *metadata* about what users type and which SEFAZ search_terms worked —
 never full price catalogs (SEFAZ remains source of truth).
 
-PR3 / honest match_eval_100: never learn or apply cross-class rewrites
-(e.g. peito de frango → ovos) — that poison was the live egg-bleed root cause.
+Never learn or apply cross-class / head-incompatible rewrites
+(e.g. peito de frango → ovos, queijo → pão de queijo). Head alignment is
+the systemic gate (``rag/intent.py``); residual class rules remain as belt.
 """
 
 from __future__ import annotations
@@ -14,6 +15,8 @@ import logging
 import re
 import unicodedata
 from dataclasses import dataclass
+
+from .intent import rewrite_heads_compatible
 
 logger = logging.getLogger(__name__)
 
@@ -102,14 +105,18 @@ def _class_conflict(user_toks: set[str], eff_toks: set[str]) -> bool:
 def rewrite_compatible(user_term: str, effective: str) -> bool:
     """Whether ``effective`` is a safe SEFAZ rewrite for ``user_term``.
 
-    Requires shared content tokens (or synonym group) and no class conflict.
-    Blocks peito de frango→ovos, salsicha→sal, papel higiênico→papel toalha, etc.
+    Primary gate: head-aligned intents (``rewrite_heads_compatible``) so we never
+    learn peito→ovos, queijo→pão de queijo, or drop required ``X de Y`` modifiers.
+    Residual ``_class_conflict`` remains as a belt-and-suspenders check.
     """
     u, e = _norm(user_term), _norm(effective)
     if not u or not e:
         return False
     if u == e:
         return True
+    # Systemic head gate first (no per-product pairs).
+    if not rewrite_heads_compatible(user_term, effective):
+        return False
     ut = _expand_synonyms(content_tokens(u))
     et = _expand_synonyms(content_tokens(e))
     if not ut or not et:

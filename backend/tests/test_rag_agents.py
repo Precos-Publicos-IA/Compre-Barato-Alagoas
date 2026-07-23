@@ -53,9 +53,10 @@ def test_rewrite_compatible_blocks_cross_class_poison():
     assert not rewrite_compatible("sabão em pó", "leite")
     assert not rewrite_compatible("papel higiênico", "papel toalha")
     assert rewrite_compatible("papel higiênico", "papel higienico")
+    # Head order matters: "frango peito" flips head to frango → rejected systemically.
     assert filter_compatible_terms(
         "peito de frango", ["ovos", "peito frango", "frango peito"]
-    ) == ["peito frango", "frango peito"]
+    ) == ["peito frango"]
 
 
 @pytest.mark.asyncio

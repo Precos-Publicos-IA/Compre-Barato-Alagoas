@@ -7,7 +7,11 @@ import 'analytics_id.dart';
 import 'api_client.dart';
 import 'device_identity.dart';
 import 'models.dart';
+import 'search_notifications.dart';
+import 'search_wait_session.dart';
 import 'store_prefs.dart';
+
+export 'search_wait_session.dart';
 
 /// Shared API client.
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
@@ -271,6 +275,19 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
     ref.read(searchBusyProvider.notifier).set(true);
     ref.read(searchStatusProvider.notifier).set('Iniciando busca…');
 
+    // Ask for notification permission early so the wait screen can promise a
+    // completion ping (long SEFAZ/web gathers often take minutes).
+    final canNotify = await SearchNotifications.instance.ensurePermission();
+    if (ref.mounted && generation == _runGeneration) {
+      ref.read(searchWaitSessionProvider.notifier).begin(
+            items.length,
+            notifyPromise: canNotify,
+          );
+    }
+
+    final runStarted = DateTime.now();
+    SearchResponse? finalResult;
+
     try {
       final origin = await ref.read(locationServiceProvider).resolveOrigin();
       final prefs = ref.read(searchPrefsProvider).asData?.value;
@@ -288,7 +305,7 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
       final favorites =
           ref.read(favoriteStoresProvider).asData?.value ?? const {};
 
-      final finalResult = await ref.read(apiClientProvider).searchStream(
+      finalResult = await ref.read(apiClientProvider).searchStream(
             items,
             latitude: origin.latitude,
             longitude: origin.longitude,
@@ -326,6 +343,19 @@ class SearchController extends AsyncNotifier<SearchResponse?> {
     } finally {
       if (ref.mounted && generation == _runGeneration) {
         ref.read(searchBusyProvider.notifier).set(false);
+        ref.read(searchWaitSessionProvider.notifier).clear();
+        // Only ping when the wait was meaningful (avoids noise on warm cache /
+        // unit tests with instant fakes).
+        final elapsed = DateTime.now().difference(runStarted);
+        final result = finalResult ?? state.asData?.value;
+        if (elapsed >= const Duration(seconds: 3) && result != null) {
+          // Fire-and-forget; never block the UI teardown path.
+          // ignore: unawaited_futures
+          SearchNotifications.instance.notifySearchDone(
+            storeCount: result.stores.length,
+            itemsRequested: result.itemsRequested,
+          );
+        }
       }
     }
   }
