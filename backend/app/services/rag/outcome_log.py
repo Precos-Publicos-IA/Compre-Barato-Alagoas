@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 from .intent import MATCH_RULES_VERSION, alignment_verdict, extract_intent
+from .labeler import auto_label as compute_auto_label
 from .relevance import score_description
 
 logger = logging.getLogger(__name__)
@@ -120,7 +121,7 @@ def build_item_outcome(
     analytics_id: str | None = None,
     request_id: str | None = None,
     match_rules_version: str | None = None,
-    auto_label: str = "unknown",
+    auto_label: str | None = None,
     ts: str | None = None,
 ) -> dict[str, Any]:
     """Build one privacy-safe outcome dict (no I/O)."""
@@ -149,6 +150,21 @@ def build_item_outcome(
     else:
         align = alignment_verdict(q, descs[0])
 
+    # Real auto_label from labeler (Phase 2); caller may override for tests.
+    if auto_label is None:
+        top_desc = descs[0] if descs else None
+        top_score = scores[0] if scores else None
+        label = compute_auto_label(
+            q,
+            top_desc,
+            fetch_failed=bool(items_fetch_failed),
+            score=top_score,
+            stores_found=int(stores_found),
+            search_term=st,
+        )
+    else:
+        label = auto_label or "unknown"
+
     record: dict[str, Any] = {
         "ts": ts or datetime.now(timezone.utc).isoformat(),
         "request_id": request_id or uuid.uuid4().hex,
@@ -163,7 +179,7 @@ def build_item_outcome(
         "top_descriptions": descs,
         "top_scores": scores,
         "alignment_top": align,
-        "auto_label": auto_label or "unknown",
+        "auto_label": label,
         "stores_found": int(stores_found),
     }
     if list_id:
