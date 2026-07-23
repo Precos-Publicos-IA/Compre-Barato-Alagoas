@@ -173,11 +173,15 @@ async def on_user_feedback(
 ) -> LearnResult:
     """Apply user feedback to RAG (plan §3.3).
 
-    ``wrong_item`` with a query demotes the effective mapping (or query itself)
-    and records a miss — **never** success.
+    ``wrong_item`` with a query demotes the effective mapping(s) and records a
+    miss — **never** success.
+
+    When ``effective_search_term`` is set, only that rewrite is removed.
+    Otherwise every learned rewrite for ``query`` is removed (API often only
+    sends the user item label). ``description`` is logged for ops, not written
+    as a success mapping.
     """
     del list_id  # reserved for future outcome correlation
-    del description  # reserved; demote uses effective term when known
 
     if not learning_enabled():
         return LearnResult("refused_disabled", "MATCH_LEARN off")
@@ -191,10 +195,35 @@ async def on_user_feedback(
         return LearnResult("noop", "missing_query")
 
     if k == "wrong_item":
-        eff = (effective_search_term or q).strip()
-        await rag.record_miss(user_term=q, attempted_search_term=eff)
-        await rag.demote(user_term=q, effective_search_term=eff, remove=True)
-        logger.info("learn_policy: wrong_item demote %r -> %r", q, eff)
+        eff = (effective_search_term or "").strip()
+        if eff:
+            targets = [eff]
+        else:
+            # API path often has only the user label — clear all known rewrites.
+            known = await rag.lookup_effective_terms(q, limit=20)
+            # Also clear any raw zset members (including pre-filter poison rows).
+            try:
+                from .store import _norm  # same keying as RAGStore writes
+
+                raw = await rag.redis.zrevrange(f"rag:effective_for:{_norm(q)}", 0, 19)
+                for r in raw or []:
+                    term = r.decode() if isinstance(r, (bytes, bytearray)) else str(r)
+                    if term and term not in known:
+                        known.append(term)
+            except Exception:  # pragma: no cover
+                logger.debug("wrong_item raw zset scan failed", exc_info=True)
+            targets = known or [q]
+
+        for t in targets:
+            await rag.record_miss(user_term=q, attempted_search_term=t)
+            await rag.demote(user_term=q, effective_search_term=t, remove=True)
+
+        logger.info(
+            "learn_policy: wrong_item demote query=%r targets=%r desc=%r",
+            q,
+            targets,
+            (description or "")[:80],
+        )
         return LearnResult("demote", "wrong_item")
 
     # helpful / other: no RAG mutation from feedback alone

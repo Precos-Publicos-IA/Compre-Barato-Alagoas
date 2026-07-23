@@ -3,7 +3,8 @@
 | Field | Value |
 |-------|--------|
 | **Worker** | W-m3-learn |
-| **Ship SHA** | `cf851c34f0709a95582970fd35756c1d53124a2c` (`cf851c3`) |
+| **Ship SHA** | (see Git section — tip after wrong_item multi-target demote) |
+| **Feature SHA** | `cf851c34f0709a95582970fd35756c1d53124a2c` (`cf851c3`) learn_policy v2 |
 | **When (UTC)** | 2026-07-23 |
 | **Plan** | `docs/self-improving-matching-plan.md` Phase 3 |
 | **Testing policy** | Backend/function first — pytest only; no UI matrix |
@@ -19,7 +20,7 @@
 | **3-S4** | Positive learn **refuses** when best desc has `alignment_verdict == reject` | **PASS** | `test_s4_alignment_reject_refuses` (queijo + PAO DE QUEIJO MINI) |
 | **3-S5** | Positive learn **refuses** when score &lt; `min_score_to_learn` (0.50) | **PASS** | `test_s5_low_score_refuses`; also `test_s5_package_class_false_refuses` |
 | **3-S6** | Positive learn **accepts** happy path and store shows mapping | **PASS** | `test_s6_happy_path_arroz_stores_mapping`; verifier funnel integration |
-| **3-S7** | `on_user_feedback(kind=wrong_item)` demotes/removes and **never** success | **PASS** | `test_s7_wrong_item_demotes_never_success` (spy on `record_success`); API route wires demote |
+| **3-S7** | `on_user_feedback(kind=wrong_item)` demotes/removes and **never** success | **PASS** | `test_s7_wrong_item_demotes_never_success` (spy); item-only API clears all rewrites for query (`test_wrong_item_feedback_demotes_rag_mapping`) |
 | **3-S8** | Env `MATCH_LEARN=0` makes learn_policy a **no-op** for writes | **PASS** | `test_s8_match_learn_off_no_writes` |
 | **3-S9** | `pytest` green including `test_learn_policy.py` | **PASS** | full related suite green (see Commands) |
 
@@ -42,7 +43,8 @@ All required for `record_success`:
 | Event | Action |
 |-------|--------|
 | zero kept offers (not fetch_failed) | `record_miss` |
-| `wrong_item` feedback | `record_miss` + `demote(remove=True)`; never success |
+| `wrong_item` + effective term | `record_miss` + `demote(remove=True)` that rewrite; never success |
+| `wrong_item` item-only (API) | clear **all** learned rewrites for query (+ raw zset poison rows) |
 
 ## Deliverables
 
@@ -80,4 +82,10 @@ app/services/llm/verifier.py     → on_search_item_result only (no await rag.re
 
 ## Git
 
-`cf851c34f0709a95582970fd35756c1d53124a2c` (`cf851c3`)
+```text
+cf851c3 feat(match): Phase 3 learn_policy v2 (single door for RAG mutations)
+5080229 test(match): API wrong_item demote + M3 report SHA
+<tip>    fix(match): wrong_item clears all rewrites when term unknown
+```
+
+Primary feature: `cf851c3`. Tip SHA filled after commit/push.
