@@ -159,6 +159,7 @@ This is the contribution workflow:
 7. If all good, the reviewer will comment LGMT on the github PR.
 8. A scheduled AI agent will look up for open PRs with LGMT from a reviewer every hour. It will review, make minor adjustments if needed, merge — that triggers the CI/CD pipeline — and after that is finished, @ai-deployer will perform any actions requested on the PR description and trigger a symbolic GitHub action with the summary of what was done and what were the results.
 9. Verify the live website and if anything looks broken, make a new PR to fix it.
+10. Test the new features in the live website.
 
 Guidelines:
 
