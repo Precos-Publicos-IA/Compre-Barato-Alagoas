@@ -1,0 +1,7 @@
+# GitHub usernames with reviewer permission.
+# One username per line. Lines starting with # are comments.
+#
+# Add someone: open a PR that adds their username here. Two existing
+# reviewers comment LGTM; the hourly agent merges it.
+# Remove someone: message Viny on Telegram (not a public PR).
+vinybrun

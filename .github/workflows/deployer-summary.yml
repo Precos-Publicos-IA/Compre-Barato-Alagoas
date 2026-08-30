@@ -1,0 +1,80 @@
+# Symbolic run in the Actions tab: the hourly alagoas-ai-deployer job
+# dispatches this after merge + deploy + any @ai-deployer VPS work.
+# It does not change the product; it only publishes a human-readable summary.
+name: Deployer summary
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Merged PR number
+        required: true
+        type: string
+      title:
+        description: PR title
+        required: false
+        type: string
+      summary:
+        description: What was done
+        required: true
+        type: string
+      results:
+        description: What the results were
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Write job summary
+        env:
+          PR: ${{ inputs.pr }}
+          TITLE: ${{ inputs.title }}
+          SUMMARY: ${{ inputs.summary }}
+          RESULTS: ${{ inputs.results }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          def md_escape(s: str) -> str:
+              return (s or "").replace("```", "'''")
+
+          path = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          pr = os.environ.get("PR", "").strip()
+          title = os.environ.get("TITLE", "").strip()
+          summary = md_escape(os.environ.get("SUMMARY", ""))
+          results = md_escape(os.environ.get("RESULTS", ""))
+          heading = f"#{pr}" if pr else "(no PR)"
+          if title:
+              heading = f"{heading} — {title}"
+          path.write_text(
+              "\n".join(
+                  [
+                      "# Deployer summary",
+                      "",
+                      f"**PR:** {heading}",
+                      "",
+                      "## What was done",
+                      "",
+                      "```",
+                      summary,
+                      "```",
+                      "",
+                      "## Results",
+                      "",
+                      "```",
+                      results,
+                      "```",
+                      "",
+                  ]
+              ),
+              encoding="utf-8",
+          )
+          print(f"published summary for PR {pr}")
+          PY
