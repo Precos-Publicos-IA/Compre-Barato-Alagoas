@@ -136,6 +136,11 @@ a single `.env` file that is **never** committed. Step-by-step guide in
 This is the contribution workflow:
 
 1. Clone the repo
+
+    ```bash
+    git clone https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas.git
+    cd Compre-Barato-Alagoas
+    ```
 2. Ask your favorite AI agent to install the dependencies and make it run locally. Ask it to explain the project to you.
 3. Request an API key to access the SEFAZ-AL API for local development: https://economizaalagoas.sefaz.al.gov.br/desenvolvedor.htm (they take a few weeks to respond).
 
