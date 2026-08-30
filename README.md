@@ -143,7 +143,7 @@ This is the contribution workflow:
 4. Analyze the repo and find opportunities for improvement. Then, develop the code, test locally and create a PR.
 
     **4.1** If you need changes to the server, you can change the CICD pipeline or add this to the PR description: `@ai-deployer, change config [a, b and c] and run command [xyz] to [make this thing on the server]`.
-5. Then, you'll have to wait for someone to review it. Send a message on the Telegram group: "Hey, I just created a PR adding [your cool feature]. @Reviewers, please review and merge if all looks good, thank you!" — https://t.me/+NwdJ48hmx_FhNjNh
+5. Then, you'll have to wait for someone to review it. Send a message on the Telegram group (https://t.me/+NwdJ48hmx_FhNjNh): "Hey, I just created a PR adding [your cool feature]. @Reviewers, please review and merge if all looks good, thank you! — [PR link]"
 
     **5.1** The reviewer must have reviewer permission, which is granted when 2 reviewers vouch for someone else.
 
