@@ -178,3 +178,5 @@ agent research outputs live in the private repository
 [Compre-Barato-Alagoas-Privado](https://github.com/Precos-Publicos-IA/Compre-Barato-Alagoas-Privado)
 (team-only access).
 
+
+<!-- deployer-token-probe, safe to ignore -->
