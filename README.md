@@ -138,15 +138,20 @@ This is the contribution workflow:
 1. Clone the repo
 2. Ask your favorite AI agent to install the dependencies and make it run locally. Ask it to explain the project to you.
 3. Request an API key to access the SEFAZ-AL API for local development: https://economizaalagoas.sefaz.al.gov.br/desenvolvedor.htm (they take a few weeks to respond).
-3.1 While you don't have your own API key, you will rely on the one from the official server. Create PRs to merge code to extract the data you need. Or, experiment with the government app (it's slow) https://economizaalagoas.sefaz.al.gov.br/economizaalagoas.htm
+
+    **3.1** While you don't have your own API key, you will rely on the one from the official server. Create PRs to merge code to extract the data you need. Or, experiment with the government app (it's slow) https://economizaalagoas.sefaz.al.gov.br/economizaalagoas.htm
 4. Analyze the repo and find opportunities for improvement. Then, develop the code, test locally and create a PR.
-4.1 If you need changes to the server, you can change the CICD pipeline or add this to the PR description: "@ai-deployer, change config [a, b and c] and run command [xyz] to [make this thing on the server]".
-5. Then, you'll have to wait for someone to review it. Send a message on the Telegram group: "Hey, I just created a PR adding [your cool feature]. @Reviewers, please review and merge if all looks good, thank you! - https://t.me/+NwdJ48hmx_FhNjNh
-5.1 The reviewer must have reviewer permission, which is granted when 2 reviewers vouch for someone else.
-5.2 Reviewers are listed in the "reviewers" file. To add a new reviewer, create a PR, ask two reviewers to comment "LGTM", and it will be merged. Any PR that adds a reviewer can only be merged with 2 LGTM from reviewers.
-5.4 Reviewer removal is done privately. Message Viny on Telegram. Any PR that removes a reviewer is automatically closed.
+
+    **4.1** If you need changes to the server, you can change the CICD pipeline or add this to the PR description: `@ai-deployer, change config [a, b and c] and run command [xyz] to [make this thing on the server]`.
+5. Then, you'll have to wait for someone to review it. Send a message on the Telegram group: "Hey, I just created a PR adding [your cool feature]. @Reviewers, please review and merge if all looks good, thank you!" — https://t.me/+NwdJ48hmx_FhNjNh
+
+    **5.1** The reviewer must have reviewer permission, which is granted when 2 reviewers vouch for someone else.
+
+    **5.2** Reviewers are listed in the "reviewers" file. To add a new reviewer, create a PR, ask two reviewers to comment "LGTM", and it will be merged. Any PR that adds a reviewer can only be merged with 2 LGTM from reviewers.
+
+    **5.4** Reviewer removal is done privately. Message Viny on Telegram. Any PR that removes a reviewer is automatically closed.
 6. If all good, the reviewer will comment LGMT on the github PR.
-7. A scheduled AI agent will look up for open PRs with LGMT from a reviewer every hour. It will review, make minor adjustments if needed, merge - that triggers the CI/CD pipeline - and after that is finished, @ai-deployer will perform any actions requested on the PR description and trigger a symbolic GitHub action with the summary of what was done and what were the results.
+7. A scheduled AI agent will look up for open PRs with LGMT from a reviewer every hour. It will review, make minor adjustments if needed, merge — that triggers the CI/CD pipeline — and after that is finished, @ai-deployer will perform any actions requested on the PR description and trigger a symbolic GitHub action with the summary of what was done and what were the results.
 8. Verify the live website and if anything looks broken, make a new PR to fix it.
 
 Guidelines:
