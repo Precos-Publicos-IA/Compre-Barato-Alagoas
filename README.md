@@ -135,7 +135,7 @@ a single `.env` file that is **never** committed. Step-by-step guide in
 
 This is the contribution workflow:
 
-1. Star the repo to get us more traction
+1. ⭐ Star the repo to get us more traction
 2. Clone the repo
 
     ```bash
