@@ -61,11 +61,15 @@ Rules of thumb:
 
 ## Delivery path: commit to `main` → deploy → live tests
 
-This is a solo-maintainer repo. **Commit verified work directly to `main`.** Do **not**
-create feature branches or open pull requests, and **never** run an autonomous /
-continuous agent that opens or auto-merges PRs on its own authority. (An earlier
-`pr_agent_loop.sh` did exactly that and flooded the repo — it has been removed and
-must not be reintroduced.)
+This is a solo-maintainer repo **plus** an external PR path (see README
+Contributing).
+
+- **Maintainer / in-repo session agents:** commit verified work directly to
+  `main`. Do not open feature-branch PRs for that work.
+- **External contributors:** open PRs. A listed reviewer comments `LGMT` (or
+  `LGTM`). The hourly **alagoas-ai-deployer** job on the operator PC is the
+  **only** allowed auto-merge. Do **not** add another PR bot (an earlier
+  `pr_agent_loop.sh` flooded the repo and must not come back).
 
 ```
 verified change ──commit──► push to main ──► deploy to VPS (auto via CI) ──► live test routine
