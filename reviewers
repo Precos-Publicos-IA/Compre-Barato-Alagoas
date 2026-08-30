@@ -4,7 +4,7 @@
 # Add someone: open a PR that adds their username here. Two existing
 # reviewers comment LGTM; the hourly agent merges it. Adds cannot merge
 # without those 2 LGTM.
-# Remove someone: message Viny on Telegram. Any PR that removes a
+# Remove someone: message Viny on Telegram or LinkedIn. Any PR that removes a
 # reviewer is closed automatically.
 vinybrun
 seyed-mohammadreza-mousavi
