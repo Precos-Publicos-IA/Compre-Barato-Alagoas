@@ -156,7 +156,9 @@ This is the contribution workflow:
     **6.2** Reviewers are listed in the "reviewers" file. To add a new reviewer, create a PR, ask two reviewers to comment "LGTM", and it will be merged. Any PR that adds a reviewer can only be merged with 2 LGTM from reviewers.
 
     **6.4** Reviewer removal is done privately. Message Viny on Telegram or LinkedIn. Any PR that removes a reviewer is automatically closed.
-7. If all good, the reviewer will comment LGMT on the github PR.
+
+    **6.5** Reviewers can approve their own code. An `LGMT` (or `LGTM`) on your own PR counts.
+7. If all good, the reviewer will comment LGMT on the github PR. Reviewers may do this on PRs they authored.
 8. A scheduled AI agent will look up for open PRs with LGMT from a reviewer every hour. It will review, make minor adjustments if needed, merge — that triggers the CI/CD pipeline — and after that is finished, @ai-deployer will perform any actions requested on the PR description and trigger a symbolic GitHub action with the summary of what was done and what were the results.
 9. Verify the live website and if anything looks broken, make a new PR to fix it.
 10. Test the new features in the live website.
